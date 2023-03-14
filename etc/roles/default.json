@@ -1,0 +1,15 @@
+{
+  "any": [],
+  "viewer": [
+    "{root_group}/roles/viewer"
+  ],
+  "admin": [
+    "{root_group}/roles/admin"
+  ],
+  "site-viewer": [
+    "{root_group}/roles/{site}/viewer"
+  ],
+  "site-manager": [
+    "{root_group}/roles/{site}/manager"
+  ]
+}

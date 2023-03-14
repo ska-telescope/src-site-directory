@@ -1,0 +1,39 @@
+version: "3.5"
+services:
+  mongo:
+    container_name: site-directory-mongo
+    image: mongo:5.0.15
+    environment:
+      MONGO_INITDB_DATABASE: site-directory
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    ports:
+      - 27017:27017
+  core:
+    container_name: site-directory-core
+    image: site-directory-core:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      API_PREFIX: http
+      API_HOST: localhost
+      API_PORT: 8080
+      CLIENT_CONF_URL: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
+      CLIENT_NAME: ska
+      CLIENT_SCOPES: openid email profile
+      MONGO_DATABASE: site-directory
+      MONGO_HOST: site-directory-mongo
+      MONGO_PASSWORD: secret
+      MONGO_PORT: 27017
+      MONGO_USERNAME: root
+      PERMISSIONS_ROOT_GROUP: site-directory
+      PERMISSIONS_RELPATH: ../../../etc/permissions
+      PERMISSIONS_NAME: default.json
+      ROLES_RELPATH: ../../../etc/roles
+      ROLES_NAME: default.json
+      SCHEMAS_RELPATH: ../../../etc/schemas
+    ports:
+      - 8080:8080
+    #volumes:
+    #  - /home/eng/SKAO/ska-site-directory:/opt/site_directory

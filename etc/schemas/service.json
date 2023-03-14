@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Service definition schema.",
+  "properties": {
+    "type": {
+      "type": "radios",
+      "title": "Type",
+      "enum": [
+        "Rucio Server",
+        "Rucio Storage Element (RSE)",
+        "Storage Inventory (Global)",
+        "Storage Inventory (Local)",
+        "JupyterHub",
+        "BinderHub",
+        "Dask",
+        "Carta"
+      ],
+      "default": null,
+      "required": true
+    },
+    "externally_accessible": {
+      "type": "string",
+      "title": "Externally accessible?",
+      "enum": [
+        "Yes",
+        "No"
+      ],
+      "required": true
+    },
+    "prefix": {
+      "type": "string",
+      "title": "Prefix",
+      "default": null,
+      "required": false
+    },
+    "host": {
+      "type": "string",
+      "title": "Hostname without prefix or path",
+      "default": null,
+      "required": false
+    },
+    "port": {
+      "type": "number",
+      "title": "Port",
+      "default": null,
+      "required": false
+    },
+    "path": {
+      "type": "string",
+      "title": "Base path",
+      "default": null,
+      "required": false
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Storage definition schema.",
+  "properties": {
+    "latitude": {
+      "type": "number",
+      "title": "Latitude",
+      "default": null,
+      "required": true
+    },
+    "longitude": {
+      "type": "number",
+      "title": "Longitude",
+      "default": null,
+      "required": true
+    },
+    "srm": {
+      "type": "radios",
+      "title": "SRM",
+      "enum": [
+        "storm",
+        "xrd",
+        "ceph"
+      ],
+      "default": "storm",
+      "required": true
+    },
+    "device_type": {
+      "type": "radios",
+      "title": "Device Type",
+      "enum": [
+        "",
+        "HDD",
+        "SSD",
+        "Tape",
+        "Other"
+      ],
+      "default": null,
+      "required": false
+    },
+    "size_in_terabytes": {
+      "type": "number",
+      "title": "Size of storage in TB",
+      "default": null,
+      "required": true
+    },
+    "rucio_rse_identifier": {
+      "type": "string",
+      "title": "Rucio RSE identifier (if exists)",
+      "default": null
+    },
+    "storage_inventory_site_identifier": {
+      "type": "string",
+      "title": "Storage Inventory site identifier (if exists)",
+      "default": null
+    },
+    "supported_protocols": {
+      "type": "array",
+      "items": {
+        "$ref": "storage-access-protocol.json"
+      },
+      "allowEmpty": true
+    }
+  }
+}

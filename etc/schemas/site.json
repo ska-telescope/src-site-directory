@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Site definition schema.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "default": null
+    },
+    "comments": {
+      "type": "textarea",
+      "title": "Name",
+      "required": true
+    },
+    "country": {
+      "type": "string",
+      "$ref": "country.json",
+      "default": null
+    },
+    "primary_contact_email": {
+      "type": "email",
+      "title": "Primary contact email",
+      "default": null,
+      "required": true
+    },
+    "secondary_contact_email": {
+      "type": "email",
+      "title": "Secondary contact email",
+      "default": null,
+      "required": false
+    },
+    "storages": {
+      "type": "array",
+      "items": {
+        "$ref": "storage.json"
+      },
+      "allowEmpty": true
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "$ref": "service.json"
+      },
+      "allowEmpty": true
+    },
+    "other_attributes": {
+      "type": "object",
+      "title": "Other attributes (as json)",
+      "allowEmpty": true
+    }
+  }
+}
