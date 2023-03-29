@@ -62,6 +62,8 @@ The API is constructed using FastAPI. Frontend pages are also served via FastAPI
 
 ## Example deployment
 
+### Docker
+
 Edit the `.env.template` file accordingly and rename to `.env`, then:
 
 ```bash
@@ -73,4 +75,13 @@ Alternatively, if you want to test without AuthN/Z, then remove dependencies for
 
 As usual, if you want to develop with hot-reloading, add a volume mount to the `docker-compose` file. The api will 
 restart on file changes.
+
+### Helm
+
+After editing the `values.yaml` (template in `/etc/helm/`):
+
+```
+$ create namespace src-site-directory
+$ helm install --namespace src-site-directory src-site-directory .
+```
 
