@@ -16,6 +16,7 @@ The repository is structed as follows:
 ├── etc
 │   ├── docker
 │   ├── init
+│   ├── helm
 │   ├── permissions
 │   ├── roles
 │   └── schemas
@@ -28,9 +29,13 @@ The repository is structed as follows:
 
 ### Deployment
 
-Deployment is managed by docker. As such, there exists a `docker-compose` file to bring up the necessary services i.e. 
-the REST API and the mongodb backend, a `Dockerfile` to build the api image and a `.env` to store sensitive credentials 
-related to the IAM client used to provide AuthN/Z.
+Deployment is managed by docker or helm. 
+
+There exists a `docker-compose` file to bring up the necessary services i.e. the REST API and the mongodb backend, 
+a `Dockerfile` to build the api image and a `.env` to store sensitive credentials related to the IAM client used to 
+provide AuthN/Z.
+
+There is also a helm chart for deployment onto a k8s cluster.
 
 ### Authorisation
 

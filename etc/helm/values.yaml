@@ -1,5 +1,5 @@
 image_registry_url: registry.gitlab.com/ska-telescope/src/src-site-directory
-image_tag: srcdev.skao.int
+image_tag: sited.srcdev.skao.int
 svc:
   api:
     api_host: srcdev.skao.int
