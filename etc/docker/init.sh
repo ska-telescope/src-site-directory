@@ -24,3 +24,4 @@ SKA_CLIENT_ID=${SKA_CLIENT_ID}
 SKA_CLIENT_SECRET=${SKA_CLIENT_SECRET}" > .env
 
 uvicorn server:app --host "0.0.0.0" --port 8080 --reload -reload-dir ../common/ --reload-dir ../api/ --reload-dir ../../../etc/ --reload-include *.json
+

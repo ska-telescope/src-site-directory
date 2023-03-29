@@ -1,0 +1,25 @@
+image_registry_url: registry.gitlab.com/ska-telescope/src/src-site-directory
+image_tag: srcdev.skao.int
+svc:
+  api:
+    api_host: srcdev.skao.int
+    api_port: 443
+    api_prefix: https
+    client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
+    client_name: ska
+    client_scopes: "openid email profile"
+    mongo_host: site-directory-mongo
+    mongo_port: 27017
+    permissions_name: default.json
+    permissions_relpath: ../../../etc/permissions
+    permissions_root_group: site-directory
+    roles_name: default.json
+    roles_relpath: ../../../etc/roles
+    schemas_relpath: ../../../etc/schemas
+    session_middleware_secret_key:
+    ska_client_id: 1f901a38-955f-4198-aedb-002332a3c551
+    ska_client_secret:
+  common:
+    mongo_database: site-directory
+    mongo_username: root
+    mongo_password: 
