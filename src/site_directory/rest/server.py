@@ -45,6 +45,8 @@ app.add_middleware(
 
 # Configure OAuth2 client.
 #
+# The <name> specified here must have a corresponding <name>_CLIENT_ID and <name>_CLIENT_SECRET
+# environment variable.
 oauth = OAuth(config)
 oauth.register(
     name=oauth.config.get('CLIENT_NAME'),
