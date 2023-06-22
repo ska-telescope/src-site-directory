@@ -33,7 +33,8 @@ services:
       ROLES_RELPATH: ../../../etc/roles
       ROLES_NAME: default.json
       SCHEMAS_RELPATH: ../../../etc/schemas
+      SESSION_MIDDLEWARE_SECRET_KEY: $SESSION_MIDDLEWARE_SECRET_KEY
+      SKA_CLIENT_ID: $SKA_CLIENT_ID
+      SKA_CLIENT_SECRET: $SKA_CLIENT_SECRET
     ports:
       - 8080:8080
-    #volumes:
-    #  - /home/eng/SKAO/ska-site-directory:/opt/site_directory
