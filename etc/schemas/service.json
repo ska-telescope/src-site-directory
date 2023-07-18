@@ -15,7 +15,8 @@
         "JupyterHub",
         "BinderHub",
         "Dask",
-        "Carta"
+        "Carta",
+        "SODA"
       ],
       "default": null,
       "required": true
