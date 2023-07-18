@@ -57,7 +57,7 @@ oauth.register(
 )
 OAUTH_CLIENT = getattr(oauth, oauth.config.get('CLIENT_NAME'))
 
-## Mount static files and get templates.
+# Mount static files and get templates.
 #
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -72,7 +72,8 @@ backend = MongoBackend(
     mongo_database = oauth.config.get('MONGO_DATABASE')
 )
 
-## Instantiate permissions and roles modules to check authZ for routes.
+
+# Instantiate permissions and roles modules to check authZ for routes.
 #
 permission_definition_abspath = os.path.join(oauth.config.get('PERMISSIONS_RELPATH'),
                                              oauth.config.get('PERMISSIONS_NAME'))
@@ -82,7 +83,8 @@ PERMISSION = Permission(permissions_definition_path=permission_definition_abspat
                         roles_definition_path=roles_definition_abspath,
                         root_group=oauth.config.get('PERMISSIONS_ROOT_GROUP'))
 
-## Function to validate (and return) a token using the introspection endpoint.
+
+# Function to validate (and return) a token using the introspection endpoint.
 #
 async def validate_token_by_remote_introspection(request: Request) -> Union[dict, bool]:
     if request.session.get('user') and request.session.get('access_token'):
@@ -99,7 +101,8 @@ async def validate_token_by_remote_introspection(request: Request) -> Union[dict
         return resp_json
     return False
 
-## Function to check permissions from user token groups.
+
+# Function to check permissions from user token groups.
 #
 async def verify_permission_for_route(request: Request) -> Union[HTTPException, RedirectResponse]:
     introspected_token = await validate_token_by_remote_introspection(request)
@@ -243,6 +246,7 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
 async def list_sites(request: Request) -> JSONResponse:
     rtn = backend.list_site_names_unique()
     return JSONResponse(rtn)
+
 
 @app.get('/storages', dependencies=[Depends(verify_permission_for_route)])
 async def list_storages(request: Request) -> JSONResponse:
