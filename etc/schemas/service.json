@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "type": "object",
   "description": "Service definition schema.",
   "properties": {
@@ -9,6 +9,7 @@
       "enum": [
         "Rucio Server",
         "Rucio Storage Element (RSE)",
+        "Data Ingest Area",
         "Storage Inventory (Global)",
         "Storage Inventory (Local)",
         "JupyterHub",
@@ -51,6 +52,11 @@
       "title": "Base path",
       "default": null,
       "required": false
+    },
+    "other_attributes": {
+      "type": "object",
+      "title": "Other attributes (as json)",
+      "allowEmpty": true
     }
   }
 }

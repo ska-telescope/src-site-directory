@@ -141,6 +141,9 @@ async def login(request: Request):
 
 @app.get('/auth')
 async def auth(request: Request) -> RedirectResponse:
+    print(request)
+    print(dir(request))
+    print(request.scope)
     try:
         token = await OAUTH_CLIENT.authorize_access_token(request)
     except OAuthError as error:
@@ -158,6 +161,11 @@ async def logout(request: Request) -> RedirectResponse:
     request.session.pop('user', None)
     request.session.pop('access_token', None)
     return RedirectResponse(url='/')
+
+
+@app.get('/ping')
+async def ping(request: Request):
+    return JSONResponse('pong')
 
 
 @app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
