@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# install mongodb client to initialise db
-apt-get update -y && apt-get install -y gnupg curl vim
-curl -fsSL https://pgp.mongodb.com/server-6.0.asc | gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-apt-get update -y && apt-get install -y mongodb-org
-
+# initialise mongodb with init
 until mongosh --host $MONGO_HOST --port $MONGO_PORT --eval "print(\"waiting for mongodb to become available\")"
   do
     sleep 5
   done
-
 mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c sites --authenticationDatabase=admin --jsonArray etc/init/sites.json
 
 cd src/site_directory/rest
