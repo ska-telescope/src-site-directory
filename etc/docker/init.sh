@@ -1,11 +1,17 @@
 #!/bin/bash
 
-# initialise mongodb with init
-until mongosh --host $MONGO_HOST --port $MONGO_PORT --eval "print(\"waiting for mongodb to become available\")"
+# wait for mongodb to be running...
+until mongosh --quiet --host $MONGO_HOST --port $MONGO_PORT --eval "print(\"waiting for mongodb to become available\")"
   do
     sleep 5
   done
-mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c sites --authenticationDatabase=admin --jsonArray etc/init/sites.json
+
+# then import if the database collection is empty
+n_docs=`mongosh $MONGO_DATABASE --quiet --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD --authenticationDatabase=admin --eval="db.sites.countDocuments()"`
+if [ "n_docs" -eq "0" ]; then
+   echo "importing documents..."
+   mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c sites --authenticationDatabase=admin --jsonArray etc/init/sites.json
+fi
 
 cd src/site_directory/rest
 

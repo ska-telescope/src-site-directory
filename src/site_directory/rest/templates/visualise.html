@@ -132,11 +132,6 @@
           drawImage(storage, rucioSprite);                    // rucio storages
         }
         {% endif %}
-        {% if (request.query_params.storages == 'si') %}
-        if (storage.properties.si_name != null) {
-          drawImage(storage, cadcSprite);                    // si storages
-        }
-        {% endif %}
       });
   }
 

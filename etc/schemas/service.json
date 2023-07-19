@@ -50,9 +50,14 @@
     },
     "path": {
       "type": "string",
-      "title": "Base path",
+      "title": "Path",
       "default": null,
       "required": false
+    },
+    "identifier": {
+      "type": "string",
+      "title": "Identifier (if applicable)",
+      "default": null
     },
     "other_attributes": {
       "type": "object",

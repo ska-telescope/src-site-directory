@@ -45,14 +45,9 @@
       "default": null,
       "required": true
     },
-    "rucio_rse_identifier": {
+    "identifier": {
       "type": "string",
-      "title": "Rucio RSE identifier (if exists)",
-      "default": null
-    },
-    "storage_inventory_site_identifier": {
-      "type": "string",
-      "title": "Storage Inventory site identifier (if exists)",
+      "title": "Identifier (if applicable)",
       "default": null
     },
     "supported_protocols": {

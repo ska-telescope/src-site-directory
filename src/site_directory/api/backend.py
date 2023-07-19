@@ -107,6 +107,16 @@ class MongoBackend(Backend):
                 latest = site_version
         return latest
 
+    def list_services(self):
+        response = []
+        for site_name in self.list_site_names_unique():
+            full_site_json = self.get_site_version_latest(site_name)
+            response.append({
+                'name': full_site_json['name'],
+                'services': full_site_json['services']
+            })
+        return response
+
     def list_site_names_unique(self):
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
@@ -141,24 +151,41 @@ class MongoBackend(Backend):
         else:
             response = []
         for site in self.list_sites_version_latest():
-            if topojson:
-                for storage in site['storages']:
-                    response['objects']['sites']['geometries'].append({
-                        "type":"Point",
-                        "coordinates": [storage['longitude'], storage['latitude']],
-                        "properties": {
-                          "rucio_name": storage.get('rucio_rse_identifier'),
-                          "si_name": storage.get('storage_inventory_site_identifier')
-                        }
-                    })
-            elif for_grafana:
-                for storage in site['storages']:
-                    response.append({
-                        "key": storage['rucio_rse_identifier'],
-                        "latitude": storage['latitude'],
-                        "longitude": storage['longitude'],
-                        "name": storage['rucio_rse_identifier']
-                    })
-            else:
-                response.append(*site['storages'])
+            all_supported_protocols_for_site = {}
+            for storage in site['storages']:
+                for supported_protocol in storage.get('supported_protocols', []):
+                    all_supported_protocols_for_site["{}://{}:{}/{}".format(
+                        supported_protocol['prefix'],
+                        supported_protocol['host'].rstrip('/'),
+                        supported_protocol['port'],
+                        supported_protocol['base_path'].lstrip('/').rstrip('/'))] = \
+                    (storage['latitude'], storage['longitude'])
+
+            for service in site.get('services', []):
+                if 'Rucio Storage Element (RSE)' in service['type']:
+                    service_endpoint = "{}://{}:{}/{}".format(
+                        service['prefix'],
+                        service['host'].rstrip('/'),
+                        service['port'],
+                        service['path'].lstrip('/').rstrip('/'))
+                    for protocol, (lat, long) in all_supported_protocols_for_site.items():
+                        if protocol in service_endpoint:
+                            if topojson:
+                                response['objects']['sites']['geometries'].append({
+                                    "type":"Point",
+                                    "coordinates": [long, lat],
+                                    "properties": {
+                                      "rucio_name": service.get('identifier'),
+                                    }
+                                })
+                            elif for_grafana:
+                                for storage in site['storages']:
+                                    response.append({
+                                        "key": service.get('identifier'),
+                                        "latitude": storage['latitude'],
+                                        "longitude": storage['longitude'],
+                                        "name": service.get('identifier')
+                                    })
+                            else:
+                                response.append(*site['storages'])
         return response

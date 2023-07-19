@@ -1,4 +1,7 @@
 {
+  "/services": {
+    "GET": "any"
+  },
   "/permissions": {
     "GET": "any"
   },
@@ -35,7 +38,7 @@
     "POST": "admin"
   },
   "/sites/latest": {
-    "GET": "admin"
+    "GET": "any"
   },
   "/sites/{site}": {
     "GET": "viewer or admin or site-viewer or site-manager",

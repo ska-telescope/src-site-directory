@@ -171,6 +171,12 @@ async def ping(request: Request):
     return JSONResponse('pong')
 
 
+@app.get('/services', dependencies=[Depends(verify_permission_for_route)])
+async def list_storages(request: Request) -> JSONResponse:
+    rtn = backend.list_services()
+    return JSONResponse(rtn)
+
+
 @app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
 async def add_site(request: Request) -> Union[HTMLResponse, HTTPException]:
     values = await request.json()
