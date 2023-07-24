@@ -458,7 +458,7 @@
           "title": "Add"
         }
       ],
-      "value": {{ values | tojson | default({"services": []}) }},
+      "value": {{ values | default({"services": []}) | tojson }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
 
