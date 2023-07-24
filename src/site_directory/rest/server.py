@@ -6,6 +6,7 @@ import jsonschema
 import operator
 import os
 from pathlib import Path
+import pprint
 import requests
 import types
 from typing import Union
@@ -144,9 +145,6 @@ async def login(request: Request):
 
 @app.get('/auth')
 async def auth(request: Request) -> RedirectResponse:
-    print(request)
-    print(dir(request))
-    print(request.scope)
     try:
         token = await OAUTH_CLIENT.authorize_access_token(request)
     except OAuthError as error:
@@ -351,13 +349,23 @@ async def add_site_form_existing(request: Request, site: str) -> templates.Templ
         latest.pop('comments')
     except KeyError:
         pass
+
+    # Quote nested dictionaries otherwise JSONForm parses as [Object object].
+    if latest.get('services', None):
+        for idx in range(len(latest['services'])):
+            if latest['services'][idx].get('other_attributes', None):
+                latest['services'][idx]['other_attributes'] = json.dumps(
+                    latest['services'][idx]['other_attributes'])
+    if latest.get('other_attributes', None):
+        latest['other_attributes'] = json.dumps(latest['other_attributes'])
+
     return templates.TemplateResponse("site.html", {
         "request": request,
         "schema": schema,
         "api_prefix": oauth.config.get('API_PREFIX'),
         "api_host": oauth.config.get('API_HOST'),
         "api_port": oauth.config.get('API_PORT'),
-        "values": json.dumps(latest)
+        "values": latest
     })
 
 

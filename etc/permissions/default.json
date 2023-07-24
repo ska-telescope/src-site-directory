@@ -1,7 +1,4 @@
 {
-  "/services": {
-    "GET": "any"
-  },
   "/permissions": {
     "GET": "any"
   },
@@ -18,6 +15,9 @@
     "GET": "any"
   },
   "/schemas/{schema}": {
+    "GET": "any"
+  },
+  "/services": {
     "GET": "any"
   },
   "/sites": {
@@ -38,7 +38,7 @@
     "POST": "admin"
   },
   "/sites/latest": {
-    "GET": "any"
+    "GET": "viewer or admin"
   },
   "/sites/{site}": {
     "GET": "viewer or admin or site-viewer or site-manager",
@@ -52,7 +52,7 @@
     "GET": "admin"
   },
   "/www/sites/add/{site}": {
-    "GET": "admin"
+    "GET": "admin or site-manager"
   },
   "/www/sites/visualise": {
     "GET": "admin"

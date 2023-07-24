@@ -12,6 +12,7 @@
   <h1 style="color: #212529; font-weight: 100; margin-bottom: 25px;">Add Site</h1>
   <form></form>
   <div id="res" class="alert" role="alert"></div>
+  <div id="values"/>
   <script type="text/javascript">
     function showAndDismissAlert(type, message) {
       var htmlAlert = '<div class="alert alert-' + type + '"><p style="margin: 10px;">' + message + '</p></div>';
@@ -457,9 +458,25 @@
           "title": "Add"
         }
       ],
-      "value": {{ values | default({"services": []}) | safe }},
+      "value": {{ values | tojson | default({"services": []}) }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
+
+        // check services for bad other_attributes
+        values.services.forEach(function(service) {
+          if ('other_attributes' in service) {
+            if (JSON.stringify(service.other_attributes).length-2 === 0) {
+              errors="A service other_attributes list is not JSON stringifiable";
+            }
+          }
+        });
+
+        // check top level schema for bad other_attributes
+        if ('other_attributes' in values) {
+          if (JSON.stringify(values.other_attributes).length-2 === 0) {
+            errors="The site other_attributes list is not JSON stringifiable";
+          }
+        }
         if (errors) {
           showAndDismissAlert('danger', errors);
         } else {

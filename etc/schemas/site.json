@@ -15,8 +15,7 @@
     },
     "comments": {
       "type": "textarea",
-      "title": "Name",
-      "required": true
+      "title": "Version comments"
     },
     "country": {
       "type": "string",

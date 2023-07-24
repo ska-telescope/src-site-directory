@@ -16,7 +16,9 @@
         "BinderHub",
         "Dask",
         "Carta",
-        "SODA"
+        "VisiVO",
+        "SODA (sync)",
+        "SODA (async)"
       ],
       "default": null,
       "required": true
