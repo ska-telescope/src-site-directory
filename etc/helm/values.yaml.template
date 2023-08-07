@@ -11,6 +11,9 @@ svc:
     iam_client_scopes: "openid email profile"
     mongo_host: ska-src-site-capabilities-api-mongo
     mongo_port: 27017
+    permissions_api_url: https://permissions.srcdev.skao.int/api/v1
+    permissions_service_name: site-capabilities-api
+    permissions_service_version: 1
     schemas_relpath: ../../../etc/schemas
     session_middleware_secret_key:
     ska_client_id: 1f901a38-955f-4198-aedb-002332a3c551

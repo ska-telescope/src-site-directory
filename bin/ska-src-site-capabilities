@@ -16,8 +16,7 @@ if __name__ == "__main__":
 
     # ping
     ping_parser = subparsers.add_parser("ping")
-    ping_parser_subparsers = authorise_parser.add_subparsers(help="ping", dest='subcommand')
-    add_args_for_ping(ping_parser_subparsers)
+    add_args_for_ping(ping_parser)
 
     args = parser.parse_args()
 

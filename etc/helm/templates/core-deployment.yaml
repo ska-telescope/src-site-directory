@@ -45,6 +45,12 @@ spec:
           value: {{ .Values.svc.api.mongo_port | quote }}
         - name: MONGO_USERNAME
           value: {{ .Values.svc.common.mongo_username }}
+        - name: PERMISSIONS_API_URL
+          value: {{ .Values.svc.api.permissions_api_url }}
+        - name: PERMISSIONS_SERVICE_NAME
+          value: {{ .Values.svc.api.permissions_service_name }}
+        - name: PERMISSIONS_SERVICE_VERSION
+          value: {{ .Values.svc.api.permissions_service_version }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
         - name: SESSION_MIDDLEWARE_SECRET_KEY

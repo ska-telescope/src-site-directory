@@ -14,9 +14,11 @@ RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
 COPY --chown=user . /opt/ska-src-site-capabilities-api
 
 RUN cd /opt/ska-src-site-capabilities-api && python3 -m pip install -e .
+RUN cd /opt/ska-src-site-capabilities-api/ska-src-permissions-api && python3 -m pip install -e .
 
 WORKDIR /opt/ska-src-site-capabilities-api
 
+ENV API_ROOT_PATH ''
 ENV API_PREFIX ''
 ENV API_HOST ''
 ENV API_PORT ''
@@ -28,6 +30,9 @@ ENV MONGO_HOST ''
 ENV MONGO_PASSWORD ''
 ENV MONGO_PORT ''
 ENV MONGO_USERNAME ''
+ENV PERMISSIONS_API_URL ''
+ENV PERMISSIONS_SERVICE_NAME ''
+ENV PERMISSIONS_SERVICE_VERSION ''
 ENV SCHEMAS_RELPATH ''
 ENV SESSION_MIDDLEWARE_SECRET_KEY ''
 ENV SKA_CLIENT_ID ''

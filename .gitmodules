@@ -1,4 +1,4 @@
 [submodule "ska-src-permissions-api"]
-	path = src/ska-src-permissions-api
-	url = https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-permissions-api.git
+	path = ska-src-permissions-api
+	url = https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-permissions-api
 

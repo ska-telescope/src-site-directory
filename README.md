@@ -3,7 +3,7 @@
 This is a prototype system to record, store and programmatically expose attributes relating to sites within the SRCNet. Such attributes 
 may relate to storage, compute, services etc.
 
-![spinning globe](doc/globe.gif "spinning globe")
+![spinning globe](doc/img/globe.gif "spinning globe")
 
 ## Structure
 

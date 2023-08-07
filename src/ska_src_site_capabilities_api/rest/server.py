@@ -7,7 +7,6 @@ import pprint
 import requests
 import types
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
 from typing import Union
 
@@ -20,30 +19,32 @@ from fastapi import APIRouter, FastAPI, Depends, File, HTTPException, status, Up
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi_versioning import VersionedFastAPI, version
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from ska_src_site_capabilities_api.common.exceptions import SchemaNotFound, SiteNotFound, SiteVersionNotFound
+import ska_src_site_capabilities_api
+from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
+    SiteNotFound, SiteVersionNotFound
 from ska_src_site_capabilities_api.db.backend import MongoBackend
-from ska_src_site_capabilities_api.rest.permissions import Permission
+from ska_src_permissions_api.client.permissions import PermissionsClient
 
 config = Config('.env')
 
-# Instantiate FastAPI() allowing CORS.
+# Instantiate FastAPI() allowing CORS. Middleware and static mounts are added later to the instance of a VersionedApp.
 #
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key=config.get('SESSION_MIDDLEWARE_SECRET_KEY'))
-origins = ["*"]     # security risk if service is used externally
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+CORSMiddleware_params = {
+    "allow_origins": ["*"],
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"]
+}
+SessionMiddleware_params = {
+    "secret_key": config.get('SESSION_MIDDLEWARE_SECRET_KEY')
+}
 
 # Configure OAuth2 client.
 #
@@ -59,9 +60,8 @@ oauth.register(
 )
 OAUTH_CLIENT = getattr(oauth, oauth.config.get('IAM_CLIENT_NAME'))
 
-# Mount static files and get templates.
+# Get templates.
 #
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # Instantiate the backend api.
@@ -74,8 +74,31 @@ backend = MongoBackend(
     mongo_database=oauth.config.get('MONGO_DATABASE')
 )
 
+# Instantiate the permissions client.
+#
+PERMISSIONS = PermissionsClient(oauth.config.get('PERMISSIONS_API_URL'))
+PERMISSIONS_SERVICE_NAME = oauth.config.get('PERMISSIONS_SERVICE_NAME')
+PERMISSIONS_SERVICE_VERSION = oauth.config.get('PERMISSIONS_SERVICE_VERSION')
+
+
+# Function to check permissions from user token groups.
+#
+@handle_exceptions
+async def verify_permission_for_route(request: Request) -> Union[HTTPException, bool]:
+    token = None
+    if request.session.get('user') and request.session.get('access_token'):
+        token = request.session.get('access_token')
+    # TODO: try get token from authz header
+    else:
+        raise PermissionDenied
+    PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
+                                            route=request.scope['route'].path, method=request.method,
+                                            token=token, body=request.path_params)
+
 
 @app.get('/')
+@handle_exceptions
+@version(1)
 async def home(request: Request) -> HTMLResponse:
     user = request.session.get('user')
     if user:
@@ -88,12 +111,16 @@ async def home(request: Request) -> HTMLResponse:
 
 
 @app.get('/login')
+@handle_exceptions
+@version(1)
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
     return await OAUTH_CLIENT.authorize_redirect(request, redirect_uri)
 
 
 @app.get('/auth')
+@handle_exceptions
+@version(1)
 async def auth(request: Request) -> RedirectResponse:
     try:
         token = await OAUTH_CLIENT.authorize_access_token(request)
@@ -108,24 +135,46 @@ async def auth(request: Request) -> RedirectResponse:
 
 
 @app.get('/logout')
+@handle_exceptions
+@version(1)
 async def logout(request: Request) -> RedirectResponse:
     request.session.pop('user', None)
     request.session.pop('access_token', None)
     return RedirectResponse(url='/')
 
 
-@app.get('/ping')
-async def ping(request: Request):
-    return JSONResponse('pong')
+@app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
+async def list_schemas(request: Request) -> JSONResponse:
+    schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(oauth.config.get('SCHEMAS_RELPATH'))])
+    return JSONResponse(schema_basenames)
+
+
+@app.get("/schemas/{schema}", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
+async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPException]:
+    try:
+        schema_path = Path("{}.json".format(os.path.join(oauth.config.get('SCHEMAS_RELPATH'), schema))).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+        return JSONResponse(ast.literal_eval(str(dereferenced_schema)))         # some issue with jsonref return != dict
+    except FileNotFoundError:
+        raise SchemaNotFound
 
 
 @app.get('/services', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def list_storages(request: Request) -> JSONResponse:
     rtn = backend.list_services()
     return JSONResponse(rtn)
 
 
 @app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def add_site(request: Request) -> Union[HTMLResponse, HTTPException]:
     values = await request.json()
     values['created_at'] = datetime.now().isoformat()
@@ -135,6 +184,8 @@ async def add_site(request: Request) -> Union[HTMLResponse, HTTPException]:
 
 
 @app.post("/sites/bulk", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
     sites_bytes = await sites_file.read()
     sites_json = json.loads(sites_bytes.decode('UTF-8'))
@@ -151,12 +202,16 @@ async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPEx
 
 
 @app.delete('/sites', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
     rtn = backend.delete_sites()
     return JSONResponse(repr(rtn))
 
 
 @app.delete('/sites/{site}/{version}', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def delete_site_version(request: Request, site: str, version: int) -> Union[JSONResponse, HTTPException]:
     rtn = backend.delete_site_version(site, version)
     if not rtn:
@@ -165,6 +220,8 @@ async def delete_site_version(request: Request, site: str, version: int) -> Unio
 
 
 @app.get('/sites/latest', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPException]:
     rtn = backend.list_sites_version_latest()
     if not rtn:
@@ -173,6 +230,8 @@ async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPExceptio
 
 
 @app.get('/sites/{site}', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
     if site == 'latest':
         rtn = backend.list_sites_version_latest()
@@ -184,6 +243,8 @@ async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPExcep
 
 
 @app.get('/sites/{site}/{version}', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def get_site_version(request: Request, site: str, version: Union[int, str]) -> HTMLResponse:
     if version == 'latest':
         rtn = backend.get_site_version_latest(site)
@@ -195,47 +256,40 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
 
 
 @app.get('/sites', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def list_sites(request: Request) -> JSONResponse:
     rtn = backend.list_site_names_unique()
     return JSONResponse(rtn)
 
 
 @app.get('/storages', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def list_storages(request: Request) -> JSONResponse:
     rtn = backend.list_storages()
     return JSONResponse(rtn)
 
 
 @app.get('/storages/topojson', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def list_storages(request: Request) -> JSONResponse:
     rtn = backend.list_storages(topojson=True)
     return JSONResponse(rtn)
 
 
 @app.get('/storages/grafana', dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def list_storages(request: Request) -> JSONResponse:
     rtn = backend.list_storages(for_grafana=True)
     return JSONResponse(rtn)
 
 
-@app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def list_schemas(request: Request) -> JSONResponse:
-    schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(oauth.config.get('SCHEMAS_RELPATH'))])
-    return JSONResponse(schema_basenames)
-
-
-@app.get("/schemas/{schema}", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPException]:
-    try:
-        schema_path = Path("{}.json".format(os.path.join(oauth.config.get('SCHEMAS_RELPATH'), schema))).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-        return JSONResponse(ast.literal_eval(str(dereferenced_schema)))         # some issue with jsonref return != dict
-    except FileNotFoundError:
-        raise SchemaNotFound
-
-
 @app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def add_site_form(request: Request) -> templates.TemplateResponse:
     schema_path = Path(os.path.join(oauth.config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
@@ -251,6 +305,8 @@ async def add_site_form(request: Request) -> templates.TemplateResponse:
 
 
 @app.get("/www/sites/add/{site}", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def add_site_form_existing(request: Request, site: str) -> templates.TemplateResponse:
     schema_path = Path(os.path.join(oauth.config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
@@ -284,6 +340,8 @@ async def add_site_form_existing(request: Request, site: str) -> templates.Templ
 
 
 @app.get("/www/sites/visualise", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
+@handle_exceptions
+@version(1)
 async def visualise(request: Request) -> templates.TemplateResponse:
     return templates.TemplateResponse("visualise.html", {
         "request": request,
@@ -291,3 +349,17 @@ async def visualise(request: Request) -> templates.TemplateResponse:
         "api_host": oauth.config.get('API_HOST'),
         "api_port": oauth.config.get('API_PORT')
     })
+
+
+@app.get('/ping')
+@handle_exceptions
+@version(1)
+async def ping(request: Request):
+    return JSONResponse('pong')
+
+
+app = VersionedFastAPI(app, version_format='{major}', prefix_format='/v{major}')
+app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
+app.add_middleware(SessionMiddleware, **SessionMiddleware_params)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+

@@ -1,4 +1,8 @@
-from fastapi import status
+import requests
+import traceback
+from functools import wraps
+
+from fastapi import HTTPException, status
 
 
 def handle_exceptions(func):
@@ -36,6 +40,13 @@ class CustomHTTPException(Exception):
     the handle_exceptions decorator.
     """
     pass
+
+
+class PermissionDenied(CustomHTTPException):
+    def __init__(self):
+        self.message = "You do not have permission to access this resource"
+        self.http_error_status = status.HTTP_403_FORBIDDEN
+        super().__init__(self.message)
 
 
 class SchemaNotFound(CustomHTTPException):

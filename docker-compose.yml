@@ -16,6 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      API_ROOT_PATH:
       API_PREFIX: http
       API_HOST: localhost
       API_PORT: 8080
@@ -27,6 +28,9 @@ services:
       MONGO_PASSWORD: secret
       MONGO_PORT: 27017
       MONGO_USERNAME: root
+      PERMISSIONS_API_URL: https://permissions.srcdev.skao.int/api/v1
+      PERMISSIONS_SERVICE_NAME: site-capabilities-api
+      PERMISSIONS_SERVICE_VERSION: 1
       SCHEMAS_RELPATH: ../../../etc/schemas
       SESSION_MIDDLEWARE_SECRET_KEY: $SESSION_MIDDLEWARE_SECRET_KEY
       SKA_CLIENT_ID: $SKA_CLIENT_ID
