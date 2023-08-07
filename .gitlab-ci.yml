@@ -16,6 +16,6 @@ build_api:
     - main
   stage: build
   script:
-    - docker build . -f Dockerfile --tag $API_IMAGE_NAME:sited.srcdev.skao.int 
-    - docker push $API_IMAGE_NAME:sited.srcdev.skao.int
+    - docker build . -f Dockerfile --tag $API_IMAGE_NAME:site-capabilities.srcdev.skao.int
+    - docker push $API_IMAGE_NAME:site-capabilities.srcdev.skao.int
 

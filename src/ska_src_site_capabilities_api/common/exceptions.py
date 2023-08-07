@@ -1,0 +1,60 @@
+from fastapi import status
+
+
+def handle_exceptions(func):
+    """ Decorator to handle server exceptions. """
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except requests.exceptions.HTTPError as e:
+            status_code = e.response.status_code
+            detail = f"HTTP error occurred: {e}, response: {e.response.text}"
+            raise HTTPException(status_code=status_code, detail=detail)
+        except HTTPException as e:
+            raise e
+        except CustomException as e:
+            raise Exception(message=e.message)
+        except CustomHTTPException as e:
+            raise HTTPException(status_code=e.http_error_status, detail=e.message)
+        except Exception as e:
+            detail = "General error occurred: {}, traceback: {}".format(
+                repr(e), ''.join(traceback.format_tb(e.__traceback__)))
+            raise HTTPException(status_code=500, detail=detail)
+    return wrapper
+
+
+class CustomException(Exception):
+    """ Class that all custom exceptions must inherit in order for exception to be caught by the
+    handle_exceptions decorator.
+    """
+    pass
+
+
+class CustomHTTPException(Exception):
+    """ Class that all custom HTTP exceptions must inherit in order for exception to be caught by
+    the handle_exceptions decorator.
+    """
+    pass
+
+
+class SchemaNotFound(CustomHTTPException):
+    def __init__(self, schema):
+        self.message = "Schema with name '{}' could not be found {}".format(schema)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+class SiteNotFound(CustomHTTPException):
+    def __init__(self, site):
+        self.message = "Site with name '{}' could not be found {}".format(site)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
+class SiteVersionNotFound(CustomHTTPException):
+    def __init__(self, site, version):
+        self.message = "Version {} of site with name '{}' and could not be found".format(version, site)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+

@@ -16,27 +16,25 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
         io.kompose.service: core
     spec:
       containers:
       - env:
+        - name: API_ROOT_PATH
+          value: {{ .Values.svc.api.root_path }}
         - name: API_HOST
           value: {{ .Values.svc.api.api_host }}
         - name: API_PORT
           value: {{ .Values.svc.api.api_port | quote }}
         - name: API_PREFIX
-          value: {{ .Values.svc.api.api_prefix }} 
-        - name: CLIENT_CONF_URL
-          value: {{ .Values.svc.api.client_conf_url }}
-        - name: CLIENT_NAME
-          value: {{ .Values.svc.api.client_name }}
-        - name: CLIENT_SCOPES
-          value: {{ .Values.svc.api.client_scopes }}
+          value: {{ .Values.svc.api.api_prefix }}
+        - name: IAM_CLIENT_CONF_URL
+          value: {{ .Values.svc.api.iam_client_conf_url }}
+        - name: IAM_CLIENT_NAME
+          value: {{ .Values.svc.api.iam_client_name }}
+        - name: IAM_CLIENT_SCOPES
+          value: {{ .Values.svc.api.iam_client_scopes }}
         - name: MONGO_DATABASE
           value: {{ .Values.svc.common.mongo_database }}
         - name: MONGO_HOST
@@ -47,16 +45,6 @@ spec:
           value: {{ .Values.svc.api.mongo_port | quote }}
         - name: MONGO_USERNAME
           value: {{ .Values.svc.common.mongo_username }}
-        - name: PERMISSIONS_NAME
-          value: {{ .Values.svc.api.permissions_name }}
-        - name: PERMISSIONS_RELPATH
-          value: {{ .Values.svc.api.permissions_relpath }}
-        - name: PERMISSIONS_ROOT_GROUP
-          value: {{ .Values.svc.api.permissions_root_group }}
-        - name: ROLES_NAME
-          value: {{ .Values.svc.api.roles_name }}
-        - name: ROLES_RELPATH
-          value: {{ .Values.svc.api.roles_relpath }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
         - name: SESSION_MIDDLEWARE_SECRET_KEY
@@ -65,9 +53,9 @@ spec:
           value: {{ .Values.svc.api.ska_client_id }}
         - name: SKA_CLIENT_SECRET
           value: {{ .Values.svc.api.ska_client_secret }}
-        image: {{ .Values.image_registry_url }}/api:{{ .Values.image_tag }}
+        image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}
         imagePullPolicy: Always
-        name: site-directory-core
+        name: ska-src-site-capabilities-api-core
         ports:
         - containerPort: 8080
         resources: {}

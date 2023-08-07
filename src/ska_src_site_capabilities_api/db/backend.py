@@ -1,7 +1,8 @@
-from abc import ABC, abstractmethod
 import json
+from abc import ABC, abstractmethod
 
 from pymongo import MongoClient
+
 
 class Backend(ABC):
     """ Backend API abstract base class. """
@@ -13,11 +14,35 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def add_sites_bulk(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_site(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_sites(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_site_version(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_site(self):
         raise NotImplementedError
 
     @abstractmethod
     def get_site_version(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_site_version_latest(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_services(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -31,6 +56,7 @@ class Backend(ABC):
     @abstractmethod
     def list_storages(self):
         raise NotImplementedError
+
 
 class MongoBackend(Backend):
     """ Backend API for mongodb. """

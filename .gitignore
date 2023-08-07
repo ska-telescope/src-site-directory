@@ -26,3 +26,4 @@ dist/
 
 .env
 etc/helm/values.yaml
+docker-compose.local.*

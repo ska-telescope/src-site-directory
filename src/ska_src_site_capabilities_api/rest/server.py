@@ -1,32 +1,33 @@
 import ast
-from datetime import datetime
-from functools import wraps
 import json
 import jsonschema
 import operator
 import os
-from pathlib import Path
 import pprint
 import requests
 import types
+from datetime import datetime
+from functools import wraps
+from pathlib import Path
 from typing import Union
 
+import jinja2
+import jsonref
+import uvicorn
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from authlib.oauth2.rfc7662 import IntrospectTokenValidator
-from fastapi import FastAPI, Depends, File, HTTPException, status, UploadFile
+from fastapi import APIRouter, FastAPI, Depends, File, HTTPException, status, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import jinja2
-import jsonref
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
-import uvicorn
 
-from site_directory.api.backend import MongoBackend
-from site_directory.rest.permissions import Permission
+from ska_src_site_capabilities_api.common.exceptions import SchemaNotFound, SiteNotFound, SiteVersionNotFound
+from ska_src_site_capabilities_api.db.backend import MongoBackend
+from ska_src_site_capabilities_api.rest.permissions import Permission
 
 config = Config('.env')
 
@@ -50,13 +51,13 @@ app.add_middleware(
 # environment variable.
 oauth = OAuth(config)
 oauth.register(
-    name=oauth.config.get('CLIENT_NAME'),
-    server_metadata_url=oauth.config.get('CLIENT_CONF_URL'),
+    name=oauth.config.get('IAM_CLIENT_NAME'),
+    server_metadata_url=oauth.config.get('IAM_CLIENT_CONF_URL'),
     client_kwargs={
-        'scope': oauth.config.get('CLIENT_SCOPES')
+        'scope': oauth.config.get('IAM_CLIENT_SCOPES')
     }
 )
-OAUTH_CLIENT = getattr(oauth, oauth.config.get('CLIENT_NAME'))
+OAUTH_CLIENT = getattr(oauth, oauth.config.get('IAM_CLIENT_NAME'))
 
 # Mount static files and get templates.
 #
@@ -66,67 +67,16 @@ templates = Jinja2Templates(directory="templates")
 # Instantiate the backend api.
 #
 backend = MongoBackend(
-    mongo_username = oauth.config.get('MONGO_USERNAME'),
-    mongo_password = oauth.config.get('MONGO_PASSWORD'),
-    mongo_host = oauth.config.get('MONGO_HOST'),
-    mongo_port = oauth.config.get('MONGO_PORT'),
-    mongo_database = oauth.config.get('MONGO_DATABASE')
+    mongo_username=oauth.config.get('MONGO_USERNAME'),
+    mongo_password=oauth.config.get('MONGO_PASSWORD'),
+    mongo_host=oauth.config.get('MONGO_HOST'),
+    mongo_port=oauth.config.get('MONGO_PORT'),
+    mongo_database=oauth.config.get('MONGO_DATABASE')
 )
 
 
-# Instantiate permissions and roles modules to check authZ for routes.
-#
-permission_definition_abspath = os.path.join(oauth.config.get('PERMISSIONS_RELPATH'),
-                                             oauth.config.get('PERMISSIONS_NAME'))
-roles_definition_abspath = os.path.join(oauth.config.get('ROLES_RELPATH'),
-                                        oauth.config.get('ROLES_NAME'))
-PERMISSION = Permission(permissions_definition_path=permission_definition_abspath,
-                        roles_definition_path=roles_definition_abspath,
-                        root_group=oauth.config.get('PERMISSIONS_ROOT_GROUP'))
-
-
-# Function to validate (and return) a token using the introspection endpoint.
-#
-async def validate_token_by_remote_introspection(request: Request) -> Union[dict, bool]:
-    if request.session.get('user') and request.session.get('access_token'):
-        if 'introspection_endpoint' not in OAUTH_CLIENT.server_metadata:
-            await OAUTH_CLIENT.load_server_metadata()
-        url = OAUTH_CLIENT.server_metadata['introspection_endpoint']
-        data = {'token': request.session.get('access_token'), 'token_type_hint': 'access_token'}
-        auth = (OAUTH_CLIENT.client_id, OAUTH_CLIENT.client_secret)
-        resp = requests.post(url, data=data, auth=auth)
-        resp.raise_for_status()
-        resp_json = resp.json()
-        if resp_json['active'] is not True:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token is invalid, please try logging in.")
-        return resp_json
-    return False
-
-
-# Function to check permissions from user token groups.
-#
-async def verify_permission_for_route(request: Request) -> Union[HTTPException, RedirectResponse]:
-    introspected_token = await validate_token_by_remote_introspection(request)
-    if not introspected_token:
-        groups = []
-    else:
-        groups = introspected_token['groups']
-    try:
-        route = request.scope['root_path'] + request.scope['route'].path
-        method = request.method
-
-        if PERMISSION.check_role_membership_for_route(
-                route=route, method=method, groups=groups, **request.path_params):
-            return
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You are not authorised to view this resource.")
-    except Exception as e:
-        if hasattr(e, "http_error_status"):
-            raise HTTPException(e.http_error_status, e.message)
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, repr(e))
-
-
 @app.get('/')
-async def homepage(request: Request) -> HTMLResponse:
+async def home(request: Request) -> HTMLResponse:
     user = request.session.get('user')
     if user:
         data = json.dumps(user)
@@ -196,7 +146,7 @@ async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -
 async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
     rtn = backend.delete_site(site)
     if not rtn:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Site with name '{}' could not be found".format(site))
+        raise SiteNotFound(site)
     return JSONResponse(repr(rtn))
 
 
@@ -210,8 +160,7 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
 async def delete_site_version(request: Request, site: str, version: int) -> Union[JSONResponse, HTTPException]:
     rtn = backend.delete_site_version(site, version)
     if not rtn:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "Version {} of site with name '{}' and could not be found".format(version, site))
+        raise SiteVersionNotFound(site, version)
     return JSONResponse(repr(rtn))
 
 
@@ -219,7 +168,7 @@ async def delete_site_version(request: Request, site: str, version: int) -> Unio
 async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPException]:
     rtn = backend.list_sites_version_latest()
     if not rtn:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Site with name '{}' could not be found".format(site))
+        raise SiteNotFound(site)
     return JSONResponse(rtn)
 
 
@@ -230,7 +179,7 @@ async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPExcep
     else:
         rtn = backend.get_site(site)
     if not rtn:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Site with name '{}' could not be found".format(site))
+        SiteNotFound(site)
     return JSONResponse(rtn)
 
 
@@ -241,8 +190,7 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
     else:
         rtn = backend.get_site_version(site, version)
     if not rtn:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "Version {} of site with name '{}' and could not be found".format(version, site))
+        raise SiteVersionNotFound(site, version)
     return JSONResponse(rtn)
 
 
@@ -270,39 +218,6 @@ async def list_storages(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.get("/permissions", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def list_permissions(request: Request) -> JSONResponse:
-    permission_basenames = sorted(
-        [''.join(fi.split('.')[:-1]) for fi in os.listdir(oauth.config.get('PERMISSIONS_RELPATH'))])
-    return JSONResponse(permission_basenames)
-
-
-@app.get("/permissions/{permission}", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def get_permission(request: Request, permission: str) -> JSONResponse:
-    try:
-        with open("{}.json".format(os.path.join(oauth.config.get('PERMISSIONS_RELPATH'), permission))) as f:
-            contents = json.load(f)
-        return JSONResponse(contents)
-    except FileNotFoundError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Permission with name '{}' not found".format(permission))
-
-
-@app.get("/roles", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def list_roles(request: Request) -> JSONResponse:
-    role_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(oauth.config.get('ROLES_RELPATH'))])
-    return JSONResponse(role_basenames)
-
-
-@app.get("/roles/{role}", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
-async def get_role(request: Request, role: str) -> Union[JSONResponse, HTTPException]:
-    try:
-        with open("{}.json".format(os.path.join(oauth.config.get('ROLES_RELPATH'), role))) as f:
-            contents = json.load(f)
-        return JSONResponse(contents)
-    except FileNotFoundError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Role with name '{}' not found".format(role))
-
-
 @app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_route)])
 async def list_schemas(request: Request) -> JSONResponse:
     schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(oauth.config.get('SCHEMAS_RELPATH'))])
@@ -317,7 +232,7 @@ async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPE
             dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
         return JSONResponse(ast.literal_eval(str(dereferenced_schema)))         # some issue with jsonref return != dict
     except FileNotFoundError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Schema with name '{}' not found".format(schema))
+        raise SchemaNotFound
 
 
 @app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
@@ -334,6 +249,7 @@ async def add_site_form(request: Request) -> templates.TemplateResponse:
         "api_port": oauth.config.get('API_PORT')
     })
 
+
 @app.get("/www/sites/add/{site}", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_route)])
 async def add_site_form_existing(request: Request, site: str) -> templates.TemplateResponse:
     schema_path = Path(os.path.join(oauth.config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
@@ -342,9 +258,7 @@ async def add_site_form_existing(request: Request, site: str) -> templates.Templ
     schema = ast.literal_eval(str(dereferenced_schema))
     latest = backend.get_site_version_latest(site)
     if not latest:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, "Version {} of site with name '{}' and could not be found".format(
-                "latest", site))
+        raise SiteVersionNotFound(site, version)
     try:
         latest.pop('comments')
     except KeyError:
