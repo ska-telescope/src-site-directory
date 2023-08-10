@@ -227,7 +227,7 @@ async def list_storages(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.get('/storages/grafana', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/storages/grafana', dependencies=[])
 @handle_exceptions
 @version(1)
 async def list_storages(request: Request) -> JSONResponse:
@@ -235,7 +235,7 @@ async def list_storages(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.get('/storages/topojson', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/storages/topojson', dependencies=[])
 @handle_exceptions
 @version(1)
 async def list_storages(request: Request) -> JSONResponse:
