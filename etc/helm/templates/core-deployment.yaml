@@ -1,10 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
   labels:
     io.kompose.service: core
   name: core
@@ -31,10 +27,14 @@ spec:
           value: {{ .Values.svc.api.api_prefix }}
         - name: IAM_CLIENT_CONF_URL
           value: {{ .Values.svc.api.iam_client_conf_url }}
-        - name: IAM_CLIENT_NAME
-          value: {{ .Values.svc.api.iam_client_name }}
-        - name: IAM_CLIENT_SCOPES
+        - name: API_IAM_CLIENT_ID
+          value: {{ .Values.svc.api.iam_client_id }}
+        - name: API_IAM_CLIENT_SECRET
+          value: {{ .Values.svc.api.iam_client_secret }}
+        - name: API_IAM_CLIENT_SCOPES
           value: {{ .Values.svc.api.iam_client_scopes }}
+        - name: API_IAM_CLIENT_AUDIENCE
+          value: {{ .Values.svc.api.iam_client_audience }}
         - name: MONGO_DATABASE
           value: {{ .Values.svc.common.mongo_database }}
         - name: MONGO_HOST
@@ -53,12 +53,6 @@ spec:
           value: {{ .Values.svc.api.permissions_service_version }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
-        - name: SESSION_MIDDLEWARE_SECRET_KEY
-          value: {{ .Values.svc.api.session_middleware_secret_key }}
-        - name: SKA_CLIENT_ID
-          value: {{ .Values.svc.api.ska_client_id }}
-        - name: SKA_CLIENT_SECRET
-          value: {{ .Values.svc.api.ska_client_secret }}
         image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}
         imagePullPolicy: Always
         name: ska-src-site-capabilities-api-core
@@ -67,7 +61,7 @@ spec:
         resources: {}
         livenessProbe:
           httpGet:
-            path: /ping
+            path: /v1/ping
             port: 8080
       restartPolicy: Always
       serviceAccountName: ""

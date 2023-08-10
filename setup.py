@@ -17,7 +17,7 @@ scripts = glob.glob('bin/*')
 
 setup(
     name='ska_src_site_capabilities_api',
-    version=VERSION,
+    version=version,
     description='An API to keep track of site information and capabilities for SRCNet.',
     url='',
     author='rob barnsley',

@@ -5,24 +5,20 @@ import argparse
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
 
 
-def add_args_for_ping(ping_parser):
-    ping_parser.add_argument('--api-url', help="site-capabilities api url", type=str,
-                             default="https://site-capabitities.srcdev.skao.int/api/v1")
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--api-url', help="site-capabilities api url", type=str,
+                        default="https://site-capabitities.srcdev.skao.int/api/v1")
     subparsers = parser.add_subparsers(help='command line interface for the site-capabilities api', dest='command')
 
     # ping
     ping_parser = subparsers.add_parser("ping")
-    add_args_for_ping(ping_parser)
 
     args = parser.parse_args()
 
+    client = SiteCapabilitiesClient(args.api_url)
     if args.command == 'ping':
-        client = SiteCapabilitiesClient(args.api_url)
-        client.ping()
+        rtn = client.ping()
     else:
         print(parser.print_help())
-
+    print(rtn)

@@ -21,8 +21,10 @@ services:
       API_HOST: localhost
       API_PORT: 8080
       IAM_CLIENT_CONF_URL: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
-      IAM_CLIENT_NAME: ska
-      IAM_CLIENT_SCOPES: openid email profile
+      API_IAM_CLIENT_ID: 1f901a38-955f-4198-aedb-002332a3c551
+      API_IAM_CLIENT_SECRET:
+      API_IAM_CLIENT_SCOPES: openid profile
+      API_IAM_CLIENT_AUDIENCE: site-capabilities-api
       MONGO_DATABASE: site-capabilities
       MONGO_HOST: ska-src-site-capabilities-mongo
       MONGO_PASSWORD: secret
@@ -32,8 +34,5 @@ services:
       PERMISSIONS_SERVICE_NAME: site-capabilities-api
       PERMISSIONS_SERVICE_VERSION: 1
       SCHEMAS_RELPATH: ../../../etc/schemas
-      SESSION_MIDDLEWARE_SECRET_KEY: $SESSION_MIDDLEWARE_SECRET_KEY
-      SKA_CLIENT_ID: $SKA_CLIENT_ID
-      SKA_CLIENT_SECRET: $SKA_CLIENT_SECRET
     ports:
       - 8080:8080

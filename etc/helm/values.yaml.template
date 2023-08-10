@@ -7,17 +7,16 @@ svc:
     api_port: 443
     api_prefix: https
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
-    iam_client_name: ska
-    iam_client_scopes: "openid email profile"
-    mongo_host: ska-src-site-capabilities-api-mongo
+    api_iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
+    api_iam_client_secret:
+    api_iam_client_scopes: "openid profile"
+    api_iam_client_audience: site-capabilities-api
+    mongo_host: mongo
     mongo_port: 27017
     permissions_api_url: https://permissions.srcdev.skao.int/api/v1
     permissions_service_name: site-capabilities-api
     permissions_service_version: 1
     schemas_relpath: ../../../etc/schemas
-    session_middleware_secret_key:
-    ska_client_id: 1f901a38-955f-4198-aedb-002332a3c551
-    ska_client_secret:
   common:
     mongo_database: site-capabilities
     mongo_username: root

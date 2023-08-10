@@ -5,6 +5,29 @@ from functools import wraps
 from fastapi import HTTPException, status
 
 
+def handle_client_exceptions(func):
+    """ Decorator to handle client exceptions. """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.exceptions.HTTPError as e:
+            status_code = e.response.status_code
+            detail = f"HTTP error occurred: {e}, response: {e.response.text}"
+            raise HTTPException(status_code=status_code, detail=detail)
+        except HTTPException as e:
+            raise e
+        except HTTPException as e:
+            raise e
+        except CustomException as e:
+            raise Exception(message=e.message)
+        except Exception as e:
+            detail = "General error occurred: {}, traceback: {}".format(
+                repr(e), ''.join(traceback.format_tb(e.__traceback__)))
+            raise HTTPException(status_code=500, detail=detail)
+    return wrapper
+
+
 def handle_exceptions(func):
     """ Decorator to handle server exceptions. """
     @wraps(func)
@@ -44,7 +67,7 @@ class CustomHTTPException(Exception):
 
 class PermissionDenied(CustomHTTPException):
     def __init__(self):
-        self.message = "You do not have permission to access this resource"
+        self.message = "You do not have permission to access this resource."
         self.http_error_status = status.HTTP_403_FORBIDDEN
         super().__init__(self.message)
 
@@ -54,6 +77,7 @@ class SchemaNotFound(CustomHTTPException):
         self.message = "Schema with name '{}' could not be found {}".format(schema)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
+
 
 class SiteNotFound(CustomHTTPException):
     def __init__(self, site):
@@ -67,5 +91,3 @@ class SiteVersionNotFound(CustomHTTPException):
         self.message = "Version {} of site with name '{}' and could not be found".format(version, site)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
-
-
