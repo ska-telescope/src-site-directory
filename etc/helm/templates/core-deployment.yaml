@@ -50,7 +50,7 @@ spec:
         - name: PERMISSIONS_SERVICE_NAME
           value: {{ .Values.svc.api.permissions_service_name }}
         - name: PERMISSIONS_SERVICE_VERSION
-          value: {{ .Values.svc.api.permissions_service_version }}
+          value: {{ .Values.svc.api.permissions_service_version | quote }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
         image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}
