@@ -139,12 +139,11 @@ async def list_sites(request: Request) -> JSONResponse:
 @app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
-async def add_site(request: Request) -> Union[HTMLResponse, HTTPException]:
-    values = await request.json()
-    values['created_at'] = datetime.now().isoformat()
-    values['created_by_username'] = request.session['user']['preferred_username']
-    id = BACKEND.add_site(values)
-    return HTMLResponse(repr(id))
+async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
+    sites_bytes = await sites_file.read()
+    sites_json = json.loads(sites_bytes.decode('UTF-8'))
+    rtn = BACKEND.add_sites_bulk(sites_json)
+    return HTMLResponse(repr(rtn))
 
 
 @app.delete('/sites', dependencies=[Depends(verify_permission_for_service_route)])
@@ -153,16 +152,6 @@ async def add_site(request: Request) -> Union[HTMLResponse, HTTPException]:
 async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
     rtn = BACKEND.delete_sites()
     return JSONResponse(repr(rtn))
-
-
-@app.post("/sites/bulk", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_service_route)])
-@handle_exceptions
-@version(1)
-async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
-    sites_bytes = await sites_file.read()
-    sites_json = json.loads(sites_bytes.decode('UTF-8'))
-    rtn = BACKEND.add_sites_bulk(sites_json)
-    return HTMLResponse(repr(rtn))
 
 
 @app.get('/sites/latest', dependencies=[Depends(verify_permission_for_service_route)])
@@ -201,7 +190,7 @@ async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPEx
 @version(1)
 async def get_site_version(request: Request, site: str, version: Union[int, str]) -> HTMLResponse:
     if version == 'latest':
-        rtn = BACKEND.get_site_version_latest(site)
+        rtn = BACKEND.get_site_version_latest(version)
     else:
         rtn = BACKEND.get_site_version(site, version)
     if not rtn:
@@ -212,7 +201,8 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
 @app.delete('/sites/{site}/{version}', dependencies=[Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
-async def delete_site_version(request: Request, site: str, version: int) -> Union[JSONResponse, HTTPException]:
+async def delete_site_version(request: Request, site: str, version: Union[int, str]) \
+        -> Union[JSONResponse, HTTPException]:
     rtn = BACKEND.delete_site_version(site, version)
     if not rtn:
         raise SiteVersionNotFound(site, version)

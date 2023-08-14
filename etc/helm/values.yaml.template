@@ -1,4 +1,4 @@
-image_registry_url: registry.gitlab.com/ska-telescope/src-service-apis/ska-src-site-capabilities-api/api
+image_registry_url: registry.gitlab.com/ska-telescope/src/src-service-apis/ska-src-site-capabilities-api/api
 image_tag: site-capabilities.srcdev.skao.int
 svc:
   api:
@@ -7,10 +7,10 @@ svc:
     api_port: 443
     api_prefix: https
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
-    api_iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
-    api_iam_client_secret:
-    api_iam_client_scopes: "openid profile"
-    api_iam_client_audience: site-capabilities-api
+    iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
+    iam_client_secret:
+    iam_client_scopes: "openid profile"
+    iam_client_audience: site-capabilities-api
     mongo_host: mongo
     mongo_port: 27017
     permissions_api_url: https://permissions.srcdev.skao.int/api/v1
@@ -22,5 +22,6 @@ svc:
     mongo_username: root
     mongo_password:
 ing:
-  api_host: site-capabilities.srcdev.skao.int
+  api:
+    host: site-capabilities.srcdev.skao.int
 
