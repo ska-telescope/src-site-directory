@@ -213,7 +213,7 @@ async def delete_site_version(request: Request, site: str, version: Union[int, s
 @handle_exceptions
 @version(1)
 async def list_storages(request: Request) -> JSONResponse:
-    rtn = backend.list_storages()
+    rtn = BACKEND.list_storages()
     return JSONResponse(rtn)
 
 
