@@ -103,6 +103,7 @@ async def verify_permission_for_service_route(request: Request, authorization: s
 @handle_exceptions
 @version(1)
 async def list_schemas(request: Request) -> JSONResponse:
+    """ List schemas used to define sites, services and storages. """
     schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(config.get('SCHEMAS_RELPATH'))])
     return JSONResponse(schema_basenames)
 
@@ -111,6 +112,7 @@ async def list_schemas(request: Request) -> JSONResponse:
 @handle_exceptions
 @version(1)
 async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPException]:
+    """ Get a particular schema. """
     try:
         schema_path = Path("{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), schema))).absolute()
         with open(schema_path) as f:
@@ -124,6 +126,7 @@ async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPE
 @handle_exceptions
 @version(1)
 async def list_services(request: Request) -> JSONResponse:
+    """ List all services. """
     rtn = BACKEND.list_services()
     return JSONResponse(rtn)
 
@@ -132,6 +135,7 @@ async def list_services(request: Request) -> JSONResponse:
 @handle_exceptions
 @version(1)
 async def list_sites(request: Request) -> JSONResponse:
+    """ List all sites. """
     rtn = BACKEND.list_site_names_unique()
     return JSONResponse(rtn)
 
@@ -140,6 +144,7 @@ async def list_sites(request: Request) -> JSONResponse:
 @handle_exceptions
 @version(1)
 async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
+    """ Bulk add sites from a file. """
     sites_bytes = await sites_file.read()
     sites_json = json.loads(sites_bytes.decode('UTF-8'))
     rtn = BACKEND.add_sites_bulk(sites_json)
@@ -150,6 +155,7 @@ async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -
 @handle_exceptions
 @version(1)
 async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
+    """ Delete all sites. """
     rtn = BACKEND.delete_sites()
     return JSONResponse(repr(rtn))
 
@@ -158,6 +164,7 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
 @handle_exceptions
 @version(1)
 async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPException]:
+    """ Get the latest version of all sites. """
     rtn = BACKEND.list_sites_version_latest()
     if not rtn:
         raise SiteNotFound(site)
@@ -168,10 +175,8 @@ async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPExceptio
 @handle_exceptions
 @version(1)
 async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
-    if site == 'latest':
-        rtn = BACKEND.list_sites_version_latest()
-    else:
-        rtn = BACKEND.get_site(site)
+    """ Get all versions of a site. """
+    rtn = BACKEND.get_site(site)
     if not rtn:
         SiteNotFound(site)
     return JSONResponse(rtn)
@@ -179,6 +184,7 @@ async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPExcep
 
 @app.delete('/sites/{site}', dependencies=[Depends(verify_permission_for_service_route)])
 async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
+    """ Delete all versions of a site. """
     rtn = BACKEND.delete_site(site)
     if not rtn:
         raise SiteNotFound(site)
@@ -189,6 +195,7 @@ async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPEx
 @handle_exceptions
 @version(1)
 async def get_site_version(request: Request, site: str, version: Union[int, str]) -> HTMLResponse:
+    """ Get a particular version of a site. """
     if version == 'latest':
         rtn = BACKEND.get_site_version_latest(version)
     else:
@@ -203,6 +210,7 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
 @version(1)
 async def delete_site_version(request: Request, site: str, version: Union[int, str]) \
         -> Union[JSONResponse, HTTPException]:
+    """ Delete a particular version of a site. """
     rtn = BACKEND.delete_site_version(site, version)
     if not rtn:
         raise SiteVersionNotFound(site, version)
@@ -213,6 +221,7 @@ async def delete_site_version(request: Request, site: str, version: Union[int, s
 @handle_exceptions
 @version(1)
 async def list_storages(request: Request) -> JSONResponse:
+    """ List all storages. """
     rtn = BACKEND.list_storages()
     return JSONResponse(rtn)
 
@@ -220,7 +229,8 @@ async def list_storages(request: Request) -> JSONResponse:
 @app.get('/storages/grafana', dependencies=[])
 @handle_exceptions
 @version(1)
-async def list_storages(request: Request) -> JSONResponse:
+async def list_storages_grafana(request: Request) -> JSONResponse:
+    """ List all storages in a format digestible by Grafana world map panels. """
     rtn = BACKEND.list_storages(for_grafana=True)
     return JSONResponse(rtn)
 
@@ -228,7 +238,8 @@ async def list_storages(request: Request) -> JSONResponse:
 @app.get('/storages/topojson', dependencies=[])
 @handle_exceptions
 @version(1)
-async def list_storages(request: Request) -> JSONResponse:
+async def list_storages_topojson(request: Request) -> JSONResponse:
+    """ List all storages in topojson format. """
     rtn = BACKEND.list_storages(topojson=True)
     return JSONResponse(rtn)
 
@@ -303,6 +314,7 @@ async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
 @handle_exceptions
 @version(1)
 async def ping(request: Request):
+    """ Service aliveness. """
     return JSONResponse('pong')
 
 
