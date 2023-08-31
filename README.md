@@ -14,6 +14,7 @@ The repository is structured as follows:
 .
 ├── .env.template
 ├── .gitlab-ci.yml
+├── bin
 ├── docker-compose.yml
 ├── Dockerfile
 ├── etc
@@ -41,14 +42,31 @@ The repository is structured as follows:
 
 ## Authentication
 
-To access this API a user needs to have first authenticated with the SRCNet and to have exchanged the token resulting 
-from this initial authentication with one that allows access to this specific service. See the Authentication Mechanism 
-and Token Exchange Mechanism sections of the Authentication API document for more specifics.
+### User
 
-Hereafter, the user is assumed to have authenticated with the SRCNet and to have exchanged their token with one allowing 
-access to this service. Authenticated requests are then made by including this token in the header.
+To access this API as a user, the user needs to have first authenticated with the SRCNet and to have exchanged the token 
+resulting from this initial authentication with one that allows access to this specific service. See the Authentication 
+Mechanism and Token Exchange Mechanism sections of the Authentication API document for more specifics.
+
+### Service
+
+For service-to-service interactions, it is possible to obtain a token via a ***client_credentials*** grant to the 
+ska-src-site-capabilities-api IAM client.
 
 ## Authorisation
+
+Hereafter, the caller (either a user or another service) is assumed to have a valid token allowing access to this API. 
+Authenticated requests are then made by including this token in the header.
+
+The token audience must also match the expected audience, also defined in the site-capabilities-api permissions policy 
+(default: “site-capabilities-api”).
+
+### Restricting user access to routes using token scopes
+
+The presented token must include a specific scope expected by the service to be permitted access to all API routes. This 
+scope is defined in the site-capabilities-api permissions policy (default: “site-capabilities-api-service”). 
+
+### Restricting user access to routes using IAM groups
 
 Access to a specific route of this API depends on user IAM group membership and is determined by calls to the 
 `/authorise/route` path of the Permissions API. Groups are typically nested with the pattern 
@@ -101,6 +119,34 @@ to generate the form. All versions of a site specification are retained.
 New fields can be added to schemas, but you must remember to add the element on the form template too.
 
 Sites can be added programmatically, but care should be taken to keep the input in line with the corresponding schema.
+
+## Development
+
+Makefile targets have been included to facilitate easier and more consistent development against this API. The general 
+recipe is as follows:
+
+1. Depending on the fix type, create a new major/minor/patch branch, e.g. 
+    ```bash
+    $ make patch-branch NAME=some-name
+    ```
+    Note that this both creates and checkouts the branch.
+2. Make your changes.
+3. Add your changes to the branch:
+    ```bash
+   $ git add ...
+    ```
+4. Either commit the changes manually (if no version increment is needed) or bump the version and commit, entering a 
+   commit message when prompted:
+    ```bash
+   $ make bump-and-commit
+    ```
+5. Push the changes upstream when ready:
+    ```bash
+   $ make push
+    ```
+
+Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
+Package Registry.
 
 ## Deployment
 
