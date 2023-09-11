@@ -16,6 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      DISABLE_AUTHENTICATION: "no"
       API_ROOT_PATH:
       API_PREFIX: http
       API_HOST: localhost

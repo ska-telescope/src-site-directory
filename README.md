@@ -66,6 +66,9 @@ The token audience must also match the expected audience, also defined in the si
 The presented token must include a specific scope expected by the service to be permitted access to all API routes. This 
 scope is defined in the site-capabilities-api permissions policy (default: “site-capabilities-api-service”). 
 
+**This scope must also be added to the IAM permissions client otherwise the process of token instrospection will drop 
+this scope.**
+
 ### Restricting user access to routes using IAM groups
 
 Access to a specific route of this API depends on user IAM group membership and is determined by calls to the 
@@ -147,6 +150,10 @@ recipe is as follows:
 
 Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
 Package Registry.
+
+### Bypassing AuthN/Z
+
+AuthN/Z can be bypassed for development by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
 ## Deployment
 

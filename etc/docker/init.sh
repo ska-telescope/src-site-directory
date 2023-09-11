@@ -13,6 +13,8 @@ if [ "$n_docs" -eq "0" ]; then
    mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c sites --authenticationDatabase=admin --jsonArray etc/init/sites.json
 fi
 
+export SERVICE_VERSION=`cat VERSION`
+
 cd src/ska_src_site_capabilities_api/rest
 
 env
