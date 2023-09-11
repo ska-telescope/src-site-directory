@@ -1,10 +1,12 @@
 import ast
+import asyncio
 import json
 import jsonschema
 import operator
 import os
 import pprint
 import requests
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Union
@@ -24,13 +26,17 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 import ska_src_site_capabilities_api
-from ska_src_permissions_api.common.constants import Constants
+from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
     SiteNotFound, SiteVersionNotFound
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_permissions_api.client.permissions import PermissionsClient
 
 config = Config('.env')
+
+# Debug mode (runs unauthenticated)
+#
+DEBUG = True if config.get("DISABLE_AUTHENTICATION") == 'yes' else False
 
 # Instantiate FastAPI() allowing CORS. Middleware and static mounts are added later to the instance of a VersionedApp.
 #
@@ -76,10 +82,28 @@ PERMISSIONS = PermissionsClient(config.get('PERMISSIONS_API_URL'))
 PERMISSIONS_SERVICE_NAME = config.get('PERMISSIONS_SERVICE_NAME')
 PERMISSIONS_SERVICE_VERSION = config.get('PERMISSIONS_SERVICE_VERSION')
 
+# Store service start time.
+#
+SERVICE_START_TIME = time.time()
+
+# Keep track of number of managed requests.
+#
+REQUESTS_COUNTER = 0
+REQUESTS_COUNTER_LOCK = asyncio.Lock()
+
 
 # Dependencies.
 # -------------
 #
+# Increment the request counter.
+#
+@handle_exceptions
+async def increment_request_counter(request: Request) -> Union[dict, HTTPException]:
+    global REQUESTS_COUNTER
+    async with REQUESTS_COUNTER_LOCK:
+        REQUESTS_COUNTER += 1
+
+
 # Check service route permissions from user token groups.
 #
 @handle_exceptions
@@ -90,7 +114,7 @@ async def verify_permission_for_service_route(request: Request, authorization: s
     access_token = authorization.credentials
     rtn = PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
                                                   route=request.scope['route'].path, method=request.method,
-                                                  token=access_token, body=request.path_params)
+                                                  token=access_token, body=request.path_params).json()
     if rtn.get('is_authorised', False):
         return
     raise PermissionDenied
@@ -99,7 +123,8 @@ async def verify_permission_for_service_route(request: Request, authorization: s
 # Routes
 # ------
 #
-@app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_service_route)])
+@app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def list_schemas(request: Request) -> JSONResponse:
@@ -108,7 +133,9 @@ async def list_schemas(request: Request) -> JSONResponse:
     return JSONResponse(schema_basenames)
 
 
-@app.get("/schemas/{schema}", response_class=JSONResponse, dependencies=[Depends(verify_permission_for_service_route)])
+@app.get("/schemas/{schema}", response_class=JSONResponse, dependencies=[
+    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
+                                                       Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPException]:
@@ -122,7 +149,8 @@ async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPE
         raise SchemaNotFound
 
 
-@app.get('/services', dependencies=[])
+@app.get('/services', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def list_services(request: Request) -> JSONResponse:
@@ -131,7 +159,8 @@ async def list_services(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.get('/sites', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/sites', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def list_sites(request: Request) -> JSONResponse:
@@ -140,7 +169,8 @@ async def list_sites(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_service_route)])
+@app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
@@ -151,7 +181,8 @@ async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -
     return HTMLResponse(repr(rtn))
 
 
-@app.delete('/sites', dependencies=[Depends(verify_permission_for_service_route)])
+@app.delete('/sites', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
@@ -160,18 +191,18 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
     return JSONResponse(repr(rtn))
 
 
-@app.get('/sites/latest', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/sites/latest', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPException]:
     """ Get the latest version of all sites. """
     rtn = BACKEND.list_sites_version_latest()
-    if not rtn:
-        raise SiteNotFound(site)
     return JSONResponse(rtn)
 
 
-@app.get('/sites/{site}', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/sites/{site}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
@@ -182,7 +213,8 @@ async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPExcep
     return JSONResponse(rtn)
 
 
-@app.delete('/sites/{site}', dependencies=[Depends(verify_permission_for_service_route)])
+@app.delete('/sites/{site}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
     """ Delete all versions of a site. """
     rtn = BACKEND.delete_site(site)
@@ -191,7 +223,8 @@ async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPEx
     return JSONResponse(repr(rtn))
 
 
-@app.get('/sites/{site}/{version}', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/sites/{site}/{version}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def get_site_version(request: Request, site: str, version: Union[int, str]) -> HTMLResponse:
@@ -205,7 +238,8 @@ async def get_site_version(request: Request, site: str, version: Union[int, str]
     return JSONResponse(rtn)
 
 
-@app.delete('/sites/{site}/{version}', dependencies=[Depends(verify_permission_for_service_route)])
+@app.delete('/sites/{site}/{version}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def delete_site_version(request: Request, site: str, version: Union[int, str]) \
@@ -217,7 +251,8 @@ async def delete_site_version(request: Request, site: str, version: Union[int, s
     return JSONResponse(repr(rtn))
 
 
-@app.get('/storages', dependencies=[Depends(verify_permission_for_service_route)])
+@app.get('/storages', dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def list_storages(request: Request) -> JSONResponse:
@@ -244,7 +279,9 @@ async def list_storages_topojson(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-@app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[Depends(verify_permission_for_service_route)])
+@app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[
+    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
+                                                       Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def add_site_form(request: Request) -> TEMPLATES.TemplateResponse:
@@ -261,8 +298,9 @@ async def add_site_form(request: Request) -> TEMPLATES.TemplateResponse:
     })
 
 
-@app.get("/www/sites/add/{site}", response_class=HTMLResponse,
-         dependencies=[Depends(verify_permission_for_service_route)])
+@app.get("/www/sites/add/{site}", response_class=HTMLResponse, dependencies=[
+    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
+                                                       Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.TemplateResponse:
@@ -297,8 +335,9 @@ async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.Templ
     })
 
 
-@app.get("/www/sites/visualise", response_class=HTMLResponse,
-         dependencies=[Depends(verify_permission_for_service_route)])
+@app.get("/www/sites/visualise", response_class=HTMLResponse, dependencies=[
+    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
+                                                       Depends(verify_permission_for_service_route)])
 @handle_exceptions
 @version(1)
 async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
@@ -315,8 +354,34 @@ async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
 @version(1)
 async def ping(request: Request):
     """ Service aliveness. """
-    return JSONResponse('pong')
+    return JSONResponse({
+        'status': "UP",
+        'version': os.environ.get('SERVICE_VERSION'),
+    })
 
+
+@app.get('/health')
+@handle_exceptions
+@version(1)
+async def health(request: Request):
+    """ Service health. """
+
+    # Dependent services.
+    #
+    # Permissions API
+    #
+    permissions_api_response = PERMISSIONS.ping()
+
+    return JSONResponse(
+        {
+            'uptime': round(time.time() - SERVICE_START_TIME),
+            'number_of_managed_requests': REQUESTS_COUNTER,
+            'dependent_services': {
+                'permissions-api': {
+                    'status': "UP" if permissions_api_response.status_code == 200 else "DOWN",
+                }
+            }
+        })
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/v{major}')
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
