@@ -2,11 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  {% if values is defined %}
-    <link rel="stylesheet" type="text/css" href="../../../static/js/jsonform/deps/opt/bootstrap.css" />
-  {% else %}
-    <link rel="stylesheet" type="text/css" href="../../static/js/jsonform/deps/opt/bootstrap.css" />
-  {% endif %}
+  <link rel="stylesheet" type="text/css" href="{{ base_path }}static/js/jsonform/deps/opt/bootstrap.css" />
 </head>
 <body>
   <h1 style="color: #212529; font-weight: 100; margin-bottom: 25px;">Add Site</h1>
@@ -25,19 +21,11 @@
       $("#res").fadeIn(200).delay(2000).fadeOut(1000, function () {});
     }
   </script>
-  {% if values is defined %}
-    <script type="text/javascript" src="../../../static/js/jsonform/deps/jquery.min.js"></script>
-    <script type="text/javascript" src="../../../static/js/jsonform/deps/opt/jquery-ui.js"></script>
-    <script type="text/javascript" src="../../../static/js/jsonform/deps/underscore.js"></script>
-    <script type="text/javascript" src="../../../static/js/jsonform/deps/opt/jsv.js"></script>
-    <script type="text/javascript" src="../../../static/js/jsonform/lib/jsonform.js"></script>
-  {% else %}
-    <script type="text/javascript" src="../../static/js/jsonform/deps/jquery.min.js"></script>
-    <script type="text/javascript" src="../../static/js/jsonform/deps/opt/jquery-ui.js"></script>
-    <script type="text/javascript" src="../../static/js/jsonform/deps/underscore.js"></script>
-    <script type="text/javascript" src="../../static/js/jsonform/deps/opt/jsv.js"></script>
-    <script type="text/javascript" src="../../static/js/jsonform/lib/jsonform.js"></script>
-  {% endif %}
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/deps/opt/jquery-ui.js"></script>
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/deps/underscore.js"></script>
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/deps/opt/jsv.js"></script>
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/lib/jsonform.js"></script>
 
   <script type="text/javascript">
     $('form').jsonForm({
@@ -333,6 +321,10 @@
                   "legend": "\{\{value\}\}",
                   "items": [
                     {
+                      "key": "storages[].id",
+                      "valueInLegend": true
+                    },
+                    {
                       "key": "storages[].latitude",
                       "placeholder": "Latitude of storage location"
                     },
@@ -402,6 +394,10 @@
                   "type": "section",
                   "legend": "\{\{value\}\}",
                   "items": [
+                    {
+                      "key": "services[].id",
+                      "valueInLegend": true
+                    },
                     {
                       "key": "services[].type",
                       "valueInLegend": true
@@ -480,13 +476,21 @@
         if (errors) {
           showAndDismissAlert('danger', errors);
         } else {
-          $.post("{{ api_prefix }}://{{ api_host }}:{{ api_port }}/sites", JSON.stringify(values))
-            .done(function(data) {
+          urlParams = new URLSearchParams(window.location.search);
+          $.ajax({
+            url: "{{ add_site_url }}",
+            data: JSON.stringify(values),
+            type: 'POST',
+            headers: {
+              "Authorization": 'Bearer ' + urlParams.get('token')
+            },
+            success: function(data) {
               showAndDismissAlert('success', 'Site added.')
-            })
-            .fail(function(xhr, textStatus, errorThrown) {
+            },
+            error: function(xhr, textStatus, errorThrown) {
               showAndDismissAlert('danger', xhr.responseText)
-            })
+            }
+           });
         }
         $('html, body').scrollTop($(document).height());
       }

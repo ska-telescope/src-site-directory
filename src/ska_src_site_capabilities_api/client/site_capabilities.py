@@ -9,6 +9,14 @@ class SiteCapabilitiesClient:
         self.api_url = api_url
 
     @handle_client_exceptions
+    def get_storages_grafana(self, body: {} = {}):
+        storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
+        params = {}
+        resp = requests.get(storages_grafana_endpoint, params=params, data=json.dumps(body))
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def health(self):
         health_endpoint = "{api_url}/health".format(api_url=self.api_url)
         resp = requests.get(health_endpoint)
@@ -19,13 +27,5 @@ class SiteCapabilitiesClient:
     def ping(self):
         ping_endpoint = "{api_url}/ping".format(api_url=self.api_url)
         resp = requests.get(ping_endpoint)
-        resp.raise_for_status()
-        return resp
-
-    @handle_client_exceptions
-    def get_storages_grafana(self, body: {} = {}):
-        storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
-        params = {}
-        resp = requests.get(storages_grafana_endpoint, params=params, data=json.dumps(body))
         resp.raise_for_status()
         return resp

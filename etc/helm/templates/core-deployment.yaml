@@ -19,12 +19,6 @@ spec:
       - env:
         - name: API_ROOT_PATH
           value: {{ .Values.svc.api.root_path }}
-        - name: API_HOST
-          value: {{ .Values.svc.api.api_host }}
-        - name: API_PORT
-          value: {{ .Values.svc.api.api_port | quote }}
-        - name: API_PREFIX
-          value: {{ .Values.svc.api.api_prefix }}
         - name: IAM_CLIENT_CONF_URL
           value: {{ .Values.svc.api.iam_client_conf_url }}
         - name: API_IAM_CLIENT_ID

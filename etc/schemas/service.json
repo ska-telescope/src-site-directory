@@ -3,6 +3,13 @@
   "type": "object",
   "description": "Service definition schema.",
   "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": null,
+      "readOnly": true
+    },
     "type": {
       "type": "radios",
       "title": "Type",

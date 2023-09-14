@@ -3,6 +3,13 @@
   "type": "object",
   "description": "Storage definition schema.",
   "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": null,
+      "readOnly": true
+    },
     "latitude": {
       "type": "number",
       "title": "Latitude",
