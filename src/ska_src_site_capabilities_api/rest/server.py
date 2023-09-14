@@ -333,7 +333,6 @@ async def list_storages_topojson(request: Request) -> JSONResponse:
 @handle_exceptions
 @version(1)
 async def add_site_form(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
-    print(request.url)
     schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
@@ -354,7 +353,7 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
                                                        Depends(verify_permission_for_service_route_query_params)])
 @handle_exceptions
 @version(1)
-async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.TemplateResponse:
+async def add_site_form_existing(request: Request, site: str, token: str = None) -> TEMPLATES.TemplateResponse:
     schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
@@ -393,7 +392,7 @@ async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.Templ
                                                        Depends(verify_permission_for_service_route_query_params)])
 @handle_exceptions
 @version(1)
-async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
+async def visualise(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
     return TEMPLATES.TemplateResponse("visualise.html", {
         "request": request,
         "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
