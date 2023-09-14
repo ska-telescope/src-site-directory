@@ -3,6 +3,7 @@ image_tag: site-capabilities.srcdev.skao.int
 svc:
   api:
     root_path: /api
+    scheme: https
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
     iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
     iam_client_secret:
