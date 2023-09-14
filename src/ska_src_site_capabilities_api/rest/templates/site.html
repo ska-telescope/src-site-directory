@@ -458,14 +458,16 @@
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
 
-        // check services for bad other_attributes
-        values.services.forEach(function(service) {
-          if ('other_attributes' in service) {
-            if (JSON.stringify(service.other_attributes).length-2 === 0) {
-              errors="A service other_attributes list is not JSON stringifiable";
+        if (values.services !== undefined) {
+          // check services for bad other_attributes
+          values.services.forEach(function(service) {
+            if ('other_attributes' in service) {
+              if (JSON.stringify(service.other_attributes).length-2 === 0) {
+                errors="A service other_attributes list is not JSON stringifiable";
+              }
             }
-          }
-        });
+          });
+        }
 
         // check top level schema for bad other_attributes
         if ('other_attributes' in values) {
