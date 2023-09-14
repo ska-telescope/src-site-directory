@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" type="text/css" href="../../static/js/jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_path }}static/js/jsonform/deps/opt/bootstrap.css" />
 </head>
 <style>
   #globe {
@@ -20,7 +20,7 @@
   <h1 style="color: #212529; font-weight: 100; margin-bottom: 25px;">Visualise</h1>
   <div id="current"></div>
   <canvas id="globe"></canvas>
-  <script type="text/javascript" src="../../static/js/jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ base_path }}static/js/jsonform/deps/jquery.min.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="https://d3js.org/topojson.v1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/versor@0.2"></script>
@@ -64,8 +64,8 @@
   var doneTransfers, failedTransfers
   var autorotate, now, diff, rotation
   var currentCountry
-  var cadcSprite = new Image(); cadcSprite.src = "../../static/img/cadc.png"
-  var rucioSprite = new Image(); rucioSprite.src = "../../static/img/rucio.png"
+  var cadcSprite = new Image(); cadcSprite.src = "{{ base_path }}static/img/cadc.png"
+  var rucioSprite = new Image(); rucioSprite.src = "{{ base_path }}static/img/rucio.png"
 
 
   // Scale canvas callback.
@@ -271,14 +271,14 @@
 
   // Load one-time data, this is the entry point.
   function loadData(cb) {
-    d3.json('../../../static/resources/world-110m.json', function(error, worldTopojson) {              // world polygons
+    d3.json('{{ base_path }}static/resources/world-110m.json', function(error, worldTopojson) {              // world polygons
       if (error) throw error
-      d3.tsv('../../../static/resources/world-country-names.tsv', function(error, countryNames) {      // country names
+      d3.tsv('{{ base_path }}static/resources/world-country-names.tsv', function(error, countryNames) {      // country names
         if (error) throw error
-        d3.json('{{ api_prefix }}://{{ api_host }}:{{ api_port }}/sites/latest', function(
+        d3.json('{{ sites_latest_url }}', function(
             error, sitesJson) {                                                                        // storages
           if (error) throw error
-          d3.json('{{ api_prefix }}://{{ api_host }}:{{ api_port }}/storages/topojson', function(
+          d3.json('{{ storages_topojson_url }}', function(
               error, storagesTopojson) {                                                           // sites
             if (error) throw error
             cb(worldTopojson, countryNames, sitesJson, storagesTopojson)
@@ -331,7 +331,7 @@
         }
       })
 
-      flagUrl = '../../static/img/flags/' + country.iso2.toLowerCase() + '.svg'
+      flagUrl = '{{ base_path }}static/img/flags/' + country.iso2.toLowerCase() + '.svg'
       current.html("" +
           "<table>" +
           "<tr><td style='text-align: center;' colspan=2><img style='height: 100px' src=" + flagUrl + " /></td></tr>" +

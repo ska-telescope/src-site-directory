@@ -2,11 +2,13 @@ import ast
 import asyncio
 import json
 import jsonschema
+import jwt
 import operator
 import os
 import pprint
 import requests
 import time
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Union
@@ -48,7 +50,8 @@ CORSMiddleware_params = {
     "allow_headers": ["*"]
 }
 
-# Add HTTPBearer authz.
+
+# Add amended HTTPBearer authz.
 #
 security = HTTPBearer()
 
@@ -91,7 +94,6 @@ SERVICE_START_TIME = time.time()
 REQUESTS_COUNTER = 0
 REQUESTS_COUNTER_LOCK = asyncio.Lock()
 
-
 # Dependencies.
 # -------------
 #
@@ -115,6 +117,22 @@ async def verify_permission_for_service_route(request: Request, authorization: s
     rtn = PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
                                                   route=request.scope['route'].path, method=request.method,
                                                   token=access_token, body=request.path_params).json()
+    if rtn.get('is_authorised', False):
+        return
+    raise PermissionDenied
+
+
+# FIXME: SSO.
+# Check service route permissions from user token groups (taking token from query parameters).
+#
+@handle_exceptions
+async def verify_permission_for_service_route_query_params(request: Request, token: str = None) \
+        -> Union[HTTPException, bool]:
+    if token is None:
+        raise PermissionDenied
+    rtn = PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
+                                                  route=request.scope['route'].path, method=request.method,
+                                                  token=token, body=request.path_params).json()
     if rtn.get('is_authorised', False):
         return
     raise PermissionDenied
@@ -169,16 +187,33 @@ async def list_sites(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
+#FIXME: uses sessions, see TODO.
 @app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
     Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
-@handle_exceptions
-@version(1)
-async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
-    """ Bulk add sites from a file. """
-    sites_bytes = await sites_file.read()
-    sites_json = json.loads(sites_bytes.decode('UTF-8'))
-    rtn = BACKEND.add_sites_bulk(sites_json)
-    return HTMLResponse(repr(rtn))
+async def add_site(request: Request, authorization = Depends(security)) -> Union[HTMLResponse, HTTPException]:
+    values = await request.json()
+
+    # add some custom fields e.g. date, user
+    values['created_at'] = datetime.now().isoformat()
+    access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+    values['created_by_username'] = access_token_decoded.get('preferred_username')
+
+    # add ids for services
+    services = values.get('services')
+    if services:
+        for service in services:
+            if not service.get('id'):
+                service['id'] = str(uuid.uuid4())
+
+    # add ids for storages
+    storages = values.get('storages')
+    if storages:
+        for storage in storages:
+            if not storage.get('id'):
+                storage['id'] = str(uuid.uuid4())
+
+    id = BACKEND.add_site(values)
+    return HTMLResponse(repr(id))
 
 
 @app.delete('/sites', dependencies=[Depends(increment_request_counter)] if DEBUG else [
@@ -189,6 +224,18 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
     """ Delete all sites. """
     rtn = BACKEND.delete_sites()
     return JSONResponse(repr(rtn))
+
+
+@app.post("/sites/bulk", response_class=HTMLResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
+    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@handle_exceptions
+@version(1)
+async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
+    """ Bulk add sites from a file. """
+    sites_bytes = await sites_file.read()
+    sites_json = json.loads(sites_bytes.decode('UTF-8'))
+    rtn = BACKEND.add_sites_bulk(sites_json)
+    return HTMLResponse(repr(rtn))
 
 
 @app.get('/sites/latest', dependencies=[Depends(increment_request_counter)] if DEBUG else [
@@ -279,28 +326,29 @@ async def list_storages_topojson(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
+# FIXME: SSO.
 @app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[
     Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route)])
+                                                       Depends(verify_permission_for_service_route_query_params)])
 @handle_exceptions
 @version(1)
-async def add_site_form(request: Request) -> TEMPLATES.TemplateResponse:
+async def add_site_form(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
     schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
     schema = ast.literal_eval(str(dereferenced_schema))
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
+        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
         "schema": schema,
-        "api_prefix": config.get('API_PREFIX'),
-        "api_host": config.get('API_HOST'),
-        "api_port": config.get('API_PORT')
+        "add_site_url": request.url_for('add_site')
     })
 
 
+# FIXME: SSO.
 @app.get("/www/sites/add/{site}", response_class=HTMLResponse, dependencies=[
     Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route)])
+                                                       Depends(verify_permission_for_service_route_query_params)])
 @handle_exceptions
 @version(1)
 async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.TemplateResponse:
@@ -327,25 +375,25 @@ async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.Templ
 
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
+        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
         "schema": schema,
-        "api_prefix": config.get('API_PREFIX'),
-        "api_host": config.get('API_HOST'),
-        "api_port": config.get('API_PORT'),
+        "add_site_url": request.url_for('add_site'),
         "values": latest
     })
 
 
+# FIXME: SSO.
 @app.get("/www/sites/visualise", response_class=HTMLResponse, dependencies=[
     Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route)])
+                                                       Depends(verify_permission_for_service_route_query_params)])
 @handle_exceptions
 @version(1)
 async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
     return TEMPLATES.TemplateResponse("visualise.html", {
         "request": request,
-        "api_prefix": config.get('API_PREFIX'),
-        "api_host": config.get('API_HOST'),
-        "api_port": config.get('API_PORT')
+        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
+        "sites_latest_url": request.url_for('get_sites_latest'),
+        "storages_topojson_url": request.url_for('list_storages_topojson')
     })
 
 
@@ -372,8 +420,14 @@ async def health(request: Request):
     #
     permissions_api_response = PERMISSIONS.ping()
 
+    # Set return code dependent on criteria e.g. dependent service statuses
+    #
+    healthy_criteria = [
+        permissions_api_response.status_code == 200
+    ]
     return JSONResponse(
-        {
+        status_code=status.HTTP_200_OK if all(healthy_criteria) else status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
             'uptime': round(time.time() - SERVICE_START_TIME),
             'number_of_managed_requests': REQUESTS_COUNTER,
             'dependent_services': {
@@ -381,7 +435,8 @@ async def health(request: Request):
                     'status': "UP" if permissions_api_response.status_code == 200 else "DOWN",
                 }
             }
-        })
+        }
+    )
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/v{major}')
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)

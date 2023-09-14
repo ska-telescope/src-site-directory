@@ -19,9 +19,6 @@ RUN cd /opt/ska-src-site-capabilities-api && python3 -m pip install -e .
 WORKDIR /opt/ska-src-site-capabilities-api
 
 ENV API_ROOT_PATH ''
-ENV API_PREFIX ''
-ENV API_HOST ''
-ENV API_PORT ''
 ENV IAM_CLIENT_CONF_URL ''
 ENV API_IAM_CLIENT_ID ''
 ENV API_IAM_CLIENT_SECRET ''
