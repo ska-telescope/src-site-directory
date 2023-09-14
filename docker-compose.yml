@@ -18,6 +18,7 @@ services:
     environment:
       DISABLE_AUTHENTICATION: "no"
       API_ROOT_PATH:
+      API_SCHEME: http
       IAM_CLIENT_CONF_URL: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
       API_IAM_CLIENT_ID: 1f901a38-955f-4198-aedb-002332a3c551
       API_IAM_CLIENT_SECRET:

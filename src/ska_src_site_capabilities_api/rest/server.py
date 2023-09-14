@@ -333,15 +333,18 @@ async def list_storages_topojson(request: Request) -> JSONResponse:
 @handle_exceptions
 @version(1)
 async def add_site_form(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
+    print(request.url)
     schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
     schema = ast.literal_eval(str(dereferenced_schema))
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
+        "base_path": str(request.base_url).replace(
+            'http', config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request.url_for('add_site')
+        "add_site_url": request.url_for('add_site').replace(
+            'http', config.get('API_SCHEME', default='http'))
     })
 
 
@@ -375,9 +378,11 @@ async def add_site_form_existing(request: Request, site: str) -> TEMPLATES.Templ
 
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
+        "base_path": str(request.base_url).replace(
+            'http', config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request.url_for('add_site'),
+        "add_site_url": request.url_for('add_site').replace(
+            'http', config.get('API_SCHEME', default='http')),
         "values": latest
     })
 
@@ -392,8 +397,10 @@ async def visualise(request: Request) -> TEMPLATES.TemplateResponse:
     return TEMPLATES.TemplateResponse("visualise.html", {
         "request": request,
         "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
-        "sites_latest_url": request.url_for('get_sites_latest'),
-        "storages_topojson_url": request.url_for('list_storages_topojson')
+        "sites_latest_url": request.url_for('get_sites_latest').replace(
+            'http', config.get('API_SCHEME', default='http')),
+        "storages_topojson_url": request.url_for('list_storages_topojson').replace(
+            'http', config.get('API_SCHEME', default='http'))
     })
 
 
