@@ -1,4 +1,3 @@
-import json
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
@@ -9,10 +8,23 @@ class SiteCapabilitiesClient:
         self.api_url = api_url
 
     @handle_client_exceptions
-    def get_storages_grafana(self, body: {} = {}):
+    def get_services(self):
+        services_endpoint = "{api_url}/services".format(api_url=self.api_url)
+        resp = requests.get(services_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_storages(self):
+        storages_endpoint = "{api_url}/storages".format(api_url=self.api_url)
+        resp = requests.get(storages_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_storages_grafana(self):
         storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
-        params = {}
-        resp = requests.get(storages_grafana_endpoint, params=params, data=json.dumps(body))
+        resp = requests.get(storages_grafana_endpoint)
         resp.raise_for_status()
         return resp
 
