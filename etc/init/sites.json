@@ -2158,7 +2158,7 @@
             "value": "ivo://skao.src/spsrc-soda/"
           },
           "ivoid_to_namespace_regex": "\\?([^\\/]+)",
-          "ivoid_to_name_regex": ".*\\/(.*)"}
+          "ivoid_to_name_regex": ".*\\/(.*)"
         },
         "id": "2e4f834f-827c-4790-98c0-25f8e723829a"
       },
@@ -2174,7 +2174,7 @@
             "value": "ivo://skao.src/spsrc-soda/"
           },
           "ivoid_to_namespace_regex": "\\?([^\\/]+)",
-          "ivoid_to_name_regex": ".*\\/(.*)"}
+          "ivoid_to_name_regex": ".*\\/(.*)"
         },
         "id": "590ccfcb-11ae-4a19-ae3f-2414d8010252"
       }
