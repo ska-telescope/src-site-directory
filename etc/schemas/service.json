@@ -70,7 +70,7 @@
     },
     "other_attributes": {
       "type": "object",
-      "title": "Other attributes (as json)",
+      "title": "Other service attributes (as json)",
       "allowEmpty": true
     }
   }
