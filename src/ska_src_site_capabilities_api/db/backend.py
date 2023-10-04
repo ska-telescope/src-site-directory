@@ -1,4 +1,3 @@
-import json
 from abc import ABC, abstractmethod
 
 from pymongo import MongoClient
@@ -139,7 +138,7 @@ class MongoBackend(Backend):
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
             response.append({
-                'name': full_site_json['name'],
+                'site_name': full_site_json['name'],
                 'services': full_site_json['services']
             })
         return response
@@ -214,5 +213,9 @@ class MongoBackend(Backend):
                                         "name": service.get('identifier')
                                     })
                             else:
-                                response.append(*site['storages'])
+                                print(site['storages'])
+                                response.append({
+                                    "site_name": site.get('name'),
+                                    "storages": site['storages']
+                                })
         return response

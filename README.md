@@ -1,44 +1,8 @@
 # SKA SRC Site Capabilities API
 
-[[_TOC_]]
-
-## Overview
-
 This API exposes enables functionality related to SRCNet site service discovery and management.
 
-## Structure
-
-The repository is structured as follows:
-
-```bash
-.
-├── .env.template
-├── .gitlab-ci.yml
-├── bin
-├── docker-compose.yml
-├── Dockerfile
-├── etc
-│   ├── docker
-│   │   └── init.sh
-│   ├── helm
-│   │   ├── Chart.yaml
-│   │   ├── templates
-│   │   └── values.yaml.template
-│   ├── init
-│   └── schemas
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── setup.py
-├── src
-│   └── ska_src_site_capabilities_api
-│       ├── client
-│       ├── common
-│       ├── db
-│       └── rest
-├── TODO.md
-└── VERSION
-```
+[TOC]
 
 ## Authentication
 
@@ -111,6 +75,19 @@ and the roles `site-viewer` and `site-manager` are only assigned for users who h
 }
 ```
 
+## Operations
+
+Operations are grouped into the follow sections:
+
+| <div style="width:160px">Group</div> | Description                                   |
+|:-------------------------------------|:----------------------------------------------|
+| <br/>                                |                                               |
+| Sites                                | Operations on sites.                          |
+| Storages                             | Operations on storages offered by sites       |
+| Services                             | Operations on services offered by sites       |
+| Schemas                              | Schema operations.                            |
+| Status                               | Operations describing the status of the API.  |
+
 ## Schemas
 
 It is recommended to record data in the document database by using the web frontend (`/www/sites/add`). This form 
@@ -134,6 +111,10 @@ recipe is as follows:
     ```
     Note that this both creates and checkouts the branch.
 2. Make your changes.
+3. Create new code samples if necessary.
+   ```bash
+   $ make code-samples
+   ```
 3. Add your changes to the branch:
     ```bash
    $ git add ...
@@ -182,3 +163,10 @@ $ create namespace ska-src-site-capabilities-api
 $ helm install --namespace ska-src-site-capabilities-api ska-src-site-capabilities-api .
 ```
 
+## Prototype
+
+Currently a prototype of this service is deployed at data-management.srcdev.skao.int/api. This prototype application uses the SKA IAM client ska-src-data-management-api.
+
+## References
+
+1. https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api

@@ -3,6 +3,9 @@ bump-and-commit:
 	@git add VERSION etc/helm/Chart.yaml
 	@git commit
 
+code-samples:
+	@cd etc/scripts && bash generate-code-samples.sh
+
 major-branch:
 	@test -n "$(NAME)"
 	@echo "making major branch \"$(NAME)\""

@@ -1,0 +1,13 @@
+import requests
+
+url = "{{ api_server_url }}/sites"
+
+payload = "Site JSON."
+headers = {
+    "content-type": "application/json",
+    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
+}
+
+response = requests.request("POST", url, json=payload, headers=headers)
+
+print(response.text)

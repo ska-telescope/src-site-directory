@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <title>{{ page_title }}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ base_path }}static/css/pygments.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;600" rel="stylesheet">
+  <style>
+      a, a:visited, a:hover, a:active {
+        color: inherit;
+        text-decoration: inherit;
+      }
+    </style>
+</head>
+<body>
+  <rapi-doc
+          id="api-doc"
+          theme="light"
+          sort-endpoints-by="path"
+          allow-server-selection=false
+          allow-spec-url-load="false"
+          allow-spec-file-load="false"
+          show-method-in-nav-bar="as-colored-block"
+          show-header="false"
+          primary-color="#E50869"
+          regular-font="Noto Sans"
+  >
+    <section slot="nav-logo">
+      <div style="text-align: center; margin-bottom: 0.5em">
+        <img src="{{ base_path }}static/img/logo.svg" style="width:250px; height:100px"/>
+      </div>
+    </section>
+    <section slot="overview">{{ readme_text_md | safe }}</section>
+  </rapi-doc>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      let docEl = document.getElementById("api-doc");
+      let objSpec = {{ openapi_schema | safe }};
+      docEl.loadSpec(objSpec);
+    })
+  </script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  </script>
+</body>
+</html>

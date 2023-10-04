@@ -1,0 +1,9 @@
+import requests
+
+url = "{{ api_server_url }}/sites/bulk"
+
+headers = {"content-type": "multipart/form-data"}
+
+response = requests.request("POST", url, headers=headers)
+
+print(response.text)
