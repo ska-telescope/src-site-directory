@@ -74,14 +74,14 @@ class PermissionDenied(CustomHTTPException):
 
 class SchemaNotFound(CustomHTTPException):
     def __init__(self, schema):
-        self.message = "Schema with name '{}' could not be found {}".format(schema)
+        self.message = "Schema with name '{}' could not be found".format(schema)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class SiteNotFound(CustomHTTPException):
     def __init__(self, site):
-        self.message = "Site with name '{}' could not be found {}".format(site)
+        self.message = "Site with name '{}' could not be found".format(site)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 

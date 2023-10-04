@@ -1,36 +1,34 @@
 import ast
 import asyncio
+import copy
 import json
-import jsonschema
 import jwt
-import operator
 import os
-import pprint
-import requests
+import pathlib
 import time
 import uuid
 from datetime import datetime
-from pathlib import Path
 from typing import Union
 
-import jinja2
 import jsonref
-import uvicorn
 from authlib.integrations.requests_client import OAuth2Session
-from fastapi import FastAPI, Depends, File, Header, HTTPException, status, UploadFile
+from fastapi import FastAPI, Depends, File, Header, HTTPException, status, UploadFile, Query, Path, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi_versioning import VersionedFastAPI, version
+from fastapi_versionizer.versionizer import api_version, versionize
+from jinja2 import Template
 from starlette.config import Config
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
+from starlette.responses import HTMLResponse, JSONResponse
 
-import ska_src_site_capabilities_api
+from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
     SiteNotFound, SiteVersionNotFound
+
+from ska_src_site_capabilities_api.common.utility import request_url_for_app, convert_readme_to_html_docs, urljoin
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_permissions_api.client.permissions import PermissionsClient
 
@@ -38,9 +36,9 @@ config = Config('.env')
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
+DEBUG = False if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
 
-# Instantiate FastAPI() allowing CORS. Middleware and static mounts are added later to the instance of a VersionedApp.
+# Instantiate FastAPI() allowing CORS. Static mounts are added later to the instance of a versioned application.
 #
 app = FastAPI()
 CORSMiddleware_params = {
@@ -49,7 +47,7 @@ CORSMiddleware_params = {
     "allow_methods": ["*"],
     "allow_headers": ["*"]
 }
-
+app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
 
 # Add amended HTTPBearer authz.
 #
@@ -93,6 +91,7 @@ SERVICE_START_TIME = time.time()
 #
 REQUESTS_COUNTER = 0
 REQUESTS_COUNTER_LOCK = asyncio.Lock()
+
 
 # Dependencies.
 # -------------
@@ -141,25 +140,40 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
 # Routes
 # ------
 #
-@app.get("/schemas", response_class=JSONResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get("/schemas",
+         responses={
+             200: {"model": models.response.SchemaResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Schemas"],
+         summary="List schemas")
 @handle_exceptions
-@version(1)
 async def list_schemas(request: Request) -> JSONResponse:
-    """ List schemas used to define sites, services and storages. """
+    """ Get a list of schema names used to define sites, services and storages. """
     schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(config.get('SCHEMAS_RELPATH'))])
     return JSONResponse(schema_basenames)
 
 
-@app.get("/schemas/{schema}", response_class=JSONResponse, dependencies=[
-    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get("/schemas/{schema}",
+         responses={
+             200: {"model": models.response.SchemaGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Schemas"],
+         summary="Get schema")
 @handle_exceptions
-@version(1)
-async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPException]:
-    """ Get a particular schema. """
+async def get_schema(request: Request, schema: str = Path(description="Schema name.")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Get a schema by name. """
     try:
-        schema_path = Path("{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), schema))).absolute()
+        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), schema))).absolute()
         with open(schema_path) as f:
             dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
         return JSONResponse(ast.literal_eval(str(dereferenced_schema)))         # some issue with jsonref return != dict
@@ -167,32 +181,58 @@ async def get_schema(request: Request, schema: str) -> Union[JSONResponse, HTTPE
         raise SchemaNotFound
 
 
-@app.get('/services', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/services',
+         responses={
+             200: {"model": models.response.ServicesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Services"],
+         summary="List all services")
 @handle_exceptions
-@version(1)
 async def list_services(request: Request) -> JSONResponse:
     """ List all services. """
     rtn = BACKEND.list_services()
     return JSONResponse(rtn)
 
 
-@app.get('/sites', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/sites',
+         responses={
+             200: {"model": models.response.SitesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="List sites")
 @handle_exceptions
-@version(1)
 async def list_sites(request: Request) -> JSONResponse:
     """ List all sites. """
     rtn = BACKEND.list_site_names_unique()
     return JSONResponse(rtn)
 
 
-#FIXME: uses sessions, see TODO.
-@app.post("/sites", response_class=HTMLResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
-async def add_site(request: Request, authorization = Depends(security)) -> Union[HTMLResponse, HTTPException]:
-    values = await request.json()
-
+# FIXME: SSO.
+@api_version(1)
+@app.post("/sites",
+          include_in_schema=False,
+          responses={
+              200: {"model": models.response.ServicesResponse},
+              401: {},
+              403: {}
+          },
+          dependencies=[Depends(increment_request_counter)] if DEBUG else [
+              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+          tags=["Sites"],
+          summary="Add a site")
+@handle_exceptions
+async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(security), ) \
+        -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
     values['created_at'] = datetime.now().isoformat()
     access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
@@ -216,151 +256,337 @@ async def add_site(request: Request, authorization = Depends(security)) -> Union
     return HTMLResponse(repr(id))
 
 
-@app.delete('/sites', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.delete('/sites',
+            responses={
+                200: {"model": models.response.GenericOperationResponse},
+                401: {},
+                403: {}
+            },
+            dependencies=[Depends(increment_request_counter)] if DEBUG else [
+                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+            tags=["Sites"],
+            summary="Delete all sites")
 @handle_exceptions
-@version(1)
 async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
     """ Delete all sites. """
-    rtn = BACKEND.delete_sites()
-    return JSONResponse(repr(rtn))
+    BACKEND.delete_sites()
+    return JSONResponse({"successful": True})
 
 
-@app.post("/sites/bulk", response_class=HTMLResponse, dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.post("/sites/bulk",
+          responses={
+              200: {"model": models.response.GenericOperationResponse},
+              401: {},
+              403: {}
+          },
+          dependencies=[Depends(increment_request_counter)] if DEBUG else [
+              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+          tags=["Sites"],
+          summary="Bulk add sites")
 @handle_exceptions
-@version(1)
-async def add_sites_bulk(request: Request, sites_file: UploadFile = File(...)) -> Union[HTMLResponse, HTTPException]:
-    """ Bulk add sites from a file. """
+async def add_sites_bulk(request: Request, sites_file: UploadFile = File(..., description="Input JSON file.")) \
+        -> Union[HTMLResponse, HTTPException]:
+    """ Bulk add sites from a JSON file. """
     sites_bytes = await sites_file.read()
     sites_json = json.loads(sites_bytes.decode('UTF-8'))
-    rtn = BACKEND.add_sites_bulk(sites_json)
-    return HTMLResponse(repr(rtn))
+    BACKEND.add_sites_bulk(sites_json)
+    return JSONResponse({"successful": True})
 
 
-@app.get('/sites/latest', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/sites/latest',
+         responses={
+             200: {"model": models.response.SiteGetResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="Get latest versions of all sites")
 @handle_exceptions
-@version(1)
 async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPException]:
     """ Get the latest version of all sites. """
     rtn = BACKEND.list_sites_version_latest()
     return JSONResponse(rtn)
 
 
-@app.get('/sites/{site}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/sites/{site}',
+         responses={
+             200: {"model": models.response.SiteGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="Get all versions of site")
 @handle_exceptions
-@version(1)
-async def get_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
+async def get_site_versions(request: Request, site: str = Path(description="Site name.")) \
+        -> Union[JSONResponse, HTTPException]:
     """ Get all versions of a site. """
     rtn = BACKEND.get_site(site)
     if not rtn:
-        SiteNotFound(site)
+        raise SiteNotFound(site)
     return JSONResponse(rtn)
 
 
-@app.delete('/sites/{site}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
-async def delete_site(request: Request, site: str) -> Union[JSONResponse, HTTPException]:
+@api_version(1)
+@app.delete('/sites/{site}',
+            responses={
+                200: {"model": models.response.GenericOperationResponse},
+                401: {},
+                403: {},
+                404: {"model": models.response.GenericErrorResponse}
+            },
+            dependencies=[Depends(increment_request_counter)] if DEBUG else [
+                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+            tags=["Sites"],
+            summary="Delete all versions of site")
+@handle_exceptions
+async def delete_site(request: Request, site: str = Path(description="Site name.")) \
+        -> Union[JSONResponse, HTTPException]:
     """ Delete all versions of a site. """
     rtn = BACKEND.delete_site(site)
-    if not rtn:
+    if rtn.deleted_count == 0:
         raise SiteNotFound(site)
-    return JSONResponse(repr(rtn))
+    return JSONResponse({"successful": True})
 
 
-@app.get('/sites/{site}/{version}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/sites/{site}/{version}',
+         responses={
+             200: {"model": models.response.SiteGetVersionResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="Get version of site")
 @handle_exceptions
-@version(1)
-async def get_site_version(request: Request, site: str, version: Union[int, str]) -> HTMLResponse:
-    """ Get a particular version of a site. """
+async def get_site_version(request: Request, site: str = Path(description="Site name."), version: Union[int, str] = \
+        Path(description='Site version.<br/><br/>Set to \'latest\' for latest')) -> HTMLResponse:
+    """ Get a version of a site. """
     if version == 'latest':
-        rtn = BACKEND.get_site_version_latest(version)
+        rtn = BACKEND.get_site_version_latest(site)
     else:
         rtn = BACKEND.get_site_version(site, version)
     if not rtn:
         raise SiteVersionNotFound(site, version)
-    return JSONResponse(rtn)
+    return JSONResponse(rtn[0])
 
 
-@app.delete('/sites/{site}/{version}', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.delete('/sites/{site}/{version}',
+            responses={
+                200: {"model": models.response.GenericOperationResponse},
+                401: {},
+                403: {},
+                404: {"model": models.response.GenericErrorResponse}
+            },
+            dependencies=[Depends(increment_request_counter)] if DEBUG else [
+                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+            tags=["Sites"],
+            summary="Delete version of site")
 @handle_exceptions
-@version(1)
-async def delete_site_version(request: Request, site: str, version: Union[int, str]) \
-        -> Union[JSONResponse, HTTPException]:
-    """ Delete a particular version of a site. """
+async def delete_site_version(request: Request, site: str = Path(description="Site name."), version: Union[int, str] = \
+        Path(description='Site version.<br/><br/>Set to \'latest\' for latest')) -> Union[JSONResponse, HTTPException]:
+    """ Delete a version of a site. """
     rtn = BACKEND.delete_site_version(site, version)
-    if not rtn:
+    if rtn.deleted_count == 0:
         raise SiteVersionNotFound(site, version)
-    return JSONResponse(repr(rtn))
+    return JSONResponse({"successful": True})
 
 
-@app.get('/storages', dependencies=[Depends(increment_request_counter)] if DEBUG else [
-    Depends(increment_request_counter), Depends(verify_permission_for_service_route)])
+@api_version(1)
+@app.get('/storages',
+         responses={
+             200: {"model": models.response.StoragesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Storages"],
+         summary="List all storages")
 @handle_exceptions
-@version(1)
 async def list_storages(request: Request) -> JSONResponse:
     """ List all storages. """
     rtn = BACKEND.list_storages()
     return JSONResponse(rtn)
 
 
-@app.get('/storages/grafana', dependencies=[])
+@api_version(1)
+@app.get('/storages/grafana',
+         responses={
+             200: {"model": models.response.StoragesGrafanaResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[],
+         tags=["Storages"],
+         summary="List all storages (Grafana format)")
 @handle_exceptions
-@version(1)
-async def list_storages_grafana(request: Request) -> JSONResponse:
+async def list_storages_for_grafana(request: Request) -> JSONResponse:
     """ List all storages in a format digestible by Grafana world map panels. """
     rtn = BACKEND.list_storages(for_grafana=True)
     return JSONResponse(rtn)
 
 
-@app.get('/storages/topojson', dependencies=[])
+@api_version(1)
+@app.get('/storages/topojson',
+         responses={
+             200: {"model": models.response.StoragesTopojsonResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[],
+         tags=["Storages"],
+         summary="List all storages (topojson format)")
 @handle_exceptions
-@version(1)
-async def list_storages_topojson(request: Request) -> JSONResponse:
+async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
     """ List all storages in topojson format. """
     rtn = BACKEND.list_storages(topojson=True)
     return JSONResponse(rtn)
 
 
-# FIXME: SSO.
-@app.get("/www/sites/add", response_class=HTMLResponse, dependencies=[
-    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route_query_params)])
+@api_version(1)
+@app.get("/www/docs/oper",
+         include_in_schema=False,
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)])
 @handle_exceptions
-@version(1)
+async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
+    # Read and parse README.md, omitting excluded sections.
+    readme_text_md = os.environ.get('README_MD', "")
+    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
+        "Development", "Deployment", "Prototype", "References"])
+
+    openapi_schema = request.scope.get('app').openapi_schema
+    openapi_schema_template = Template(json.dumps(openapi_schema))
+    return TEMPLATES.TemplateResponse("docs.html", {
+        "request": request,
+        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "page_title": "Site Capabilities API Operator Documentation",
+        "openapi_schema": openapi_schema_template.render({
+            "api_server_url": "{}{}".format(request.base_url, request.scope.get('root_path').lstrip('/')).replace(
+                'http', config.get('API_SCHEME', default='http'))
+        }),
+        "readme_text_md": readme_text_html,
+    })
+
+
+@api_version(1)
+@app.get("/www/docs/user",
+         include_in_schema=False,
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)])
+@handle_exceptions
+async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
+    # Read and parse README.md, omitting excluded sections.
+    readme_text_md = os.environ.get('README_MD', "")
+    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
+        "Authorisation", "Schemas", "Development", "Deployment", "Prototype", "References"])
+
+    # Exclude unnecessary paths.
+    paths_to_exclude = {
+        '/schemas': ['get'],
+        '/schemas/{schema}': ['get'],
+        '/sites': ['post', 'delete'],
+        '/sites/bulk': ['post'],
+        '/sites/latest': ['get'],
+        '/sites/{site}': ['get', 'delete'],
+        '/sites/{site}/{version}': ['get', 'delete'],
+        '/storages': ['get'],
+        '/storages/grafana': ['get'],
+        '/storages/topojson': ['get'],
+        '/www/sites/add': ['get'],
+        '/www/sites/add/{site}': ['get']
+    }
+    openapi_schema = copy.deepcopy(request.scope.get('app').openapi_schema)
+    included_paths = copy.deepcopy(openapi_schema.get('paths', {}))
+    for path, methods in openapi_schema.get('paths', {}).items():
+        for method, attr in methods.items():
+            if method in paths_to_exclude.get(path, []):
+                included_paths[path].pop(method)
+    openapi_schema.update({'paths': included_paths})
+
+    openapi_schema_template = Template(json.dumps(openapi_schema))
+    return TEMPLATES.TemplateResponse("docs.html", {
+        "request": request,
+        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "page_title": "Site Capabilities API User Documentation",
+        "openapi_schema": openapi_schema_template.render({
+            "api_server_url": "{}{}".format(request.base_url, request.scope.get('root_path').lstrip('/')).replace(
+                'http', config.get('API_SCHEME', default='http'))
+        }),
+        "readme_text_md": readme_text_html,
+    })
+
+
+# FIXME: SSO.
+@api_version(1)
+@app.get("/www/sites/add",
+         responses={
+             200: {},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route_query_params)],
+         tags=["Sites"],
+         summary="Add site form")
+@handle_exceptions
 async def add_site_form(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
-    schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
+    """ Web form to add a new site with JSON schema validation.
+
+    A valid token must be included in the <b>token</b> query parameter.
+
+    """
+    schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
     schema = ast.literal_eval(str(dereferenced_schema))
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": str(request.base_url).replace(
-            'http', config.get('API_SCHEME', default='http')),
+        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request.url_for('add_site').replace(
-            'http', config.get('API_SCHEME', default='http'))
+        "add_site_url": request_url_for_app('add_site', request, scheme=config.get('API_SCHEME', default='http'))
     })
 
 
 # FIXME: SSO.
-@app.get("/www/sites/add/{site}", response_class=HTMLResponse, dependencies=[
-    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route_query_params)])
+@api_version(1)
+@app.get("/www/sites/add/{site}",
+         responses={
+             200: {},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route_query_params)],
+         tags=["Sites"],
+         summary="Update existing site form.")
 @handle_exceptions
-@version(1)
 async def add_site_form_existing(request: Request, site: str, token: str = None) -> TEMPLATES.TemplateResponse:
-    schema_path = Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
+    """ Web form to update an existing site with JSON schema validation.
+
+    A valid token must be included in the <b>token</b> query parameter.
+
+    """
+    schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
     schema = ast.literal_eval(str(dereferenced_schema))
     latest = BACKEND.get_site_version_latest(site)
     if not latest:
-        raise SiteVersionNotFound(site, version)
+        raise SiteVersionNotFound(site, 'latest')
     try:
         latest.pop('comments')
     except KeyError:
@@ -377,35 +603,23 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
 
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": str(request.base_url).replace(
-            'http', config.get('API_SCHEME', default='http')),
+        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request.url_for('add_site').replace(
-            'http', config.get('API_SCHEME', default='http')),
+        "add_site_url": request_url_for_app('add_site', request, scheme=config.get('API_SCHEME', default='http')),
         "values": latest
     })
 
 
-# FIXME: SSO.
-@app.get("/www/sites/visualise", response_class=HTMLResponse, dependencies=[
-    Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter),
-                                                       Depends(verify_permission_for_service_route_query_params)])
+@api_version(1)
+@app.get('/ping',
+         responses={
+             200: {"model": models.response.PingResponse},
+             401: {},
+             403: {}
+         },
+         tags=["Status"],
+         summary="Check API status")
 @handle_exceptions
-@version(1)
-async def visualise(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
-    return TEMPLATES.TemplateResponse("visualise.html", {
-        "request": request,
-        "base_path": os.path.join(str(request.base_url), config.get('API_ROOT_PATH', default='')),
-        "sites_latest_url": request.url_for('get_sites_latest').replace(
-            'http', config.get('API_SCHEME', default='http')),
-        "storages_topojson_url": request.url_for('list_storages_topojson').replace(
-            'http', config.get('API_SCHEME', default='http'))
-    })
-
-
-@app.get('/ping')
-@handle_exceptions
-@version(1)
 async def ping(request: Request):
     """ Service aliveness. """
     return JSONResponse({
@@ -414,11 +628,22 @@ async def ping(request: Request):
     })
 
 
-@app.get('/health')
+@api_version(1)
+@app.get('/health',
+         responses={
+             200: {"model": models.response.HealthResponse},
+             401: {},
+             403: {},
+             500: {"model": models.response.HealthResponse}
+         },
+         tags=["Status"],
+         summary="Check API health")
 @handle_exceptions
-@version(1)
 async def health(request: Request):
-    """ Service health. """
+    """ Service health.
+
+    This endpoint will return a 500 if any of the dependent services are down.
+    """
 
     # Dependent services.
     #
@@ -444,7 +669,54 @@ async def health(request: Request):
         }
     )
 
-app = VersionedFastAPI(app, version_format='{major}', prefix_format='/v{major}')
-app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
+# Versionise the API.
+#
+versions = versionize(
+    app=app,
+    prefix_format='/v{major}',
+    docs_url=None,
+    redoc_url=None
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Customise openapi.json.
+#
+# - Add schema server, title and tags.
+# - Add request code samples to routes.
+# - Remove 422 responses.
+#
+for route in app.routes:
+    if isinstance(route.app, FastAPI):              # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
+        subapp = route.app
+        subapp_base_path = urljoin(os.environ.get('API_ROOT_PATH', default=''), route.path)
+        subapp.openapi()
+        subapp.openapi_schema['servers'] = [{"url": subapp_base_path}]
+        subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'
+        subapp.openapi_schema['info']['description'] = os.environ.get('README_EXTRA_MD', "")
+        subapp.openapi_schema['tags'] = [
+            {"name": "Sites", "description": "Operations on sites.", "x-tag-expanded": False},
+            {"name": "Storages", "description": "Operations on storages offered by sites.", "x-tag-expanded": False},
+            {"name": "Services", "description": "Operations on services offered by sites.", "x-tag-expanded": False},
+            {"name": "Schemas", "description": "Schema operations.", "x-tag-expanded": False},
+            {"name": "Status", "description": "Operations describing the status of the API.", "x-tag-expanded": False},
+        ]
+        # add request code samples and strip out 422s
+        for language in ['shell', 'python', 'go', 'js']:
+            for path, methods in subapp.openapi_schema['paths'].items():
+                path = path.strip('/')
+                for method, attr in methods.items():
+                    if attr.get('responses', {}).get('422'):
+                        del attr.get('responses')['422']
+                    method = method.strip('/')
+                    sample_template_filename = "{}-{}-{}.j2".format(
+                        language, path, method).replace('/', '-')
+                    sample_template_path = os.path.join('request-code-samples', sample_template_filename)
+                    if os.path.exists(sample_template_path):
+                        with open(sample_template_path, 'r') as f:
+                            sample_source_template = f.read()
+                        code_samples = attr.get('x-code-samples', [])
+                        code_samples.append({
+                            'lang': language,
+                            'source': str(sample_source_template)            # rendered later in route
+                        })
+                        attr['x-code-samples'] = code_samples
