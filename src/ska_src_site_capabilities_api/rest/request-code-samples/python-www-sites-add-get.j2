@@ -1,0 +1,9 @@
+import requests
+
+url = "{{ api_server_url }}/www/sites/add"
+
+querystring = {"token":"SOME_STRING_VALUE"}
+
+response = requests.request("GET", url, params=querystring)
+
+print(response.text)

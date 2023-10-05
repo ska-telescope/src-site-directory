@@ -1,13 +1,11 @@
 const http = require("http");
 
 const options = {
-  "method": "DELETE",
+  "method": "GET",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1/sites",
-  "headers": {
-    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
-  }
+  "path": "/v1/www/sites/add/{site}?token=SOME_STRING_VALUE",
+  "headers": {}
 };
 
 const req = http.request(options, function (res) {

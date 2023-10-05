@@ -1,2 +1,3 @@
 curl --request GET \
-  --url {{ api_server_url }}/sites/%7Bsite%7D/%7Bversion%7D
+  --url {{ api_server_url }}/sites/{site}/{version} \
+  --header 'Authorization: Bearer REPLACE_BEARER_TOKEN'

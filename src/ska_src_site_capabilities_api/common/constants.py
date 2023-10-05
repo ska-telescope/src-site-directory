@@ -1,12 +1,12 @@
-from abc import abstractmethod
-
-from ska_src_site_capabilities_api.common.utility import parse_oidc_well_known
+import requests
 
 
 class Constants:
     def __init__(self, client_conf_url):
         # Get oidc endpoints from IAM .well_known.
-        self.client_well_known = parse_oidc_well_known(client_conf_url)
+        resp = requests.get(client_conf_url)
+        resp.raise_for_status()
+        self.client_well_known = resp.json()
 
     # IAM url endpoints.
     #

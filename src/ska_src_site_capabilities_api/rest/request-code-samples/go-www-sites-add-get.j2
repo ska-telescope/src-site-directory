@@ -8,12 +8,9 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/sites/bulk"
+	url := "{{ api_server_url }}/www/sites/add?token=SOME_STRING_VALUE"
 
-	req, _ := http.NewRequest("POST", url, nil)
-
-	req.Header.Add("content-type", "multipart/form-data")
-	req.Header.Add("Authorization", "Bearer REPLACE_BEARER_TOKEN")
+	req, _ := http.NewRequest("GET", url, nil)
 
 	res, _ := http.DefaultClient.Do(req)
 

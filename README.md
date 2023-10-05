@@ -10,7 +10,7 @@ This API exposes enables functionality related to SRCNet site service discovery 
 
 To access this API as a user, the user needs to have first authenticated with the SRCNet and to have exchanged the token 
 resulting from this initial authentication with one that allows access to this specific service. See the Authentication 
-Mechanism and Token Exchange Mechanism sections of the Authentication API document for more specifics.
+Mechanism and Token Exchange Mechanism sections of the Authentication API for more specifics.
 
 ### Service
 
@@ -44,9 +44,9 @@ required group hierarchy may look something like:
 
 ```
 /services/site-capabilities-api/
-    roles/SKAOSRC/
-        viewer
-        manager
+   roles/SKAOSRC/
+      viewer
+      manager
 ```
 
 where the `/sites/{site}` get route is protected by the following permission policy mapping API routes to "roles":
@@ -56,8 +56,7 @@ where the `/sites/{site}` get route is protected by the following permission pol
    "/sites/{site}": {
       "GET": "site-viewer or site-manager",
       "DELETE": "site-manager"
-    },
-   ...
+   },
 }
 ```
 
@@ -68,10 +67,9 @@ and the roles `site-viewer` and `site-manager` are only assigned for users who h
    "site-viewer": [
       "{root_group}/roles/{site}/viewer"
     ],
-    "site-manager": [
+   "site-manager": [
       "{root_group}/roles/{site}/manager"
-    ],
-   ...
+   ],
 }
 ```
 

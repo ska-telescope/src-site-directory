@@ -12,7 +12,7 @@ from typing import Union
 
 import jsonref
 from authlib.integrations.requests_client import OAuth2Session
-from fastapi import FastAPI, Depends, File, Header, HTTPException, status, UploadFile, Query, Path, Body
+from fastapi import FastAPI, Depends, File, HTTPException, status, UploadFile, Path, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.staticfiles import StaticFiles
@@ -28,7 +28,8 @@ from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
     SiteNotFound, SiteVersionNotFound
 
-from ska_src_site_capabilities_api.common.utility import request_url_for_app, convert_readme_to_html_docs, urljoin
+from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
+    get_base_url_from_request, get_url_for_app_from_request
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_permissions_api.client.permissions import PermissionsClient
 
@@ -429,7 +430,8 @@ async def list_storages(request: Request) -> JSONResponse:
              401: {},
              403: {}
          },
-         dependencies=[],
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
          tags=["Storages"],
          summary="List all storages (Grafana format)")
 @handle_exceptions
@@ -446,7 +448,8 @@ async def list_storages_for_grafana(request: Request) -> JSONResponse:
              401: {},
              403: {}
          },
-         dependencies=[],
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
          tags=["Storages"],
          summary="List all storages (topojson format)")
 @handle_exceptions
@@ -472,11 +475,10 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     openapi_schema_template = Template(json.dumps(openapi_schema))
     return TEMPLATES.TemplateResponse("docs.html", {
         "request": request,
-        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
         "page_title": "Site Capabilities API Operator Documentation",
         "openapi_schema": openapi_schema_template.render({
-            "api_server_url": "{}{}".format(request.base_url, request.scope.get('root_path').lstrip('/')).replace(
-                'http', config.get('API_SCHEME', default='http'))
+            "api_server_url": get_api_server_url_from_request(request, config.get('API_SCHEME', default='http'))
         }),
         "readme_text_md": readme_text_html,
     })
@@ -520,11 +522,10 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     openapi_schema_template = Template(json.dumps(openapi_schema))
     return TEMPLATES.TemplateResponse("docs.html", {
         "request": request,
-        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
         "page_title": "Site Capabilities API User Documentation",
         "openapi_schema": openapi_schema_template.render({
-            "api_server_url": "{}{}".format(request.base_url, request.scope.get('root_path').lstrip('/')).replace(
-                'http', config.get('API_SCHEME', default='http'))
+            "api_server_url": get_api_server_url_from_request(request, config.get('API_SCHEME', default='http'))
         }),
         "readme_text_md": readme_text_html,
     })
@@ -555,9 +556,10 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
     schema = ast.literal_eval(str(dereferenced_schema))
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request_url_for_app('add_site', request, scheme=config.get('API_SCHEME', default='http'))
+        "add_site_url": get_url_for_app_from_request(
+            'add_site', request, scheme=config.get('API_SCHEME', default='http'))
     })
 
 
@@ -592,7 +594,7 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
     except KeyError:
         pass
 
-    # Quote nested dictionaries otherwise JSONForm parses as [Object object].
+    # quote nested dictionaries otherwise JSONForm parses as [Object object].
     if latest.get('services', None):
         for idx in range(len(latest['services'])):
             if latest['services'][idx].get('other_attributes', None):
@@ -603,9 +605,10 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
 
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
-        "base_path": str(request.base_url).replace('http', config.get('API_SCHEME', default='http')),
+        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
         "schema": schema,
-        "add_site_url": request_url_for_app('add_site', request, scheme=config.get('API_SCHEME', default='http')),
+        "add_site_url": get_url_for_app_from_request(
+            'add_site', request, scheme=config.get('API_SCHEME', default='http')),
         "values": latest
     })
 
@@ -688,7 +691,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 for route in app.routes:
     if isinstance(route.app, FastAPI):              # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
         subapp = route.app
-        subapp_base_path = urljoin(os.environ.get('API_ROOT_PATH', default=''), route.path)
+        subapp_base_path = '{}{}'.format(os.environ.get('API_ROOT_PATH', default=''), route.path)
         subapp.openapi()
         subapp.openapi_schema['servers'] = [{"url": subapp_base_path}]
         subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'

@@ -23,6 +23,7 @@ sed -i 's/Go + Native/go/g' openapi-with-snippets.json
 python3 -c '
 import json
 import os
+from urllib.parse import unquote
 
 with open("openapi-with-snippets.json") as f:
   openapi_schema = json.loads(f.read())
@@ -38,7 +39,7 @@ for path, methods in openapi_schema.get("paths").items():
     code_samples = attr.get("x-codeSamples", [])
     for code_sample in code_samples:
       lang = code_sample.get("lang")
-      source = code_sample.get("source")
+      source = unquote(code_sample.get("source"))
       filename = "{}-{}-{}.j2".format(lang, path.lstrip("/").replace("/", "-"), method)
       with open(os.path.join("'$OUTPUT_DIR'", filename), "w") as f:
         f.write(source.replace("'$SERVER'", "{{ api_server_url }}"))

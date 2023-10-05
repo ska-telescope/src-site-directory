@@ -4,8 +4,10 @@ const options = {
   "method": "DELETE",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1/sites/%7Bsite%7D",
-  "headers": {}
+  "path": "/v1/sites/{site}",
+  "headers": {
+    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
+  }
 };
 
 const req = http.request(options, function (res) {

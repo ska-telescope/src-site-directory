@@ -1,7 +1,9 @@
 import requests
 
-url = "{{ api_server_url }}/sites/%7Bsite%7D/%7Bversion%7D"
+url = "{{ api_server_url }}/sites/{site}/{version}"
 
-response = requests.request("GET", url)
+headers = {"Authorization": "Bearer REPLACE_BEARER_TOKEN"}
+
+response = requests.request("GET", url, headers=headers)
 
 print(response.text)

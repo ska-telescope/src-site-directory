@@ -1,2 +1,3 @@
 curl --request GET \
-  --url {{ api_server_url }}/schemas/%7Bschema%7D
+  --url {{ api_server_url }}/schemas/{schema} \
+  --header 'Authorization: Bearer REPLACE_BEARER_TOKEN'
