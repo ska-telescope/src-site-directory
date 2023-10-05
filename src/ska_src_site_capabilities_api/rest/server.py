@@ -37,9 +37,9 @@ config = Config('.env')
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = False if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
+DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
 
-# Instantiate FastAPI() allowing CORS. Static mounts are added later to the instance of a versioned application.
+# Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
 app = FastAPI()
 CORSMiddleware_params = {
@@ -50,7 +50,7 @@ CORSMiddleware_params = {
 }
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
 
-# Add amended HTTPBearer authz.
+# Add HTTPBearer authz.
 #
 security = HTTPBearer()
 
@@ -144,7 +144,9 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
 @api_version(1)
 @app.get("/schemas",
          responses={
-             200: {"model": models.response.SchemaResponse}
+             200: {"model": models.response.SchemasResponse},
+             401: {},
+             403: {},
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
@@ -170,7 +172,8 @@ async def list_schemas(request: Request) -> JSONResponse:
          tags=["Schemas"],
          summary="Get schema")
 @handle_exceptions
-async def get_schema(request: Request, schema: str = Path(description="Schema name.")) \
+async def get_schema(request: Request,
+                     schema: str = Path(description="Schema name")) \
         -> Union[JSONResponse, HTTPException]:
     """ Get a schema by name. """
     try:
@@ -327,7 +330,8 @@ async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPExceptio
          tags=["Sites"],
          summary="Get all versions of site")
 @handle_exceptions
-async def get_site_versions(request: Request, site: str = Path(description="Site name.")) \
+async def get_site_versions(request: Request,
+                            site: str = Path(description="Site name")) \
         -> Union[JSONResponse, HTTPException]:
     """ Get all versions of a site. """
     rtn = BACKEND.get_site(site)
@@ -349,7 +353,8 @@ async def get_site_versions(request: Request, site: str = Path(description="Site
             tags=["Sites"],
             summary="Delete all versions of site")
 @handle_exceptions
-async def delete_site(request: Request, site: str = Path(description="Site name.")) \
+async def delete_site(request: Request,
+                      site: str = Path(description="Site name")) \
         -> Union[JSONResponse, HTTPException]:
     """ Delete all versions of a site. """
     rtn = BACKEND.delete_site(site)
@@ -371,8 +376,10 @@ async def delete_site(request: Request, site: str = Path(description="Site name.
          tags=["Sites"],
          summary="Get version of site")
 @handle_exceptions
-async def get_site_version(request: Request, site: str = Path(description="Site name."), version: Union[int, str] = \
-        Path(description='Site version.<br/><br/>Set to \'latest\' for latest')) -> HTMLResponse:
+async def get_site_version(request: Request,
+                           site: str = Path(description="Site name"),
+                           version: str = Path(example='latest', description='Site version')) \
+        -> HTMLResponse:
     """ Get a version of a site. """
     if version == 'latest':
         rtn = BACKEND.get_site_version_latest(site)
@@ -396,8 +403,10 @@ async def get_site_version(request: Request, site: str = Path(description="Site 
             tags=["Sites"],
             summary="Delete version of site")
 @handle_exceptions
-async def delete_site_version(request: Request, site: str = Path(description="Site name."), version: Union[int, str] = \
-        Path(description='Site version.<br/><br/>Set to \'latest\' for latest')) -> Union[JSONResponse, HTTPException]:
+async def delete_site_version(request: Request,
+                              site: str = Path(description="Site name."),
+                              version: str = Path(example='latest', description='Site version')) \
+        -> Union[JSONResponse, HTTPException]:
     """ Delete a version of a site. """
     rtn = BACKEND.delete_site_version(site, version)
     if rtn.deleted_count == 0:
@@ -467,7 +476,11 @@ async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
 @handle_exceptions
 async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     # Read and parse README.md, omitting excluded sections.
-    readme_text_md = os.environ.get('README_MD', "")
+    if not DEBUG:
+        readme_text_md = os.environ.get('README_MD', "")
+    else:
+        with open("../../../README.md") as f:
+            readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
         "Development", "Deployment", "Prototype", "References"])
 
@@ -492,7 +505,11 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
 @handle_exceptions
 async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     # Read and parse README.md, omitting excluded sections.
-    readme_text_md = os.environ.get('README_MD', "")
+    if not DEBUG:
+        readme_text_md = os.environ.get('README_MD', "")
+    else:
+        with open("../../../README.md") as f:
+            readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
         "Authorisation", "Schemas", "Development", "Deployment", "Prototype", "References"])
 
@@ -574,7 +591,7 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
              Depends(increment_request_counter), Depends(verify_permission_for_service_route_query_params)],
          tags=["Sites"],
-         summary="Update existing site form.")
+         summary="Update existing site form")
 @handle_exceptions
 async def add_site_form_existing(request: Request, site: str, token: str = None) -> TEMPLATES.TemplateResponse:
     """ Web form to update an existing site with JSON schema validation.
@@ -616,9 +633,7 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
 @api_version(1)
 @app.get('/ping',
          responses={
-             200: {"model": models.response.PingResponse},
-             401: {},
-             403: {}
+             200: {"model": models.response.PingResponse}
          },
          tags=["Status"],
          summary="Check API status")
@@ -635,8 +650,6 @@ async def ping(request: Request):
 @app.get('/health',
          responses={
              200: {"model": models.response.HealthResponse},
-             401: {},
-             403: {},
              500: {"model": models.response.HealthResponse}
          },
          tags=["Status"],
@@ -695,7 +708,6 @@ for route in app.routes:
         subapp.openapi()
         subapp.openapi_schema['servers'] = [{"url": subapp_base_path}]
         subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'
-        subapp.openapi_schema['info']['description'] = os.environ.get('README_EXTRA_MD', "")
         subapp.openapi_schema['tags'] = [
             {"name": "Sites", "description": "Operations on sites.", "x-tag-expanded": False},
             {"name": "Storages", "description": "Operations on storages offered by sites.", "x-tag-expanded": False},

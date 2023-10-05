@@ -79,7 +79,6 @@ Operations are grouped into the follow sections:
 
 | <div style="width:160px">Group</div> | Description                                   |
 |:-------------------------------------|:----------------------------------------------|
-| <br/>                                |                                               |
 | Sites                                | Operations on sites.                          |
 | Storages                             | Operations on storages offered by sites       |
 | Services                             | Operations on services offered by sites       |
@@ -113,16 +112,16 @@ recipe is as follows:
    ```bash
    $ make code-samples
    ```
-3. Add your changes to the branch:
+4. Add your changes to the branch:
     ```bash
    $ git add ...
     ```
-4. Either commit the changes manually (if no version increment is needed) or bump the version and commit, entering a 
+5. Either commit the changes manually (if no version increment is needed) or bump the version and commit, entering a 
    commit message when prompted:
     ```bash
    $ make bump-and-commit
     ```
-5. Push the changes upstream when ready:
+6. Push the changes upstream when ready:
     ```bash
    $ make push
     ```
@@ -156,15 +155,16 @@ eng@ubuntu:~/SKAO/ska-src-site-capabilities-api$ docker-compose up
 
 After editing the `values.yaml` (template in `/etc/helm/`):
 
-```
+```bash
 $ create namespace ska-src-site-capabilities-api
 $ helm install --namespace ska-src-site-capabilities-api ska-src-site-capabilities-api .
 ```
 
 ## Prototype
 
-Currently a prototype of this service is deployed at data-management.srcdev.skao.int/api. This prototype application uses the SKA IAM client ska-src-data-management-api.
+A prototype of this service is deployed at site-capabilities.srcdev.skao.int/api. This prototype application 
+uses the SKA IAM client ska-src-site-capabilities-api.
 
 ## References
 
-1. https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api
+1. https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-site-capabilities-api
