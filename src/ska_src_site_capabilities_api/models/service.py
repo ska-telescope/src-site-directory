@@ -4,8 +4,24 @@ from uuid import uuid4, UUID
 from pydantic import BaseModel, Field, NonNegativeInt
 
 
+ServiceType = Literal[
+    "Rucio Server",
+    "Rucio Storage Element (RSE)",
+    "Data Ingest Area",
+    "Storage Inventory (Global)",
+    "Storage Inventory (Local)",
+    "JupyterHub",
+    "BinderHub",
+    "Dask",
+    "Carta",
+    "VisiVO",
+    "SODA (sync)",
+    "SODA (async)"
+]
+
+
 class Service(BaseModel):
-    type: str = Field(examples=["SKAOSRC"])
+    type: ServiceType = Field(examples=["Data Ingest Area"])
     externally_accessible: Literal["Yes", "No"]
     prefix: str = Field(examples=["https"])
     host: str = Field(examples=["rucio.srcdev.skao.int"])
