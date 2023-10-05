@@ -15,7 +15,6 @@ fi
 
 export SERVICE_VERSION=`cat VERSION`
 export README_MD=`cat README.md`
-export README_EXTRA_MD=`cat README.extra.md`
 
 cd src/ska_src_site_capabilities_api/rest
 

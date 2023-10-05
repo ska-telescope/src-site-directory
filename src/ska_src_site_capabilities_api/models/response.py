@@ -2,7 +2,6 @@ from typing import Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
-
 from ska_src_site_capabilities_api.models.service import Service
 from ska_src_site_capabilities_api.models.storage import Storage, StorageGrafana, StorageTopojson
 

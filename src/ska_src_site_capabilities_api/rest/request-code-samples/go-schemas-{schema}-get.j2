@@ -8,9 +8,11 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/schemas/%7Bschema%7D"
+	url := "{{ api_server_url }}/schemas/{schema}"
 
 	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("Authorization", "Bearer REPLACE_BEARER_TOKEN")
 
 	res, _ := http.DefaultClient.Do(req)
 

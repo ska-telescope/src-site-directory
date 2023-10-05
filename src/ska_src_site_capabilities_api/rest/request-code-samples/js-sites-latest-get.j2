@@ -5,7 +5,9 @@ const options = {
   "hostname": "localhost",
   "port": "8080",
   "path": "/v1/sites/latest",
-  "headers": {}
+  "headers": {
+    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
+  }
 };
 
 const req = http.request(options, function (res) {

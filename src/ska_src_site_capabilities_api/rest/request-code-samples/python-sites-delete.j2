@@ -2,6 +2,8 @@ import requests
 
 url = "{{ api_server_url }}/sites"
 
-response = requests.request("DELETE", url)
+headers = {"Authorization": "Bearer REPLACE_BEARER_TOKEN"}
+
+response = requests.request("DELETE", url, headers=headers)
 
 print(response.text)
