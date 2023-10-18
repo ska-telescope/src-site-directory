@@ -12,6 +12,9 @@
         color: inherit;
         text-decoration: inherit;
       }
+      .inverted {
+        filter:invert(100%)
+      }
     </style>
 </head>
 <body>
@@ -29,7 +32,7 @@
   >
     <section slot="nav-logo">
       <div style="text-align: center; margin-bottom: 0.5em">
-        <img src="{{ base_url }}static/img/logo.svg" style="width:250px; height:100px"/>
+        <img src="{{ base_url }}static/img/srcnet.svg" style="width:250px; height:100px" class="inverted"/>
       </div>
     </section>
     <section slot="overview">{{ readme_text_md | safe }}</section>
