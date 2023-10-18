@@ -149,7 +149,7 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
              403: {},
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter)],
          tags=["Schemas"],
          summary="List schemas")
 @handle_exceptions
@@ -168,7 +168,7 @@ async def list_schemas(request: Request) -> JSONResponse:
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter)],
          tags=["Schemas"],
          summary="Get schema")
 @handle_exceptions
@@ -511,7 +511,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
         with open("../../../README.md") as f:
             readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
-        "Authorisation", "Schemas", "Development", "Deployment", "Prototype", "References"])
+        "Authorisation", "Workflows", "Schemas", "Development", "Deployment", "Prototype", "References"])
 
     # Exclude unnecessary paths.
     paths_to_exclude = {

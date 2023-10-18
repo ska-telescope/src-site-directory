@@ -90,8 +90,8 @@ def get_url_for_app_from_request(function_name, request, scheme='http'):
     Scheme is required in case the original scheme is not forwarded correctly through proxies.
 
     Examples:
-     - on localhost, function_name="add_site": http://localhost/v1//www/sites/add
-     - in production, function_name="add_site": https://service.srcdev.skao.int/api/v1/
+     - on localhost, function_name="add_site": http://localhost/v1/www/sites/add
+     - in production, function_name="add_site": https://service.srcdev.skao.int/api/v1/www/sites/add
 
     Note:
       - request.scope.get('root_path') returns either e.g. /v1 or /api/v1 (if proxied)
