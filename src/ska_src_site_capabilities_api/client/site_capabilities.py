@@ -12,7 +12,37 @@ class SiteCapabilitiesClient:
             self.session = requests.Session()
 
     @handle_client_exceptions
-    def get_services(self):
+    def get_service(self, service_id: str):
+        """ Get description of a service from an identifier.
+
+        :param str service_id: The unique service id.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(api_url=self.api_url,
+                                                                              service_id=service_id)
+        resp = self.session.get(get_service_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_storage(self, storage_id: str):
+        """ Get description of a storage from an identifier.
+
+        :param str storage_id: The unique service id.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_storage_by_id_endpoint = "{api_url}/services/{storage_id}".format(api_url=self.api_url,
+                                                                              storage_id=storage_id)
+        resp = self.session.get(get_storage_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_services(self):
         """ Get a list of SRCNet services.
 
         :return: A requests response.
@@ -24,7 +54,7 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def get_storages(self):
+    def list_storages(self):
         """ Get a list of SRCNet storages.
 
         :return: A requests response.
@@ -36,7 +66,7 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def get_storages_grafana(self):
+    def list_storages_grafana(self):
         """ Get a list of SRCNet storages (for grafana).
 
         :return: A requests response.

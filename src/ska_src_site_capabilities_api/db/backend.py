@@ -103,6 +103,14 @@ class MongoBackend(Backend):
         sites = db.sites
         return sites.delete_one({"name": site, "version": version})
 
+    def get_service(self, service_id):
+        response = {}
+        for site in self.list_sites_version_latest():
+            for service in site['services']:
+                if service['id'] == service_id:
+                    response = service
+        return response
+
     def get_site(self, site):
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
@@ -133,6 +141,14 @@ class MongoBackend(Backend):
                 latest = site_version
         return latest
 
+    def get_storage(self, storage_id):
+        response = {}
+        for site in self.list_sites_version_latest():
+            for storage in site['storages']:
+                if storage['id'] == storage_id:
+                    response = storage
+        return response
+
     def list_services(self):
         response = []
         for site_name in self.list_site_names_unique():
@@ -161,9 +177,6 @@ class MongoBackend(Backend):
         return response
 
     def list_storages(self, topojson=False, for_grafana=False):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
         if topojson:
             response = {
                 "type": "Topology",
