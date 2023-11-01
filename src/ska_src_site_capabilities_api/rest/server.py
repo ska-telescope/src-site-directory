@@ -26,7 +26,7 @@ from starlette.responses import HTMLResponse, JSONResponse
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
-    SiteNotFound, SiteVersionNotFound
+    ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound
 
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
@@ -37,7 +37,7 @@ config = Config('.env')
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
+DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -200,6 +200,29 @@ async def get_schema(request: Request,
 async def list_services(request: Request) -> JSONResponse:
     """ List all services. """
     rtn = BACKEND.list_services()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/services/{service_id}',
+         responses={
+             200: {"model": models.response.ServiceGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Services"],
+         summary="Get service from id")
+@handle_exceptions
+async def get_service_from_id(request: Request,
+                              service_id: str = Path(description="Unique service identifier")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Get a service description from a unique identifier. """
+    rtn = BACKEND.get_service(service_id)
+    if not rtn:
+        raise ServiceNotFound(service_id)
     return JSONResponse(rtn)
 
 
@@ -429,6 +452,29 @@ async def delete_site_version(request: Request,
 async def list_storages(request: Request) -> JSONResponse:
     """ List all storages. """
     rtn = BACKEND.list_storages()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storages/{storage_id}',
+         responses={
+             200: {"model": models.response.StorageGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Storages"],
+         summary="Get storage from id")
+@handle_exceptions
+async def get_storage_from_id(request: Request,
+                              storage_id: str = Path(description="Unique storage identifier")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Get a storage description from a unique identifier. """
+    rtn = BACKEND.get_storage(storage_id)
+    if not rtn:
+        raise ServiceNotFound(storage_id)
     return JSONResponse(rtn)
 
 

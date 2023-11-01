@@ -79,6 +79,13 @@ class SchemaNotFound(CustomHTTPException):
         super().__init__(self.message)
 
 
+class ServiceNotFound(CustomHTTPException):
+    def __init__(self, service_id):
+        self.message = "Service with identifier '{}' could not be found".format(service_id)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
 class SiteNotFound(CustomHTTPException):
     def __init__(self, site):
         self.message = "Site with name '{}' could not be found".format(site)
@@ -89,5 +96,12 @@ class SiteNotFound(CustomHTTPException):
 class SiteVersionNotFound(CustomHTTPException):
     def __init__(self, site, version):
         self.message = "Version {} of site with name '{}' and could not be found".format(version, site)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
+class StorageNotFound(CustomHTTPException):
+    def __init__(self, storage_id):
+        self.message = "Storage with identifier '{}' could not be found".format(storage_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)

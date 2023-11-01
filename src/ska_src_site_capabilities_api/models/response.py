@@ -41,6 +41,9 @@ SchemasResponse = List[str]
 SchemaGetResponse = Schema
 
 
+ServiceGetResponse = Service
+
+
 class ServicesResponse(BaseModel):
     site_name: str = Field(examples=["JPSRC"])
     services: List[Service]
@@ -53,6 +56,9 @@ SiteGetVersionResponse = Site
 
 
 SiteGetResponse = List[Site]
+
+
+StorageGetResponse = Storage
 
 
 class StoragesResponse(BaseModel):
