@@ -35,7 +35,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_by_id_endpoint = "{api_url}/services/{storage_id}".format(api_url=self.api_url,
+        get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url,
                                                                               storage_id=storage_id)
         resp = self.session.get(get_storage_by_id_endpoint)
         resp.raise_for_status()
