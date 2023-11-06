@@ -258,9 +258,12 @@ async def list_sites(request: Request) -> JSONResponse:
           tags=["Sites"],
           summary="Add a site")
 @handle_exceptions
-async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(security), ) \
+async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(security)) \
         -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
+    if isinstance(values, (bytes, bytearray)):
+        values = json.loads(values.decode('utf-8'))
+    print(values)
     values['created_at'] = datetime.now().isoformat()
     access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
     values['created_by_username'] = access_token_decoded.get('preferred_username')
@@ -474,7 +477,7 @@ async def get_storage_from_id(request: Request,
     """ Get a storage description from a unique identifier. """
     rtn = BACKEND.get_storage(storage_id)
     if not rtn:
-        raise ServiceNotFound(storage_id)
+        raise StorageNotFound(storage_id)
     return JSONResponse(rtn)
 
 
@@ -563,12 +566,14 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     paths_to_exclude = {
         '/schemas': ['get'],
         '/schemas/{schema}': ['get'],
+        '/services/{service_id}': ['get'],
         '/sites': ['post', 'delete'],
         '/sites/bulk': ['post'],
         '/sites/latest': ['get'],
         '/sites/{site}': ['get', 'delete'],
         '/sites/{site}/{version}': ['get', 'delete'],
         '/storages': ['get'],
+        '/storages/{storage_id}': ['get'],
         '/storages/grafana': ['get'],
         '/storages/topojson': ['get'],
         '/www/sites/add': ['get'],

@@ -580,7 +580,7 @@
         "prefix": "https",
         "host": "srcdev.skatelescope.org",
         "port": 443,
-        "path": "/storm/sa/ingest",
+        "path": "/storm/sa/ingest/staging",
         "id": "a5cc6b4b-296b-4c84-8a02-adb434cc4390"
       }
     ],
