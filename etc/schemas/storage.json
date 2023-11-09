@@ -10,6 +10,18 @@
       "default": null,
       "readOnly": true
     },
+    "host": {
+      "type": "string",
+      "title": "Hostname",
+      "default": null,
+      "required": true
+    },
+    "base_path": {
+      "type": "string",
+      "title": "Base path",
+      "default": null,
+      "required": true
+    },
     "latitude": {
       "type": "number",
       "title": "Latitude",

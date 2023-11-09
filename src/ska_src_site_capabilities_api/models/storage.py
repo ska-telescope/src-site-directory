@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field, NonNegativeInt
 
 class StorageProtocol(BaseModel):
     prefix: str = Field(examples=["https"])
-    host: str = Field(examples=["storm.srcdev.skao.int"])
     port: NonNegativeInt = Field(examples=[443])
-    base_path: str = Field(examples=["/path/to/storage"])
 
 
 class Storage(BaseModel):
+    host: str = Field(examples=["storm.srcdev.skao.int"])
+    base_path: str = Field(examples=["/path/to/storage"])
     latitude: float = Field(examples=[51.4964])
     longitude: float = Field(examples=[-0.1224])
     srm: str = Field(examples=["srm"])
