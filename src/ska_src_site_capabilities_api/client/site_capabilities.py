@@ -12,6 +12,24 @@ class SiteCapabilitiesClient:
             self.session = requests.Session()
 
     @handle_client_exceptions
+    def get_add_site_www_url(self):
+        """ Get the add site www URL.
+
+        :return: The URL.
+        """
+        add_site_www_url = "{api_url}/www/sites/add".format(api_url=self.api_url)
+        return add_site_www_url
+
+    @handle_client_exceptions
+    def get_edit_site_www_url(self, site_name):
+        """ Get the edit site www URL.
+
+        :return: The URL.
+        """
+        edit_site_www_url = "{api_url}/www/sites/add/{site_name}".format(api_url=self.api_url, site_name=site_name)
+        return edit_site_www_url
+
+    @handle_client_exceptions
     def get_service(self, service_id: str):
         """ Get description of a service from an identifier.
 
@@ -49,6 +67,18 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
+        resp = self.session.get(services_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_sites(self):
+        """ Get a list of SRCNet sites.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        services_endpoint = "{api_url}/sites".format(api_url=self.api_url)
         resp = self.session.get(services_endpoint)
         resp.raise_for_status()
         return resp

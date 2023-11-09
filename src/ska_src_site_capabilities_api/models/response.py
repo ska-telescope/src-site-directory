@@ -52,6 +52,9 @@ class ServicesResponse(BaseModel):
 SitesResponse = List[str]
 
 
+SitesDumpResponse = List[Site]
+
+
 SiteGetVersionResponse = Site
 
 
