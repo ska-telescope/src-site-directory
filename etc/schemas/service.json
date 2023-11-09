@@ -68,6 +68,11 @@
       "title": "Identifier (if applicable)",
       "default": null
     },
+    "associated_storage_id": {
+      "type": "string",
+      "title": "Associated storage UUID (if applicable)",
+      "default": null
+    },
     "other_attributes": {
       "type": "object",
       "title": "Other service attributes (as json)",

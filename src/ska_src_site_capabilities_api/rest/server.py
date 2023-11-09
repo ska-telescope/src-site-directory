@@ -263,10 +263,12 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
     # add some custom fields e.g. date, user
     if isinstance(values, (bytes, bytearray)):
         values = json.loads(values.decode('utf-8'))
-    print(values)
     values['created_at'] = datetime.now().isoformat()
-    access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
-    values['created_by_username'] = access_token_decoded.get('preferred_username')
+    if DEBUG and authorization.credentials == 'null':
+        values['created_by_username'] = 'admin'
+    else:
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values['created_by_username'] = access_token_decoded.get('preferred_username')
 
     # add ids for services
     services = values.get('services')
@@ -305,24 +307,39 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
 
 
 @api_version(1)
-@app.post("/sites/bulk",
-          responses={
-              200: {"model": models.response.GenericOperationResponse},
-              401: {},
-              403: {}
-          },
-          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-          tags=["Sites"],
-          summary="Bulk add sites")
+@app.get("/sites/dump",
+         responses={
+             200: {"model": models.response.SitesDumpResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="Dump all versions of sites")
 @handle_exceptions
-async def add_sites_bulk(request: Request, sites_file: UploadFile = File(..., description="Input JSON file.")) \
-        -> Union[HTMLResponse, HTTPException]:
-    """ Bulk add sites from a JSON file. """
-    sites_bytes = await sites_file.read()
-    sites_json = json.loads(sites_bytes.decode('UTF-8'))
-    BACKEND.add_sites_bulk(sites_json)
-    return JSONResponse({"successful": True})
+async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
+    """ Dump sites. """
+    rtn = BACKEND.dump_sites()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/sites',
+         responses={
+             200: {"model": models.response.SitesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Sites"],
+         summary="List sites")
+@handle_exceptions
+async def list_sites(request: Request) -> JSONResponse:
+    """ List all sites. """
+    rtn = BACKEND.list_site_names_unique()
+    return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -413,7 +430,7 @@ async def get_site_version(request: Request,
         rtn = BACKEND.get_site_version(site, version)
     if not rtn:
         raise SiteVersionNotFound(site, version)
-    return JSONResponse(rtn[0])
+    return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -455,6 +472,45 @@ async def delete_site_version(request: Request,
 async def list_storages(request: Request) -> JSONResponse:
     """ List all storages. """
     rtn = BACKEND.list_storages()
+    print(rtn)
+    return JSONResponse(rtn)
+
+
+#FIXME this really should be /service/grafana
+@api_version(1)
+@app.get('/storages/grafana',
+         responses={
+             200: {"model": models.response.StoragesGrafanaResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
+         tags=["Storages"],
+         summary="List all storages (Grafana format)")
+@handle_exceptions
+async def list_storages_for_grafana(request: Request) -> JSONResponse:
+    """ List all storages in a format digestible by Grafana world map panels. """
+    rtn = BACKEND.list_storages(for_grafana=True)
+    return JSONResponse(rtn)
+
+
+#FIXME this really should be /services/topojson
+@api_version(1)
+@app.get('/storages/topojson',
+         responses={
+             200: {"model": models.response.StoragesTopojsonResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
+         tags=["Storages"],
+         summary="List all storages (topojson format)")
+@handle_exceptions
+async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
+    """ List all storages in topojson format. """
+    rtn = BACKEND.list_storages(topojson=True)
     return JSONResponse(rtn)
 
 
@@ -478,42 +534,6 @@ async def get_storage_from_id(request: Request,
     rtn = BACKEND.get_storage(storage_id)
     if not rtn:
         raise StorageNotFound(storage_id)
-    return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.get('/storages/grafana',
-         responses={
-             200: {"model": models.response.StoragesGrafanaResponse},
-             401: {},
-             403: {}
-         },
-         dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter)],
-         tags=["Storages"],
-         summary="List all storages (Grafana format)")
-@handle_exceptions
-async def list_storages_for_grafana(request: Request) -> JSONResponse:
-    """ List all storages in a format digestible by Grafana world map panels. """
-    rtn = BACKEND.list_storages(for_grafana=True)
-    return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.get('/storages/topojson',
-         responses={
-             200: {"model": models.response.StoragesTopojsonResponse},
-             401: {},
-             403: {}
-         },
-         dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter)],
-         tags=["Storages"],
-         summary="List all storages (topojson format)")
-@handle_exceptions
-async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
-    """ List all storages in topojson format. """
-    rtn = BACKEND.list_storages(topojson=True)
     return JSONResponse(rtn)
 
 
@@ -569,6 +589,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
         '/services/{service_id}': ['get'],
         '/sites': ['post', 'delete'],
         '/sites/bulk': ['post'],
+        '/sites/dump': ['get'],
         '/sites/latest': ['get'],
         '/sites/{site}': ['get', 'delete'],
         '/sites/{site}/{version}': ['get', 'delete'],

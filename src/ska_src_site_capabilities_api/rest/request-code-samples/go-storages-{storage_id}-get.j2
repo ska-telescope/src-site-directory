@@ -8,9 +8,11 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/schemas/{schema}"
+	url := "{{ api_server_url }}/storages/{storage_id}"
 
 	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("Authorization", "Bearer REPLACE_BEARER_TOKEN")
 
 	res, _ := http.DefaultClient.Do(req)
 
