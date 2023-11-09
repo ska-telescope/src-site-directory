@@ -1,10 +1,13 @@
 import ast
 import asyncio
 import copy
+import io
 import json
 import jwt
 import os
 import pathlib
+from plantuml import PlantUML
+import tempfile
 import time
 import uuid
 from datetime import datetime
@@ -21,7 +24,7 @@ from fastapi_versionizer.versionizer import api_version, versionize
 from jinja2 import Template
 from starlette.config import Config
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
@@ -183,6 +186,47 @@ async def get_schema(request: Request,
         return JSONResponse(ast.literal_eval(str(dereferenced_schema)))         # some issue with jsonref return != dict
     except FileNotFoundError:
         raise SchemaNotFound
+
+
+@api_version(1)
+@app.get("/schemas/render/{schema}",
+         responses={
+             200: {},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
+         tags=["Schemas"],
+         summary="Render a schema")
+@handle_exceptions
+async def render_schema(request: Request,
+                     schema: str = Path(description="Schema name")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Render a schema by name. """
+    try:
+        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), schema))).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = ast.literal_eval(str(jsonref.load(f, base_uri=schema_path.as_uri())))
+    except FileNotFoundError:
+        raise SchemaNotFound
+
+    # pop countries enum for readability
+    dereferenced_schema.get('properties').get('country').pop('enum')
+
+    plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as schema_file:
+        schema_file.write("@startjson\n{}\n@endjson\n".format(json.dumps(dereferenced_schema, indent=2)))
+        schema_file.flush()
+
+        image_temp_file_descriptor, image_temp_file_name = tempfile.mkstemp()
+        plantuml.processes_file(filename=schema_file.name, outfile=image_temp_file_name)
+        with open(image_temp_file_name, 'rb') as image_temp_file:
+            png = image_temp_file.read()
+        os.close(image_temp_file_descriptor)
+
+    return StreamingResponse(io.BytesIO(png), media_type="image/png")
 
 
 @api_version(1)
@@ -586,6 +630,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     paths_to_exclude = {
         '/schemas': ['get'],
         '/schemas/{schema}': ['get'],
+        '/schemas/render/{schema}': ['get'],
         '/services/{service_id}': ['get'],
         '/sites': ['post', 'delete'],
         '/sites/bulk': ['post'],

@@ -4,8 +4,7 @@ from urllib.parse import urlparse
 import markdown
 
 
-def convert_readme_to_html_docs(request, text, remove_first_heading=True, convert_mermaid_diagrams=True,
-                                exclude_sections=None):
+def convert_readme_to_html_docs(text, remove_first_heading=True, convert_mermaid_diagrams=True, exclude_sections=None):
     """ Take an application's README file and parse it for display in HTML documentation.
 
     Options:
