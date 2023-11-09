@@ -14,21 +14,9 @@
       "default": "https",
       "required": true
     },
-    "host": {
-      "type": "string",
-      "title": "Hostname",
-      "default": null,
-      "required": true
-    },
     "port": {
       "type": "number",
       "title": "Port",
-      "default": null,
-      "required": true
-    },
-    "base_path": {
-      "type": "string",
-      "title": "Base path",
       "default": null,
       "required": true
     }

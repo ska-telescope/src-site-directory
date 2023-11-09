@@ -4,7 +4,8 @@ from urllib.parse import urlparse
 import markdown
 
 
-def convert_readme_to_html_docs(text, remove_first_heading=True, convert_mermaid_diagrams=True, exclude_sections=None):
+def convert_readme_to_html_docs(request, text, remove_first_heading=True, convert_mermaid_diagrams=True,
+                                exclude_sections=None):
     """ Take an application's README file and parse it for display in HTML documentation.
 
     Options:
@@ -12,7 +13,6 @@ def convert_readme_to_html_docs(text, remove_first_heading=True, convert_mermaid
     remove_first_heading: removes any first level headings ("#")
     convert_mermaid_diagrams: change ```mermaid``` blocks into HTML <div>s
     exclude_sections: Remove sections with headings in the list <exclude_sections>.
-
     """
     parsed_text_lines = []
     in_mermaid_diagram = False

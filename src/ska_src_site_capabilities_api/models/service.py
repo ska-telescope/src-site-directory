@@ -29,3 +29,4 @@ class Service(BaseModel):
     path: str = Field(examples=["/path/to/service"])
     identifier: str = Field(examples=["SKAOSRC"])
     id: UUID = Field(default_factory=uuid4)
+    associated_storage_id: UUID = Field(default_factory=uuid4)
