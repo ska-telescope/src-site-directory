@@ -28,7 +28,7 @@
       "default": null,
       "required": true
     },
-    "hardware capabilities": {
+    "hardware_capabilities": {
       "type": "array",
       "title": "Hardware capabilities",
       "items": [
@@ -49,7 +49,7 @@
       "default": null,
       "required": true
     },
-    "hardware_capabilities": {
+    "hardware_type": {
       "type": "array",
       "title": "Hardware type",
       "items": [
