@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Processing system protocol schema.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": null,
+      "readOnly": true
+    },
+    "url": {
+      "type": "string",
+      "title": "URL",
+      "default": null,
+      "required": true
+    },
+    "latitude": {
+      "type": "number",
+      "title": "Latitude",
+      "default": null,
+      "required": true
+    },
+    "longitude": {
+      "type": "number",
+      "title": "Longitude",
+      "default": null,
+      "required": true
+    },
+    "hardware_capabilities": {
+      "type": "array",
+      "title": "Hardware capabilities",
+      "items": [
+        "GPU",
+        "high-mem",
+        "large-scratch",
+        "fast-scratch"
+      ],
+      "default": null,
+      "allowEmpty": true
+    },
+    "interaction_services": {
+      "type": "array",
+      "title": "Available services",
+      "items": {
+        "$ref": "service.json"
+      },
+      "default": null,
+      "required": true
+    },
+    "hardware_type": {
+      "type": "array",
+      "title": "Hardware type",
+      "items": [
+        "bare_metal",
+        "container",
+        "VM"
+      ],
+      "default": null,
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "title": "Description of the processing system.",
+      "default": null
+    },
+    "middleware_version": {
+      "type": "radios",
+      "title": "Middleware version number.",
+      "enum": [
+        "1.0.0",
+        "2.0.1",
+        "3.0.rc3"
+      ],
+      "required": true,
+      "default": null
+    }
+  }
+}
