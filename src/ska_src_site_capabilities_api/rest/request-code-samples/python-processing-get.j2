@@ -1,9 +1,0 @@
-import requests
-
-url = "{{ api_server_url }}/processing"
-
-headers = {"Authorization": "Bearer REPLACE_BEARER_TOKEN"}
-
-response = requests.request("GET", url, headers=headers)
-
-print(response.text)

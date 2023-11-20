@@ -4,17 +4,19 @@ from uuid import uuid4, UUID
 from pydantic import BaseModel, Field, NonNegativeInt
 
 
-CoreServiceType = Literal[
-    "Rucio Server",
-    "Storage Inventory (Global)"
-]
-
-ProcessingServiceType = Literal[
+ComputeServiceType = Literal[
     "JupyterHub",
     "BinderHub",
     "Dask",
     "ESAP"
 ]
+
+
+CoreServiceType = Literal[
+    "Rucio Server",
+    "Storage Inventory (Global)"
+]
+
 
 StorageServiceType = Literal[
     "Rucio Storage Element (RSE)",
@@ -40,9 +42,9 @@ class CoreService(Service):
     type: CoreServiceType = Field(examples=["Rucio Server"])
 
 
-class ProcessingService(Service):
-    type: ProcessingServiceType = Field(examples=["Dask"])
-    associated_processing_id: UUID = Field(default_factory=uuid4)
+class ComputeService(Service):
+    type: ComputeServiceType = Field(examples=["Dask"])
+    associated_compute_id: UUID = Field(default_factory=uuid4)
 
 
 class StorageService(Service):

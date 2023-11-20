@@ -8,11 +8,9 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/processing/{processing_id}"
+	url := "{{ api_server_url }}/compute"
 
 	req, _ := http.NewRequest("GET", url, nil)
-
-	req.Header.Add("Authorization", "Bearer REPLACE_BEARER_TOKEN")
 
 	res, _ := http.DefaultClient.Do(req)
 

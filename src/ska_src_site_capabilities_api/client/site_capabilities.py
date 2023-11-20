@@ -30,17 +30,17 @@ class SiteCapabilitiesClient:
         return edit_site_www_url
 
     @handle_client_exceptions
-    def get_processing(self, processing_id: str):
-        """ Get description of a processing element from an identifier.
+    def get_compute(self, compute_id: str):
+        """ Get description of a compute element from an identifier.
 
-        :param str processing_id: The unique processing id.
+        :param str compute_id: The unique compute_id id.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_processing_by_id_endpoint = "{api_url}/processing/{processing_id}".format(api_url=self.api_url,
-                                                                                      processing_id=processing_id)
-        resp = self.session.get(get_processing_by_id_endpoint)
+        get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(api_url=self.api_url,
+                                                                             compute_id=processing_id)
+        resp = self.session.get(get_compute_by_id_endpoint)
         resp.raise_for_status()
         return resp
 
@@ -75,14 +75,14 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_processing(self):
-        """ Get a list of SRCNet processing elements.
+    def list_compute(self):
+        """ Get a list of SRCNet compute elements.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        processing_endpoint = "{api_url}/processing".format(api_url=self.api_url)
-        resp = self.session.get(processing_endpoint)
+        compute_endpoint = "{api_url}/compute".format(api_url=self.api_url)
+        resp = self.session.get(compute_endpoint)
         resp.raise_for_status()
         return resp
 

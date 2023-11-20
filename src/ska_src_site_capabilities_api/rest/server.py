@@ -28,7 +28,7 @@ from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
-from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ProcessingNotFound, \
+from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ComputeNotFound, \
     SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound
 
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
@@ -145,43 +145,43 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
 # ------
 #
 @api_version(1)
-@app.get('/processing/{processing_id}',
+@app.get('/compute/{compute_id}',
          responses={
-             200: {"model": models.response.ProcessingGetResponse},
+             200: {"model": models.response.ComputeGetResponse},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-         tags=["Processing"],
-         summary="Get processing from id")
+         tags=["Compute"],
+         summary="Get compute from id")
 @handle_exceptions
-async def get_processing_from_id(request: Request,
-                                 processing_id: str = Path(description="Unique processing identifier")) \
+async def get_compute_from_id(request: Request,
+                              compute_id: str = Path(description="Unique compute identifier")) \
         -> Union[JSONResponse, HTTPException]:
-    """ Get description of a processing element from a unique identifier. """
-    rtn = BACKEND.get_processing(processing_id)
+    """ Get description of a compute element from a unique identifier. """
+    rtn = BACKEND.get_compute(compute_id)
     if not rtn:
-        raise ProcessingNotFound(processing_id)
+        raise ComputeNotFound(compute_id)
     return JSONResponse(rtn)
 
 
 @api_version(1)
-@app.get('/processing',
+@app.get('/compute',
          responses={
-             200: {"model": models.response.ProcessingResponse},
+             200: {"model": models.response.ComputeResponse},
              401: {},
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-         tags=["Processing"],
-         summary="List all processing")
+         tags=["Compute"],
+         summary="List all compute")
 @handle_exceptions
-async def list_processing(request: Request) -> JSONResponse:
-    """ List all processing. """
-    rtn = BACKEND.list_processing()
+async def list_compute(request: Request) -> JSONResponse:
+    """ List all compute. """
+    rtn = BACKEND.list_compute()
     return JSONResponse(rtn)
 
 
@@ -293,7 +293,7 @@ async def list_services(request: Request) -> JSONResponse:
          responses={
              200: {"model": Union[
                  models.response.CoreServiceGetResponse,
-                 models.response.ProcessingServiceGetResponse,
+                 models.response.ComputeServiceGetResponse,
                  models.response.StorageServiceGetResponse]},
              401: {},
              403: {},
@@ -379,15 +379,15 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
                 if not service.get('id'):
                     service['id'] = str(uuid.uuid4())
 
-    # add ids for processing
-    processings = values.get('processing', [])
-    if processings:
-        for processing in processings:
-            if not processing.get('id'):
-                processing['id'] = str(uuid.uuid4())
+    # add ids for compute
+    computes = values.get('compute', [])
+    if computes:
+        for compute in computes:
+            if not compute.get('id'):
+                compute['id'] = str(uuid.uuid4())
 
-        # add ids for processing.associated_services
-        services = processing.get('associated_services')
+        # add ids for compute.associated_services
+        services = compute.get('associated_services')
         if services:
             for service in services:
                 if not service.get('id'):
@@ -699,8 +699,8 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 
     # Exclude unnecessary paths.
     paths_to_exclude = {
-        '/processing': ['get'],
-        '/processing/{processing_id}': ['get'],
+        '/compute': ['get'],
+        '/compute/{compute_id}': ['get'],
         '/schemas': ['get'],
         '/schemas/{schema}': ['get'],
         '/schemas/render/{schema}': ['get'],
@@ -815,12 +815,12 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
                     storage['associated_services'][idx]['other_attributes'] = json.dumps(
                         storage['associated_services'][idx]['other_attributes'])
 
-    for processing in latest.get('processing', []):
-        if processing.get('associated_services', None):
-            for idx in range(len(processing['associated_services'])):
-                if processing['associated_services'][idx].get('other_attributes', None):
-                    processing['associated_services'][idx]['other_attributes'] = json.dumps(
-                        processing['associated_services'][idx]['other_attributes'])
+    for compute in latest.get('compute', []):
+        if compute.get('associated_services', None):
+            for idx in range(len(compute['associated_services'])):
+                if compute['associated_services'][idx].get('other_attributes', None):
+                    compute['associated_services'][idx]['other_attributes'] = json.dumps(
+                        compute['associated_services'][idx]['other_attributes'])
 
     if latest.get('other_attributes', None):
         latest['other_attributes'] = json.dumps(latest['other_attributes'])
@@ -915,7 +915,7 @@ for route in app.routes:
         subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'
         subapp.openapi_schema['tags'] = [
             {"name": "Sites", "description": "Operations on sites.", "x-tag-expanded": False},
-            {"name": "Processing", "description": "Operations on processing offered by sites.", "x-tag-expanded": False},
+            {"name": "Compute", "description": "Operations on compute offered by sites.", "x-tag-expanded": False},
             {"name": "Storages", "description": "Operations on storages offered by sites.", "x-tag-expanded": False},
             {"name": "Services", "description": "Operations on services offered by sites.", "x-tag-expanded": False},
             {"name": "Schemas", "description": "Schema operations.", "x-tag-expanded": False},

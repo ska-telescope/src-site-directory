@@ -48,10 +48,10 @@
       },
       "allowEmpty": true
     },
-    "processing": {
+    "compute": {
       "type": "array",
       "items": {
-        "$ref": "processing.json"
+        "$ref": "compute.json"
       },
       "allowEmpty": true
     },

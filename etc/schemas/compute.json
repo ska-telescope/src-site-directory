@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "object",
-  "description": "Processing system definition schema.",
+  "description": "Compute system definition schema.",
   "properties": {
     "id": {
       "type": "string",
@@ -71,7 +71,7 @@
     "associated_services": {
       "type": "array",
       "items": {
-        "$ref": "processing-service.json"
+        "$ref": "compute-service.json"
       },
       "allowEmpty": true
     }

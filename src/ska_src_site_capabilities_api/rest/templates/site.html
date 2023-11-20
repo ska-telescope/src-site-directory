@@ -480,7 +480,7 @@
         },
         {
           "type": "fieldset",
-          "title": "Processing",
+          "title": "Compute",
           "expandable": true,
           "items": [
             {
@@ -491,38 +491,38 @@
                   "legend": "\{\{value\}\}",
                   "items": [
                     {
-                      "key": "processing[].id"
+                      "key": "compute[].id"
                     },
                     {
-                      "key": "processing[].url",
-                      "placeholder": "The url for this processing element",
+                      "key": "compute[].url",
+                      "placeholder": "The url for this compute element",
                       "valueInLegend": true
                     },
                     {
-                      "key": "processing[].latitude",
-                      "placeholder": "Latitude of this processing element"
+                      "key": "compute[].latitude",
+                      "placeholder": "Latitude of this compute element"
                     },
                     {
-                      "key": "processing[].longitude",
-                      "placeholder": "Longitude of this processing element"
+                      "key": "compute[].longitude",
+                      "placeholder": "Longitude of this compute element"
                     },
                     {
-                      "key": "processing[].hardware_capabilities",
+                      "key": "compute[].hardware_capabilities",
                       "type": "checkboxes",
-                      "placeholder": "Hardware capabilities for this processing element"
+                      "placeholder": "Hardware capabilities for this compute element"
                     },
                     {
-                      "key": "processing[].hardware_type",
+                      "key": "compute[].hardware_type",
                       "type": "checkboxes",
-                      "placeholder": "Hardware types for this processing element"
+                      "placeholder": "Hardware types for this compute element"
                     },
                     {
-                      "key": "processing[].description",
-                      "placeholder": "Description of this processing element"
+                      "key": "compute[].description",
+                      "placeholder": "Description of this compute element"
                     },
                     {
-                      "key": "processing[].middleware_version",
-                      "placeholder": "Middleware version for this processing element"
+                      "key": "compute[].middleware_version",
+                      "placeholder": "Middleware version for this compute element"
                     },
                     {
                       "type": "tabarray",
@@ -534,38 +534,38 @@
                           "legend": "\{\{value\}\}",
                           "items": [
                             {
-                              "key": "processing[].associated_services[].id",
+                              "key": "compute[].associated_services[].id",
                             },
                             {
-                              "key": "processing[].associated_services[].type",
+                              "key": "compute[].associated_services[].type",
                               "valueInLegend": true
                             },
                             {
-                              "key": "processing[].associated_services[].version",
+                              "key": "compute[].associated_services[].version",
                               "placeholder": "The version of this service"
                             },
                             {
-                              "key": "processing[].associated_services[].prefix",
+                              "key": "compute[].associated_services[].prefix",
                               "placeholder": "The prefix for this service"
                             },
                             {
-                              "key": "processing[].associated_services[].host",
+                              "key": "compute[].associated_services[].host",
                               "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
                             },
                             {
-                              "key": "processing[].associated_services[].port",
+                              "key": "compute[].associated_services[].port",
                               "placeholder": "The port for this service (if applicable)"
                             },
                             {
-                              "key": "processing[].associated_services[].path",
+                              "key": "compute[].associated_services[].path",
                               "placeholder": "The path for this service (if applicable)"
                             },
                             {
-                              "key": "processing[].associated_services[].identifier",
+                              "key": "compute[].associated_services[].identifier",
                               "placeholder": "A name used to identify this service."
                             },
                             {
-                              "key": "processing[].associated_services[].other_attributes",
+                              "key": "compute[].associated_services[].other_attributes",
                               "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             }
                           ]
@@ -595,7 +595,7 @@
           "title": "Add"
         }
       ],
-      "value": {{ values | default({"core_services": []}) | default({"storages.associated_services": []}) | default({"processing.associated_services": []}) | tojson }},
+      "value": {{ values | default({"core_services": []}) | default({"storages.associated_services": []}) | default({"compute.associated_services": []}) | tojson }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
         console.log(JSON.stringify(values));
@@ -624,10 +624,10 @@
           }
         }
 
-        // check processing.associated_services for bad other_attributes
-        if (values.processing !== undefined) {
-          if (values.processing.associated_services !== undefined) {
-            values.processing.associated_services.forEach(function(service) {
+        // check compute.associated_services for bad other_attributes
+        if (values.compute !== undefined) {
+          if (values.compute.associated_services !== undefined) {
+            values.compute.associated_services.forEach(function(service) {
               if ('other_attributes' in service) {
                 if (JSON.stringify(service.other_attributes).length-2 === 0) {
                   errors="A service other_attributes list is not JSON stringifiable";
