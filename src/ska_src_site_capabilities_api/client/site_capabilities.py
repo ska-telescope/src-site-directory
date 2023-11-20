@@ -30,6 +30,21 @@ class SiteCapabilitiesClient:
         return edit_site_www_url
 
     @handle_client_exceptions
+    def get_processing(self, processing_id: str):
+        """ Get description of a processing element from an identifier.
+
+        :param str processing_id: The unique processing id.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_processing_by_id_endpoint = "{api_url}/processing/{processing_id}".format(api_url=self.api_url,
+                                                                                      processing_id=processing_id)
+        resp = self.session.get(get_processing_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def get_service(self, service_id: str):
         """ Get description of a service from an identifier.
 
@@ -56,6 +71,18 @@ class SiteCapabilitiesClient:
         get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url,
                                                                               storage_id=storage_id)
         resp = self.session.get(get_storage_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_processing(self):
+        """ Get a list of SRCNet processing elements.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        processing_endpoint = "{api_url}/processing".format(api_url=self.api_url)
+        resp = self.session.get(processing_endpoint)
         resp.raise_for_status()
         return resp
 
