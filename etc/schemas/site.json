@@ -34,6 +34,13 @@
       "default": null,
       "required": false
     },
+    "core_services": {
+      "type": "array",
+      "items": {
+        "$ref": "core-service.json"
+      },
+      "allowEmpty": true
+    },
     "storages": {
       "type": "array",
       "items": {
@@ -41,10 +48,10 @@
       },
       "allowEmpty": true
     },
-    "services": {
+    "processing": {
       "type": "array",
       "items": {
-        "$ref": "service.json"
+        "$ref": "processing.json"
       },
       "allowEmpty": true
     },

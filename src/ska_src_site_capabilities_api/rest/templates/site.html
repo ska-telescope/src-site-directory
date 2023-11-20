@@ -309,9 +309,57 @@
           "placeholder": "Secondary contact email"
         },
         {
+          "type": "tabarray",
+          "title": "Core Services",
+          "expandable": false,
+          "items": [
+            {
+              "type": "section",
+              "legend": "\{\{value\}\}",
+              "items": [
+                {
+                  "key": "core_services[].id",
+                },
+                {
+                  "key": "core_services[].type",
+                  "valueInLegend": true
+                },
+                {
+                  "key": "core_services[].version",
+                  "placeholder": "The version of this service"
+                },
+                {
+                  "key": "core_services[].prefix",
+                  "placeholder": "The prefix for this service"
+                },
+                {
+                  "key": "core_services[].host",
+                  "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
+                },
+                {
+                  "key": "core_services[].port",
+                  "placeholder": "The port for this service (if applicable)"
+                },
+                {
+                  "key": "core_services[].path",
+                  "placeholder": "The path for this service (if applicable)"
+                },
+                {
+                  "key": "core_services[].identifier",
+                  "placeholder": "A name used to identify this service."
+                },
+                {
+                  "key": "core_services[].other_attributes",
+                  "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "type": "fieldset",
           "title": "Storage",
-          "expandable": false,
+          "expandable": true,
           "items": [
             {
               "type": "tabarray",
@@ -321,24 +369,23 @@
                   "legend": "\{\{value\}\}",
                   "items": [
                     {
-                      "key": "storages[].id",
-                      "valueInLegend": true
+                      "key": "storages[].id"
                     },
                     {
                       "key": "storages[].host",
-                      "placeholder": "The hostname for this protocol excluding prefix and path"
+                      "placeholder": "The hostname for this storage excluding prefix and path"
                     },
                     {
                       "key": "storages[].base_path",
-                      "placeholder": "The base path for access"
+                      "placeholder": "The base path for access to this storage element"
                     },
                     {
                       "key": "storages[].latitude",
-                      "placeholder": "Latitude of storage location"
+                      "placeholder": "Latitude of storage element"
                     },
                     {
                       "key": "storages[].longitude",
-                      "placeholder": "Longitude of storage location"
+                      "placeholder": "Longitude of storage element"
                     },
                     {
                       "key": "storages[].srm",
@@ -349,11 +396,11 @@
                     },
                     {
                       "key": "storages[].size_in_terabytes",
-                      "placeholder": "Storage capacity in TB"
+                      "placeholder": "Storage capacity of this storage element in TB"
                     },
                     {
                       "key": "storages[].identifier",
-                      "placeholder": "A name used to identify this storage."
+                      "placeholder": "A name used to identify this storage element"
                     },
                     {
                       "type": "tabarray",
@@ -366,11 +413,60 @@
                           "items": [
                             {
                               "key": "storages[].supported_protocols[].prefix",
+                              "placeholder": "The prefix for this protocol",
                               "valueInLegend": true
                             },
                             {
                               "key": "storages[].supported_protocols[].port",
                               "placeholder": "The port for this protocol"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "tabarray",
+                      "title": "Associated services",
+                      "expandable": false,
+                      "items": [
+                        {
+                          "type": "section",
+                          "legend": "\{\{value\}\}",
+                          "items": [
+                            {
+                              "key": "storages[].associated_services[].id",
+                            },
+                            {
+                              "key": "storages[].associated_services[].type",
+                              "valueInLegend": true
+                            },
+                            {
+                              "key": "storages[].associated_services[].version",
+                              "placeholder": "The version of this service"
+                            },
+                            {
+                              "key": "storages[].associated_services[].prefix",
+                              "placeholder": "The prefix for this service"
+                            },
+                            {
+                              "key": "storages[].associated_services[].host",
+                              "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
+                            },
+                            {
+                              "key": "storages[].associated_services[].port",
+                              "placeholder": "The port for this service (if applicable)"
+                            },
+                            {
+                              "key": "storages[].associated_services[].path",
+                              "placeholder": "The path for this service (if applicable)"
+                            },
+                            {
+                              "key": "storages[].associated_services[].identifier",
+                              "placeholder": "A name used to identify this service."
+                            },
+                            {
+                              "key": "storages[].associated_services[].other_attributes",
+                              "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             }
                           ]
                         }
@@ -384,7 +480,7 @@
         },
         {
           "type": "fieldset",
-          "title": "Available services",
+          "title": "Processing",
           "expandable": true,
           "items": [
             {
@@ -395,49 +491,91 @@
                   "legend": "\{\{value\}\}",
                   "items": [
                     {
-                      "key": "services[].id",
+                      "key": "processing[].id"
+                    },
+                    {
+                      "key": "processing[].url",
+                      "placeholder": "The url for this processing element",
                       "valueInLegend": true
                     },
                     {
-                      "key": "services[].type",
-                      "valueInLegend": true
+                      "key": "processing[].latitude",
+                      "placeholder": "Latitude of this processing element"
                     },
                     {
-                      "key": "services[].externally_accessible",
-                      "type": "radios"
+                      "key": "processing[].longitude",
+                      "placeholder": "Longitude of this processing element"
                     },
                     {
-                      "key": "services[].prefix",
-                      "placeholder": "The prefix for this service (if applicable)"
+                      "key": "processing[].hardware_capabilities",
+                      "type": "checkboxes",
+                      "placeholder": "Hardware capabilities for this processing element"
                     },
                     {
-                      "key": "services[].host",
-                      "placeholder": "The hostname for this protocol excluding prefix and path (if applicable)"
+                      "key": "processing[].hardware_type",
+                      "type": "checkboxes",
+                      "placeholder": "Hardware types for this processing element"
                     },
                     {
-                      "key": "services[].port",
-                      "placeholder": "The port for this service (if applicable)"
+                      "key": "processing[].description",
+                      "placeholder": "Description of this processing element"
                     },
                     {
-                      "key": "services[].path",
-                      "placeholder": "The path for this service (if applicable)"
+                      "key": "processing[].middleware_version",
+                      "placeholder": "Middleware version for this processing element"
                     },
                     {
-                      "key": "services[].identifier",
-                      "placeholder": "A name used to identify this service."
-                    },
-                    {
-                      "key": "services[].associated_storage_id",
-                      "placeholder": "The unique id of the assoicated storage (if applicable)"
-                    },
-                    {
-                      "key": "services[].other_attributes",
-                      "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                      "type": "tabarray",
+                      "title": "Associated services",
+                      "expandable": false,
+                      "items": [
+                        {
+                          "type": "section",
+                          "legend": "\{\{value\}\}",
+                          "items": [
+                            {
+                              "key": "processing[].associated_services[].id",
+                            },
+                            {
+                              "key": "processing[].associated_services[].type",
+                              "valueInLegend": true
+                            },
+                            {
+                              "key": "processing[].associated_services[].version",
+                              "placeholder": "The version of this service"
+                            },
+                            {
+                              "key": "processing[].associated_services[].prefix",
+                              "placeholder": "The prefix for this service"
+                            },
+                            {
+                              "key": "processing[].associated_services[].host",
+                              "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
+                            },
+                            {
+                              "key": "processing[].associated_services[].port",
+                              "placeholder": "The port for this service (if applicable)"
+                            },
+                            {
+                              "key": "processing[].associated_services[].path",
+                              "placeholder": "The path for this service (if applicable)"
+                            },
+                            {
+                              "key": "processing[].associated_services[].identifier",
+                              "placeholder": "A name used to identify this service."
+                            },
+                            {
+                              "key": "processing[].associated_services[].other_attributes",
+                              "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
-                }
+                },
               ]
-            }
+            },
           ]
         },
         {
@@ -457,13 +595,14 @@
           "title": "Add"
         }
       ],
-      "value": {{ values | default({"services": []}) | tojson }},
+      "value": {{ values | default({"core_services": []}) | default({"storages.associated_services": []}) | default({"processing.associated_services": []}) | tojson }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
+        console.log(JSON.stringify(values));
 
-        if (values.services !== undefined) {
-          // check services for bad other_attributes
-          values.services.forEach(function(service) {
+        // check core services for bad other_attributes
+        if (values.core_services !== undefined) {
+          values.core_services.forEach(function(service) {
             if ('other_attributes' in service) {
               if (JSON.stringify(service.other_attributes).length-2 === 0) {
                 errors="A service other_attributes list is not JSON stringifiable";
@@ -472,12 +611,39 @@
           });
         }
 
+        // check storages.associated_services for bad other_attributes
+        if (values.storages !== undefined) {
+          if (values.storages.associated_services !== undefined) {
+            values.storages.associated_services.forEach(function(service) {
+              if ('other_attributes' in service) {
+                if (JSON.stringify(service.other_attributes).length-2 === 0) {
+                  errors="A service other_attributes list is not JSON stringifiable";
+                }
+              }
+            });
+          }
+        }
+
+        // check processing.associated_services for bad other_attributes
+        if (values.processing !== undefined) {
+          if (values.processing.associated_services !== undefined) {
+            values.processing.associated_services.forEach(function(service) {
+              if ('other_attributes' in service) {
+                if (JSON.stringify(service.other_attributes).length-2 === 0) {
+                  errors="A service other_attributes list is not JSON stringifiable";
+                }
+              }
+            });
+          }
+        }
+
         // check top level schema for bad other_attributes
         if ('other_attributes' in values) {
           if (JSON.stringify(values.other_attributes).length-2 === 0) {
             errors="The site other_attributes list is not JSON stringifiable";
           }
         }
+
         if (errors) {
           showAndDismissAlert('danger', errors);
         } else {

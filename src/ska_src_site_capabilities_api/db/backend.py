@@ -33,7 +33,19 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_processing(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_site(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_service(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_storage(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -42,6 +54,10 @@ class Backend(ABC):
 
     @abstractmethod
     def get_site_version_latest(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_processing(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -116,12 +132,23 @@ class MongoBackend(Backend):
             site.pop('_id')
         return response
 
-    def get_service(self, service_id):
+    def get_processing(self, processing_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for service in site['services']:
-                if service['id'] == service_id:
+            for processing in site.get('processing', []):
+                if processing['id'] == processing_id:
+                    response = processing
+                    break
+        return response
+
+    def get_service(self, service_id):
+        response = {}
+        for entry in self.list_services():
+            services = entry.get('services', [])
+            for service in services:
+                if service.get('id') == service_id:
                     response = service
+                    break
         return response
 
     def get_site(self, site):
@@ -157,18 +184,53 @@ class MongoBackend(Backend):
     def get_storage(self, storage_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for storage in site['storages']:
+            for storage in site.get('storages', []):
                 if storage['id'] == storage_id:
                     response = storage
+                    break
+        return response
+
+    def list_processing(self):
+        response = []
+        for site in self.list_sites_version_latest():
+            if site.get('processing'):
+                response.append({
+                    "site_name": site.get('name'),
+                    "processing": site.get('processing')
+                })
         return response
 
     def list_services(self):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
+
+            services = []
+            # concatenate services (core + associated storages + associated processing)
+            for service in full_site_json.get('core_services', []):
+                services.append(service)
+
+            for storage in full_site_json.get('storages', []):
+                # add the associated storage id
+                associated_storage_id = storage.get('id')
+                for service in storage.get('associated_services', []):
+                    services.append({
+                        'associated_storage_id': storage.get('id'),
+                        **service
+                    })
+
+            for processing in full_site_json.get('processing', []):
+                # add the associated processing id
+                associated_processing_id = processing.get('id')
+                for processing in processing.get('associated_services', []):
+                    services.append({
+                        'associated_processing_id': processing.get('id'),
+                        **service
+                    })
+
             response.append({
-                'site_name': full_site_json['name'],
-                'services': full_site_json['services']
+                'site_name': full_site_json.get('name'),
+                'services': services
             })
         return response
 
@@ -178,7 +240,7 @@ class MongoBackend(Backend):
         sites = db.sites
         response = []
         for site in sites.find({}):
-            site_name = site['name']
+            site_name = site.get('name')
             if site_name not in response:
                 response.append(site_name)
         return response
@@ -205,40 +267,42 @@ class MongoBackend(Backend):
 
         services_list = self.list_services()
         for site in self.list_sites_version_latest():
-            for storage in site['storages']:
-                if topojson:
-                    # for topojson output we attach the service identifier to the storage also, this means that there
-                    # may be same storage output multiple times if different services are attached to it.
-                    #
-                    # see route /storages/topojson FIXME
-                    for site_from_services_list in services_list:
-                        if site_from_services_list.get('site_name') == site.get('name'):
-                            for service in site_from_services_list.get('services'):
-                                if service.get('associated_storage_id', '') == storage.get('id'):
-                                    response['objects']['sites']['geometries'].append({
-                                        "type": "Point",
-                                        "coordinates": [storage.get('longitude'), storage.get('latitude')],
-                                        "properties": {'associated_service': service}
-                                    })
-                elif for_grafana:
-                    # for grafana output we attach the service identifier to the storage also, this means that there
-                    # may be same storage output multiple times if different services are attached to it.
-                    #
-                    # see route /storages/topojson FIXME
-                    for site_from_services_list in services_list:
-                        if site_from_services_list.get('site_name') == site.get('name'):
-                            for service in site_from_services_list.get('services'):
-                                if service.get('associated_storage_id', '') == storage.get('id'):
-                                    if service.get('type') == 'Rucio Storage Element (RSE)':
-                                        response.append({
-                                            "key": service.get('identifier'),
-                                            "latitude": storage['latitude'],
-                                            "longitude": storage['longitude'],
-                                            "name": service.get('identifier')
+            if topojson or for_grafana:
+                for storage in site.get('storages', []):
+                    if topojson:
+                        # for topojson output we attach the service identifier to the storage also, this means that there
+                        # may be same storage output multiple times if different services are attached to it.
+                        #
+                        # see route /storages/topojson FIXME
+                        for site_from_services_list in services_list:
+                            if site_from_services_list.get('site_name') == site.get('name'):
+                                for service in site_from_services_list.get('services'):
+                                    if service.get('associated_storage_id', '') == storage.get('id'):
+                                        response['objects']['sites']['geometries'].append({
+                                            "type": "Point",
+                                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
+                                            "properties": {'associated_service': service}
                                         })
-                else:
+                    elif for_grafana:
+                        # for grafana output we attach the service identifier to the storage also, this means that there
+                        # may be same storage output multiple times if different services are attached to it.
+                        #
+                        # see route /storages/topojson FIXME
+                        for site_from_services_list in services_list:
+                            if site_from_services_list.get('site_name') == site.get('name'):
+                                for service in site_from_services_list.get('services'):
+                                    if service.get('associated_storage_id', '') == storage.get('id'):
+                                        if service.get('type') == 'Rucio Storage Element (RSE)':
+                                            response.append({
+                                                "key": service.get('identifier'),
+                                                "latitude": storage['latitude'],
+                                                "longitude": storage['longitude'],
+                                                "name": service.get('identifier')
+                                            })
+            else:
+                if site.get('storages'):
                     response.append({
                         "site_name": site.get('name'),
-                        "storages": site['storages']
+                        "storages": site.get('storages')
                     })
         return response

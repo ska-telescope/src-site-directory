@@ -72,6 +72,13 @@ class PermissionDenied(CustomHTTPException):
         super().__init__(self.message)
 
 
+class ProcessingNotFound(CustomHTTPException):
+    def __init__(self, processing_id):
+        self.message = "Processing element with identifier '{}' could not be found".format(processing_id)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
 class SchemaNotFound(CustomHTTPException):
     def __init__(self, schema):
         self.message = "Schema with name '{}' could not be found".format(schema)
