@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "object",
-  "description": "Processing system protocol schema.",
+  "description": "Processing system definition schema.",
   "properties": {
     "id": {
       "type": "string",
@@ -31,50 +31,49 @@
     "hardware_capabilities": {
       "type": "array",
       "title": "Hardware capabilities",
-      "items": [
-        "GPU",
-        "high-mem",
-        "large-scratch",
-        "fast-scratch"
-      ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "GPU",
+          "high-mem",
+          "large-scratch",
+          "fast-scratch"
+        ]
+      },
       "default": null,
       "allowEmpty": true
     },
-    "interaction_services": {
-      "type": "array",
-      "title": "Available services",
-      "items": {
-        "$ref": "service.json"
-      },
-      "default": null,
-      "required": true
-    },
     "hardware_type": {
       "type": "array",
-      "title": "Hardware type",
-      "items": [
-        "bare_metal",
-        "container",
-        "VM"
-      ],
+      "title": "Hardware types",
+      "items": {
+        "type": "string",
+        "enum": [
+          "bare-metal",
+          "container",
+          "VM"
+        ]
+      },
       "default": null,
-      "required": true
+      "allowEmpty": true
     },
     "description": {
       "type": "string",
-      "title": "Description of the processing system.",
+      "title": "Description",
       "default": null
     },
     "middleware_version": {
-      "type": "radios",
-      "title": "Middleware version number.",
-      "enum": [
-        "1.0.0",
-        "2.0.1",
-        "3.0.rc3"
-      ],
+      "type": "string",
+      "title": "Version",
       "required": true,
       "default": null
+    },
+    "associated_services": {
+      "type": "array",
+      "items": {
+        "$ref": "processing-service.json"
+      },
+      "allowEmpty": true
     }
   }
 }

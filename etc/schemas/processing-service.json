@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "type": "object",
+  "description": "Processing service definition schema.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": null,
+      "readOnly": true
+    },
+    "type": {
+      "type": "enum",
+      "title": "Type",
+      "enum": [
+        "JupyterHub",
+        "BinderHub",
+        "Dask",
+        "ESAP"
+      ],
+      "default": null,
+      "required": true
+    },
+    "version": {
+      "type": "string",
+      "title": "Version",
+      "default": null
+    },
+    "prefix": {
+      "type": "string",
+      "title": "Prefix",
+      "default": null,
+      "required": false
+    },
+    "host": {
+      "type": "string",
+      "title": "Hostname without prefix or path",
+      "default": null,
+      "required": false
+    },
+    "port": {
+      "type": "number",
+      "title": "Port",
+      "default": null,
+      "required": false
+    },
+    "path": {
+      "type": "string",
+      "title": "Path",
+      "default": null,
+      "required": false
+    },
+    "identifier": {
+      "type": "string",
+      "title": "Identifier (if applicable)",
+      "default": null
+    },
+    "other_attributes": {
+      "type": "object",
+      "title": "Other service attributes (as json)",
+      "allowEmpty": true
+    }
+  }
+}

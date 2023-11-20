@@ -3,6 +3,8 @@ from uuid import uuid4, UUID
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
+from ska_src_site_capabilities_api.models.service import StorageService
+
 
 class StorageProtocol(BaseModel):
     prefix: str = Field(examples=["https"])
@@ -10,6 +12,7 @@ class StorageProtocol(BaseModel):
 
 
 class Storage(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
     host: str = Field(examples=["storm.srcdev.skao.int"])
     base_path: str = Field(examples=["/path/to/storage"])
     latitude: float = Field(examples=[51.4964])
@@ -19,7 +22,7 @@ class Storage(BaseModel):
     size_in_terabytes: float = Field(examples=[10])
     identifier: str = Field(examples=["SKAOSRC"])
     supported_protocols: List[StorageProtocol]
-    id: UUID = Field(default_factory=uuid4)
+    associated_services: List[StorageService]
 
 
 class StorageGrafana(BaseModel):

@@ -1,7 +1,7 @@
 {
-  "version": 2,
+  "version": 3,
   "type": "object",
-  "description": "Service definition schema.",
+  "description": "Storage service definition schema.",
   "properties": {
     "id": {
       "type": "string",
@@ -11,33 +11,22 @@
       "readOnly": true
     },
     "type": {
-      "type": "radios",
+      "type": "enum",
       "title": "Type",
       "enum": [
-        "Rucio Server",
         "Rucio Storage Element (RSE)",
         "Data Ingest Area",
-        "Storage Inventory (Global)",
         "Storage Inventory (Local)",
-        "JupyterHub",
-        "BinderHub",
-        "Dask",
-        "Carta",
-        "VisiVO",
         "SODA (sync)",
         "SODA (async)"
       ],
       "default": null,
       "required": true
     },
-    "externally_accessible": {
+    "version": {
       "type": "string",
-      "title": "Externally accessible?",
-      "enum": [
-        "Yes",
-        "No"
-      ],
-      "required": true
+      "title": "Version",
+      "default": null
     },
     "prefix": {
       "type": "string",
@@ -66,11 +55,6 @@
     "identifier": {
       "type": "string",
       "title": "Identifier (if applicable)",
-      "default": null
-    },
-    "associated_storage_id": {
-      "type": "string",
-      "title": "Associated storage UUID (if applicable)",
       "default": null
     },
     "other_attributes": {

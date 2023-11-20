@@ -2,7 +2,8 @@ from typing import Dict, List, Literal, Union
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
-from ska_src_site_capabilities_api.models.service import Service
+from ska_src_site_capabilities_api.models.processing import Processing
+from ska_src_site_capabilities_api.models.service import CoreService, ProcessingService, StorageService
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.site import Site
 from ska_src_site_capabilities_api.models.storage import Storage, StorageGrafana, StorageTopojson
@@ -10,6 +11,20 @@ from ska_src_site_capabilities_api.models.storage import Storage, StorageGrafana
 
 class Response(BaseModel):
     pass
+
+
+CoreServiceGetResponse = CoreService
+
+
+ProcessingGetResponse = Processing
+
+
+class ProcessingResponse(BaseModel):
+    site_name: str = Field(examples=["SKAOSRC"])
+    processing: List[Processing]
+
+
+ProcessingServiceGetResponse = ProcessingService
 
 
 class GenericErrorResponse(Response):
@@ -41,12 +56,12 @@ SchemasResponse = List[str]
 SchemaGetResponse = Schema
 
 
-ServiceGetResponse = Service
+StorageServiceGetResponse = StorageService
 
 
 class ServicesResponse(BaseModel):
     site_name: str = Field(examples=["JPSRC"])
-    services: List[Service]
+    services: List[Union[CoreService, ProcessingService, StorageService]]
 
 
 SitesResponse = List[str]

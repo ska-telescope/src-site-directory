@@ -75,6 +75,13 @@
         "$ref": "storage-access-protocol.json"
       },
       "allowEmpty": true
+    },
+    "associated_services": {
+      "type": "array",
+      "items": {
+        "$ref": "storage-service.json"
+      },
+      "allowEmpty": true
     }
   }
 }

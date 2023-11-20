@@ -28,8 +28,8 @@ from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
-from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, SchemaNotFound, \
-    ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound
+from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ProcessingNotFound, \
+    SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound
 
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
@@ -145,6 +145,47 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
 # ------
 #
 @api_version(1)
+@app.get('/processing/{processing_id}',
+         responses={
+             200: {"model": models.response.ProcessingGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Processing"],
+         summary="Get processing from id")
+@handle_exceptions
+async def get_processing_from_id(request: Request,
+                                 processing_id: str = Path(description="Unique processing identifier")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Get description of a processing element from a unique identifier. """
+    rtn = BACKEND.get_processing(processing_id)
+    if not rtn:
+        raise ProcessingNotFound(processing_id)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/processing',
+         responses={
+             200: {"model": models.response.ProcessingResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Processing"],
+         summary="List all processing")
+@handle_exceptions
+async def list_processing(request: Request) -> JSONResponse:
+    """ List all processing. """
+    rtn = BACKEND.list_processing()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
 @app.get("/schemas",
          responses={
              200: {"model": models.response.SchemasResponse},
@@ -157,7 +198,7 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
          summary="List schemas")
 @handle_exceptions
 async def list_schemas(request: Request) -> JSONResponse:
-    """ Get a list of schema names used to define sites, services and storages. """
+    """ Get a list of schema names used to define entities. """
     schema_basenames = sorted([''.join(fi.split('.')[:-1]) for fi in os.listdir(config.get('SCHEMAS_RELPATH'))])
     return JSONResponse(schema_basenames)
 
@@ -213,7 +254,7 @@ async def render_schema(request: Request,
         raise SchemaNotFound
 
     # pop countries enum for readability
-    dereferenced_schema.get('properties').get('country').pop('enum')
+    dereferenced_schema.get('properties').get('country', {}).pop('enum', None)
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as schema_file:
@@ -250,7 +291,10 @@ async def list_services(request: Request) -> JSONResponse:
 @api_version(1)
 @app.get('/services/{service_id}',
          responses={
-             200: {"model": models.response.ServiceGetResponse},
+             200: {"model": Union[
+                 models.response.CoreServiceGetResponse,
+                 models.response.ProcessingServiceGetResponse,
+                 models.response.StorageServiceGetResponse]},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
@@ -293,7 +337,7 @@ async def list_sites(request: Request) -> JSONResponse:
 @app.post("/sites",
           include_in_schema=False,
           responses={
-              200: {"model": models.response.ServicesResponse},
+              200: {},
               401: {},
               403: {}
           },
@@ -314,12 +358,40 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
         access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
         values['created_by_username'] = access_token_decoded.get('preferred_username')
 
-    # add ids for services
-    services = values.get('services')
+    # add ids for core_services
+    services = values.get('core_services')
     if services:
         for service in services:
             if not service.get('id'):
                 service['id'] = str(uuid.uuid4())
+
+    # add ids for storages
+    storages = values.get('storages', [])
+    if storages:
+        for storage in storages:
+            if not storage.get('id'):
+                storage['id'] = str(uuid.uuid4())
+
+        # add ids for storages.associated_services
+        services = storage.get('associated_services')
+        if services:
+            for service in services:
+                if not service.get('id'):
+                    service['id'] = str(uuid.uuid4())
+
+    # add ids for processing
+    processings = values.get('processing', [])
+    if processings:
+        for processing in processings:
+            if not processing.get('id'):
+                processing['id'] = str(uuid.uuid4())
+
+        # add ids for processing.associated_services
+        services = processing.get('associated_services')
+        if services:
+            for service in services:
+                if not service.get('id'):
+                    service['id'] = str(uuid.uuid4())
 
     # add ids for storages
     storages = values.get('storages')
@@ -516,7 +588,6 @@ async def delete_site_version(request: Request,
 async def list_storages(request: Request) -> JSONResponse:
     """ List all storages. """
     rtn = BACKEND.list_storages()
-    print(rtn)
     return JSONResponse(rtn)
 
 
@@ -628,6 +699,8 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 
     # Exclude unnecessary paths.
     paths_to_exclude = {
+        '/processing': ['get'],
+        '/processing/{processing_id}': ['get'],
         '/schemas': ['get'],
         '/schemas/{schema}': ['get'],
         '/schemas/render/{schema}': ['get'],
@@ -728,12 +801,27 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
     except KeyError:
         pass
 
-    # quote nested dictionaries otherwise JSONForm parses as [Object object].
-    if latest.get('services', None):
-        for idx in range(len(latest['services'])):
-            if latest['services'][idx].get('other_attributes', None):
-                latest['services'][idx]['other_attributes'] = json.dumps(
-                    latest['services'][idx]['other_attributes'])
+    # quote nested JSON other attribute dictionaries otherwise JSONForm parses as [Object object].
+    if latest.get('core_services', None):
+        for idx in range(len(latest['core_services'])):
+            if latest['core_services'][idx].get('other_attributes', None):
+                latest['core_services'][idx]['other_attributes'] = json.dumps(
+                    latest['core_services'][idx]['other_attributes'])
+                
+    for storage in latest.get('storages', []):
+        if storage.get('associated_services', None):
+            for idx in range(len(storage['associated_services'])):
+                if storage['associated_services'][idx].get('other_attributes', None):
+                    storage['associated_services'][idx]['other_attributes'] = json.dumps(
+                        storage['associated_services'][idx]['other_attributes'])
+
+    for processing in latest.get('processing', []):
+        if processing.get('associated_services', None):
+            for idx in range(len(processing['associated_services'])):
+                if processing['associated_services'][idx].get('other_attributes', None):
+                    processing['associated_services'][idx]['other_attributes'] = json.dumps(
+                        processing['associated_services'][idx]['other_attributes'])
+
     if latest.get('other_attributes', None):
         latest['other_attributes'] = json.dumps(latest['other_attributes'])
 
@@ -827,6 +915,7 @@ for route in app.routes:
         subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'
         subapp.openapi_schema['tags'] = [
             {"name": "Sites", "description": "Operations on sites.", "x-tag-expanded": False},
+            {"name": "Processing", "description": "Operations on processing offered by sites.", "x-tag-expanded": False},
             {"name": "Storages", "description": "Operations on storages offered by sites.", "x-tag-expanded": False},
             {"name": "Services", "description": "Operations on services offered by sites.", "x-tag-expanded": False},
             {"name": "Schemas", "description": "Schema operations.", "x-tag-expanded": False},
