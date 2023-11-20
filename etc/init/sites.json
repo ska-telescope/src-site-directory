@@ -18023,15 +18023,15 @@
           "title": "Primary contact email",
           "type": "email"
         },
-        "processing": {
+        "compute": {
           "allowEmpty": true,
           "items": {
-            "description": "Processing system protocol schema.",
+            "description": "Compute system protocol schema.",
             "properties": {
               "associated_services": {
                 "allowEmpty": true,
                 "items": {
-                  "description": "Processing service definition schema.",
+                  "description": "Compute service definition schema.",
                   "properties": {
                     "host": {
                       "default": null,
@@ -19201,7 +19201,7 @@
         ]
       }
     ],
-    "processing": [
+    "compute": [
       {
         "url": "asd",
         "latitude": 1,
@@ -19629,15 +19629,15 @@
           "title": "Primary contact email",
           "type": "email"
         },
-        "processing": {
+        "compute": {
           "allowEmpty": true,
           "items": {
-            "description": "Processing system protocol schema.",
+            "description": "Compute system protocol schema.",
             "properties": {
               "associated_services": {
                 "allowEmpty": true,
                 "items": {
-                  "description": "Processing service definition schema.",
+                  "description": "Compute service definition schema.",
                   "properties": {
                     "host": {
                       "default": null,
@@ -20371,15 +20371,15 @@
           "title": "Primary contact email",
           "type": "email"
         },
-        "processing": {
+        "compute": {
           "allowEmpty": true,
           "items": {
-            "description": "Processing system definition schema.",
+            "description": "Compute system definition schema.",
             "properties": {
               "associated_services": {
                 "allowEmpty": true,
                 "items": {
-                  "description": "Processing service definition schema.",
+                  "description": "Compute service definition schema.",
                   "properties": {
                     "host": {
                       "default": null,

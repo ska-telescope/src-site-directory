@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
-from ska_src_site_capabilities_api.models.processing import Processing
+from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.service import CoreService
 from ska_src_site_capabilities_api.models.storage import Storage
@@ -17,7 +17,7 @@ class Site(BaseModel):
     primary_contact_email: str = Field(Examples=["someone1@email.com"])
     secondary_contact_email: str = Field(Examples=["someone2@email.com"])
     core_services: List[CoreService]
-    processing: List[Processing]
+    compute: List[Compute]
     storages: List[Storage]
     schema_: Schema = Field(alias="schema")
     created_at: str = Field(examples=["2023-09-14T13:43:09.239513"])

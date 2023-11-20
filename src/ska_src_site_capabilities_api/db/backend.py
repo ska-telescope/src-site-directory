@@ -33,7 +33,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_processing(self):
+    def get_compute(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -57,7 +57,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_processing(self):
+    def list_compute(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -132,12 +132,12 @@ class MongoBackend(Backend):
             site.pop('_id')
         return response
 
-    def get_processing(self, processing_id):
+    def get_compute(self, compute_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for processing in site.get('processing', []):
-                if processing['id'] == processing_id:
-                    response = processing
+            for compute in site.get('compute', []):
+                if compute['id'] == compute_id:
+                    response = compute
                     break
         return response
 
@@ -190,13 +190,13 @@ class MongoBackend(Backend):
                     break
         return response
 
-    def list_processing(self):
+    def list_compute(self):
         response = []
         for site in self.list_sites_version_latest():
-            if site.get('processing'):
+            if site.get('compute'):
                 response.append({
                     "site_name": site.get('name'),
-                    "processing": site.get('processing')
+                    "compute": site.get('compute')
                 })
         return response
 
@@ -206,25 +206,23 @@ class MongoBackend(Backend):
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
-            # concatenate services (core + associated storages + associated processing)
+            # concatenate services (core + associated storages + associated compute)
             for service in full_site_json.get('core_services', []):
                 services.append(service)
 
             for storage in full_site_json.get('storages', []):
                 # add the associated storage id
-                associated_storage_id = storage.get('id')
                 for service in storage.get('associated_services', []):
                     services.append({
                         'associated_storage_id': storage.get('id'),
                         **service
                     })
 
-            for processing in full_site_json.get('processing', []):
-                # add the associated processing id
-                associated_processing_id = processing.get('id')
-                for processing in processing.get('associated_services', []):
+            for compute in full_site_json.get('compute', []):
+                # add the associated compute id
+                for compute in compute.get('associated_services', []):
                     services.append({
-                        'associated_processing_id': processing.get('id'),
+                        'associated_compute_id': compute.get('id'),
                         **service
                     })
 

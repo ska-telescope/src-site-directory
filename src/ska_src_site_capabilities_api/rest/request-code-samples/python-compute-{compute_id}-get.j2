@@ -1,6 +1,6 @@
 import requests
 
-url = "{{ api_server_url }}/sites/latest"
+url = "{{ api_server_url }}/compute/{compute_id}"
 
 response = requests.request("GET", url)
 

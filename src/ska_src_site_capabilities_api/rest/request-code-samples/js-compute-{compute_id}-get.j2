@@ -1,14 +1,11 @@
 const http = require("http");
 
 const options = {
-  "method": "POST",
+  "method": "GET",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1/sites",
-  "headers": {
-    "content-type": "application/json",
-    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
-  }
+  "path": "/v1/compute/{compute_id}",
+  "headers": {}
 };
 
 const req = http.request(options, function (res) {
@@ -24,5 +21,4 @@ const req = http.request(options, function (res) {
   });
 });
 
-req.write(JSON.stringify('Site JSON.'));
 req.end();

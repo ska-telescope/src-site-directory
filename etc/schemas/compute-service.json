@@ -1,7 +1,7 @@
 {
   "version": 3,
   "type": "object",
-  "description": "Processing service definition schema.",
+  "description": "Compute service definition schema.",
   "properties": {
     "id": {
       "type": "string",

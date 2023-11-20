@@ -4,10 +4,8 @@ const options = {
   "method": "GET",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1/processing/{processing_id}",
-  "headers": {
-    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
-  }
+  "path": "/v1/compute",
+  "headers": {}
 };
 
 const req = http.request(options, function (res) {
