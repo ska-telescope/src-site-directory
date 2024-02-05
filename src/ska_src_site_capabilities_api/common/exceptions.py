@@ -112,3 +112,10 @@ class StorageNotFound(CustomHTTPException):
         self.message = "Storage with identifier '{}' could not be found".format(storage_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
+
+
+class StorageAreaNotFound(CustomHTTPException):
+    def __init__(self, storage_area_id):
+        self.message = "Storage area with identifier '{}' could not be found".format(storage_area_id)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)

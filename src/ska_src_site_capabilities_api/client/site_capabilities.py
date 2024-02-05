@@ -33,7 +33,7 @@ class SiteCapabilitiesClient:
     def get_compute(self, compute_id: str):
         """ Get description of a compute element from an identifier.
 
-        :param str compute_id: The unique compute_id id.
+        :param str compute_id: The unique compute id.
 
         :return: A requests response.
         :rtype: requests.models.Response
@@ -63,7 +63,7 @@ class SiteCapabilitiesClient:
     def get_storage(self, storage_id: str):
         """ Get description of a storage from an identifier.
 
-        :param str storage_id: The unique service id.
+        :param str storage_id: The unique storage id.
 
         :return: A requests response.
         :rtype: requests.models.Response
@@ -71,6 +71,22 @@ class SiteCapabilitiesClient:
         get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url,
                                                                               storage_id=storage_id)
         resp = self.session.get(get_storage_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_storage_area(self, storage_area_id: str):
+        """ Get description of a storage area from an identifier.
+
+        :param str storage_area_id: The unique storage area id.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(
+            api_url=self.api_url,
+            storage_area_id=storage_area_id)
+        resp = self.session.get(get_storage_area_by_id_endpoint)
         resp.raise_for_status()
         return resp
 
@@ -131,6 +147,54 @@ class SiteCapabilitiesClient:
         """
         storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
         resp = self.session.get(storages_grafana_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_storages_topojson(self):
+        """ Get a list of SRCNet storages (topojson).
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        storages_topojson_endpoint = "{api_url}/storages/topojson".format(api_url=self.api_url)
+        resp = self.session.get(storages_topojson_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_storage_areas(self):
+        """ Get a list of SRCNet storage areas.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        storage_areas_endpoint = "{api_url}/storage-areas".format(api_url=self.api_url)
+        resp = self.session.get(storage_areas_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_storage_areas_grafana(self):
+        """ Get a list of SRCNet storage areas (for grafana).
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        storage_areas_grafana_endpoint = "{api_url}/storage-areas/grafana".format(api_url=self.api_url)
+        resp = self.session.get(storage_areas_grafana_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_storage_areas_topojson(self):
+        """ Get a list of SRCNet storage areas (topojson).
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        storage_areas_topojson_endpoint = "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
+        resp = self.session.get(storage_areas_topojson_endpoint)
         resp.raise_for_status()
         return resp
 

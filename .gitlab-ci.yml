@@ -9,7 +9,6 @@ stages:
 variables:
   API_IMAGE_NAME: $CI_REGISTRY_IMAGE/api
   GIT_SUBMODULE_STRATEGY: recursive
-  GIT_SUBMODULE_STRATEGY: recursive
 
 build-api:
   only:

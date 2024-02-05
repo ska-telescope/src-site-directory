@@ -1,30 +1,33 @@
-from typing import Dict, List, Literal, Union
+from typing import List, Literal, Union
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
-from ska_src_site_capabilities_api.models.service import ComputeService, CoreService, StorageService
+from ska_src_site_capabilities_api.models.service import ComputeService, CoreService
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.site import Site
-from ska_src_site_capabilities_api.models.storage import Storage, StorageGrafana, StorageTopojson
+from ska_src_site_capabilities_api.models.storage import (Storage, StorageArea, StorageAreaGrafana, StorageAreaTopojson,
+                                                          StorageGrafana, StorageTopojson)
 
 
 class Response(BaseModel):
     pass
 
 
-CoreServiceGetResponse = CoreService
+class ListResponse(Response):
+    site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
 ComputeGetResponse = Compute
 
 
-class ComputeResponse(BaseModel):
-    site_name: str = Field(examples=["SKAOSRC"])
+class ComputeListResponse(ListResponse):
     compute: List[Compute]
 
 
 ComputeServiceGetResponse = ComputeService
+
+CoreServiceGetResponse = CoreService
 
 
 class GenericErrorResponse(Response):
@@ -50,45 +53,41 @@ class PingResponse(Response):
     version: str
 
 
-SchemasResponse = List[str]
-
+SchemasListResponse = List[str]
 
 SchemaGetResponse = Schema
 
 
-StorageServiceGetResponse = StorageService
-
-
-class ServicesResponse(BaseModel):
-    site_name: str = Field(examples=["JPSRC"])
-    services: List[Union[CoreService, ComputeService, StorageService]]
-
-
-SitesResponse = List[str]
-
-
-SitesDumpResponse = List[Site]
+class ServicesResponse(ListResponse):
+    services: List[Union[CoreService, ComputeService]]
 
 
 SiteGetVersionResponse = Site
 
+SitesGetResponse = List[Site]
 
-SiteGetResponse = List[Site]
+SitesDumpResponse = List[Site]
 
+SitesListResponse = List[str]
+
+StorageAreaGetResponse = StorageArea
+
+
+class StorageAreasListResponse(ListResponse):
+    storage_areas: List[StorageArea]
+
+
+StorageAreasGrafanaResponse = List[StorageAreaGrafana]
+
+StorageAreasTopojsonResponse = List[StorageAreaTopojson]
 
 StorageGetResponse = Storage
 
 
-class StoragesResponse(BaseModel):
-    site_name: str = Field(examples=["JPSRC"])
+class StoragesListResponse(ListResponse):
     storages: List[Storage]
 
 
 StoragesGrafanaResponse = List[StorageGrafana]
 
-
 StoragesTopojsonResponse = List[StorageTopojson]
-
-
-
-

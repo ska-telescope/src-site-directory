@@ -7,7 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": null,
+      "default": "to be assigned",
       "readOnly": true
     },
     "type": {
@@ -17,7 +17,10 @@
         "JupyterHub",
         "BinderHub",
         "Dask",
-        "ESAP"
+        "ESAP",
+        "Data Ingest Service",
+        "SODA (sync)",
+        "SODA (async)"
       ],
       "default": null,
       "required": true
@@ -50,6 +53,11 @@
       "title": "Path",
       "default": null,
       "required": false
+    },
+    "associated_storage_area_id": {
+      "type": "string",
+      "title": "Associated storage area ID (if applicable)",
+      "default": null
     },
     "identifier": {
       "type": "string",

@@ -1,9 +1,22 @@
-from typing import List
+from typing import List, Literal
 from uuid import uuid4, UUID
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
-from ska_src_site_capabilities_api.models.service import StorageService
+
+StorageAreaType = Literal[
+    "Rucio Storage Element (RSE)",
+    "Data Ingest Area",
+    "Storage Inventory (Local)"
+]
+
+
+class StorageArea(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    type: StorageAreaType = Field(examples=["Rucio Storage Element (RSE)"])
+    rel_path: str = Field(examples=["/rel/path/to/storage/area"])
+    identifier: str = Field(examples=["STFC_STORM"])
+    other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
 
 
 class StorageProtocol(BaseModel):
@@ -22,7 +35,14 @@ class Storage(BaseModel):
     size_in_terabytes: float = Field(examples=[10])
     identifier: str = Field(examples=["SKAOSRC"])
     supported_protocols: List[StorageProtocol]
-    associated_services: List[StorageService]
+    areas: List[StorageArea]
+
+
+class StorageAreaGrafana(BaseModel):
+    key: str = Field(examples=["JPSRC"])
+    latitude: float = Field(examples=[35.6754])
+    longitude: float = Field(examples=[139.5369])
+    name: str = Field(examples=["JPSRC"])
 
 
 class StorageGrafana(BaseModel):
@@ -30,6 +50,25 @@ class StorageGrafana(BaseModel):
     latitude: float = Field(examples=[35.6754])
     longitude: float = Field(examples=[139.5369])
     name: str = Field(examples=["JPSRC_STORM"])
+
+
+class StorageAreaTopojsonObjectSiteGeometry(BaseModel):
+    type: str = Field(examples=["Point"])
+    coordinates: List[float]
+
+
+class StorageAreaTopojsonObjectSite(BaseModel):
+    type: str = Field(examples=["GeometryCollection"])
+    geometries: List[StorageAreaTopojsonObjectSiteGeometry]
+
+
+class StorageAreaTopojsonObject(BaseModel):
+    sites: StorageAreaTopojsonObjectSite
+
+
+class StorageAreaTopojson(BaseModel):
+    type: str = Field(examples=["Topology"])
+    objects: StorageAreaTopojsonObject
 
 
 class StorageTopojsonObjectSiteGeometry(BaseModel):

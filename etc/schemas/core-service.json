@@ -7,7 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": null,
+      "default": "to be assigned",
       "readOnly": true
     },
     "type": {

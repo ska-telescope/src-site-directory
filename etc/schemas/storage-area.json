@@ -1,13 +1,13 @@
 {
   "version": 3,
   "type": "object",
-  "description": "Storage service definition schema.",
+  "description": "Storage area definition schema.",
   "properties": {
     "id": {
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": null,
+      "default": "to be assigned",
       "readOnly": true
     },
     "type": {
@@ -15,10 +15,7 @@
       "title": "Type",
       "enum": [
         "Rucio Storage Element (RSE)",
-        "Data Ingest Area",
-        "Storage Inventory (Local)",
-        "SODA (sync)",
-        "SODA (async)"
+        "Data Ingest Area"
       ],
       "default": null,
       "required": true
@@ -28,27 +25,9 @@
       "title": "Version",
       "default": null
     },
-    "prefix": {
+    "relative_path": {
       "type": "string",
-      "title": "Prefix",
-      "default": null,
-      "required": false
-    },
-    "host": {
-      "type": "string",
-      "title": "Hostname without prefix or path",
-      "default": null,
-      "required": false
-    },
-    "port": {
-      "type": "number",
-      "title": "Port",
-      "default": null,
-      "required": false
-    },
-    "path": {
-      "type": "string",
-      "title": "Path",
+      "title": "Relative path",
       "default": null,
       "required": false
     },
@@ -59,7 +38,7 @@
     },
     "other_attributes": {
       "type": "object",
-      "title": "Other service attributes (as json)",
+      "title": "Other storage area attributes (as json)",
       "allowEmpty": true
     }
   }

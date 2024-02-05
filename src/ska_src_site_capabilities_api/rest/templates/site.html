@@ -28,6 +28,24 @@
   <script type="text/javascript" src="{{ base_url }}static/js/jsonform/lib/jsonform.js"></script>
 
   <script type="text/javascript">
+    function searchNestedObject(obj, keyName) {
+      let results = [];
+
+      function search(obj, keyName) {
+        for (let prop in obj) {
+          if (obj.hasOwnProperty(prop)) {
+            if (prop === keyName) {
+              results.push(obj[prop]);
+            } else if (typeof obj[prop] === 'object') {
+              search(obj[prop], keyName);
+            }
+          }
+        }
+      }
+      search(obj, keyName);
+      return results;
+    }
+
     $('form').jsonForm({
       "schema": {{ schema | tojson }},
       "form": [
@@ -309,48 +327,54 @@
           "placeholder": "Secondary contact email"
         },
         {
-          "type": "tabarray",
+          "type": "fieldset",
           "title": "Core Services",
-          "expandable": false,
+          "expandable": true,
           "items": [
             {
-              "type": "section",
-              "legend": "\{\{value\}\}",
+              "type": "tabarray",
+              "expandable": false,
               "items": [
                 {
-                  "key": "core_services[].id",
-                },
-                {
-                  "key": "core_services[].type",
-                  "valueInLegend": true
-                },
-                {
-                  "key": "core_services[].version",
-                  "placeholder": "The version of this service"
-                },
-                {
-                  "key": "core_services[].prefix",
-                  "placeholder": "The prefix for this service"
-                },
-                {
-                  "key": "core_services[].host",
-                  "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
-                },
-                {
-                  "key": "core_services[].port",
-                  "placeholder": "The port for this service (if applicable)"
-                },
-                {
-                  "key": "core_services[].path",
-                  "placeholder": "The path for this service (if applicable)"
-                },
-                {
-                  "key": "core_services[].identifier",
-                  "placeholder": "A name used to identify this service."
-                },
-                {
-                  "key": "core_services[].other_attributes",
-                  "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                  "type": "section",
+                  "legend": "\{\{value\}\}",
+                  "items": [
+                    {
+                      "key": "core_services[].id",
+                    },
+                    {
+                      "key": "core_services[].type",
+                      "valueInLegend": true
+                    },
+                    {
+                      "key": "core_services[].version",
+                      "placeholder": "The version of this service"
+                    },
+                    {
+                      "key": "core_services[].prefix",
+                      "placeholder": "The prefix for this service"
+                    },
+                    {
+                      "key": "core_services[].host",
+                      "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
+                    },
+                    {
+                      "key": "core_services[].port",
+                      "placeholder": "The port for this service (if applicable)"
+                    },
+                    {
+                      "key": "core_services[].path",
+                      "placeholder": "The path for this service (if applicable)"
+                    },
+                    {
+                      "key": "core_services[].identifier",
+                      "placeholder": "A name used to identify this service"
+                    },
+                    {
+                      "key": "core_services[].other_attributes",
+                      "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                    }
+                  ]
                 }
               ]
             }
@@ -426,7 +450,7 @@
                     },
                     {
                       "type": "tabarray",
-                      "title": "Associated services",
+                      "title": "Areas",
                       "expandable": false,
                       "items": [
                         {
@@ -434,39 +458,23 @@
                           "legend": "\{\{value\}\}",
                           "items": [
                             {
-                              "key": "storages[].associated_services[].id",
+                              "key": "storages[].areas[].id",
                             },
                             {
-                              "key": "storages[].associated_services[].type",
+                              "key": "storages[].areas[].type",
                               "valueInLegend": true
                             },
                             {
-                              "key": "storages[].associated_services[].version",
-                              "placeholder": "The version of this service"
+                              "key": "storages[].areas[].relative_path",
+                              "placeholder": "The path for this area relative to the storage base path"
                             },
                             {
-                              "key": "storages[].associated_services[].prefix",
-                              "placeholder": "The prefix for this service"
+                              "key": "storages[].areas[].identifier",
+                              "placeholder": "A name used to identify this storage area"
                             },
                             {
-                              "key": "storages[].associated_services[].host",
-                              "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
-                            },
-                            {
-                              "key": "storages[].associated_services[].port",
-                              "placeholder": "The port for this service (if applicable)"
-                            },
-                            {
-                              "key": "storages[].associated_services[].path",
-                              "placeholder": "The path for this service (if applicable)"
-                            },
-                            {
-                              "key": "storages[].associated_services[].identifier",
-                              "placeholder": "A name used to identify this service."
-                            },
-                            {
-                              "key": "storages[].associated_services[].other_attributes",
-                              "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                              "key": "storages[].areas[].other_attributes",
+                              "placeholder": "Other attributes for this storage area in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             }
                           ]
                         }
@@ -494,11 +502,6 @@
                       "key": "compute[].id"
                     },
                     {
-                      "key": "compute[].url",
-                      "placeholder": "The url for this compute element",
-                      "valueInLegend": true
-                    },
-                    {
                       "key": "compute[].latitude",
                       "placeholder": "Latitude of this compute element"
                     },
@@ -518,7 +521,8 @@
                     },
                     {
                       "key": "compute[].description",
-                      "placeholder": "Description of this compute element"
+                      "placeholder": "Description of this compute element",
+                      "valueInLegend": true
                     },
                     {
                       "key": "compute[].middleware_version",
@@ -546,7 +550,7 @@
                             },
                             {
                               "key": "compute[].associated_services[].prefix",
-                              "placeholder": "The prefix for this service"
+                              "placeholder": "The prefix for this service (if applicable)"
                             },
                             {
                               "key": "compute[].associated_services[].host",
@@ -561,8 +565,12 @@
                               "placeholder": "The path for this service (if applicable)"
                             },
                             {
+                              "key": "compute[].associated_services[].associated_storage_area_id",
+                              "placeholder": "Associated storage area ID (if applicable)"
+                            },
+                            {
                               "key": "compute[].associated_services[].identifier",
-                              "placeholder": "A name used to identify this service."
+                              "placeholder": "A name used to identify this service"
                             },
                             {
                               "key": "compute[].associated_services[].other_attributes",
@@ -593,59 +601,34 @@
         {
           "type": "submit",
           "title": "Add"
+        },
+        {
+          "type": "button",
+          "title": "Reload",
+          "onClick": function (evt) {
+            evt.preventDefault();
+            location.reload();
+          }
         }
       ],
-      "value": {{ values | default({"core_services": []}) | default({"storages.associated_services": []}) | default({"compute.associated_services": []}) | tojson }},
+      "value": {{ values | default({"core_services": []}) | default({"storages.supported_protocols": []}) |
+                           default({"storages": []}) | default({"storages.areas": []}) |
+                           default({"compute.associated_services": []}) | tojson }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
-        console.log(JSON.stringify(values));
 
-        // check core services for bad other_attributes
-        if (values.core_services !== undefined) {
-          values.core_services.forEach(function(service) {
-            if ('other_attributes' in service) {
-              if (JSON.stringify(service.other_attributes).length-2 === 0) {
-                errors="A service other_attributes list is not JSON stringifiable";
-              }
-            }
-          });
-        }
-
-        // check storages.associated_services for bad other_attributes
-        if (values.storages !== undefined) {
-          if (values.storages.associated_services !== undefined) {
-            values.storages.associated_services.forEach(function(service) {
-              if ('other_attributes' in service) {
-                if (JSON.stringify(service.other_attributes).length-2 === 0) {
-                  errors="A service other_attributes list is not JSON stringifiable";
-                }
-              }
-            });
+        // ensure that all "other_attributes" values are JSON stringifiable
+        searchNestedObject(values, "other_attributes").forEach(function(object) {
+          try {
+            json = JSON.stringify(object);
+          } catch (errors) {
+            console.log(errors);
           }
-        }
-
-        // check compute.associated_services for bad other_attributes
-        if (values.compute !== undefined) {
-          if (values.compute.associated_services !== undefined) {
-            values.compute.associated_services.forEach(function(service) {
-              if ('other_attributes' in service) {
-                if (JSON.stringify(service.other_attributes).length-2 === 0) {
-                  errors="A service other_attributes list is not JSON stringifiable";
-                }
-              }
-            });
-          }
-        }
-
-        // check top level schema for bad other_attributes
-        if ('other_attributes' in values) {
-          if (JSON.stringify(values.other_attributes).length-2 === 0) {
-            errors="The site other_attributes list is not JSON stringifiable";
-          }
-        }
+        })
 
         if (errors) {
-          showAndDismissAlert('danger', errors);
+          showAndDismissAlert('danger', errors[0].uri + " " + errors[0].message);
+          console.log(errors);
         } else {
           urlParams = new URLSearchParams(window.location.search);
           $.ajax({
@@ -663,7 +646,6 @@
             }
            });
         }
-        $('html, body').scrollTop($(document).height());
       }
     });
   </script>

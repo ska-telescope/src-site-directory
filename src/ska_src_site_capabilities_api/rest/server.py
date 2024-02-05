@@ -15,7 +15,7 @@ from typing import Union
 
 import jsonref
 from authlib.integrations.requests_client import OAuth2Session
-from fastapi import FastAPI, Depends, File, HTTPException, status, UploadFile, Path, Body
+from fastapi import FastAPI, Depends, HTTPException, status, Path, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.staticfiles import StaticFiles
@@ -29,7 +29,7 @@ from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ComputeNotFound, \
-    SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound
+    SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound, StorageAreaNotFound
 
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
@@ -40,7 +40,7 @@ config = Config('.env')
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
+DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -145,6 +145,24 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
 # ------
 #
 @api_version(1)
+@app.get('/compute',
+         responses={
+             200: {"model": models.response.ComputeListResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Compute"],
+         summary="List all compute")
+@handle_exceptions
+async def list_compute(request: Request) -> JSONResponse:
+    """ List all compute. """
+    rtn = BACKEND.list_compute()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
 @app.get('/compute/{compute_id}',
          responses={
              200: {"model": models.response.ComputeGetResponse},
@@ -168,27 +186,9 @@ async def get_compute_from_id(request: Request,
 
 
 @api_version(1)
-@app.get('/compute',
-         responses={
-             200: {"model": models.response.ComputeResponse},
-             401: {},
-             403: {}
-         },
-         dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-         tags=["Compute"],
-         summary="List all compute")
-@handle_exceptions
-async def list_compute(request: Request) -> JSONResponse:
-    """ List all compute. """
-    rtn = BACKEND.list_compute()
-    return JSONResponse(rtn)
-
-
-@api_version(1)
 @app.get("/schemas",
          responses={
-             200: {"model": models.response.SchemasResponse},
+             200: {"model": models.response.SchemasListResponse},
              401: {},
              403: {},
          },
@@ -282,9 +282,12 @@ async def render_schema(request: Request,
          tags=["Services"],
          summary="List all services")
 @handle_exceptions
-async def list_services(request: Request) -> JSONResponse:
+async def list_services(request: Request,
+                        include_associated_with_compute: bool = \
+                                Query(default=True,
+                                      description="Include services associated with compute?")) -> JSONResponse:
     """ List all services. """
-    rtn = BACKEND.list_services()
+    rtn = BACKEND.list_services(include_associated_with_compute)
     return JSONResponse(rtn)
 
 
@@ -293,8 +296,7 @@ async def list_services(request: Request) -> JSONResponse:
          responses={
              200: {"model": Union[
                  models.response.CoreServiceGetResponse,
-                 models.response.ComputeServiceGetResponse,
-                 models.response.StorageServiceGetResponse]},
+                 models.response.ComputeServiceGetResponse]},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
@@ -317,7 +319,7 @@ async def get_service_from_id(request: Request,
 @api_version(1)
 @app.get('/sites',
          responses={
-             200: {"model": models.response.SitesResponse},
+             200: {"model": models.response.SitesListResponse},
              401: {},
              403: {}
          },
@@ -358,47 +360,20 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
         access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
         values['created_by_username'] = access_token_decoded.get('preferred_username')
 
-    # add ids for core_services
-    services = values.get('core_services')
-    if services:
-        for service in services:
-            if not service.get('id'):
-                service['id'] = str(uuid.uuid4())
-
-    # add ids for storages
-    storages = values.get('storages', [])
-    if storages:
-        for storage in storages:
-            if not storage.get('id'):
-                storage['id'] = str(uuid.uuid4())
-
-        # add ids for storages.associated_services
-        services = storage.get('associated_services')
-        if services:
-            for service in services:
-                if not service.get('id'):
-                    service['id'] = str(uuid.uuid4())
-
-    # add ids for compute
-    computes = values.get('compute', [])
-    if computes:
-        for compute in computes:
-            if not compute.get('id'):
-                compute['id'] = str(uuid.uuid4())
-
-        # add ids for compute.associated_services
-        services = compute.get('associated_services')
-        if services:
-            for service in services:
-                if not service.get('id'):
-                    service['id'] = str(uuid.uuid4())
-
-    # add ids for storages
-    storages = values.get('storages')
-    if storages:
-        for storage in storages:
-            if not storage.get('id'):
-                storage['id'] = str(uuid.uuid4())
+    # autogenerate ids for id keys
+    def recursive_autogen_id(data, autogen_keys=['id'], placeholder_value="to be assigned"):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key in autogen_keys:
+                    if value == placeholder_value:
+                        data[key] = str(uuid.uuid4())
+                elif isinstance(value, (dict, list)):
+                    data[key] = recursive_autogen_id(value)
+        elif isinstance(data, list):
+            for i in range(len(data)):
+                data[i] = recursive_autogen_id(data[i])
+        return data
+    values = recursive_autogen_id(values)
 
     id = BACKEND.add_site(values)
     return HTMLResponse(repr(id))
@@ -441,27 +416,9 @@ async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
 
 
 @api_version(1)
-@app.get('/sites',
-         responses={
-             200: {"model": models.response.SitesResponse},
-             401: {},
-             403: {}
-         },
-         dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-         tags=["Sites"],
-         summary="List sites")
-@handle_exceptions
-async def list_sites(request: Request) -> JSONResponse:
-    """ List all sites. """
-    rtn = BACKEND.list_site_names_unique()
-    return JSONResponse(rtn)
-
-
-@api_version(1)
 @app.get('/sites/latest',
          responses={
-             200: {"model": models.response.SiteGetResponse},
+             200: {"model": models.response.SitesGetResponse},
              401: {},
              403: {}
          },
@@ -479,7 +436,7 @@ async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPExceptio
 @api_version(1)
 @app.get('/sites/{site}',
          responses={
-             200: {"model": models.response.SiteGetResponse},
+             200: {"model": models.response.SitesGetResponse},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
@@ -576,7 +533,7 @@ async def delete_site_version(request: Request,
 @api_version(1)
 @app.get('/storages',
          responses={
-             200: {"model": models.response.StoragesResponse},
+             200: {"model": models.response.StoragesListResponse},
              401: {},
              403: {}
          },
@@ -591,7 +548,6 @@ async def list_storages(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-#FIXME this really should be /service/grafana
 @api_version(1)
 @app.get('/storages/grafana',
          responses={
@@ -610,7 +566,6 @@ async def list_storages_for_grafana(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-#FIXME this really should be /services/topojson
 @api_version(1)
 @app.get('/storages/topojson',
          responses={
@@ -649,6 +604,83 @@ async def get_storage_from_id(request: Request,
     rtn = BACKEND.get_storage(storage_id)
     if not rtn:
         raise StorageNotFound(storage_id)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storage-areas',
+         responses={
+             200: {"model": models.response.StorageAreasListResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Storage Areas"],
+         summary="List all storage areas")
+@handle_exceptions
+async def list_storages(request: Request) -> JSONResponse:
+    """ List all storage areas. """
+    rtn = BACKEND.list_storage_areas()
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storage-areas/grafana',
+         responses={
+             200: {"model": models.response.StorageAreasGrafanaResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
+         tags=["Storage Areas"],
+         summary="List all storage areas (Grafana format)")
+@handle_exceptions
+async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
+    """ List all storage areas in a format digestible by Grafana world map panels. """
+    rtn = BACKEND.list_storage_areas(for_grafana=True)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storage-areas/topojson',
+         responses={
+             200: {"model": models.response.StorageAreasTopojsonResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)],
+         tags=["Storage Areas"],
+         summary="List all storage areas (topojson format)")
+@handle_exceptions
+async def list_storage_areas_in_topojson_format(request: Request) -> JSONResponse:
+    """ List all storage areas in topojson format. """
+    rtn = BACKEND.list_storage_areas(topojson=True)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storage-areas/{storage_area_id}',
+         responses={
+             200: {"model": models.response.StorageAreaGetResponse},
+             401: {},
+             403: {},
+             404: {"model": models.response.GenericErrorResponse}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Storage Areas"],
+         summary="Get storage area from id")
+@handle_exceptions
+async def get_storage_area_from_id(request: Request,
+                                   storage_area_id: str = Path(description="Unique storage area identifier")) \
+        -> Union[JSONResponse, HTTPException]:
+    """ Get a storage area description from a unique identifier. """
+    rtn = BACKEND.get_storage_area(storage_area_id)
+    if not rtn:
+        raise StorageAreaNotFound(storage_area_id)
     return JSONResponse(rtn)
 
 
@@ -698,32 +730,19 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
         "Authorisation", "Workflows", "Schemas", "Development", "Deployment", "Prototype", "References"])
 
     # Exclude unnecessary paths.
-    paths_to_exclude = {
-        '/compute': ['get'],
-        '/compute/{compute_id}': ['get'],
-        '/schemas': ['get'],
-        '/schemas/{schema}': ['get'],
-        '/schemas/render/{schema}': ['get'],
-        '/services/{service_id}': ['get'],
-        '/sites': ['post', 'delete'],
-        '/sites/bulk': ['post'],
-        '/sites/dump': ['get'],
-        '/sites/latest': ['get'],
-        '/sites/{site}': ['get', 'delete'],
-        '/sites/{site}/{version}': ['get', 'delete'],
-        '/storages': ['get'],
-        '/storages/{storage_id}': ['get'],
-        '/storages/grafana': ['get'],
-        '/storages/topojson': ['get'],
-        '/www/sites/add': ['get'],
-        '/www/sites/add/{site}': ['get']
+    paths_to_include = {
+        '/sites': ['get'],
+        '/ping': ['get'],
+        '/health': ['get']
     }
     openapi_schema = copy.deepcopy(request.scope.get('app').openapi_schema)
-    included_paths = copy.deepcopy(openapi_schema.get('paths', {}))
+    included_paths = {}
     for path, methods in openapi_schema.get('paths', {}).items():
         for method, attr in methods.items():
-            if method in paths_to_exclude.get(path, []):
-                included_paths[path].pop(method)
+            if method in paths_to_include.get(path, []):
+                if path not in included_paths:
+                    included_paths[path] = {}
+                included_paths[path][method] = attr
     openapi_schema.update({'paths': included_paths})
 
     openapi_schema_template = Template(json.dumps(openapi_schema))
@@ -755,7 +774,6 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
     """ Web form to add a new site with JSON schema validation.
 
     A valid token must be included in the <b>token</b> query parameter.
-
     """
     schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
@@ -787,7 +805,6 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
     """ Web form to update an existing site with JSON schema validation.
 
     A valid token must be included in the <b>token</b> query parameter.
-
     """
     schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
     with open(schema_path) as f:
@@ -801,29 +818,19 @@ async def add_site_form_existing(request: Request, site: str, token: str = None)
     except KeyError:
         pass
 
-    # quote nested JSON other attribute dictionaries otherwise JSONForm parses as [Object object].
-    if latest.get('core_services', None):
-        for idx in range(len(latest['core_services'])):
-            if latest['core_services'][idx].get('other_attributes', None):
-                latest['core_services'][idx]['other_attributes'] = json.dumps(
-                    latest['core_services'][idx]['other_attributes'])
-                
-    for storage in latest.get('storages', []):
-        if storage.get('associated_services', None):
-            for idx in range(len(storage['associated_services'])):
-                if storage['associated_services'][idx].get('other_attributes', None):
-                    storage['associated_services'][idx]['other_attributes'] = json.dumps(
-                        storage['associated_services'][idx]['other_attributes'])
-
-    for compute in latest.get('compute', []):
-        if compute.get('associated_services', None):
-            for idx in range(len(compute['associated_services'])):
-                if compute['associated_services'][idx].get('other_attributes', None):
-                    compute['associated_services'][idx]['other_attributes'] = json.dumps(
-                        compute['associated_services'][idx]['other_attributes'])
-
-    if latest.get('other_attributes', None):
-        latest['other_attributes'] = json.dumps(latest['other_attributes'])
+    # quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as [Object object].
+    def recursive_stringify(data, stringify_keys=['other_attributes']):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key in stringify_keys:
+                    data[key] = json.dumps(value)
+                elif isinstance(value, (dict, list)):
+                    data[key] = recursive_stringify(value)
+        elif isinstance(data, list):
+            for i in range(len(data)):
+                data[i] = recursive_stringify(data[i])
+        return data
+    latest = recursive_stringify(latest)
 
     return TEMPLATES.TemplateResponse("site.html", {
         "request": request,
@@ -915,9 +922,10 @@ for route in app.routes:
         subapp.openapi_schema['info']['title'] = 'Site Capabilities API Overview'
         subapp.openapi_schema['tags'] = [
             {"name": "Sites", "description": "Operations on sites.", "x-tag-expanded": False},
-            {"name": "Compute", "description": "Operations on compute offered by sites.", "x-tag-expanded": False},
-            {"name": "Storages", "description": "Operations on storages offered by sites.", "x-tag-expanded": False},
-            {"name": "Services", "description": "Operations on services offered by sites.", "x-tag-expanded": False},
+            {"name": "Compute", "description": "Operations on site compute.", "x-tag-expanded": False},
+            {"name": "Storages", "description": "Operations on site storages.", "x-tag-expanded": False},
+            {"name": "Storage Areas", "description": "Operations on site storage areas.", "x-tag-expanded": False},
+            {"name": "Services", "description": "Operations on site services.", "x-tag-expanded": False},
             {"name": "Schemas", "description": "Schema operations.", "x-tag-expanded": False},
             {"name": "Status", "description": "Operations describing the status of the API.", "x-tag-expanded": False},
         ]

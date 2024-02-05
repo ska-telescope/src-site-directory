@@ -49,6 +49,10 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_storage_area(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_site_version(self):
         raise NotImplementedError
 
@@ -74,6 +78,10 @@ class Backend(ABC):
 
     @abstractmethod
     def list_storages(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_storage_areas(self):
         raise NotImplementedError
 
 
@@ -175,9 +183,11 @@ class MongoBackend(Backend):
         site_versions = self.get_site(site)
 
         latest = None
-        version = -1
         for site_version in site_versions:
-            if site_version['version'] > version:
+            if latest:
+                if site_version.get('version') > latest.get('version'):
+                    latest = site_version
+            else:
                 latest = site_version
         return latest
 
@@ -190,6 +200,16 @@ class MongoBackend(Backend):
                     break
         return response
 
+    def get_storage_area(self, storage_area_id):
+        response = {}
+        for site in self.list_sites_version_latest():
+            for storage in site.get('storages', []):
+                for storage_area in storage.get('areas', []):
+                    if storage_area['id'] == storage_area_id:
+                        response = storage_area
+                        break
+        return response
+
     def list_compute(self):
         response = []
         for site in self.list_sites_version_latest():
@@ -200,31 +220,23 @@ class MongoBackend(Backend):
                 })
         return response
 
-    def list_services(self):
+    def list_services(self, include_associated_with_compute=True):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
-            # concatenate services (core + associated storages + associated compute)
+            # concatenate services (core + associated compute)
             for service in full_site_json.get('core_services', []):
                 services.append(service)
-
-            for storage in full_site_json.get('storages', []):
-                # add the associated storage id
-                for service in storage.get('associated_services', []):
-                    services.append({
-                        'associated_storage_id': storage.get('id'),
-                        **service
-                    })
-
-            for compute in full_site_json.get('compute', []):
-                # add the associated compute id
-                for compute in compute.get('associated_services', []):
-                    services.append({
-                        'associated_compute_id': compute.get('id'),
-                        **service
-                    })
+            if include_associated_with_compute:
+                for compute in full_site_json.get('compute', []):
+                    # add the associated compute id
+                    for service in compute.get('associated_services', []):
+                        services.append({
+                            'associated_compute_id': compute.get('id'),
+                            **service
+                        })
 
             response.append({
                 'site_name': full_site_json.get('name'),
@@ -263,44 +275,74 @@ class MongoBackend(Backend):
         else:
             response = []
 
-        services_list = self.list_services()
-        for site in self.list_sites_version_latest():
+        for site_name in self.list_site_names_unique():
+            full_site_json = self.get_site_version_latest(site_name)
             if topojson or for_grafana:
-                for storage in site.get('storages', []):
+                for storage in full_site_json.get('storages', []):
                     if topojson:
-                        # for topojson output we attach the service identifier to the storage also, this means that there
-                        # may be same storage output multiple times if different services are attached to it.
-                        #
-                        # see route /storages/topojson FIXME
-                        for site_from_services_list in services_list:
-                            if site_from_services_list.get('site_name') == site.get('name'):
-                                for service in site_from_services_list.get('services'):
-                                    if service.get('associated_storage_id', '') == storage.get('id'):
-                                        response['objects']['sites']['geometries'].append({
-                                            "type": "Point",
-                                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
-                                            "properties": {'associated_service': service}
-                                        })
+                        response['objects']['sites']['geometries'].append({
+                            "type": "Point",
+                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
+                            "properties": {'name': storage.get('identifier')}
+                        })
                     elif for_grafana:
-                        # for grafana output we attach the service identifier to the storage also, this means that there
-                        # may be same storage output multiple times if different services are attached to it.
-                        #
-                        # see route /storages/topojson FIXME
-                        for site_from_services_list in services_list:
-                            if site_from_services_list.get('site_name') == site.get('name'):
-                                for service in site_from_services_list.get('services'):
-                                    if service.get('associated_storage_id', '') == storage.get('id'):
-                                        if service.get('type') == 'Rucio Storage Element (RSE)':
-                                            response.append({
-                                                "key": service.get('identifier'),
-                                                "latitude": storage['latitude'],
-                                                "longitude": storage['longitude'],
-                                                "name": service.get('identifier')
-                                            })
+                        response.append({
+                            "key": storage.get('identifier'),
+                            "latitude": storage['latitude'],
+                            "longitude": storage['longitude'],
+                            "name": storage.get('identifier')
+                        })
             else:
-                if site.get('storages'):
+                if full_site_json.get('storages'):
                     response.append({
-                        "site_name": site.get('name'),
-                        "storages": site.get('storages')
+                        "site_name": full_site_json.get('name'),
+                        "storages": full_site_json.get('storages')
                     })
         return response
+
+    def list_storage_areas(self, topojson=False, for_grafana=False):
+        if topojson:
+            response = {
+                "type": "Topology",
+                "objects": {
+                    "sites": {
+                        "type": "GeometryCollection",
+                        "geometries": []
+                    }
+                }
+            }
+        else:
+            response = []
+
+        for site_name in self.list_site_names_unique():
+            full_site_json = self.get_site_version_latest(site_name)
+
+            storage_areas = []
+            for storage in full_site_json.get('storages', []):
+                for storage_area in storage.get('areas', []):
+                    if topojson:
+                        response['objects']['sites']['geometries'].append({
+                            "type": "Point",
+                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
+                            "properties": {'name': storage_area.get('identifier')}
+                        })
+                    elif for_grafana:
+                        response.append({
+                            "key": storage_area.get('identifier'),
+                            "latitude": storage['latitude'],
+                            "longitude": storage['longitude'],
+                            "name": storage_area.get('identifier')
+                        })
+                    else:
+                        # add the associated storage id
+                        storage_areas.append({
+                            'associated_storage_id': storage.get('id'),
+                            **storage_area
+                        })
+            if not for_grafana and not topojson:
+                response.append({
+                    'site_name': full_site_json.get('name'),
+                    'storage_areas': storage_areas
+                })
+        return response
+
