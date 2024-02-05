@@ -10,8 +10,8 @@ services:
     ports:
       - 27017:27017
   core:
-    container_name: ska-src-site-capabilities-core
-    image: ska-src-site-capabilities-core:latest
+    container_name: ska-src-site-capabilities-api-core
+    image: ska-src-site-capabilities-api-core:latest
     build:
       context: .
       dockerfile: Dockerfile

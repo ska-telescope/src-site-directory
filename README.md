@@ -80,8 +80,9 @@ Operations are grouped into the follow sections:
 | <div style="width:160px">Group</div> | Description                                  |
 |:-------------------------------------|:---------------------------------------------|
 | Sites                                | Operations on sites.                         |
-| Processing                           | Operations on processing offered by sites    |
+| Compute                              | Operations on processing offered by sites    |
 | Storages                             | Operations on storages offered by sites      |
+| Storage Areas                        | Operations on storage areas offered by sites |
 | Services                             | Operations on services offered by sites      |
 | Schemas                              | Schema operations.                           |
 | Status                               | Operations describing the status of the API. |
@@ -92,36 +93,34 @@ It is recommended to record data in the document database by using the web front
 verifies the input against the site schema at `etc/schemas/site.json` (which is, as an aside, constructed using 
 other schemas in the same directory by referencing). For each record created or modified, a version number is 
 incremented for the corresponding site and the input stored alongside the schema used to generate the form. All 
-versions of a site specification are retained.
+versions of a site specification are retained. Sites can be added programmatically, but care should be taken to keep 
+the input in line with the corresponding schema.
 
-New fields can be added to schemas, but you must remember to add the element on the form template too (as well as 
-adding/amending the corresponding Pydantic models).
+Schemas are flexible and new ones can be added/existing ones amended.
 
-Sites can be added programmatically, but care should be taken to keep the input in line with the corresponding schema.
+### Adding and amending schemas
 
-### Resources
+To amend/add a new resource, the following checklist may be helpful:
 
-Resources are defined as major constituent elements of a site that can be grouped, e.g. processing, storage
-
-#### Adding a new resource
-
-To add a new resource, the recipe is roughly as follows:
-
-- Create the schema and add to the `etc/schemas` directory
-- Add to or amend `src/ska_src_site_capabilities_api/models` if there are new models or the schema of an existing model 
-  has changed
-- Amend the site template (`src/ska_src_site_capabilities_api/rest/templates/site.html`)
+- (adding only) Create the schema and add to the `etc/schemas` directory
+- Add to or amend any models (`src/ska_src_site_capabilities_api/models`) if there are new ones or the schema of an 
+  existing model has changed
+- Amend the site template (`src/ska_src_site_capabilities_api/rest/templates/site.html`):
     - Add any new fields to the form schema
-    - Ensure that if there are "other_attributes" fields that both 
-        - a default `value` is set using the jinja template `| default`, and
-        - another  block is created to check that the input is json stringifiable on submit
-- Amend `server.py`
-    - Add a new tag to the `openapi_schema` (if a new section for routes is required)
-    - Alter the `add_site_form_existing` route to quote nested json if "other_attributes" field exists
-    - Alter the `add_site` route to add in UUIDs (if required)
+    - Ensure that if there are object fields that a default `value` of `[]` is set using the jinja2 template `| default` 
+    filter
+- Amend the REST server (`src/ska_src_site_capabilities_api/rest/server.py`):
     - Add any routes and corresponding backend functions (check that existing functionality isn't broken with any big
       changes!)
+    - Add a new tag to the `openapi_schema` (if a new section for routes has been defined)
     - Change `responses` in the `app` route decorator to reference the appropriate models
+- (optional) Check that the `etc/init/sites.json` has entries that conform to the new schema
+
+In addition you will need to amend external dependencies by:
+
+- Ensuring that any dependent calls that utilise this schema aren't adversely, and 
+- If a new route has been created or its signature modified, check that the corresponding Permissions API policy has 
+  been added/amended
 
 ## Development
 

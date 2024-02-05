@@ -7,14 +7,8 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": null,
+      "default": "to be assigned",
       "readOnly": true
-    },
-    "url": {
-      "type": "string",
-      "title": "URL",
-      "default": null,
-      "required": true
     },
     "latitude": {
       "type": "number",
@@ -65,7 +59,6 @@
     "middleware_version": {
       "type": "string",
       "title": "Version",
-      "required": true,
       "default": null
     },
     "associated_services": {

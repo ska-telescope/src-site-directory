@@ -1,7 +1,7 @@
-from typing import List
+from typing import Literal, List
 from uuid import uuid4, UUID
 
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, Field
 
 from ska_src_site_capabilities_api.models.service import ComputeService
 
@@ -16,3 +16,5 @@ class Compute(BaseModel):
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
     associated_services: List[ComputeService]
+
+

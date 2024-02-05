@@ -7,7 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": null,
+      "default": "to be assigned",
       "readOnly": true
     },
     "host": {
@@ -76,10 +76,10 @@
       },
       "allowEmpty": true
     },
-    "associated_services": {
+    "areas": {
       "type": "array",
       "items": {
-        "$ref": "storage-service.json"
+        "$ref": "storage-area.json"
       },
       "allowEmpty": true
     }
