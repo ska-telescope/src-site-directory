@@ -121,8 +121,20 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        services_endpoint = "{api_url}/sites".format(api_url=self.api_url)
-        resp = self.session.get(services_endpoint)
+        sites_endpoint = "{api_url}/sites".format(api_url=self.api_url)
+        resp = self.session.get(sites_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_sites_latest(self):
+        """ Get latest versions of all sites.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        sites_latest_endpoint = "{api_url}/sites/latest".format(api_url=self.api_url)
+        resp = self.session.get(sites_latest_endpoint)
         resp.raise_for_status()
         return resp
 
