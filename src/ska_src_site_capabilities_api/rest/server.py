@@ -6,11 +6,11 @@ import json
 import jwt
 import os
 import pathlib
-from plantuml import PlantUML
 import tempfile
 import time
 import uuid
 from datetime import datetime
+from plantuml import PlantUML
 from typing import Union
 
 import jsonref
