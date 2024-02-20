@@ -710,6 +710,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
             "api_server_url": get_api_server_url_from_request(request, config.get('API_SCHEME', default='http'))
         }),
         "readme_text_md": readme_text_html,
+        "version": "v{version}".format(version=os.environ.get('SERVICE_VERSION'))
     })
 
 
@@ -754,6 +755,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
             "api_server_url": get_api_server_url_from_request(request, config.get('API_SCHEME', default='http'))
         }),
         "readme_text_md": readme_text_html,
+        "version": "v{version}".format(version=os.environ.get('SERVICE_VERSION'))
     })
 
 
