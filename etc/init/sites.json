@@ -21473,7 +21473,7 @@
           {
             "id": "f605dd74-7a43-40e5-9229-48845416e30a",
             "type": "Data Ingest Area",
-            "relative_path": "/ingest"
+            "relative_path": "/ingest/staging"
           }
         ]
       }
@@ -22195,7 +22195,7 @@
           {
             "id": "f605dd74-7a43-40e5-9229-48845416e30a",
             "type": "Data Ingest Area",
-            "relative_path": "/ingest"
+            "relative_path": "/ingest/staging"
           }
         ]
       }
@@ -22939,7 +22939,7 @@
           {
             "id": "f605dd74-7a43-40e5-9229-48845416e30a",
             "type": "Data Ingest Area",
-            "relative_path": "/ingest"
+            "relative_path": "/ingest/staging"
           }
         ]
       }
@@ -23678,7 +23678,7 @@
           {
             "id": "f605dd74-7a43-40e5-9229-48845416e30a",
             "type": "Data Ingest Area",
-            "relative_path": "/ingest"
+            "relative_path": "/ingest/staging"
           }
         ]
       }
