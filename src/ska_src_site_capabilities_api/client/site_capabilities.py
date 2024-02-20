@@ -45,6 +45,20 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
+    def get_schema(self, schema: str):
+        """ Get a schema.
+
+        :param str schema: The name of the schema.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_schema_endpoint = "{api_url}/schemas/{schema}".format(api_url=self.api_url, schema=schema)
+        resp = self.session.get(get_schema_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def get_service(self, service_id: str):
         """ Get description of a service from an identifier.
 
@@ -99,6 +113,18 @@ class SiteCapabilitiesClient:
         """
         compute_endpoint = "{api_url}/compute".format(api_url=self.api_url)
         resp = self.session.get(compute_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_schemas(self):
+        """ Get a list of schemas.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        schemas_endpoint = "{api_url}/schemas".format(api_url=self.api_url)
+        resp = self.session.get(schemas_endpoint)
         resp.raise_for_status()
         return resp
 
