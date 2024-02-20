@@ -206,7 +206,10 @@ class MongoBackend(Backend):
             for storage in site.get('storages', []):
                 for storage_area in storage.get('areas', []):
                     if storage_area['id'] == storage_area_id:
-                        response = storage_area
+                        response = {
+                            'associated_storage_id': storage.get('id'),
+                            **storage_area
+                        }
                         break
         return response
 
