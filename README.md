@@ -118,7 +118,7 @@ To amend/add a new resource, the following checklist may be helpful:
 
 In addition you will need to amend external dependencies by:
 
-- Ensuring that any dependent calls that utilise this schema aren't adversely, and 
+- Ensuring that any dependent calls that utilise this schema aren't adversely affected, and 
 - If a new route has been created or its signature modified, check that the corresponding Permissions API policy has 
   been added/amended
 

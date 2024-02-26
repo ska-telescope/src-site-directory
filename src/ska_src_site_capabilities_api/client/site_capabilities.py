@@ -105,6 +105,18 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
+    def health(self):
+        """ Get the service health.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        health_endpoint = "{api_url}/health".format(api_url=self.api_url)
+        resp = self.session.get(health_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def list_compute(self):
         """ Get a list of SRCNet compute elements.
 
@@ -233,18 +245,6 @@ class SiteCapabilitiesClient:
         """
         storage_areas_topojson_endpoint = "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
         resp = self.session.get(storage_areas_topojson_endpoint)
-        resp.raise_for_status()
-        return resp
-
-    @handle_client_exceptions
-    def health(self):
-        """ Get the service health.
-
-        :return: A requests response.
-        :rtype: requests.models.Response
-        """
-        health_endpoint = "{api_url}/health".format(api_url=self.api_url)
-        resp = self.session.get(health_endpoint)
         resp.raise_for_status()
         return resp
 

@@ -373,7 +373,12 @@
                     {
                       "key": "core_services[].other_attributes",
                       "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
-                    }
+                    },
+                    {
+                      "key": "core_services[].enabled",
+                      "notitle": true,
+                      "inlinetitle": "Enabled?",
+                    },
                   ]
                 }
               ]
@@ -575,6 +580,9 @@
                             {
                               "key": "compute[].associated_services[].other_attributes",
                               "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
+                            },
+                            {
+                              "key": "compute[].associated_services[].enabled"
                             }
                           ]
                         }
