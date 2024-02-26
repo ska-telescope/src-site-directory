@@ -30,7 +30,6 @@ from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.constants import Constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ComputeNotFound, \
     SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound, StorageAreaNotFound
-
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
 from ska_src_site_capabilities_api.db.backend import MongoBackend
@@ -40,7 +39,7 @@ config = Config('.env')
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
+DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == 'yes' else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -125,7 +124,6 @@ async def verify_permission_for_service_route(request: Request, authorization: s
     raise PermissionDenied
 
 
-# FIXME: SSO.
 # Check service route permissions from user token groups (taking token from query parameters).
 #
 @handle_exceptions
@@ -292,6 +290,56 @@ async def list_services(request: Request,
 
 
 @api_version(1)
+@app.get('/services/types/compute',
+         responses={
+             200: {"model": models.response.ServicesTypesComputeResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Services"],
+         summary="List compute service types")
+@handle_exceptions
+async def list_service_types_compute(request: Request) -> JSONResponse:
+    """ List compute service types. """
+    try:
+        schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'compute-service'))).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+    except FileNotFoundError:
+        raise SchemaNotFound
+    rtn = BACKEND.list_service_types_from_schema(schema=dereferenced_schema)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/services/types/core',
+         responses={
+             200: {"model": models.response.ServicesTypesCoreResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+         tags=["Services"],
+         summary="List core service types")
+@handle_exceptions
+async def list_service_types_core(request: Request) -> JSONResponse:
+    """ List core service types. """
+    try:
+        schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'core-service'))).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+    except FileNotFoundError:
+        raise SchemaNotFound
+    rtn = BACKEND.list_service_types_from_schema(schema=dereferenced_schema)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
 @app.get('/services/{service_id}',
          responses={
              200: {"model": Union[
@@ -334,7 +382,6 @@ async def list_sites(request: Request) -> JSONResponse:
     return JSONResponse(rtn)
 
 
-# FIXME: SSO.
 @api_version(1)
 @app.post("/sites",
           include_in_schema=False,
@@ -759,7 +806,6 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     })
 
 
-# FIXME: SSO.
 @api_version(1)
 @app.get("/www/sites/add",
          responses={
@@ -790,7 +836,6 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
     })
 
 
-# FIXME: SSO.
 @api_version(1)
 @app.get("/www/sites/add/{site}",
          responses={

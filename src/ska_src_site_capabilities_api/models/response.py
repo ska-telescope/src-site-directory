@@ -3,7 +3,8 @@ from typing import List, Literal, Union
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
-from ska_src_site_capabilities_api.models.service import ComputeService, CoreService
+from ska_src_site_capabilities_api.models.service import ComputeService, ComputeServiceType, CoreService, \
+                                                         CoreServiceType
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.site import Site
 from ska_src_site_capabilities_api.models.storage import (Storage, StorageArea, StorageAreaGrafana, StorageAreaTopojson,
@@ -61,6 +62,15 @@ SchemaGetResponse = Schema
 class ServicesResponse(ListResponse):
     services: List[Union[CoreService, ComputeService]]
 
+
+class ServicesTypesResponse(Response):
+    core: List[CoreServiceType]
+    compute: List[ComputeServiceType]
+
+
+ServicesTypesComputeResponse = List[ComputeServiceType]
+
+ServicesTypesCoreResponse = List[CoreServiceType]
 
 SiteGetVersionResponse = Site
 

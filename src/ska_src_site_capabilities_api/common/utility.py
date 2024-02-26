@@ -1,4 +1,3 @@
-import requests
 from urllib.parse import urlparse
 
 import markdown
