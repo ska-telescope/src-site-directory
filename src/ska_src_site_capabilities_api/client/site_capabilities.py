@@ -153,6 +153,29 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
+    def list_service_types_compute(self):
+        """ Get a list of SRCNet compute service types.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        service_types_compute_endpoint = "{api_url}/service/types/compute".format(api_url=self.api_url)
+        resp = self.session.get(service_types_compute_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    def list_service_types_core(self):
+        """ Get a list of SRCNet core service types.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        service_types_core_endpoint = "{api_url}/service/types/core".format(api_url=self.api_url)
+        resp = self.session.get(service_types_core_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def list_sites(self):
         """ Get a list of SRCNet sites.
 
