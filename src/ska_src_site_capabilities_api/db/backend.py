@@ -69,6 +69,10 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_service_types_from_schema(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def list_site_names_unique(self):
         raise NotImplementedError
 
@@ -245,6 +249,10 @@ class MongoBackend(Backend):
                 'site_name': full_site_json.get('name'),
                 'services': services
             })
+        return response
+
+    def list_service_types_from_schema(self, schema):
+        response = schema.get('properties', {}).get('type', {}).get('enum', [])
         return response
 
     def list_site_names_unique(self):
