@@ -64,6 +64,11 @@
       "title": "Identifier (if applicable)",
       "default": null
     },
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled?",
+      "default": true
+    },
     "other_attributes": {
       "type": "object",
       "title": "Other service attributes (as json)",
