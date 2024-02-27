@@ -4,20 +4,36 @@ This API exposes enables functionality related to SRCNet site service discovery 
 
 [TOC]
 
-## Authentication
+## Overview
 
-### User
+The Data Management API enables the following functionality by group:
+
+| <div style="width:160px">Group</div> | Description                                  |
+|:-------------------------------------|:---------------------------------------------|
+| Sites                                | Operations on sites.                         |
+| Compute                              | Operations on processing offered by sites    |
+| Storages                             | Operations on storages offered by sites      |
+| Storage Areas                        | Operations on storage areas offered by sites |
+| Services                             | Operations on services offered by sites      |
+| Schemas                              | Schema operations.                           |
+| Status                               | Operations describing the status of the API. |
+
+## AuthN/Z
+
+### Authentication
+
+#### User
 
 To access this API as a user, the user needs to have first authenticated with the SRCNet and to have exchanged the token 
 resulting from this initial authentication with one that allows access to this specific service. See the Authentication 
-Mechanism and Token Exchange Mechanism sections of the Authentication API for more specifics.
+Mechanism and Token Exchange Mechanism sections of the Auth API for more specifics.
 
-### Service
+#### Service
 
 For service-to-service interactions, it is possible to obtain a token via a ***client_credentials*** grant to the 
 ska-src-site-capabilities-api IAM client.
 
-## Authorisation
+### Authorisation
 
 Hereafter, the caller (either a user or another service) is assumed to have a valid token allowing access to this API. 
 Authenticated requests are then made by including this token in the header.
@@ -25,7 +41,7 @@ Authenticated requests are then made by including this token in the header.
 The token audience must also match the expected audience, also defined in the site-capabilities-api permissions policy 
 (default: “site-capabilities-api”).
 
-### Restricting user access to routes using token scopes
+#### Restricting user access to routes using token scopes
 
 The presented token must include a specific scope expected by the service to be permitted access to all API routes. This 
 scope is defined in the site-capabilities-api permissions policy (default: “site-capabilities-api-service”). 
@@ -33,7 +49,7 @@ scope is defined in the site-capabilities-api permissions policy (default: “si
 **This scope must also be added to the IAM permissions client otherwise the process of token instrospection will drop 
 this scope.**
 
-### Restricting user access to routes using IAM groups
+#### Restricting user access to routes using IAM groups
 
 Access to a specific route of this API depends on user IAM group membership and is determined by calls to the 
 `/authorise/route` path of the Permissions API. Groups are typically nested with the pattern 
@@ -73,20 +89,6 @@ and the roles `site-viewer` and `site-manager` are only assigned for users who h
 }
 ```
 
-## Operations
-
-Operations are grouped into the follow sections:
-
-| <div style="width:160px">Group</div> | Description                                  |
-|:-------------------------------------|:---------------------------------------------|
-| Sites                                | Operations on sites.                         |
-| Compute                              | Operations on processing offered by sites    |
-| Storages                             | Operations on storages offered by sites      |
-| Storage Areas                        | Operations on storage areas offered by sites |
-| Services                             | Operations on services offered by sites      |
-| Schemas                              | Schema operations.                           |
-| Status                               | Operations describing the status of the API. |
-
 ## Schemas
 
 It is recommended to record data in the document database by using the web frontend (`/www/sites/add`). This form 
@@ -122,42 +124,6 @@ In addition you will need to amend external dependencies by:
 - If a new route has been created or its signature modified, check that the corresponding Permissions API policy has 
   been added/amended
 
-## Development
-
-Makefile targets have been included to facilitate easier and more consistent development against this API. The general 
-recipe is as follows:
-
-1. Depending on the fix type, create a new major/minor/patch branch, e.g. 
-    ```bash
-    $ make patch-branch NAME=some-name
-    ```
-    Note that this both creates and checkouts the branch.
-2. Make your changes.
-3. Create new code samples if necessary.
-   ```bash
-   $ make code-samples
-   ```
-4. Add your changes to the branch:
-    ```bash
-   $ git add ...
-    ```
-5. Either commit the changes manually (if no version increment is needed) or bump the version and commit, entering a 
-   commit message when prompted:
-    ```bash
-   $ make bump-and-commit
-    ```
-6. Push the changes upstream when ready:
-    ```bash
-   $ make push
-    ```
-
-Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
-Package Registry.
-
-### Bypassing AuthN/Z
-
-AuthN/Z can be bypassed for development by setting `DISABLE_AUTHENTICATION=yes` in the environment.
-
 ## Deployment
 
 Deployment is managed by docker-compose or helm.
@@ -184,12 +150,3 @@ After editing the `values.yaml` (template in `/etc/helm/`):
 $ create namespace ska-src-site-capabilities-api
 $ helm install --namespace ska-src-site-capabilities-api ska-src-site-capabilities-api .
 ```
-
-## Prototype
-
-A prototype of this service is deployed at site-capabilities.srcdev.skao.int/api. This prototype application 
-uses the SKA IAM client ska-src-site-capabilities-api.
-
-## References
-
-1. https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-site-capabilities-api

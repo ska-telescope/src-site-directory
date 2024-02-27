@@ -33,6 +33,21 @@ helm-publish:
     - helm plugin install https://github.com/chartmuseum/helm-push
     - helm cm-push $CHART_NAME repo
 
+pages:
+  only:
+    - main
+  stage: deploy
+  image:
+    name: python:latest
+  script:
+  - python3 -m pip install -U sphinx
+  - python3 -m pip install sphinxcontrib-mermaid myst-parser sphinx-autoapi
+  - cd docs && make html
+  artifacts:
+    paths:
+      - docs/_build/html
+  publish: docs/_build/html
+
 pypi-publish:
   only:
     - main
