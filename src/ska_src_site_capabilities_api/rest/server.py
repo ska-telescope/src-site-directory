@@ -326,31 +326,6 @@ async def list_service_types(request: Request) -> JSONResponse:
 
 
 @api_version(1)
-@app.get('/services/types/core',
-         responses={
-             200: {"model": models.response.ServicesTypesCoreResponse},
-             401: {},
-             403: {}
-         },
-         dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
-         tags=["Services"],
-         summary="List core service types")
-@handle_exceptions
-async def list_service_types_core(request: Request) -> JSONResponse:
-    """ List core service types. """
-    try:
-        schema_path = pathlib.Path(
-            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'core-service'))).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-    except FileNotFoundError:
-        raise SchemaNotFound
-    rtn = BACKEND.list_service_types_from_schema(schema=dereferenced_schema)
-    return JSONResponse(rtn)
-
-
-@api_version(1)
 @app.get('/services/{service_id}',
          responses={
              200: {"model": Union[
