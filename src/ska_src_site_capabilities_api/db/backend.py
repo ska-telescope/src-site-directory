@@ -155,7 +155,7 @@ class MongoBackend(Backend):
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services():
+        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
             services = entry.get('services', [])
             for service in services:
                 if service.get('id') == service_id:
@@ -227,7 +227,7 @@ class MongoBackend(Backend):
                 })
         return response
 
-    def list_services(self, include_associated_with_compute=True):
+    def list_services(self, include_associated_with_compute=True, include_disabled=True):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
