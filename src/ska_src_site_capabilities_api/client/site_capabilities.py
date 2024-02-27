@@ -141,26 +141,30 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_services(self):
+    def list_services(self, include_associated_with_compute=True, include_disabled=False):
         """ Get a list of SRCNet services.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
-        resp = self.session.get(services_endpoint)
+        params = {
+            "include_associated_with_compute": include_associated_with_compute,
+            "include_disabled": include_disabled
+        }
+        resp = self.session.get(services_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_service_types_compute(self):
-        """ Get a list of SRCNet compute service types.
+    def list_service_types(self):
+        """ Get a list of SRCNet service types.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        service_types_compute_endpoint = "{api_url}/services/types/compute".format(api_url=self.api_url)
-        resp = self.session.get(service_types_compute_endpoint)
+        service_types_endpoint = "{api_url}/services/types".format(api_url=self.api_url)
+        resp = self.session.get(service_types_endpoint)
         resp.raise_for_status()
         return resp
 

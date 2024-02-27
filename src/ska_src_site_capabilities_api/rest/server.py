@@ -282,35 +282,46 @@ async def render_schema(request: Request,
 @handle_exceptions
 async def list_services(request: Request,
                         include_associated_with_compute: bool = \
-                                Query(default=True,
-                                      description="Include services associated with compute?")) -> JSONResponse:
+                                Query(default=True, description="Include services associated with compute?"),
+                        include_disabled: bool = Query(default=False, description="Include disabled services?")
+                        ) -> JSONResponse:
     """ List all services. """
-    rtn = BACKEND.list_services(include_associated_with_compute)
+    rtn = BACKEND.list_services(include_associated_with_compute, include_disabled)
     return JSONResponse(rtn)
 
 
 @api_version(1)
-@app.get('/services/types/compute',
+@app.get('/services/types',
          responses={
-             200: {"model": models.response.ServicesTypesComputeResponse},
+             200: {"model": models.response.ServicesTypesResponse},
              401: {},
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
          tags=["Services"],
-         summary="List compute service types")
+         summary="List service types")
 @handle_exceptions
-async def list_service_types_compute(request: Request) -> JSONResponse:
-    """ List compute service types. """
+async def list_service_types(request: Request) -> JSONResponse:
+    """ List service types. """
     try:
-        schema_path = pathlib.Path(
+        # compute
+        compute_schema_path = pathlib.Path(
             "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'compute-service'))).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+        with open(compute_schema_path) as f:
+            dereferenced_compute_schema = jsonref.load(f, base_uri=compute_schema_path.as_uri())
+
+        # core
+        core_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'core-service'))).absolute()
+        with open(core_schema_path) as f:
+            dereferenced_core_schema = jsonref.load(f, base_uri=core_schema_path.as_uri())
     except FileNotFoundError:
         raise SchemaNotFound
-    rtn = BACKEND.list_service_types_from_schema(schema=dereferenced_schema)
+    rtn = {
+        'compute': BACKEND.list_service_types_from_schema(schema=dereferenced_compute_schema),
+        'core': BACKEND.list_service_types_from_schema(schema=dereferenced_core_schema)
+    }
     return JSONResponse(rtn)
 
 
@@ -744,8 +755,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     else:
         with open("../../../README.md") as f:
             readme_text_md = f.read()
-    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
-        "Development", "Deployment", "Prototype", "References"])
+    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
 
     openapi_schema = request.scope.get('app').openapi_schema
     openapi_schema_template = Template(json.dumps(openapi_schema))
@@ -775,7 +785,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
         with open("../../../README.md") as f:
             readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=[
-        "Authorisation", "Workflows", "Schemas", "Development", "Deployment", "Prototype", "References"])
+        "Authorisation", "Schemas", "Deployment"])
 
     # Exclude unnecessary paths.
     paths_to_include = {
