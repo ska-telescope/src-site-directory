@@ -41,7 +41,7 @@ pages:
     name: python:latest
   script:
   - python3 -m pip install -U sphinx
-  - python3 -m pip install sphinxcontrib-mermaid myst-parser sphinx-autoapi
+  - python3 -m pip install sphinxcontrib-mermaid myst-parser sphinx-autoapi sphinx-rtd-theme
   - cd docs && make html
   artifacts:
     paths:
