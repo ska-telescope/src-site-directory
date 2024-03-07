@@ -1,6 +1,6 @@
 .PHONY: docs
 
-bump-and-commit: 
+bump-and-commit: openapi-schema
 	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
 	@git add VERSION etc/helm/Chart.yaml
 	@git commit
