@@ -1,10 +1,18 @@
-bump-and-commit:
+.PHONY: docs
+
+bump-and-commit: 
 	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
 	@git add VERSION etc/helm/Chart.yaml
 	@git commit
 
 code-samples:
 	@cd etc/scripts && bash generate-code-samples.sh
+
+docs:
+	@cd docs && make clean && make html
+
+openapi-schema: 
+	@cd etc/scripts && bash generate-openapi-schema.sh 
 
 major-branch:
 	@test -n "$(NAME)"
