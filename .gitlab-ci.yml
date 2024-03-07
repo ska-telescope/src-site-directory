@@ -41,7 +41,8 @@ pages:
     name: python:latest
   script:
   - python3 -m pip install -U sphinx
-  - python3 -m pip install sphinxcontrib-mermaid myst-parser sphinx-autoapi sphinx-rtd-theme
+  - python3 -m pip install -r docs/requirements.txt
+  - apt-get update -y && apt-get install -y plantuml graphviz
   - cd docs && make html
   artifacts:
     paths:
