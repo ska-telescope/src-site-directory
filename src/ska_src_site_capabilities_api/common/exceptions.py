@@ -58,6 +58,12 @@ class CustomException(Exception):
     pass
 
 
+class IAMEndpointNotFoundInWellKnown(CustomException):
+    def __init__(self, endpoint):
+        self.message = "Error setting IAM {} endpoint, not found in .well_known".format(endpoint)
+        super().__init__(self.message)
+
+
 class CustomHTTPException(Exception):
     """ Class that all custom HTTP exceptions must inherit in order for exception to be caught by
     the handle_exceptions decorator.
