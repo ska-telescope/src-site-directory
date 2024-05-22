@@ -14,7 +14,6 @@ from plantuml import PlantUML
 from typing import Union
 
 import jsonref
-from authlib.integrations.requests_client import OAuth2Session
 from fastapi import FastAPI, Depends, HTTPException, status, Path, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
@@ -27,13 +26,15 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.constants import Constants
+from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ComputeNotFound, \
     SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound, StorageAreaNotFound
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
 from ska_src_site_capabilities_api.db.backend import MongoBackend
+from ska_src_site_capabilities_api.rest import dependencies
 from ska_src_permissions_api.client.permissions import PermissionsClient
+
 
 config = Config('.env')
 
@@ -52,19 +53,9 @@ CORSMiddleware_params = {
 }
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
 
-# Add HTTPBearer authz.
+# Get instance of IAM constants.
 #
-security = HTTPBearer()
-
-# Instantiate an OAuth2 request session for the ska-src-site-capabilities-api client.
-#
-API_IAM_CLIENT = OAuth2Session(config.get("API_IAM_CLIENT_ID"),
-                               config.get("API_IAM_CLIENT_SECRET"),
-                               scope=config.get("API_IAM_CLIENT_SCOPES", default=""))
-
-# Get instance of Constants.
-#
-CONSTANTS = Constants(client_conf_url=config.get('IAM_CLIENT_CONF_URL'))
+IAM_CONSTANTS = constants.IAM(client_conf_url=config.get('IAM_CLIENT_CONF_URL'))
 
 # Get templates.
 #
@@ -86,6 +77,14 @@ PERMISSIONS = PermissionsClient(config.get('PERMISSIONS_API_URL'))
 PERMISSIONS_SERVICE_NAME = config.get('PERMISSIONS_SERVICE_NAME')
 PERMISSIONS_SERVICE_VERSION = config.get('PERMISSIONS_SERVICE_VERSION')
 
+# Instantiate both permissions based dependencies and a token factory for service token dependencies.
+#
+permission_dependencies = dependencies.Permissions(
+    permissions=PERMISSIONS,
+    permissions_service_name=PERMISSIONS_SERVICE_NAME,
+    permissions_service_version=PERMISSIONS_SERVICE_VERSION
+)
+
 # Store service start time.
 #
 SERVICE_START_TIME = time.time()
@@ -96,47 +95,12 @@ REQUESTS_COUNTER = 0
 REQUESTS_COUNTER_LOCK = asyncio.Lock()
 
 
-# Dependencies.
-# -------------
-#
-# Increment the request counter.
-#
 @handle_exceptions
 async def increment_request_counter(request: Request) -> Union[dict, HTTPException]:
+    """ Dependency to keep track of API requests. """
     global REQUESTS_COUNTER
     async with REQUESTS_COUNTER_LOCK:
         REQUESTS_COUNTER += 1
-
-
-# Check service route permissions from user token groups.
-#
-@handle_exceptions
-async def verify_permission_for_service_route(request: Request, authorization: str = Depends(security)) \
-        -> Union[HTTPException, bool]:
-    if authorization.credentials is None:
-        raise PermissionDenied
-    access_token = authorization.credentials
-    rtn = PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
-                                                  route=request.scope['route'].path, method=request.method,
-                                                  token=access_token, body=request.path_params).json()
-    if rtn.get('is_authorised', False):
-        return
-    raise PermissionDenied
-
-
-# Check service route permissions from user token groups (taking token from query parameters).
-#
-@handle_exceptions
-async def verify_permission_for_service_route_query_params(request: Request, token: str = None) \
-        -> Union[HTTPException, bool]:
-    if token is None:
-        raise PermissionDenied
-    rtn = PERMISSIONS.authorise_route_for_service(service=PERMISSIONS_SERVICE_NAME, version=PERMISSIONS_SERVICE_VERSION,
-                                                  route=request.scope['route'].path, method=request.method,
-                                                  token=token, body=request.path_params).json()
-    if rtn.get('is_authorised', False):
-        return
-    raise PermissionDenied
 
 
 # Routes
@@ -150,7 +114,9 @@ async def verify_permission_for_service_route_query_params(request: Request, tok
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Compute"],
          summary="List all compute")
 @handle_exceptions
@@ -169,7 +135,9 @@ async def list_compute(request: Request) -> JSONResponse:
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Compute"],
          summary="Get compute from id")
 @handle_exceptions
@@ -276,7 +244,9 @@ async def render_schema(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Services"],
          summary="List all services")
 @handle_exceptions
@@ -299,7 +269,9 @@ async def list_services(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Services"],
          summary="List service types")
 @handle_exceptions
@@ -337,7 +309,9 @@ async def list_service_types(request: Request) -> JSONResponse:
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Services"],
          summary="Get service from id")
 @handle_exceptions
@@ -359,7 +333,9 @@ async def get_service_from_id(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Sites"],
          summary="List sites")
 @handle_exceptions
@@ -378,11 +354,13 @@ async def list_sites(request: Request) -> JSONResponse:
               403: {}
           },
           dependencies=[Depends(increment_request_counter)] if DEBUG else [
-              Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+              Depends(increment_request_counter),
+              Depends(permission_dependencies.verify_permission_for_service_route)
+          ],
           tags=["Sites"],
           summary="Add a site")
 @handle_exceptions
-async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(security)) \
+async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(HTTPBearer())) \
         -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
     if isinstance(values, (bytes, bytearray)):
@@ -421,7 +399,9 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
                 403: {}
             },
             dependencies=[Depends(increment_request_counter)] if DEBUG else [
-                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+                Depends(increment_request_counter),
+                Depends(permission_dependencies.verify_permission_for_service_route)
+            ],
             tags=["Sites"],
             summary="Delete all sites")
 @handle_exceptions
@@ -439,7 +419,9 @@ async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Sites"],
          summary="Dump all versions of sites")
 @handle_exceptions
@@ -457,7 +439,9 @@ async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Sites"],
          summary="Get latest versions of all sites")
 @handle_exceptions
@@ -476,7 +460,9 @@ async def get_sites_latest(request: Request) -> Union[JSONResponse, HTTPExceptio
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Sites"],
          summary="Get all versions of site")
 @handle_exceptions
@@ -499,7 +485,9 @@ async def get_site_versions(request: Request,
                 404: {"model": models.response.GenericErrorResponse}
             },
             dependencies=[Depends(increment_request_counter)] if DEBUG else [
-                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+                Depends(increment_request_counter),
+                Depends(permission_dependencies.verify_permission_for_service_route)
+            ],
             tags=["Sites"],
             summary="Delete all versions of site")
 @handle_exceptions
@@ -522,7 +510,9 @@ async def delete_site(request: Request,
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Sites"],
          summary="Get version of site")
 @handle_exceptions
@@ -549,7 +539,9 @@ async def get_site_version(request: Request,
                 404: {"model": models.response.GenericErrorResponse}
             },
             dependencies=[Depends(increment_request_counter)] if DEBUG else [
-                Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+                Depends(increment_request_counter),
+                Depends(permission_dependencies.verify_permission_for_service_route)
+            ],
             tags=["Sites"],
             summary="Delete version of site")
 @handle_exceptions
@@ -572,7 +564,9 @@ async def delete_site_version(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Storages"],
          summary="List all storages")
 @handle_exceptions
@@ -627,7 +621,9 @@ async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Storages"],
          summary="Get storage from id")
 @handle_exceptions
@@ -649,7 +645,9 @@ async def get_storage_from_id(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Storage Areas"],
          summary="List all storage areas")
 @handle_exceptions
@@ -704,7 +702,9 @@ async def list_storage_areas_in_topojson_format(request: Request) -> JSONRespons
              404: {"model": models.response.GenericErrorResponse}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
          tags=["Storage Areas"],
          summary="Get storage area from id")
 @handle_exceptions
@@ -800,7 +800,9 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route_query_params)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route_query_params)
+         ],
          tags=["Sites"],
          summary="Add site form")
 @handle_exceptions
@@ -830,7 +832,9 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter), Depends(verify_permission_for_service_route_query_params)],
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route_query_params)
+         ],
          tags=["Sites"],
          summary="Update existing site form")
 @handle_exceptions
