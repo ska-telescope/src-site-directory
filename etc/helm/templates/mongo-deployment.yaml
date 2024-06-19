@@ -37,10 +37,8 @@ spec:
       volumes:
         - name: database
           {{- if .Values.persistence.enabled }}
-          {{- if .Values.persistence.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim }}
-          {{- end }}
+            claimName: {{ .Values.persistence.existingClaim | default "database" }}
           {{- else }}
           emptyDir: {}
           {{- end }}
