@@ -89,6 +89,21 @@ and the roles `site-viewer` and `site-manager` are only assigned for users who h
 }
 ```
 
+Roles are assigned when a request to a particular endpoint is made. This enables information from the request to be used 
+to understand if a role can be assigned. For example, consider the `site-viewer` role:
+
+```
+    "site-viewer": [
+        "{root_group}/roles/{site}/viewer"
+    ],
+```
+
+which requires both `root_group` and `site` to be provided. The `root_group` is an application specific parameter, 
+but the `site` parameter is substituted when the request is made. In the case of a GET request for metadata, the 
+route ```/sites/{site}``` provides the `site` as a path parameter, and this value is substituted 
+into the role definition. The source of the substitution for the role definition depends on either the path parameters, 
+query parameters or body of the request; which are used depends on where the parameters are expected to come from.
+
 ## Schemas
 
 It is recommended to record data in the document database by using the web frontend (`/www/sites/add`). This form 
