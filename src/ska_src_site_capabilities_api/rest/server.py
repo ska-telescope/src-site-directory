@@ -77,7 +77,7 @@ PERMISSIONS = PermissionsClient(config.get('PERMISSIONS_API_URL'))
 PERMISSIONS_SERVICE_NAME = config.get('PERMISSIONS_SERVICE_NAME')
 PERMISSIONS_SERVICE_VERSION = config.get('PERMISSIONS_SERVICE_VERSION')
 
-# Instantiate both permissions based dependencies and a token factory for service token dependencies.
+# Instantiate permissions based dependencies.
 #
 permission_dependencies = dependencies.Permissions(
     permissions=PERMISSIONS,

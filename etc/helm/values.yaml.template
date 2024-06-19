@@ -23,3 +23,9 @@ ing:
   api:
     host: site-capabilities.srcdev.skao.int
 
+persistence:
+  storageClass: csi-manila-cephfs-retain
+  existingClaim: ""
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 10Gi
