@@ -14,4 +14,5 @@ Pygments==2.16.1
 PyJWT==2.8.0
 python-multipart==0.0.6
 requests==2.26.0
+ska-src-permissions-api
 uvicorn[standard]==0.20.0

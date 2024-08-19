@@ -26,6 +26,8 @@ class Service(BaseModel):
     host: str = Field(examples=["rucio.srcdev.skao.int"])
     port: NonNegativeInt = Field(examples=[443])
     path: str = Field(examples=["/path/to/service"])
+    proxy_host: str = Field(examples=["gatekeeper.srcdev.skao.int"])
+    proxy_port: NonNegativeInt = Field(examples=[8443])
     identifier: str = Field(examples=["SKAOSRC"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
 
