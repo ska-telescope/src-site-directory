@@ -1,10 +1,25 @@
 from typing import Union
 
+import asyncio
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from starlette.requests import Request
 
 from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied
+
+
+class Common:
+    """ A class to encapsulate all common dependencies. """
+    def __init__(self):
+        # Keep track of number of managed requests.
+        #
+        self.requests_counter = 0
+        self.requests_counter_lock = asyncio.Lock()
+
+    @handle_exceptions
+    async def increment_request_counter(self):
+        async with self.requests_counter_lock:
+            self.requests_counter += 1
 
 
 class Permissions:

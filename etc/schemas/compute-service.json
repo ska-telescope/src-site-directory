@@ -54,6 +54,18 @@
       "default": null,
       "required": false
     },
+    "proxy_host": {
+      "type": "string",
+      "title": "Proxy host (if applicable)",
+      "default": null,
+      "required": false
+    },
+    "proxy_port": {
+      "type": "number",
+      "title": "Proxy port (if applicable)",
+      "default": null,
+      "required": false
+    },
     "associated_storage_area_id": {
       "type": "string",
       "title": "Associated storage area ID (if applicable)",

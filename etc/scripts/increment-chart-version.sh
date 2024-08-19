@@ -10,7 +10,6 @@ esac
 
 echo $var
 
-var=`yq r ../helm/Chart.yaml version`
 IFS=. read -r major minor patch <<EOF
 $var
 EOF
