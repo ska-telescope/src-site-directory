@@ -50,10 +50,10 @@
       "title": "Device Type",
       "enum": [
         "",
-        "HDD",
-        "SSD",
-        "Tape",
-        "Other"
+        "hdd",
+        "ssd",
+        "tape",
+        "other"
       ],
       "default": null,
       "required": false

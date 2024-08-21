@@ -357,3 +357,7 @@ class MongoBackend(Backend):
                 })
         return response
 
+    def list_storage_area_types_from_schema(self, schema):
+        response = schema.get('properties', {}).get('type', {}).get('enum', [])
+        return response
+

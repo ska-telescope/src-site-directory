@@ -91,6 +91,8 @@ StorageAreasGrafanaResponse = List[StorageAreaGrafana]
 
 StorageAreasTopojsonResponse = List[StorageAreaTopojson]
 
+StorageAreasTypesResponse = List[str]
+
 StorageGetResponse = Storage
 
 

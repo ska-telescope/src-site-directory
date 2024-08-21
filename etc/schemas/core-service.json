@@ -14,8 +14,8 @@
       "type": "enum",
       "title": "Type",
       "enum": [
-        "Rucio Server",
-        "Storage Inventory (Global)"
+        "rucio",
+        "iam"
       ],
       "default": null,
       "required": true

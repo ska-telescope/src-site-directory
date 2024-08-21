@@ -14,13 +14,12 @@
       "type": "enum",
       "title": "Type",
       "enum": [
-        "JupyterHub",
-        "BinderHub",
-        "Dask",
-        "ESAP",
-        "Data Ingest Service",
-        "SODA (sync)",
-        "SODA (async)"
+        "jupyterhub",
+        "binderhub",
+        "dask",
+        "ingest",
+        "soda_sync",
+        "soda_async"
       ],
       "default": null,
       "required": true

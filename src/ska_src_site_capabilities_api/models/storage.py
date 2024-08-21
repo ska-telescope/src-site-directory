@@ -5,9 +5,8 @@ from pydantic import BaseModel, Field, NonNegativeInt
 
 
 StorageAreaType = Literal[
-    "Rucio Storage Element (RSE)",
-    "Data Ingest Area",
-    "Storage Inventory (Local)"
+    "rse",
+    "ingest"
 ]
 
 

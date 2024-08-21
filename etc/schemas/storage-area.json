@@ -14,8 +14,8 @@
       "type": "enum",
       "title": "Type",
       "enum": [
-        "Rucio Storage Element (RSE)",
-        "Data Ingest Area"
+        "rse",
+        "ingest"
       ],
       "default": null,
       "required": true

@@ -269,8 +269,7 @@ async def list_services(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter),
-             Depends(permission_dependencies.verify_permission_for_service_route)
+             Depends(increment_request_counter)
          ],
          tags=["Services"],
          summary="List service types")
@@ -690,6 +689,32 @@ async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
 async def list_storage_areas_in_topojson_format(request: Request) -> JSONResponse:
     """ List all storage areas in topojson format. """
     rtn = BACKEND.list_storage_areas(topojson=True)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get('/storage-areas/types',
+         responses={
+             200: {"model": models.response.StorageAreasTypesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)
+         ],
+         tags=["Storage Areas"],
+         summary="List storage area types")
+@handle_exceptions
+async def list_storage_area_types(request: Request) -> JSONResponse:
+    """ List storage area types. """
+    try:
+        storage_area_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'storage-area'))).absolute()
+        with open(storage_area_schema_path) as f:
+            dereferenced_storage_area_schema = jsonref.load(f, base_uri=storage_area_schema_path.as_uri())
+    except FileNotFoundError:
+        raise SchemaNotFound
+    rtn = BACKEND.list_storage_area_types_from_schema(schema=dereferenced_storage_area_schema)
     return JSONResponse(rtn)
 
 
