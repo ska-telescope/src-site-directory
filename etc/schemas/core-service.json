@@ -14,8 +14,8 @@
       "type": "enum",
       "title": "Type",
       "enum": [
-        "Rucio Server",
-        "Storage Inventory (Global)"
+        "rucio",
+        "iam"
       ],
       "default": null,
       "required": true
@@ -48,6 +48,11 @@
       "title": "Path",
       "default": null,
       "required": false
+    },
+    "is_proxy": {
+      "type": "boolean",
+      "title": "Is proxy?",
+      "default": false
     },
     "identifier": {
       "type": "string",
