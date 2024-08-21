@@ -4,18 +4,17 @@ from uuid import uuid4, UUID
 from pydantic import BaseModel, Field, NonNegativeInt
 
 ComputeServiceType = Literal[
-    "JupyterHub",
-    "BinderHub",
-    "Dask",
-    "ESAP",
-    "Data Ingest Service",
-    "SODA (sync)",
-    "SODA (async)"
+    "jupyterhub",
+    "binderhub",
+    "dask",
+    "ingest",
+    "soda_sync",
+    "soda_async"
 ]
 
 CoreServiceType = Literal[
-    "Rucio Server",
-    "Storage Inventory (Global)"
+    "rucio",
+    "iam"
 ]
 
 
@@ -26,17 +25,16 @@ class Service(BaseModel):
     host: str = Field(examples=["rucio.srcdev.skao.int"])
     port: NonNegativeInt = Field(examples=[443])
     path: str = Field(examples=["/path/to/service"])
-    proxy_host: str = Field(examples=["gatekeeper.srcdev.skao.int"])
-    proxy_port: NonNegativeInt = Field(examples=[8443])
+    is_proxy: bool = Field(examples=[True, False])
     identifier: str = Field(examples=["SKAOSRC"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
 
 
 class ComputeService(Service):
-    type: ComputeServiceType = Field(examples=["Dask"])
+    type: ComputeServiceType = Field(examples=["dask"])
     associated_compute_id: UUID = Field(default_factory=uuid4)
     associated_storage_area_id: UUID = Field(default_factory=uuid4)
 
 
 class CoreService(Service):
-    type: CoreServiceType = Field(examples=["Rucio Server"])
+    type: CoreServiceType = Field(examples=["rucio"])
