@@ -49,6 +49,11 @@
       "default": null,
       "required": false
     },
+    "is_proxy": {
+      "type": "boolean",
+      "title": "Is proxy?",
+      "default": false
+    },
     "identifier": {
       "type": "string",
       "title": "Identifier (if applicable)",

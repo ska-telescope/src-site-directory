@@ -375,6 +375,11 @@
                       "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                     },
                     {
+                      "key": "core_services[].is_proxy",
+                      "notitle": true,
+                      "inlinetitle": "Is proxy?",
+                    },
+                    {
                       "key": "core_services[].enabled",
                       "notitle": true,
                       "inlinetitle": "Enabled?",
@@ -570,14 +575,6 @@
                               "placeholder": "The path for this service (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].proxy_host",
-                              "placeholder": "The proxy host (if applicable)"
-                            },
-                            {
-                              "key": "compute[].associated_services[].proxy_port",
-                              "placeholder": "The proxy port (if applicable)"
-                            },
-                            {
                               "key": "compute[].associated_services[].associated_storage_area_id",
                               "placeholder": "Associated storage area ID (if applicable)"
                             },
@@ -590,7 +587,14 @@
                               "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].enabled"
+                              "key": "compute[].associated_services[].is_proxy",
+                              "notitle": true,
+                              "inlinetitle": "Is proxy?",
+                            },
+                            {
+                              "key": "compute[].associated_services[].enabled",
+                              "notitle": true,
+                              "inlinetitle": "Enabled?",
                             }
                           ]
                         }

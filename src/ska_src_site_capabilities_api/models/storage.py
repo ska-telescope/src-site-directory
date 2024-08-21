@@ -12,7 +12,7 @@ StorageAreaType = Literal[
 
 class StorageArea(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    type: StorageAreaType = Field(examples=["Rucio Storage Element (RSE)"])
+    type: StorageAreaType = Field(examples=["rse"])
     rel_path: str = Field(examples=["/rel/path/to/storage/area"])
     identifier: str = Field(examples=["STFC_STORM"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
