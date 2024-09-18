@@ -332,8 +332,7 @@ async def get_service_from_id(request: Request,
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter),
-             Depends(permission_dependencies.verify_permission_for_service_route)
+             Depends(increment_request_counter)
          ],
          tags=["Sites"],
          summary="List sites")

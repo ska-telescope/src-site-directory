@@ -6,7 +6,7 @@ This API exposes enables functionality related to SRCNet site service discovery 
 
 ## Overview
 
-The Data Management API enables the following functionality by group:
+The Site Capabilities API enables the following functionality by group:
 
 | <div style="width:160px">Group</div> | Description                                  |
 |:-------------------------------------|:---------------------------------------------|
