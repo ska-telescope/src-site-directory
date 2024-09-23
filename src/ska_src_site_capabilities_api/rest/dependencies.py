@@ -39,10 +39,10 @@ class Permissions:
         if authorization.credentials is None:
             raise PermissionDenied
         access_token = authorization.credentials
-        rtn = self.permissions.authorise_route_for_service(service=self.permissions_service_name,
-                                                           version=self.permissions_service_version,
-                                                           route=request.scope['route'].path, method=request.method,
-                                                           token=access_token, body=request.path_params).json()
+        rtn = self.permissions.authorise_service_route(service=self.permissions_service_name,
+                                                       version=self.permissions_service_version,
+                                                       route=request.scope['route'].path, method=request.method,
+                                                       token=access_token, body=request.path_params).json()
         if rtn.get('is_authorised', False):
             return
         raise PermissionDenied
@@ -52,10 +52,10 @@ class Permissions:
             -> Union[HTTPException, bool]:
         if token is None:
             raise PermissionDenied
-        rtn = self.permissions.authorise_route_for_service(service=self.permissions_service_name,
-                                                           version=self.permissions_service_version,
-                                                           route=request.scope['route'].path, method=request.method,
-                                                           token=token, body=request.path_params).json()
+        rtn = self.permissions.authorise_service_route(service=self.permissions_service_name,
+                                                       version=self.permissions_service_version,
+                                                       route=request.scope['route'].path, method=request.method,
+                                                       token=token, body=request.path_params).json()
         if rtn.get('is_authorised', False):
             return
         raise PermissionDenied
