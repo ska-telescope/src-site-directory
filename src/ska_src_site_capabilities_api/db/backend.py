@@ -156,10 +156,14 @@ class MongoBackend(Backend):
     def get_service(self, service_id):
         response = {}
         for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
+            site_name = entry.get('site_name')
             services = entry.get('services', [])
             for service in services:
                 if service.get('id') == service_id:
-                    response = service
+                    response = {
+                        "site_name": site_name,
+                        **service
+                    }
                     break
         return response
 
