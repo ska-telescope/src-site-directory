@@ -61,10 +61,10 @@
       "title": "Version",
       "default": null
     },
-    "associated_services": {
+    "associated_local_services": {
       "type": "array",
       "items": {
-        "$ref": "compute-service.json"
+        "$ref": "local-service.json"
       },
       "allowEmpty": true
     }

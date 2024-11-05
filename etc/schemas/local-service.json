@@ -1,7 +1,7 @@
 {
   "version": 3,
   "type": "object",
-  "description": "Compute service definition schema.",
+  "description": "Local service definition schema.",
   "properties": {
     "id": {
       "type": "string",
@@ -20,7 +20,12 @@
         "dask",
         "ingest",
         "soda_sync",
-        "soda_async"
+        "soda_async",
+        "gatekeeper",
+        "monitoring",
+        "perfsonar",
+        "canfar",
+        "carta"
       ],
       "default": null,
       "required": true

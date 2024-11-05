@@ -328,7 +328,7 @@
         },
         {
           "type": "fieldset",
-          "title": "Core Services",
+          "title": "Global Services",
           "expandable": true,
           "items": [
             {
@@ -340,47 +340,47 @@
                   "legend": "\{\{value\}\}",
                   "items": [
                     {
-                      "key": "core_services[].id",
+                      "key": "global_services[].id",
                     },
                     {
-                      "key": "core_services[].type",
+                      "key": "global_services[].type",
                       "valueInLegend": true
                     },
                     {
-                      "key": "core_services[].version",
+                      "key": "global_services[].version",
                       "placeholder": "The version of this service"
                     },
                     {
-                      "key": "core_services[].prefix",
+                      "key": "global_services[].prefix",
                       "placeholder": "The prefix for this service"
                     },
                     {
-                      "key": "core_services[].host",
+                      "key": "global_services[].host",
                       "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
                     },
                     {
-                      "key": "core_services[].port",
+                      "key": "global_services[].port",
                       "placeholder": "The port for this service (if applicable)"
                     },
                     {
-                      "key": "core_services[].path",
+                      "key": "global_services[].path",
                       "placeholder": "The path for this service (if applicable)"
                     },
                     {
-                      "key": "core_services[].identifier",
+                      "key": "global_services[].identifier",
                       "placeholder": "A name used to identify this service"
                     },
                     {
-                      "key": "core_services[].other_attributes",
+                      "key": "global_services[].other_attributes",
                       "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                     },
                     {
-                      "key": "core_services[].is_proxy",
+                      "key": "global_services[].is_proxy",
                       "notitle": true,
                       "inlinetitle": "Is proxy?",
                     },
                     {
-                      "key": "core_services[].enabled",
+                      "key": "global_services[].enabled",
                       "notitle": true,
                       "inlinetitle": "Enabled?",
                     },
@@ -540,7 +540,7 @@
                     },
                     {
                       "type": "tabarray",
-                      "title": "Associated services",
+                      "title": "Associated local services",
                       "expandable": false,
                       "items": [
                         {
@@ -548,51 +548,51 @@
                           "legend": "\{\{value\}\}",
                           "items": [
                             {
-                              "key": "compute[].associated_services[].id",
+                              "key": "compute[].associated_local_services[].id",
                             },
                             {
-                              "key": "compute[].associated_services[].type",
+                              "key": "compute[].associated_local_services[].type",
                               "valueInLegend": true
                             },
                             {
-                              "key": "compute[].associated_services[].version",
+                              "key": "compute[].associated_local_services[].version",
                               "placeholder": "The version of this service"
                             },
                             {
-                              "key": "compute[].associated_services[].prefix",
+                              "key": "compute[].associated_local_services[].prefix",
                               "placeholder": "The prefix for this service (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].host",
+                              "key": "compute[].associated_local_services[].host",
                               "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].port",
+                              "key": "compute[].associated_local_services[].port",
                               "placeholder": "The port for this service (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].path",
+                              "key": "compute[].associated_local_services[].path",
                               "placeholder": "The path for this service (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].associated_storage_area_id",
+                              "key": "compute[].associated_local_services[].associated_storage_area_id",
                               "placeholder": "Associated storage area ID (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].identifier",
+                              "key": "compute[].associated_local_services[].identifier",
                               "placeholder": "A name used to identify this service"
                             },
                             {
-                              "key": "compute[].associated_services[].other_attributes",
+                              "key": "compute[].associated_local_services[].other_attributes",
                               "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_services[].is_proxy",
+                              "key": "compute[].associated_local_services[].is_proxy",
                               "notitle": true,
                               "inlinetitle": "Is proxy?",
                             },
                             {
-                              "key": "compute[].associated_services[].enabled",
+                              "key": "compute[].associated_local_services[].enabled",
                               "notitle": true,
                               "inlinetitle": "Enabled?",
                             }
@@ -631,9 +631,9 @@
           }
         }
       ],
-      "value": {{ values | default({"core_services": []}) | default({"storages.supported_protocols": []}) |
+      "value": {{ values | default({"global_services": []}) | default({"storages.supported_protocols": []}) |
                            default({"storages": []}) | default({"storages.areas": []}) |
-                           default({"compute.associated_services": []}) | tojson }},
+                           default({"compute.associated_local_services": []}) | tojson }},
       onSubmit: function (errors, values) {
         values.schema = {{ schema | tojson }};
 

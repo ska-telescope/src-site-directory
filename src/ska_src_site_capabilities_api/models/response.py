@@ -3,8 +3,8 @@ from typing import List, Literal, Union
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
-from ska_src_site_capabilities_api.models.service import ComputeService, ComputeServiceType, CoreService, \
-                                                         CoreServiceType
+from ska_src_site_capabilities_api.models.service import LocalService, LocalServiceType, GlobalService, \
+                                                         GlobalServiceType
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.site import Site
 from ska_src_site_capabilities_api.models.storage import (Storage, StorageArea, StorageAreaGrafana, StorageAreaTopojson,
@@ -26,9 +26,9 @@ class ComputeListResponse(ListResponse):
     compute: List[Compute]
 
 
-ComputeServiceGetResponse = ComputeService
+LocalServiceGetResponse = LocalService
 
-CoreServiceGetResponse = CoreService
+GlobalServiceGetResponse = GlobalService
 
 
 class GenericErrorResponse(Response):
@@ -60,17 +60,17 @@ SchemaGetResponse = Schema
 
 
 class ServicesResponse(ListResponse):
-    services: List[Union[CoreService, ComputeService]]
+    services: List[Union[GlobalService, LocalService]]
 
 
 class ServicesTypesResponse(Response):
-    core: List[CoreServiceType]
-    compute: List[ComputeServiceType]
+    core: List[GlobalServiceType]
+    compute: List[LocalServiceType]
 
 
-ServicesTypesComputeResponse = List[ComputeServiceType]
+ServicesTypesLocalResponse = List[LocalServiceType]
 
-ServicesTypesCoreResponse = List[CoreServiceType]
+ServicesTypesGlobalResponse = List[GlobalServiceType]
 
 SiteGetVersionResponse = Site
 

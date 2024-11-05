@@ -34,10 +34,10 @@
       "default": null,
       "required": false
     },
-    "core_services": {
+    "global_services": {
       "type": "array",
       "items": {
-        "$ref": "core-service.json"
+        "$ref": "global-service.json"
       },
       "allowEmpty": true
     },

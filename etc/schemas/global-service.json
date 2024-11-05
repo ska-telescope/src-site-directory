@@ -1,7 +1,7 @@
 {
   "version": 3,
   "type": "object",
-  "description": "Core service definition schema.",
+  "description": "Global service definition schema.",
   "properties": {
     "id": {
       "type": "string",

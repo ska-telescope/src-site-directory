@@ -301,8 +301,8 @@ async def list_service_types(request: Request) -> JSONResponse:
 @app.get('/services/{service_id}',
          responses={
              200: {"model": Union[
-                 models.response.CoreServiceGetResponse,
-                 models.response.ComputeServiceGetResponse]},
+                 models.response.GlobalServiceGetResponse,
+                 models.response.LocalServiceGetResponse]},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
