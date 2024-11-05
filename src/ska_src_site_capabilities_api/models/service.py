@@ -9,7 +9,13 @@ ComputeServiceType = Literal[
     "dask",
     "ingest",
     "soda_sync",
-    "soda_async"
+    "soda_async",
+    "gatekeeper",
+    "monitoring",
+    "perfsonar",
+    "canfar",
+    "orchestrator",
+    "carta"
 ]
 
 CoreServiceType = Literal[
