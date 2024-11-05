@@ -20,7 +20,12 @@
         "dask",
         "ingest",
         "soda_sync",
-        "soda_async"
+        "soda_async",
+        "gatekeeper",
+        "monitoring",
+        "perfsonar",
+        "canfar",
+        "carta"
       ],
       "default": null,
       "required": true
