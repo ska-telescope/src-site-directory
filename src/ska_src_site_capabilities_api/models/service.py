@@ -14,7 +14,6 @@ ComputeServiceType = Literal[
     "monitoring",
     "perfsonar",
     "canfar",
-    "orchestrator",
     "carta"
 ]
 
