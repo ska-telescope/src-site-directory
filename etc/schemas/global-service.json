@@ -49,7 +49,12 @@
       "default": null,
       "required": false
     },
-    "is_proxy": {
+    "is_mandatory": {
+      "type": "boolean",
+      "title": "Is mandatory?",
+      "default": false
+    },
+    "is_proxied": {
       "type": "boolean",
       "title": "Is proxy?",
       "default": false

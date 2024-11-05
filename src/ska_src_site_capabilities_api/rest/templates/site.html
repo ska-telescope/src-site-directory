@@ -375,9 +375,14 @@
                       "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                     },
                     {
-                      "key": "global_services[].is_proxy",
+                      "key": "global_services[].is_mandatory",
                       "notitle": true,
-                      "inlinetitle": "Is proxy?",
+                      "inlinetitle": "Mandatory?",
+                    },
+                    {
+                      "key": "global_services[].is_proxied",
+                      "notitle": true,
+                      "inlinetitle": "Via proxy?",
                     },
                     {
                       "key": "global_services[].enabled",
@@ -587,9 +592,14 @@
                               "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)"
                             },
                             {
-                              "key": "compute[].associated_local_services[].is_proxy",
+                              "key": "compute[].associated_local_services[].is_mandatory",
                               "notitle": true,
-                              "inlinetitle": "Is proxy?",
+                              "inlinetitle": "Mandatory?",
+                            },
+                            {
+                              "key": "compute[].associated_local_services[].is_proxied",
+                              "notitle": true,
+                              "inlinetitle": "Via proxy?",
                             },
                             {
                               "key": "compute[].associated_local_services[].enabled",
