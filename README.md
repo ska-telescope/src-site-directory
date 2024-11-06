@@ -120,10 +120,11 @@ Schemas are flexible and new ones can be added/existing ones amended.
 To amend/add a new resource, the following checklist may be helpful:
 
 - (adding only) Create the schema and add to the `etc/schemas` directory
+- (amending only) Edit the corresponding schema in the `etc/schemas` directory
 - Add to or amend any models (`src/ska_src_site_capabilities_api/models`) if there are new ones or the schema of an 
   existing model has changed
+- Amend the form ui (`src/ska_src_site_capabilities_api/rest/static/js/form-ui.js`):
 - Amend the site template (`src/ska_src_site_capabilities_api/rest/templates/site.html`):
-    - Add any new fields to the form schema
     - Ensure that if there are object fields that a default `value` of `[]` is set using the jinja2 template `| default` 
     filter
 - Amend the REST server (`src/ska_src_site_capabilities_api/rest/server.py`):

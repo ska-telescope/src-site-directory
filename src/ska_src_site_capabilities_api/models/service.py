@@ -1,31 +1,28 @@
+import os
+import pathlib
 from typing import Literal
 from uuid import uuid4, UUID
 
+import jsonref
 from pydantic import BaseModel, Field, NonNegativeInt
 
-LocalServiceType = Literal[
-    "echo",
-    "jupyterhub",
-    "binderhub",
-    "dask",
-    "ingest",
-    "soda_sync",
-    "soda_async",
-    "gatekeeper",
-    "monitoring",
-    "perfsonar",
-    "canfar",
-    "carta"
-]
+# get local services from schema
+schema_path = pathlib.Path(
+    "{}.json".format(os.path.join(os.environ.get('SCHEMAS_RELPATH'), "local-service"))).absolute()
+with open(schema_path) as f:
+    dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+local_services = dereferenced_schema.get('properties', {}).get('type', {}).get('enum', [])
 
-GlobalServiceType = Literal[
-    "rucio",
-    "iam",
-    "data_management_api",
-    "site_capabilities_api",
-    "auth_api",
-    "permissions_api"
-]
+LocalServiceType = Literal[tuple(local_services)]
+
+# get global services from schema
+schema_path = pathlib.Path(
+    "{}.json".format(os.path.join(os.environ.get('SCHEMAS_RELPATH'), "global-service"))).absolute()
+with open(schema_path) as f:
+    dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+global_services = dereferenced_schema.get('properties', {}).get('type', {}).get('enum', [])
+
+GlobalServiceType = Literal[tuple(global_services)]
 
 
 class Service(BaseModel):

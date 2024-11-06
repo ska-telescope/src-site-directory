@@ -85,7 +85,7 @@
       "default": true
     },
     "other_attributes": {
-      "type": "object",
+      "type": "textarea",
       "title": "Other service attributes (as json)",
       "allowEmpty": true
     }

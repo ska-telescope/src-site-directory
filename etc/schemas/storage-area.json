@@ -37,7 +37,7 @@
       "default": null
     },
     "other_attributes": {
-      "type": "object",
+      "type": "textarea",
       "title": "Other storage area attributes (as json)",
       "allowEmpty": true
     }

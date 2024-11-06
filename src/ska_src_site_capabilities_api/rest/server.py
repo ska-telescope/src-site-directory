@@ -277,22 +277,22 @@ async def list_services(request: Request,
 async def list_service_types(request: Request) -> JSONResponse:
     """ List service types. """
     try:
-        # compute
-        compute_schema_path = pathlib.Path(
-            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'compute-service'))).absolute()
-        with open(compute_schema_path) as f:
-            dereferenced_compute_schema = jsonref.load(f, base_uri=compute_schema_path.as_uri())
+        # local
+        local_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'local-service'))).absolute()
+        with open(local_schema_path) as f:
+            dereferenced_local_schema = jsonref.load(f, base_uri=local_schema_path.as_uri())
 
-        # core
-        core_schema_path = pathlib.Path(
-            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'core-service'))).absolute()
-        with open(core_schema_path) as f:
-            dereferenced_core_schema = jsonref.load(f, base_uri=core_schema_path.as_uri())
+        # global
+        global_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'global-service'))).absolute()
+        with open(global_schema_path) as f:
+            dereferenced_global_schema = jsonref.load(f, base_uri=global_schema_path.as_uri())
     except FileNotFoundError:
         raise SchemaNotFound
     rtn = {
-        'compute': BACKEND.list_service_types_from_schema(schema=dereferenced_compute_schema),
-        'core': BACKEND.list_service_types_from_schema(schema=dereferenced_core_schema)
+        'local': BACKEND.list_service_types_from_schema(schema=dereferenced_local_schema),
+        'global': BACKEND.list_service_types_from_schema(schema=dereferenced_global_schema)
     }
     return JSONResponse(rtn)
 
@@ -843,6 +843,7 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
         "request": request,
         "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
         "schema": schema,
+        "form": form,
         "add_site_url": get_url_for_app_from_request(
             'add_site', request, scheme=config.get('API_SCHEME', default='http'))
     })

@@ -28,7 +28,7 @@
       "items": {
         "type": "string",
         "enum": [
-          "GPU",
+          "gpu",
           "high-mem",
           "large-scratch",
           "fast-scratch"
@@ -45,7 +45,7 @@
         "enum": [
           "bare-metal",
           "container",
-          "VM"
+          "vm"
         ]
       },
       "default": null,

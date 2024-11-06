@@ -64,8 +64,8 @@ class ServicesResponse(ListResponse):
 
 
 class ServicesTypesResponse(Response):
-    core: List[GlobalServiceType]
-    compute: List[LocalServiceType]
+    global_: List[GlobalServiceType] = Field(..., alias="global")
+    local: List[LocalServiceType]
 
 
 ServicesTypesLocalResponse = List[LocalServiceType]
