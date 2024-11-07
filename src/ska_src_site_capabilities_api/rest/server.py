@@ -22,13 +22,16 @@ from fastapi.templating import Jinja2Templates
 from fastapi_versionizer.versionizer import api_version, versionize
 from jinja2 import Template
 from starlette.config import Config
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
+from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
 
+from ska_src_authn_api.client.authentication import AuthenticationClient
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
-from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, PermissionDenied, ComputeNotFound, \
-    SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound, StorageAreaNotFound
+from ska_src_site_capabilities_api.common.exceptions import handle_exceptions, UnauthorizedRequest, PermissionDenied, \
+    ComputeNotFound, SchemaNotFound, ServiceNotFound, SiteNotFound, SiteVersionNotFound, StorageNotFound, \
+    StorageAreaNotFound
 from ska_src_site_capabilities_api.common.utility import convert_readme_to_html_docs, get_api_server_url_from_request, \
     get_base_url_from_request, get_url_for_app_from_request
 from ska_src_site_capabilities_api.db.backend import MongoBackend
@@ -52,6 +55,7 @@ CORSMiddleware_params = {
     "allow_headers": ["*"]
 }
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
+app.add_middleware(SessionMiddleware, secret_key=config.get('SESSIONS_SECRET_KEY'))
 
 # Get instance of IAM constants.
 #
@@ -70,6 +74,12 @@ BACKEND = MongoBackend(
     mongo_port=config.get('MONGO_PORT'),
     mongo_database=config.get('MONGO_DATABASE')
 )
+
+# Instantiate the authentication client.
+#
+# This is used to create a session for browser based www/ routes.
+#
+AUTH = AuthenticationClient(config.get('AUTH_API_URL'))
 
 # Instantiate the permissions client.
 #
@@ -277,22 +287,22 @@ async def list_services(request: Request,
 async def list_service_types(request: Request) -> JSONResponse:
     """ List service types. """
     try:
-        # compute
-        compute_schema_path = pathlib.Path(
-            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'compute-service'))).absolute()
-        with open(compute_schema_path) as f:
-            dereferenced_compute_schema = jsonref.load(f, base_uri=compute_schema_path.as_uri())
+        # local
+        local_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'local-service'))).absolute()
+        with open(local_schema_path) as f:
+            dereferenced_local_schema = jsonref.load(f, base_uri=local_schema_path.as_uri())
 
-        # core
-        core_schema_path = pathlib.Path(
-            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'core-service'))).absolute()
-        with open(core_schema_path) as f:
-            dereferenced_core_schema = jsonref.load(f, base_uri=core_schema_path.as_uri())
+        # global
+        global_schema_path = pathlib.Path(
+            "{}.json".format(os.path.join(config.get('SCHEMAS_RELPATH'), 'global-service'))).absolute()
+        with open(global_schema_path) as f:
+            dereferenced_global_schema = jsonref.load(f, base_uri=global_schema_path.as_uri())
     except FileNotFoundError:
         raise SchemaNotFound
     rtn = {
-        'compute': BACKEND.list_service_types_from_schema(schema=dereferenced_compute_schema),
-        'core': BACKEND.list_service_types_from_schema(schema=dereferenced_core_schema)
+        'local': BACKEND.list_service_types_from_schema(schema=dereferenced_local_schema),
+        'global': BACKEND.list_service_types_from_schema(schema=dereferenced_global_schema)
     }
     return JSONResponse(rtn)
 
@@ -301,8 +311,8 @@ async def list_service_types(request: Request) -> JSONResponse:
 @app.get('/services/{service_id}',
          responses={
              200: {"model": Union[
-                 models.response.CoreServiceGetResponse,
-                 models.response.ComputeServiceGetResponse]},
+                 models.response.GlobalServiceGetResponse,
+                 models.response.LocalServiceGetResponse]},
              401: {},
              403: {},
              404: {"model": models.response.GenericErrorResponse}
@@ -817,6 +827,64 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 
 
 @api_version(1)
+@app.get("/www/login",
+         responses={
+             200: {},
+             401: {},
+             403: {}
+         },
+         include_in_schema=False,
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)
+         ],
+         summary="Login")
+@handle_exceptions
+async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
+    if request.session.get('access_token'):
+        return HTMLResponse("You are logged in.")
+    elif request.query_params.get("code"):
+        # get token from authorization code
+        code = request.query_params.get("code")
+        original_request_uri = request.url.remove_query_params(keys=['code', 'state'])
+        response = AUTH.token(code=code, redirect_uri=original_request_uri)
+
+        # exchange token for site-capabilities-api
+        access_token = response.json().get('token', {}).get('access_token')
+        if access_token:
+            response = AUTH.exchange_token(service="site-capabilities-api", access_token=access_token)
+            request.session['access_token'] = response.json().get('access_token')
+
+        # redirect back now we have a valid token
+        return RedirectResponse(original_request_uri)
+    else:
+        # start login process
+        response = AUTH.login(flow="legacy", redirect_uri=request.url)
+        authorization_uri = response.json().get('authorization_uri')
+        return RedirectResponse(authorization_uri)
+
+
+@api_version(1)
+@app.get("/www/logout",
+         responses={
+             200: {},
+             401: {},
+             403: {}
+         },
+         include_in_schema=False,
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter)
+         ],
+         summary="Logout")
+@handle_exceptions
+async def www_logout(request: Request) -> Union[HTMLResponse]:
+    if request.session.get('access_token'):
+        request.session.pop('access_token')
+    return HTMLResponse(
+        "You are logged out. Click <a href=" + get_url_for_app_from_request("www_login", request) +
+        ">here</a> to login.")
+
+
+@api_version(1)
 @app.get("/www/sites/add",
          responses={
              200: {},
@@ -824,28 +892,47 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter),
-             Depends(permission_dependencies.verify_permission_for_service_route_query_params)
+             Depends(increment_request_counter)
          ],
          tags=["Sites"],
          summary="Add site form")
 @handle_exceptions
-async def add_site_form(request: Request, token: str = None) -> TEMPLATES.TemplateResponse:
-    """ Web form to add a new site with JSON schema validation.
+async def add_site_form(request: Request) -> \
+        Union[TEMPLATES.TemplateResponse, RedirectResponse]:
+    """ Web form to add a new site with JSON schema validation. """
+    if request.session.get('access_token'):
+        # Check access permissions.
+        try:
+            rtn = PERMISSIONS.authorise_service_route(service=PERMISSIONS_SERVICE_NAME,
+                                                      version=PERMISSIONS_SERVICE_VERSION,
+                                                      route=request.scope['route'].path, method=request.method,
+                                                      token=request.session.get('access_token'),
+                                                      body=request.path_params).json()
+        except Exception as err:
+            request.session.pop('access_token')
+            raise err
+        if not rtn.get('is_authorised', False):
+            request.session.pop('access_token')
+            raise PermissionDenied
 
-    A valid token must be included in the <b>token</b> query parameter.
-    """
-    schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
-    with open(schema_path) as f:
-        dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-    schema = ast.literal_eval(str(dereferenced_schema))
-    return TEMPLATES.TemplateResponse("site.html", {
-        "request": request,
-        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
-        "schema": schema,
-        "add_site_url": get_url_for_app_from_request(
-            'add_site', request, scheme=config.get('API_SCHEME', default='http'))
-    })
+        # Get schema.
+        schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+        schema = ast.literal_eval(str(dereferenced_schema))
+        return TEMPLATES.TemplateResponse("site.html", {
+            "request": request,
+            "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
+            "schema": schema,
+            "add_site_url": get_url_for_app_from_request(
+                'add_site', request, scheme=config.get('API_SCHEME', default='http')),
+            "sign_out_url": get_url_for_app_from_request(
+                'www_logout', request, scheme=config.get('API_SCHEME', default='http')),
+            "access_token": request.session.get('access_token')
+        })
+    else:
+        return HTMLResponse(
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first.")
 
 
 @api_version(1)
@@ -856,51 +943,72 @@ async def add_site_form(request: Request, token: str = None) -> TEMPLATES.Templa
              403: {}
          },
          dependencies=[Depends(increment_request_counter)] if DEBUG else [
-             Depends(increment_request_counter),
-             Depends(permission_dependencies.verify_permission_for_service_route_query_params)
+             Depends(increment_request_counter)
          ],
          tags=["Sites"],
          summary="Update existing site form")
 @handle_exceptions
-async def add_site_form_existing(request: Request, site: str, token: str = None) -> TEMPLATES.TemplateResponse:
-    """ Web form to update an existing site with JSON schema validation.
+async def add_site_form_existing(request: Request, site: str) -> \
+        Union[TEMPLATES.TemplateResponse, HTMLResponse]:
+    """ Web form to update an existing site with JSON schema validation. """
+    if request.session.get('access_token'):
+        # Check access permissions.
+        try:
+            rtn = PERMISSIONS.authorise_service_route(service=PERMISSIONS_SERVICE_NAME,
+                                                      version=PERMISSIONS_SERVICE_VERSION,
+                                                      route=request.scope['route'].path, method=request.method,
+                                                      token=request.session.get('access_token'),
+                                                      body=request.path_params).json()
+        except Exception as err:
+            request.session.pop('access_token')
+            raise err
+        if not rtn.get('is_authorised', False):
+            request.session.pop('access_token')
+            raise PermissionDenied
 
-    A valid token must be included in the <b>token</b> query parameter.
-    """
-    schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
-    with open(schema_path) as f:
-        dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-    schema = ast.literal_eval(str(dereferenced_schema))
-    latest = BACKEND.get_site_version_latest(site)
-    if not latest:
-        raise SiteVersionNotFound(site, 'latest')
-    try:
-        latest.pop('comments')
-    except KeyError:
-        pass
+        # Get schema.
+        schema_path = pathlib.Path(os.path.join(config.get('SCHEMAS_RELPATH'), "site.json")).absolute()
+        with open(schema_path) as f:
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+        schema = ast.literal_eval(str(dereferenced_schema))
 
-    # quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as [Object object].
-    def recursive_stringify(data, stringify_keys=['other_attributes']):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if key in stringify_keys:
-                    data[key] = json.dumps(value)
-                elif isinstance(value, (dict, list)):
-                    data[key] = recursive_stringify(value)
-        elif isinstance(data, list):
-            for i in range(len(data)):
-                data[i] = recursive_stringify(data[i])
-        return data
-    latest = recursive_stringify(latest)
+        # Get latest values for requested site.
+        latest = BACKEND.get_site_version_latest(site)
+        if not latest:
+            raise SiteVersionNotFound(site, 'latest')
+        try:
+            latest.pop('comments')
+        except KeyError:
+            pass
 
-    return TEMPLATES.TemplateResponse("site.html", {
-        "request": request,
-        "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
-        "schema": schema,
-        "add_site_url": get_url_for_app_from_request(
-            'add_site', request, scheme=config.get('API_SCHEME', default='http')),
-        "values": latest
-    })
+        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as [Object object].
+        def recursive_stringify(data, stringify_keys=['other_attributes']):
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    if key in stringify_keys:
+                        data[key] = json.dumps(value)
+                    elif isinstance(value, (dict, list)):
+                        data[key] = recursive_stringify(value)
+            elif isinstance(data, list):
+                for i in range(len(data)):
+                    data[i] = recursive_stringify(data[i])
+            return data
+        latest = recursive_stringify(latest)
+
+        return TEMPLATES.TemplateResponse("site.html", {
+            "request": request,
+            "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
+            "schema": schema,
+            "add_site_url": get_url_for_app_from_request(
+                'add_site', request, scheme=config.get('API_SCHEME', default='http')),
+            "sign_out_url": get_url_for_app_from_request(
+                'www_logout', request, scheme=config.get('API_SCHEME', default='http')),
+            "access_token": request.session.get('access_token'),
+            "values": latest
+        })
+    else:
+        return HTMLResponse(
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first.")
 
 
 @api_version(1)

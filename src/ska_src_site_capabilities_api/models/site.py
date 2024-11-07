@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.schema import Schema
-from ska_src_site_capabilities_api.models.service import CoreService
+from ska_src_site_capabilities_api.models.service import GlobalService
 from ska_src_site_capabilities_api.models.storage import Storage
 
 
@@ -16,7 +16,7 @@ class Site(BaseModel):
     country: str = Field(examples=["GB"])
     primary_contact_email: str = Field(Examples=["someone1@email.com"])
     secondary_contact_email: str = Field(Examples=["someone2@email.com"])
-    core_services: List[CoreService]
+    global_services: List[GlobalService]
     compute: List[Compute]
     storages: List[Storage]
     schema_: Schema = Field(alias="schema")

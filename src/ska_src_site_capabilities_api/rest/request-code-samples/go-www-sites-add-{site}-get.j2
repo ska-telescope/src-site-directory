@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/www/sites/add/{site}?token=SOME_STRING_VALUE"
+	url := "{{ api_server_url }}/www/sites/add/{site}"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

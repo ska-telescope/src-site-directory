@@ -71,6 +71,13 @@ class CustomHTTPException(Exception):
     pass
 
 
+class UnauthorizedRequest(CustomHTTPException):
+    def __init__(self):
+        self.message = "You are not authorised to access this resource"
+        self.http_error_status = status.HTTP_401_UNAUTHORIZED
+        super().__init__(self.message)
+
+
 class PermissionDenied(CustomHTTPException):
     def __init__(self):
         self.message = "You do not have permission to access this resource."

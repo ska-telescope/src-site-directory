@@ -1,7 +1,7 @@
 {
   "version": 3,
   "type": "object",
-  "description": "Core service definition schema.",
+  "description": "Global service definition schema.",
   "properties": {
     "id": {
       "type": "string",
@@ -15,7 +15,12 @@
       "title": "Type",
       "enum": [
         "rucio",
-        "iam"
+        "iam",
+        "data-management-api",
+        "site-capabilities-api",
+        "permissions-api",
+        "auth-api",
+        "gms"
       ],
       "default": null,
       "required": true
@@ -49,7 +54,7 @@
       "default": null,
       "required": false
     },
-    "is_proxy": {
+    "is_proxied": {
       "type": "boolean",
       "title": "Is proxy?",
       "default": false
@@ -65,7 +70,7 @@
       "default": true
     },
     "other_attributes": {
-      "type": "object",
+      "type": "textarea",
       "title": "Other service attributes (as json)",
       "allowEmpty": true
     }
