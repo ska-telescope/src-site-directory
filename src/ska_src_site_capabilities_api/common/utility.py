@@ -81,9 +81,9 @@ def get_base_url_from_request(request, scheme='http'):
     return parsed_url._replace(scheme=scheme).geturl()
 
 
-def get_url_for_app_from_request(function_name, request, scheme='http'):
-    """ Return an url for a particular (sub)application's function name, <function_name>, given an instance of Request,
-    <request>, and scheme, <scheme>.
+def get_url_for_app_from_request(function_name, request, path_params={}, scheme='http'):
+    """ Return an url for a particular (sub)application's function name, <function_name>, with path params,
+    <path_params>, given an instance of Request, <request>, and scheme, <scheme>.
 
     Scheme is required in case the original scheme is not forwarded correctly through proxies.
 
@@ -100,4 +100,5 @@ def get_url_for_app_from_request(function_name, request, scheme='http'):
     parsed_url = urlparse(str(request.base_url))
     return parsed_url._replace(
         scheme=scheme,
-        path="{}{}".format(request.scope.get('root_path'), request.app.url_path_for(function_name))).geturl()
+        path="{}{}".format(request.scope.get('root_path'), request.app.url_path_for(
+            function_name, **path_params))).geturl()
