@@ -55,7 +55,7 @@ CORSMiddleware_params = {
     "allow_headers": ["*"]
 }
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
-app.add_middleware(SessionMiddleware, secret_key=config.get('SESSIONS_SECRET_KEY'))
+app.add_middleware(SessionMiddleware, max_age=3600, secret_key=config.get('SESSIONS_SECRET_KEY'))
 
 # Get instance of IAM constants.
 #
@@ -369,6 +369,53 @@ async def list_sites(request: Request) -> JSONResponse:
           summary="Add a site")
 @handle_exceptions
 async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(HTTPBearer())) \
+        -> Union[HTMLResponse, HTTPException]:
+    # add some custom fields e.g. date, user
+    if isinstance(values, (bytes, bytearray)):
+        values = json.loads(values.decode('utf-8'))
+    values['created_at'] = datetime.now().isoformat()
+    if DEBUG and authorization.credentials == 'null':
+        values['created_by_username'] = 'admin'
+    else:
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values['created_by_username'] = access_token_decoded.get('preferred_username')
+
+    # autogenerate ids for id keys
+    def recursive_autogen_id(data, autogen_keys=['id'], placeholder_value="to be assigned"):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key in autogen_keys:
+                    if value == placeholder_value:
+                        data[key] = str(uuid.uuid4())
+                elif isinstance(value, (dict, list)):
+                    data[key] = recursive_autogen_id(value)
+        elif isinstance(data, list):
+            for i in range(len(data)):
+                data[i] = recursive_autogen_id(data[i])
+        return data
+    values = recursive_autogen_id(values)
+
+    id = BACKEND.add_site(values)
+    return HTMLResponse(repr(id))
+
+
+@api_version(1)
+@app.post("/sites/{site}",
+          include_in_schema=False,
+          responses={
+              200: {},
+              401: {},
+              403: {}
+          },
+          dependencies=[Depends(increment_request_counter)] if DEBUG else [
+              Depends(increment_request_counter),
+              Depends(permission_dependencies.verify_permission_for_service_route)
+          ],
+          tags=["Sites"],
+          summary="Edit a site")
+@handle_exceptions
+async def edit_site(request: Request, site: str = Path(description="Site name"),
+                   values=Body(default="Site JSON."), authorization=Depends(HTTPBearer())) \
         -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
     if isinstance(values, (bytes, bytearray)):
@@ -909,10 +956,8 @@ async def add_site_form(request: Request) -> \
                                                       token=request.session.get('access_token'),
                                                       body=request.path_params).json()
         except Exception as err:
-            request.session.pop('access_token')
             raise err
         if not rtn.get('is_authorised', False):
-            request.session.pop('access_token')
             raise PermissionDenied
 
         # Get schema.
@@ -960,10 +1005,8 @@ async def add_site_form_existing(request: Request, site: str) -> \
                                                       token=request.session.get('access_token'),
                                                       body=request.path_params).json()
         except Exception as err:
-            request.session.pop('access_token')
             raise err
         if not rtn.get('is_authorised', False):
-            request.session.pop('access_token')
             raise PermissionDenied
 
         # Get schema.
@@ -1000,7 +1043,8 @@ async def add_site_form_existing(request: Request, site: str) -> \
             "base_url": get_base_url_from_request(request, config.get('API_SCHEME', default='http')),
             "schema": schema,
             "add_site_url": get_url_for_app_from_request(
-                'add_site', request, scheme=config.get('API_SCHEME', default='http')),
+                'edit_site', request, path_params=request.path_params,
+                scheme=config.get('API_SCHEME', default='http')),
             "sign_out_url": get_url_for_app_from_request(
                 'www_logout', request, scheme=config.get('API_SCHEME', default='http')),
             "access_token": request.session.get('access_token'),
