@@ -7,9 +7,14 @@
   <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/form.css" />
 </head>
 <body>
-  <h1>Add/Edit SRCNet Site</h1>
+  <div id="header">
+     <img src="{{ base_url }}static/img/logo2.png"/>
+     <h1>Manage SRCNet Site</h1>
+     <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
+  </div>
   <form></form>
   <div id="res" class="alert" role="alert"></div>
+  <div id="footer"></div>
   <div id="values"/>
   <script type="text/javascript">
     function showAndDismissAlert(type, message) {
@@ -88,13 +93,12 @@
                       showAndDismissAlert('danger', json_parsing_errors[0].uri + ": " + json_parsing_errors[0].message);
                       console.log(json_parsing_errors);
                   } else {
-                      urlParams = new URLSearchParams(window.location.search);
                       $.ajax({
                           url: "{{ add_site_url }}",
                           data: JSON.stringify(values),
                           type: 'POST',
                           headers: {
-                              "Authorization": 'Bearer ' + urlParams.get('token')
+                              "Authorization": 'Bearer {{ access_token }}'
                           },
                           success: function (data) {
                               showAndDismissAlert('success', 'Site added.')

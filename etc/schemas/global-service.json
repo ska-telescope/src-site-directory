@@ -20,7 +20,7 @@
         "site-capabilities-api",
         "permissions-api",
         "auth-api",
-        "gms,"
+        "gms"
       ],
       "default": null,
       "required": true
@@ -53,11 +53,6 @@
       "title": "Path",
       "default": null,
       "required": false
-    },
-    "is_mandatory": {
-      "type": "boolean",
-      "title": "Is mandatory?",
-      "default": false
     },
     "is_proxied": {
       "type": "boolean",

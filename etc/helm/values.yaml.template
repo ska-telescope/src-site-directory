@@ -14,6 +14,8 @@ svc:
     permissions_api_url: https://permissions.srcdev.skao.int/api/v1
     permissions_service_name: site-capabilities-api
     permissions_service_version: 1
+    auth_api_url: https://authn.srcdev.skao.int/api/v1
+    sessions_secret_key:
     schemas_relpath: ../../../etc/schemas
   common:
     mongo_database: site-capabilities

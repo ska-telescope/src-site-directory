@@ -322,11 +322,6 @@
                   "placeholder": "A name used to identify this service"
                 },
                 {
-                  "key": "global_services[].is_mandatory",
-                  "notitle": true,
-                  "inlinetitle": "Mandatory?"
-                },
-                {
                   "key": "global_services[].is_proxied",
                   "notitle": true,
                   "inlinetitle": "Via proxy?"
@@ -576,7 +571,7 @@
     },
     {
       "type": "fieldset",
-      "title": "Other attributes",
+      "title": "Other attributes (as json)",
       "expandable": true,
       "items": [
         {

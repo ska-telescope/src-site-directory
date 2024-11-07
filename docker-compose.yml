@@ -32,6 +32,8 @@ services:
       PERMISSIONS_API_URL: https://permissions.srcdev.skao.int/api/v1
       PERMISSIONS_SERVICE_NAME: site-capabilities-api
       PERMISSIONS_SERVICE_VERSION: 1
+      AUTH_API_URL: https://authn.srcdev.skao.int/api/v1
+      SESSIONS_SECRET_KEY: "TmzAYy1Ctr"
       SCHEMAS_RELPATH: ../../../etc/schemas
     ports:
       - 8080:8080

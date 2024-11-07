@@ -47,6 +47,10 @@ spec:
           value: {{ .Values.svc.api.permissions_service_name }}
         - name: PERMISSIONS_SERVICE_VERSION
           value: {{ .Values.svc.api.permissions_service_version | quote }}
+        - name: AUTH_API_URL
+          value: {{ .Values.svc.api.auth_api_url }}
+        - name: SESSIONS_SECRET_KEY
+          value: {{ .Values.svc.api.sessions_secret_key }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
         image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}

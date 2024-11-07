@@ -4,15 +4,39 @@ body {
   color: #333;
 }
 
+#header {
+  margin: auto;
+  max-width: 800px;
+  text-align: center;
+}
+
+#header {
+  margin: auto;
+  max-width: 800px;
+}
+
+#header img {
+  margin: 0 auto;
+  width: 100px;
+  margin-bottom: 1rem;
+}
+
 h1 {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: 3rem;
-  font-weight: bold;
-  color: #E40068;
+  font-family: 'Noto Sans', sans-serif;
+  font-weight: 800;
+  font-size: 3.5rem;
+  color: #333333;
   text-align: center;
   margin: auto;
   margin-bottom: 2rem;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  color:  #070068;
+  padding: 0.2rem 0.5rem;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  background-image: linear-gradient(110deg, #E70068, #070068);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 form {
@@ -36,7 +60,7 @@ fieldset {
 legend {
   font-size: 1.5rem;
   font-weight: 500;
-  color: #E40068;
+  color: #E70068;
   margin-bottom: 0.5rem;
 }
 
@@ -56,7 +80,7 @@ input[type="text"]:focus,
 input[type="email"]:focus,
 textarea:focus,
 select:focus {
-  border-color: #090068;
+  border-color: #070068;
   box-shadow: 0 0 5px rgba(9, 0, 104, 0.3);
 }
 
@@ -67,8 +91,9 @@ textarea::placeholder {
   font-size: 1rem;
 }
 
-input[type="submit"] {
-  background-color: #E40068;
+input[type="submit"],
+button {
+  background-color: #E70068;
   color: white;
   font-size: 12px;
   font-weight: bold;
@@ -76,10 +101,12 @@ input[type="submit"] {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  padding: 8px;
 }
 
-input[type="submit"]:hover {
-  background-color: #b50253;
+input[type="submit"]:hover,
+button:hover {
+  background-color: #c50159;
 }
 
 .alert {
