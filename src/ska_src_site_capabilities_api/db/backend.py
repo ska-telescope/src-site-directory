@@ -237,13 +237,13 @@ class MongoBackend(Backend):
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
-            # concatenate services (core + associated compute)
-            for service in full_site_json.get('core_services', []):
+            # concatenate services (global + associated local services)
+            for service in full_site_json.get('global_services', []):
                 services.append(service)
             if include_associated_with_compute:
                 for compute in full_site_json.get('compute', []):
                     # add the associated compute id
-                    for service in compute.get('associated_services', []):
+                    for service in compute.get('associated_local_services', []):
                         services.append({
                             'associated_compute_id': compute.get('id'),
                             **service
