@@ -3,12 +3,22 @@ from typing import List, Literal, Union
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
-from ska_src_site_capabilities_api.models.service import LocalService, LocalServiceType, GlobalService, \
-                                                         GlobalServiceType
 from ska_src_site_capabilities_api.models.schema import Schema
+from ska_src_site_capabilities_api.models.service import (
+    GlobalService,
+    GlobalServiceType,
+    LocalService,
+    LocalServiceType,
+)
 from ska_src_site_capabilities_api.models.site import Site
-from ska_src_site_capabilities_api.models.storage import (Storage, StorageArea, StorageAreaGrafana, StorageAreaTopojson,
-                                                          StorageGrafana, StorageTopojson)
+from ska_src_site_capabilities_api.models.storage import (
+    Storage,
+    StorageArea,
+    StorageAreaGrafana,
+    StorageAreaTopojson,
+    StorageGrafana,
+    StorageTopojson,
+)
 
 
 class Response(BaseModel):
@@ -16,7 +26,9 @@ class Response(BaseModel):
 
 
 class ListResponse(Response):
-    site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    site_name: str = Field(
+        examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"]
+    )
 
 
 ComputeGetResponse = Compute
@@ -43,7 +55,11 @@ class HealthResponse(Response):
     class DependentServices(BaseModel):
         class DependentServiceStatus(BaseModel):
             status: Literal["UP", "DOWN"] = Field(examples=["UP"])
-        permissions_api: DependentServiceStatus = Field(alias="permissions-api")
+
+        permissions_api: DependentServiceStatus = Field(
+            alias="permissions-api"
+        )
+
     uptime: NonNegativeInt = Field(examples=[1000])
     number_of_managed_requests: NonNegativeInt = Field(examples=[50])
     dependent_services: DependentServices

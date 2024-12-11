@@ -4,7 +4,8 @@ from pymongo import MongoClient
 
 
 class Backend(ABC):
-    """ Backend API abstract base class. """
+    """Backend API abstract base class."""
+
     def __init__(self):
         pass
 
@@ -90,8 +91,16 @@ class Backend(ABC):
 
 
 class MongoBackend(Backend):
-    """ Backend API for mongodb. """
-    def __init__(self, mongo_username, mongo_password, mongo_host, mongo_port, mongo_database):
+    """Backend API for mongodb."""
+
+    def __init__(
+        self,
+        mongo_username,
+        mongo_password,
+        mongo_host,
+        mongo_port,
+        mongo_database,
+    ):
         self.connection_string = "mongodb://{}:{}@{}:{}/".format(
             mongo_username,
             mongo_password,
@@ -104,11 +113,11 @@ class MongoBackend(Backend):
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
-        existing_versions = self.get_site(site_values['name'])
+        existing_versions = self.get_site(site_values["name"])
         if not existing_versions:
-            site_values['version'] = 1
+            site_values["version"] = 1
         else:
-            site_values['version'] = len(existing_versions) + 1
+            site_values["version"] = len(existing_versions) + 1
         return sites.insert_one(site_values).inserted_id
 
     def add_sites_bulk(self, json):
@@ -141,29 +150,28 @@ class MongoBackend(Backend):
         sites = db.sites
         response = list(sites.find({}))
         for site in response:
-            site.pop('_id')
+            site.pop("_id")
         return response
 
     def get_compute(self, compute_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for compute in site.get('compute', []):
-                if compute['id'] == compute_id:
+            for compute in site.get("compute", []):
+                if compute["id"] == compute_id:
                     response = compute
                     break
         return response
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
-            site_name = entry.get('site_name')
-            services = entry.get('services', [])
+        for entry in self.list_services(
+            include_associated_with_compute=True, include_disabled=True
+        ):
+            site_name = entry.get("site_name")
+            services = entry.get("services", [])
             for service in services:
-                if service.get('id') == service_id:
-                    response = {
-                        "site_name": site_name,
-                        **service
-                    }
+                if service.get("id") == service_id:
+                    response = {"site_name": site_name, **service}
                     break
         return response
 
@@ -173,7 +181,7 @@ class MongoBackend(Backend):
         sites = db.sites
         response = []
         for site in sites.find({"name": site}):
-            site['_id'] = str(site['_id'])
+            site["_id"] = str(site["_id"])
             response.append(site)
         return response
 
@@ -182,7 +190,7 @@ class MongoBackend(Backend):
 
         this_version = None
         for site_version in site_versions:
-            if str(site_version['version']) == version:
+            if str(site_version["version"]) == version:
                 this_version = site_version
                 break
         return this_version
@@ -193,7 +201,7 @@ class MongoBackend(Backend):
         latest = None
         for site_version in site_versions:
             if latest:
-                if site_version.get('version') > latest.get('version'):
+                if site_version.get("version") > latest.get("version"):
                     latest = site_version
             else:
                 latest = site_version
@@ -202,8 +210,8 @@ class MongoBackend(Backend):
     def get_storage(self, storage_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for storage in site.get('storages', []):
-                if storage['id'] == storage_id:
+            for storage in site.get("storages", []):
+                if storage["id"] == storage_id:
                     response = storage
                     break
         return response
@@ -211,12 +219,12 @@ class MongoBackend(Backend):
     def get_storage_area(self, storage_area_id):
         response = {}
         for site in self.list_sites_version_latest():
-            for storage in site.get('storages', []):
-                for storage_area in storage.get('areas', []):
-                    if storage_area['id'] == storage_area_id:
+            for storage in site.get("storages", []):
+                for storage_area in storage.get("areas", []):
+                    if storage_area["id"] == storage_area_id:
                         response = {
-                            'associated_storage_id': storage.get('id'),
-                            **storage_area
+                            "associated_storage_id": storage.get("id"),
+                            **storage_area,
                         }
                         break
         return response
@@ -224,39 +232,46 @@ class MongoBackend(Backend):
     def list_compute(self):
         response = []
         for site in self.list_sites_version_latest():
-            if site.get('compute'):
-                response.append({
-                    "site_name": site.get('name'),
-                    "compute": site.get('compute')
-                })
+            if site.get("compute"):
+                response.append(
+                    {
+                        "site_name": site.get("name"),
+                        "compute": site.get("compute"),
+                    }
+                )
         return response
 
-    def list_services(self, include_associated_with_compute=True, include_disabled=True):
+    def list_services(
+        self, include_associated_with_compute=True, include_disabled=True
+    ):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
             # concatenate services (global + associated local services)
-            for service in full_site_json.get('global_services', []):
+            for service in full_site_json.get("global_services", []):
                 services.append(service)
             if include_associated_with_compute:
-                for compute in full_site_json.get('compute', []):
+                for compute in full_site_json.get("compute", []):
                     # add the associated compute id
-                    for service in compute.get('associated_local_services', []):
-                        services.append({
-                            'associated_compute_id': compute.get('id'),
-                            **service
-                        })
+                    for service in compute.get(
+                        "associated_local_services", []
+                    ):
+                        services.append(
+                            {
+                                "associated_compute_id": compute.get("id"),
+                                **service,
+                            }
+                        )
 
-            response.append({
-                'site_name': full_site_json.get('name'),
-                'services': services
-            })
+            response.append(
+                {"site_name": full_site_json.get("name"), "services": services}
+            )
         return response
 
     def list_service_types_from_schema(self, schema):
-        response = schema.get('properties', {}).get('type', {}).get('enum', [])
+        response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
     def list_site_names_unique(self):
@@ -265,7 +280,7 @@ class MongoBackend(Backend):
         sites = db.sites
         response = []
         for site in sites.find({}):
-            site_name = site.get('name')
+            site_name = site.get("name")
             if site_name not in response:
                 response.append(site_name)
         return response
@@ -281,11 +296,8 @@ class MongoBackend(Backend):
             response = {
                 "type": "Topology",
                 "objects": {
-                    "sites": {
-                        "type": "GeometryCollection",
-                        "geometries": []
-                    }
-                }
+                    "sites": {"type": "GeometryCollection", "geometries": []}
+                },
             }
         else:
             response = []
@@ -293,26 +305,37 @@ class MongoBackend(Backend):
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
             if topojson or for_grafana:
-                for storage in full_site_json.get('storages', []):
+                for storage in full_site_json.get("storages", []):
                     if topojson:
-                        response['objects']['sites']['geometries'].append({
-                            "type": "Point",
-                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
-                            "properties": {'name': storage.get('identifier')}
-                        })
+                        response["objects"]["sites"]["geometries"].append(
+                            {
+                                "type": "Point",
+                                "coordinates": [
+                                    storage.get("longitude"),
+                                    storage.get("latitude"),
+                                ],
+                                "properties": {
+                                    "name": storage.get("identifier")
+                                },
+                            }
+                        )
                     elif for_grafana:
-                        response.append({
-                            "key": storage.get('identifier'),
-                            "latitude": storage['latitude'],
-                            "longitude": storage['longitude'],
-                            "name": storage.get('identifier')
-                        })
+                        response.append(
+                            {
+                                "key": storage.get("identifier"),
+                                "latitude": storage["latitude"],
+                                "longitude": storage["longitude"],
+                                "name": storage.get("identifier"),
+                            }
+                        )
             else:
-                if full_site_json.get('storages'):
-                    response.append({
-                        "site_name": full_site_json.get('name'),
-                        "storages": full_site_json.get('storages')
-                    })
+                if full_site_json.get("storages"):
+                    response.append(
+                        {
+                            "site_name": full_site_json.get("name"),
+                            "storages": full_site_json.get("storages"),
+                        }
+                    )
         return response
 
     def list_storage_areas(self, topojson=False, for_grafana=False):
@@ -320,11 +343,8 @@ class MongoBackend(Backend):
             response = {
                 "type": "Topology",
                 "objects": {
-                    "sites": {
-                        "type": "GeometryCollection",
-                        "geometries": []
-                    }
-                }
+                    "sites": {"type": "GeometryCollection", "geometries": []}
+                },
             }
         else:
             response = []
@@ -333,35 +353,47 @@ class MongoBackend(Backend):
             full_site_json = self.get_site_version_latest(site_name)
 
             storage_areas = []
-            for storage in full_site_json.get('storages', []):
-                for storage_area in storage.get('areas', []):
+            for storage in full_site_json.get("storages", []):
+                for storage_area in storage.get("areas", []):
                     if topojson:
-                        response['objects']['sites']['geometries'].append({
-                            "type": "Point",
-                            "coordinates": [storage.get('longitude'), storage.get('latitude')],
-                            "properties": {'name': storage_area.get('identifier')}
-                        })
+                        response["objects"]["sites"]["geometries"].append(
+                            {
+                                "type": "Point",
+                                "coordinates": [
+                                    storage.get("longitude"),
+                                    storage.get("latitude"),
+                                ],
+                                "properties": {
+                                    "name": storage_area.get("identifier")
+                                },
+                            }
+                        )
                     elif for_grafana:
-                        response.append({
-                            "key": storage_area.get('identifier'),
-                            "latitude": storage['latitude'],
-                            "longitude": storage['longitude'],
-                            "name": storage_area.get('identifier')
-                        })
+                        response.append(
+                            {
+                                "key": storage_area.get("identifier"),
+                                "latitude": storage["latitude"],
+                                "longitude": storage["longitude"],
+                                "name": storage_area.get("identifier"),
+                            }
+                        )
                     else:
                         # add the associated storage id
-                        storage_areas.append({
-                            'associated_storage_id': storage.get('id'),
-                            **storage_area
-                        })
+                        storage_areas.append(
+                            {
+                                "associated_storage_id": storage.get("id"),
+                                **storage_area,
+                            }
+                        )
             if not for_grafana and not topojson:
-                response.append({
-                    'site_name': full_site_json.get('name'),
-                    'storage_areas': storage_areas
-                })
+                response.append(
+                    {
+                        "site_name": full_site_json.get("name"),
+                        "storage_areas": storage_areas,
+                    }
+                )
         return response
 
     def list_storage_area_types_from_schema(self, schema):
-        response = schema.get('properties', {}).get('type', {}).get('enum', [])
+        response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
-
