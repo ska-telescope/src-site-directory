@@ -1,3 +1,6 @@
+"""
+A module for exceptions
+"""
 import traceback
 from functools import wraps
 
@@ -62,14 +65,17 @@ def handle_exceptions(func):
 
 
 class CustomException(Exception):
-    """Class that all custom exceptions must inherit in order for exception to be caught by the
+    """Class that all custom exceptions must inherit in order
+    for exception to be caught by the
     handle_exceptions decorator.
     """
 
-    pass
-
 
 class IAMEndpointNotFoundInWellKnown(CustomException):
+    """
+    Class for exceptions related to  IAM endpoints.
+    """
+
     def __init__(self, endpoint):
         self.message = (
             "Error setting IAM {} endpoint, not found in .well_known".format(
@@ -80,14 +86,17 @@ class IAMEndpointNotFoundInWellKnown(CustomException):
 
 
 class CustomHTTPException(Exception):
-    """Class that all custom HTTP exceptions must inherit in order for exception to be caught by
+    """Class that all custom HTTP exceptions must inherit in order
+    for exception to be caught by
     the handle_exceptions decorator.
     """
 
-    pass
-
 
 class UnauthorizedRequest(CustomHTTPException):
+    """
+    Class for unauthorised request exceptions.
+    """
+
     def __init__(self):
         self.message = "You are not authorised to access this resource"
         self.http_error_status = status.HTTP_401_UNAUTHORIZED
@@ -95,6 +104,10 @@ class UnauthorizedRequest(CustomHTTPException):
 
 
 class PermissionDenied(CustomHTTPException):
+    """
+    Class for permission denied exceptions.
+    """
+
     def __init__(self):
         self.message = "You do not have permission to access this resource."
         self.http_error_status = status.HTTP_403_FORBIDDEN
@@ -102,6 +115,10 @@ class PermissionDenied(CustomHTTPException):
 
 
 class ComputeNotFound(CustomHTTPException):
+    """
+    Class for compute not found exceptions.
+    """
+
     def __init__(self, compute_id):
         self.message = (
             "Compute element with identifier '{}' could not be found".format(
@@ -113,6 +130,10 @@ class ComputeNotFound(CustomHTTPException):
 
 
 class SchemaNotFound(CustomHTTPException):
+    """
+    Class for schema exceptions.
+    """
+
     def __init__(self, schema):
         self.message = "Schema with name '{}' could not be found".format(
             schema
@@ -122,6 +143,10 @@ class SchemaNotFound(CustomHTTPException):
 
 
 class ServiceNotFound(CustomHTTPException):
+    """
+    Class for services exceptions.
+    """
+
     def __init__(self, service_id):
         self.message = (
             "Service with identifier '{}' could not be found".format(
@@ -133,6 +158,10 @@ class ServiceNotFound(CustomHTTPException):
 
 
 class SiteNotFound(CustomHTTPException):
+    """
+    Class for site not found exceptions.
+    """
+
     def __init__(self, site):
         self.message = "Site with name '{}' could not be found".format(site)
         self.http_error_status = status.HTTP_404_NOT_FOUND
@@ -140,6 +169,10 @@ class SiteNotFound(CustomHTTPException):
 
 
 class SiteVersionNotFound(CustomHTTPException):
+    """
+    Class for site versions exceptions.
+    """
+
     def __init__(self, site, version):
         self.message = (
             "Version {} of site with name '{}' and could not be found".format(
@@ -151,6 +184,10 @@ class SiteVersionNotFound(CustomHTTPException):
 
 
 class StorageNotFound(CustomHTTPException):
+    """
+    Class for storage exceptions.
+    """
+
     def __init__(self, storage_id):
         self.message = (
             "Storage with identifier '{}' could not be found".format(
@@ -162,6 +199,10 @@ class StorageNotFound(CustomHTTPException):
 
 
 class StorageAreaNotFound(CustomHTTPException):
+    """
+    Class for storage area exceptions.
+    """
+
     def __init__(self, storage_area_id):
         self.message = (
             "Storage area with identifier '{}' could not be found".format(

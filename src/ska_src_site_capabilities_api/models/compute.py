@@ -1,3 +1,6 @@
+"""
+A module for compute class
+"""
 import os
 import pathlib
 from typing import List, Literal
@@ -14,7 +17,7 @@ schema_path = pathlib.Path(
         os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute")
     )
 ).absolute()
-with open(schema_path) as f:
+with open(schema_path, encoding="utf-8") as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
 hardware_capabilities = (
     dereferenced_schema.get("properties", {})
@@ -34,6 +37,10 @@ HardwareType = Literal[tuple(hardware_type)]
 
 
 class Compute(BaseModel):
+    """
+    Class for computational parameters
+    """
+
     id: UUID = Field(default_factory=uuid4)
     url: str = Field(examples=["service.srcdev.skao.int"])
     latitude: float = Field(examples=[51.4964])

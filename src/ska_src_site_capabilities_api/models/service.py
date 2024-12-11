@@ -1,3 +1,4 @@
+"""A module to represent different services classes"""
 import os
 import pathlib
 from typing import Literal
@@ -12,7 +13,7 @@ schema_path = pathlib.Path(
         os.path.join(os.environ.get("SCHEMAS_RELPATH"), "local-service")
     )
 ).absolute()
-with open(schema_path) as f:
+with open(schema_path, encoding="utf-8") as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
 local_services = (
     dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
@@ -26,7 +27,7 @@ schema_path = pathlib.Path(
         os.path.join(os.environ.get("SCHEMAS_RELPATH"), "global-service")
     )
 ).absolute()
-with open(schema_path) as f:
+with open(schema_path, encoding="utf-8") as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
 global_services = (
     dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
@@ -36,6 +37,10 @@ GlobalServiceType = Literal[tuple(global_services)]
 
 
 class Service(BaseModel):
+    """
+    A service base class
+    """
+
     id: UUID = Field(default_factory=uuid4)
     version: str = Field(examples=["1.0.0"])
     prefix: str = Field(examples=["https"])
@@ -49,10 +54,18 @@ class Service(BaseModel):
 
 
 class LocalService(Service):
+    """
+    A class for local service
+    """
+
     type: LocalServiceType = Field(examples=["dask"])
     associated_compute_id: UUID = Field(default_factory=uuid4)
     associated_storage_area_id: UUID = Field(default_factory=uuid4)
 
 
 class GlobalService(Service):
+    """
+    A class for global service
+    """
+
     type: GlobalServiceType = Field(examples=["rucio"])

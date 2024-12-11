@@ -1,3 +1,6 @@
+"""
+A module for dependant service classes
+"""
 import asyncio
 from typing import Union
 
@@ -43,9 +46,11 @@ class Permissions:
     async def verify_permission_for_service_route(
         self, request: Request, authorization: str = Depends(HTTPBearer())
     ) -> Union[HTTPException, bool]:
-        """Dependency to verify permission for a service's route using the bearer token from the request's headers.
+        """Dependency to verify permission for a service's route using
+        the bearer token from the request's headers.
 
-        This is the default authz route. Parameters for the verification are passed from the request path parameters.
+        This is the default authz route. Parameters for the verification
+        are passed from the request path parameters.
         """
         if authorization.credentials is None:
             raise PermissionDenied

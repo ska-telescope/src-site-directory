@@ -1,3 +1,5 @@
+"""
+A server module"""
 import ast
 import asyncio
 import copy
@@ -44,7 +46,6 @@ from ska_src_site_capabilities_api.common.exceptions import (
     SiteVersionNotFound,
     StorageAreaNotFound,
     StorageNotFound,
-    UnauthorizedRequest,
     handle_exceptions,
 )
 from ska_src_site_capabilities_api.common.utility import (
@@ -66,7 +67,8 @@ DEBUG = (
     else False
 )
 
-# Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
+# Instantiate FastAPI() allowing CORS. Static mounts
+# must be added later after the versionize() call.
 #
 app = FastAPI()
 CORSMiddleware_params = {
@@ -251,7 +253,7 @@ async def get_schema(
                 os.path.join(config.get("SCHEMAS_RELPATH"), schema)
             )
         ).absolute()
-        with open(schema_path) as f:
+        with open(schema_path, encoding="utf-8") as f:
             dereferenced_schema = jsonref.load(
                 f, base_uri=schema_path.as_uri()
             )
@@ -288,7 +290,7 @@ async def render_schema(
                 os.path.join(config.get("SCHEMAS_RELPATH"), schema)
             )
         ).absolute()
-        with open(schema_path) as f:
+        with open(schema_path, encoding="utf-8") as f:
             dereferenced_schema = ast.literal_eval(
                 str(jsonref.load(f, base_uri=schema_path.as_uri()))
             )
@@ -377,7 +379,7 @@ async def list_service_types(request: Request) -> JSONResponse:
                 os.path.join(config.get("SCHEMAS_RELPATH"), "local-service")
             )
         ).absolute()
-        with open(local_schema_path) as f:
+        with open(local_schema_path, encoding="utf-8") as f:
             dereferenced_local_schema = jsonref.load(
                 f, base_uri=local_schema_path.as_uri()
             )
@@ -388,7 +390,7 @@ async def list_service_types(request: Request) -> JSONResponse:
                 os.path.join(config.get("SCHEMAS_RELPATH"), "global-service")
             )
         ).absolute()
-        with open(global_schema_path) as f:
+        with open(global_schema_path, encoding="utf-8") as f:
             dereferenced_global_schema = jsonref.load(
                 f, base_uri=global_schema_path.as_uri()
             )
@@ -885,7 +887,7 @@ async def get_storage_from_id(
     summary="List all storage areas",
 )
 @handle_exceptions
-async def list_storages(request: Request) -> JSONResponse:
+async def list_storages_areas(request: Request) -> JSONResponse:
     """List all storage areas."""
     rtn = BACKEND.list_storage_areas()
     return JSONResponse(rtn)
@@ -907,7 +909,8 @@ async def list_storages(request: Request) -> JSONResponse:
 )
 @handle_exceptions
 async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
-    """List all storage areas in a format digestible by Grafana world map panels."""
+    """List all storage areas in a format digestible
+    by Grafana world map panels."""
     rtn = BACKEND.list_storage_areas(for_grafana=True)
     return JSONResponse(rtn)
 
@@ -958,7 +961,7 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
                 os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area")
             )
         ).absolute()
-        with open(storage_area_schema_path) as f:
+        with open(storage_area_schema_path, encoding="utf-8") as f:
             dereferenced_storage_area_schema = jsonref.load(
                 f, base_uri=storage_area_schema_path.as_uri()
             )
@@ -1014,7 +1017,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     if not DEBUG:
         readme_text_md = os.environ.get("README_MD", "")
     else:
-        with open("../../../README.md") as f:
+        with open("../../../README.md", encoding="utf-8") as f:
             readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(
         readme_text_md, exclude_sections=["Deployment"]
@@ -1059,7 +1062,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     if not DEBUG:
         readme_text_md = os.environ.get("README_MD", "")
     else:
-        with open("../../../README.md") as f:
+        with open("../../../README.md", encoding="utf-8") as f:
             readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(
         readme_text_md,
@@ -1203,7 +1206,7 @@ async def add_site_form(
         schema_path = pathlib.Path(
             os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")
         ).absolute()
-        with open(schema_path) as f:
+        with open(schema_path, encoding="utf-8") as f:
             dereferenced_schema = jsonref.load(
                 f, base_uri=schema_path.as_uri()
             )
@@ -1272,7 +1275,7 @@ async def add_site_form_existing(
         schema_path = pathlib.Path(
             os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")
         ).absolute()
-        with open(schema_path) as f:
+        with open(schema_path, encoding="utf-8") as f:
             dereferenced_schema = jsonref.load(
                 f, base_uri=schema_path.as_uri()
             )
@@ -1287,7 +1290,8 @@ async def add_site_form_existing(
         except KeyError:
             pass
 
-        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as [Object object].
+        # Quote nested JSON "other_attribute" dictionaries otherwise
+        # JSONForm parses as [Object object].
         def recursive_stringify(data, stringify_keys=["other_attributes"]):
             if isinstance(data, dict):
                 for key, value in data.items():

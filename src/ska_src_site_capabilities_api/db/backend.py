@@ -11,82 +11,103 @@ class Backend(ABC):
 
     @abstractmethod
     def add_site(self):
+        """Abstract method to add site"""
         raise NotImplementedError
 
     @abstractmethod
     def add_sites_bulk(self):
+        """Abstract method to add sites in bulk"""
         raise NotImplementedError
 
     @abstractmethod
     def delete_site(self):
+        """Abstract method to delete site"""
         raise NotImplementedError
 
     @abstractmethod
     def delete_sites(self):
+        """Abstract method to delete sites in bulk"""
         raise NotImplementedError
 
     @abstractmethod
     def delete_site_version(self):
+        """Abstract method to delete site version"""
         raise NotImplementedError
 
     @abstractmethod
     def dump_sites(self):
+        """Abstract method to dump site"""
         raise NotImplementedError
 
     @abstractmethod
     def get_compute(self):
+        """Abstract method to get compute for site"""
         raise NotImplementedError
 
     @abstractmethod
     def get_site(self):
+        """Abstract method to get site details"""
         raise NotImplementedError
 
     @abstractmethod
     def get_service(self):
+        """Abstract method to get service type"""
         raise NotImplementedError
 
     @abstractmethod
     def get_storage(self):
+        """Abstract method to get storage"""
         raise NotImplementedError
 
     @abstractmethod
     def get_storage_area(self):
+        """Abstract method to get storage area"""
         raise NotImplementedError
 
     @abstractmethod
     def get_site_version(self):
+        """Abstract method to get site version"""
         raise NotImplementedError
 
     @abstractmethod
     def get_site_version_latest(self):
+        """Abstract method to get latest site version"""
         raise NotImplementedError
 
     @abstractmethod
     def list_compute(self):
+        """Abstract method to list the compute"""
         raise NotImplementedError
 
     @abstractmethod
     def list_services(self):
+        """Abstract method to list services"""
         raise NotImplementedError
 
     @abstractmethod
     def list_service_types_from_schema(self):
+        """Abstract method to list services from schema"""
         raise NotImplementedError
 
     @abstractmethod
     def list_site_names_unique(self):
+        """Abstract method to list site names.
+        Unique format"""
         raise NotImplementedError
 
     @abstractmethod
     def list_sites_version_latest(self):
+        """Abstract method to list sites version"""
         raise NotImplementedError
 
     @abstractmethod
     def list_storages(self):
+        """Abstract method to list storages"""
         raise NotImplementedError
 
     @abstractmethod
     def list_storage_areas(self):
+        """Abstract method to list storage areas"""
         raise NotImplementedError
 
 
@@ -110,6 +131,9 @@ class MongoBackend(Backend):
         self.mongo_database = mongo_database
 
     def add_site(self, site_values):
+        """
+        Add sites
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
@@ -121,30 +145,45 @@ class MongoBackend(Backend):
         return sites.insert_one(site_values).inserted_id
 
     def add_sites_bulk(self, json):
+        """
+        Add sites in bulk
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
         return sites.insert_many(json)
 
     def delete_site(self, site):
+        """
+        Delete site
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
         return sites.delete_many({"name": site})
 
     def delete_sites(self):
+        """
+        Delete sites in bulk
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
         return sites.delete_many({})
 
     def delete_site_version(self, site, version):
+        """
+        Delete perticular site version
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
         return sites.delete_one({"name": site, "version": version})
 
     def dump_sites(self):
+        """
+        Dump the sites
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
@@ -154,6 +193,9 @@ class MongoBackend(Backend):
         return response
 
     def get_compute(self, compute_id):
+        """
+        Get computational details
+        """
         response = {}
         for site in self.list_sites_version_latest():
             for compute in site.get("compute", []):
@@ -163,6 +205,9 @@ class MongoBackend(Backend):
         return response
 
     def get_service(self, service_id):
+        """
+        Get service using service ID
+        """
         response = {}
         for entry in self.list_services(
             include_associated_with_compute=True, include_disabled=True
@@ -176,6 +221,9 @@ class MongoBackend(Backend):
         return response
 
     def get_site(self, site):
+        """
+        Get site details
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
@@ -186,6 +234,9 @@ class MongoBackend(Backend):
         return response
 
     def get_site_version(self, site, version):
+        """
+        Get perticular site version
+        """
         site_versions = self.get_site(site)
 
         this_version = None
@@ -196,6 +247,9 @@ class MongoBackend(Backend):
         return this_version
 
     def get_site_version_latest(self, site):
+        """
+        Get the site with latest version
+        """
         site_versions = self.get_site(site)
 
         latest = None
@@ -208,6 +262,9 @@ class MongoBackend(Backend):
         return latest
 
     def get_storage(self, storage_id):
+        """
+        Get storage using id
+        """
         response = {}
         for site in self.list_sites_version_latest():
             for storage in site.get("storages", []):
@@ -217,6 +274,9 @@ class MongoBackend(Backend):
         return response
 
     def get_storage_area(self, storage_area_id):
+        """
+        Get storage area using id
+        """
         response = {}
         for site in self.list_sites_version_latest():
             for storage in site.get("storages", []):
@@ -230,6 +290,9 @@ class MongoBackend(Backend):
         return response
 
     def list_compute(self):
+        """
+        List down the computational details
+        """
         response = []
         for site in self.list_sites_version_latest():
             if site.get("compute"):
@@ -244,6 +307,9 @@ class MongoBackend(Backend):
     def list_services(
         self, include_associated_with_compute=True, include_disabled=True
     ):
+        """
+        List down the services
+        """
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
@@ -271,10 +337,16 @@ class MongoBackend(Backend):
         return response
 
     def list_service_types_from_schema(self, schema):
+        """
+        Get services types from schema
+        """
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
     def list_site_names_unique(self):
+        """
+        List site names
+        """
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
@@ -286,12 +358,17 @@ class MongoBackend(Backend):
         return response
 
     def list_sites_version_latest(self):
+        """
+        List site versions"""
         response = []
         for site_name in self.list_site_names_unique():
             response.append(self.get_site_version_latest(site_name))
         return response
 
     def list_storages(self, topojson=False, for_grafana=False):
+        """
+        Listdown the storages available
+        """
         if topojson:
             response = {
                 "type": "Topology",
@@ -339,6 +416,9 @@ class MongoBackend(Backend):
         return response
 
     def list_storage_areas(self, topojson=False, for_grafana=False):
+        """
+        Listdown the storage areas
+        """
         if topojson:
             response = {
                 "type": "Topology",
@@ -395,5 +475,8 @@ class MongoBackend(Backend):
         return response
 
     def list_storage_area_types_from_schema(self, schema):
+        """
+        Listdown storage area from schema
+        """
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response

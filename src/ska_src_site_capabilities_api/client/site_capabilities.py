@@ -1,3 +1,6 @@
+"""
+A module for site capabilities client
+"""
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import (
@@ -6,6 +9,10 @@ from ska_src_site_capabilities_api.common.exceptions import (
 
 
 class SiteCapabilitiesClient:
+    """
+    A site capabilities client class.
+    """
+
     def __init__(self, api_url, session=None):
         self.api_url = api_url
         if session:
@@ -45,7 +52,7 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(
-            api_url=self.api_url, compute_id=processing_id
+            api_url=self.api_url, compute_id=compute_id
         )
         resp = self.session.get(get_compute_by_id_endpoint)
         resp.raise_for_status()
