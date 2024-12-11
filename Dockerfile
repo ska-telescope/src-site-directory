@@ -1,5 +1,13 @@
-FROM python:3.8-bullseye
+ARG BUILD_IMAGE="artefact.skao.int/ska-tango-images-pytango-builder:9.5.0"
+FROM $BUILD_IMAGE AS buildenv
 
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+RUN poetry config virtualenvs.create false
+WORKDIR /app
+
+COPY poetry.lock pyproject.toml /app/
+# Install runtime dependencies and the app
+RUN poetry install --no-root 
 USER root
 
 # install mongodb
