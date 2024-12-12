@@ -23,7 +23,7 @@ RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
 
 COPY --chown=user . /opt/ska-src-site-capabilities-api
 
-RUN cd /opt/ska-src-site-capabilities-api && python3 -m pip install -e . --extra-index-url https://gitlab.com/api/v4/projects/48060714/packages/pypi/simple --extra-index-url https://gitlab.com/api/v4/projects/48376510/packages/pypi/simple
+RUN cd /opt/ska-src-site-capabilities-api && python3 -m pip install -e .
 
 WORKDIR /opt/ska-src-site-capabilities-api
 
