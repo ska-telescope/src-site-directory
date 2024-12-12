@@ -14,7 +14,7 @@ ENV SETUPTOOLS_USE_DISTUTILS=stdlib
 RUN poetry config virtualenvs.create false 
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock /app/
+# COPY pyproject.toml poetry.lock /app/
 # Install dependencies
 RUN poetry install --only main
 
