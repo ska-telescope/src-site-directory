@@ -16,7 +16,7 @@ RUN poetry config virtualenvs.create false
 WORKDIR /app
 # COPY pyproject.toml poetry.lock /app/
 # Install dependencies
-RUN poetry install --only main
+RUN poetry install
 
 RUN groupadd user
 RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
