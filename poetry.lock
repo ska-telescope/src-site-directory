@@ -2116,17 +2116,17 @@ uvicorn = {version = "0.20.0", extras = ["standard"]}
 [package.source]
 type = "legacy"
 url = "https://gitlab.com/api/v4/projects/48376510/packages/pypi/simple"
-reference = "auth_api"
+reference = "authn_api"
 
 [[package]]
 name = "ska-src-permissions-api"
-version = "0.1.24"
+version = "0.1.59"
 description = "The permissions API for SRCNet."
 optional = false
 python-versions = "*"
 files = [
-    {file = "ska_src_permissions_api-0.1.24-py3-none-any.whl", hash = "sha256:a510a499c6fc5126304a0f981755a9d80fa2589135d71281d0fffc8abeed5c5a"},
-    {file = "ska_src_permissions_api-0.1.24.tar.gz", hash = "sha256:4d3b1ca717081afdc26678b2ec625d08228ac5e963ec32736436b4898d400d62"},
+    {file = "ska_src_permissions_api-0.1.59-py3-none-any.whl", hash = "sha256:89832e2f2f008fe163bb9aa2250df4cbdbfe3f7d09299d423a3e034c59914167"},
+    {file = "ska_src_permissions_api-0.1.59.tar.gz", hash = "sha256:d58fc251f2713ed1e50deee662e014a7341c58e19f74860e6947caf21f46bd47"},
 ]
 
 [package.dependencies]
@@ -2840,4 +2840,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0.0"
-content-hash = "0b45cc37a0dfcc6140c055050ae79c33ad95c8edabc25ba1956b30986b79049e"
+content-hash = "80870ad51ea7fde4e24499b362288eb845d83fbe54df6b654f582f1006f38a13"

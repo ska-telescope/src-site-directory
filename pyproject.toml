@@ -28,7 +28,7 @@ name = "PyPI-public"
 url = 'https://pypi.org/simple'
 
 [[tool.poetry.source]]
-name = "auth_api"
+name = "authn_api"
 url = "https://gitlab.com/api/v4/projects/48376510/packages/pypi/simple"
 
 [[tool.poetry.source]]
@@ -54,8 +54,8 @@ PyJWT = "2.8.0"
 python-multipart = "0.0.6"
 requests = "2.26.0"
 uvicorn = "0.20.0"
-ska-src-permissions-api = "0.1.24"
-ska-src-authn-api = "0.4.22"
+ska-src-permissions-api = { version = "*", source = "permissions_api" }
+ska-src-authn-api = { version = "*", source = "authn_api" }
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
