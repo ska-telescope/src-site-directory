@@ -1,3 +1,6 @@
+"""
+A commonly used helper utility method module
+"""
 from urllib.parse import urlparse
 
 import markdown

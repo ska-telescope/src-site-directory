@@ -15,7 +15,10 @@ class IAM:
 
     def __init__(self, client_conf_url=None):
         # Get oidc endpoints from IAM .well_known.
-        resp = requests.get(client_conf_url)
+        resp = requests.get(
+            client_conf_url, timeout=100
+        )  # added timeout parameter
+        # to avoid causing program to hang indefinitely
         resp.raise_for_status()
         self.client_well_known = resp.json()
 

@@ -260,8 +260,8 @@ async def get_schema(
         return JSONResponse(
             ast.literal_eval(str(dereferenced_schema))
         )  # some issue with jsonref return != dict
-    except FileNotFoundError:
-        raise SchemaNotFound
+    except FileNotFoundError as exc:
+        raise SchemaNotFound from exc
 
 
 @api_version(1)
@@ -294,8 +294,8 @@ async def render_schema(
             dereferenced_schema = ast.literal_eval(
                 str(jsonref.load(f, base_uri=schema_path.as_uri()))
             )
-    except FileNotFoundError:
-        raise SchemaNotFound
+    except FileNotFoundError as exc:
+        raise SchemaNotFound from exc
 
     # pop countries enum for readability
     dereferenced_schema.get("properties").get("country", {}).pop("enum", None)
@@ -394,8 +394,8 @@ async def list_service_types(request: Request) -> JSONResponse:
             dereferenced_global_schema = jsonref.load(
                 f, base_uri=global_schema_path.as_uri()
             )
-    except FileNotFoundError:
-        raise SchemaNotFound
+    except FileNotFoundError as exc:
+        raise SchemaNotFound from exc
     rtn = {
         "local": BACKEND.list_service_types_from_schema(
             schema=dereferenced_local_schema
@@ -484,6 +484,7 @@ async def add_site(
     authorization=Depends(HTTPBearer()),
 ) -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
+    """Add a site"""
     if isinstance(values, (bytes, bytearray)):
         values = json.loads(values.decode("utf-8"))
     values["created_at"] = datetime.now().isoformat()
@@ -515,8 +516,8 @@ async def add_site(
 
     values = recursive_autogen_id(values)
 
-    id = BACKEND.add_site(values)
-    return HTMLResponse(repr(id))
+    site_id = BACKEND.add_site(values)
+    return HTMLResponse(repr(site_id))
 
 
 @api_version(1)
@@ -541,6 +542,7 @@ async def edit_site(
     authorization=Depends(HTTPBearer()),
 ) -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
+    """Edit a site"""
     if isinstance(values, (bytes, bytearray)):
         values = json.loads(values.decode("utf-8"))
     values["created_at"] = datetime.now().isoformat()
@@ -572,8 +574,8 @@ async def edit_site(
 
     values = recursive_autogen_id(values)
 
-    id = BACKEND.add_site(values)
-    return HTMLResponse(repr(id))
+    site_id = BACKEND.add_site(values)
+    return HTMLResponse(repr(site_id))
 
 
 @api_version(1)
@@ -965,8 +967,8 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
             dereferenced_storage_area_schema = jsonref.load(
                 f, base_uri=storage_area_schema_path.as_uri()
             )
-    except FileNotFoundError:
-        raise SchemaNotFound
+    except FileNotFoundError as exc:
+        raise SchemaNotFound from exc
     rtn = BACKEND.list_storage_area_types_from_schema(
         schema=dereferenced_storage_area_schema
     )
@@ -1014,6 +1016,7 @@ async def get_storage_area_from_id(
 @handle_exceptions
 async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     # Read and parse README.md, omitting excluded sections.
+    """Get the operation document"""
     if not DEBUG:
         readme_text_md = os.environ.get("README_MD", "")
     else:
@@ -1059,6 +1062,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
 @handle_exceptions
 async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     # Read and parse README.md, omitting excluded sections.
+    """Get user documentation"""
     if not DEBUG:
         readme_text_md = os.environ.get("README_MD", "")
     else:
@@ -1121,6 +1125,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 )
 @handle_exceptions
 async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
+    """Get the login details"""
     if request.session.get("access_token"):
         return HTMLResponse("You are logged in.")
     elif request.query_params.get("code"):
@@ -1162,6 +1167,7 @@ async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
 )
 @handle_exceptions
 async def www_logout(request: Request) -> Union[HTMLResponse]:
+    """To do logout from session"""
     if request.session.get("access_token"):
         request.session.pop("access_token")
     return HTMLResponse(
@@ -1477,8 +1483,10 @@ for route in app.routes:
                         "request-code-samples", sample_template_filename
                     )
                     if os.path.exists(sample_template_path):
-                        with open(sample_template_path, "r") as f:
-                            sample_source_template = f.read()
+                        with open(
+                            sample_template_path, "r", encoding="utf-8"
+                        ) as file:
+                            sample_source_template = file.read()
                         code_samples = attr.get("x-code-samples", [])
                         code_samples.append(
                             {

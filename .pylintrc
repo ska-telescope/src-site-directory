@@ -62,7 +62,17 @@ confidence=
 # --disable=W".
 disable=consider-using-f-string,
         unused-argument,
-        global-statement
+        global-statement,
+        simplifiable-if-expression,
+        no-else-continue,
+        dangerous-default-value,
+        consider-using-enumerate,
+        redefined-outer-name,
+        no-else-return,
+        no-member, 
+        redefined-argument-from-local
+
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

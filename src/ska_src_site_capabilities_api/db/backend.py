@@ -1,3 +1,6 @@
+"""
+A abstract class and method modules for backend
+"""
 from abc import ABC, abstractmethod
 
 from pymongo import MongoClient
@@ -10,17 +13,17 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def add_site(self):
+    def add_site(self, site_values):
         """Abstract method to add site"""
         raise NotImplementedError
 
     @abstractmethod
-    def add_sites_bulk(self):
+    def add_sites_bulk(self, json):
         """Abstract method to add sites in bulk"""
         raise NotImplementedError
 
     @abstractmethod
-    def delete_site(self):
+    def delete_site(self, site):
         """Abstract method to delete site"""
         raise NotImplementedError
 
@@ -30,7 +33,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_site_version(self):
+    def delete_site_version(self, site, version):
         """Abstract method to delete site version"""
         raise NotImplementedError
 
@@ -40,37 +43,37 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_compute(self):
+    def get_compute(self, compute_id):
         """Abstract method to get compute for site"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_site(self):
+    def get_site(self, site):
         """Abstract method to get site details"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_service(self):
+    def get_service(self, service_id):
         """Abstract method to get service type"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_storage(self):
+    def get_storage(self, storage_id):
         """Abstract method to get storage"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_storage_area(self):
+    def get_storage_area(self, storage_area_id):
         """Abstract method to get storage area"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_site_version(self):
+    def get_site_version(self, site, version):
         """Abstract method to get site version"""
         raise NotImplementedError
 
     @abstractmethod
-    def get_site_version_latest(self):
+    def get_site_version_latest(self, site):
         """Abstract method to get latest site version"""
         raise NotImplementedError
 
@@ -80,12 +83,12 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self):
+    def list_services(self, include_associated_with_compute, include_disabled):
         """Abstract method to list services"""
         raise NotImplementedError
 
     @abstractmethod
-    def list_service_types_from_schema(self):
+    def list_service_types_from_schema(self, schema):
         """Abstract method to list services from schema"""
         raise NotImplementedError
 
@@ -101,12 +104,12 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storages(self):
+    def list_storages(self, topojson, for_grafana):
         """Abstract method to list storages"""
         raise NotImplementedError
 
     @abstractmethod
-    def list_storage_areas(self):
+    def list_storage_areas(self, topojson, for_grafana):
         """Abstract method to list storage areas"""
         raise NotImplementedError
 
@@ -228,7 +231,7 @@ class MongoBackend(Backend):
         db = client[self.mongo_database]
         sites = db.sites
         response = []
-        for site in sites.find({"name": site}):
+        for site in sites.find({"name": site}):  # which is which ?
             site["_id"] = str(site["_id"])
             response.append(site)
         return response

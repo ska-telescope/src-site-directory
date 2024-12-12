@@ -18,20 +18,20 @@ def handle_client_exceptions(func):
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             detail = f"HTTP error occurred: {e}, response: {e.response.text}"
-            raise HTTPException(status_code=status_code, detail=detail)
+            raise HTTPException(status_code=status_code, detail=detail) from e
         except HTTPException as e:
             raise e
         except CustomException as e:
-            raise Exception(message=e.message)
+            raise Exception(message=e.message) from e
         except CustomHTTPException as e:
             raise HTTPException(
                 status_code=e.http_error_status, detail=e.message
-            )
+            ) from e
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(
                 repr(e), "".join(traceback.format_tb(e.__traceback__))
             )
-            raise HTTPException(status_code=500, detail=detail)
+            raise HTTPException(status_code=500, detail=detail) from e
 
     return wrapper
 
@@ -46,20 +46,20 @@ def handle_exceptions(func):
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             detail = f"HTTP error occurred: {e}, response: {e.response.text}"
-            raise HTTPException(status_code=status_code, detail=detail)
+            raise HTTPException(status_code=status_code, detail=detail) from e
         except HTTPException as e:
             raise e
         except CustomException as e:
-            raise Exception(message=e.message)
+            raise Exception(message=e.message) from e
         except CustomHTTPException as e:
             raise HTTPException(
                 status_code=e.http_error_status, detail=e.message
-            )
+            ) from e
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(
                 repr(e), "".join(traceback.format_tb(e.__traceback__))
             )
-            raise HTTPException(status_code=500, detail=detail)
+            raise HTTPException(status_code=500, detail=detail) from e
 
     return wrapper
 
@@ -69,6 +69,9 @@ class CustomException(Exception):
     for exception to be caught by the
     handle_exceptions decorator.
     """
+
+    def __init__(self, message):
+        self.message = message
 
 
 class IAMEndpointNotFoundInWellKnown(CustomException):
@@ -91,6 +94,10 @@ class CustomHTTPException(Exception):
     the handle_exceptions decorator.
     """
 
+    def __init__(self, message, http_error_status):
+        self.message = message
+        self.http_error_status = http_error_status
+
 
 class UnauthorizedRequest(CustomHTTPException):
     """
@@ -100,7 +107,7 @@ class UnauthorizedRequest(CustomHTTPException):
     def __init__(self):
         self.message = "You are not authorised to access this resource"
         self.http_error_status = status.HTTP_401_UNAUTHORIZED
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class PermissionDenied(CustomHTTPException):
@@ -111,7 +118,7 @@ class PermissionDenied(CustomHTTPException):
     def __init__(self):
         self.message = "You do not have permission to access this resource."
         self.http_error_status = status.HTTP_403_FORBIDDEN
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class ComputeNotFound(CustomHTTPException):
@@ -126,7 +133,7 @@ class ComputeNotFound(CustomHTTPException):
             )
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class SchemaNotFound(CustomHTTPException):
@@ -139,7 +146,7 @@ class SchemaNotFound(CustomHTTPException):
             schema
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class ServiceNotFound(CustomHTTPException):
@@ -154,7 +161,7 @@ class ServiceNotFound(CustomHTTPException):
             )
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class SiteNotFound(CustomHTTPException):
@@ -165,7 +172,7 @@ class SiteNotFound(CustomHTTPException):
     def __init__(self, site):
         self.message = "Site with name '{}' could not be found".format(site)
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class SiteVersionNotFound(CustomHTTPException):
@@ -180,7 +187,7 @@ class SiteVersionNotFound(CustomHTTPException):
             )
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class StorageNotFound(CustomHTTPException):
@@ -195,7 +202,7 @@ class StorageNotFound(CustomHTTPException):
             )
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)
 
 
 class StorageAreaNotFound(CustomHTTPException):
@@ -210,4 +217,4 @@ class StorageAreaNotFound(CustomHTTPException):
             )
         )
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
+        super().__init__(self.message, self.http_error_status)

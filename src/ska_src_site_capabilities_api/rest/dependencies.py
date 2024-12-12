@@ -25,6 +25,7 @@ class Common:
 
     @handle_exceptions
     async def increment_request_counter(self):
+        """Method to increment tht requests counter"""
         async with self.requests_counter_lock:
             self.requests_counter += 1
 
@@ -71,6 +72,7 @@ class Permissions:
     async def verify_permission_for_service_route_query_params(
         self, request: Request, token: str = None
     ) -> Union[HTTPException, bool]:
+        """Method to verify the permissions"""
         if token is None:
             raise PermissionDenied
         rtn = self.permissions.authorise_service_route(
