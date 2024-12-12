@@ -1,22 +1,18 @@
-ARG BUILD_IMAGE="artefact.skao.int/ska-tango-images-pytango-builder:9.5.0"
-FROM $BUILD_IMAGE AS buildenv
+FROM python:3.8-bullseye
 
-ENV SETUPTOOLS_USE_DISTUTILS=stdlib
-RUN poetry config virtualenvs.create false
-WORKDIR /app
-
-COPY poetry.lock pyproject.toml /app/
-# Install runtime dependencies and the app
-RUN poetry install --no-root 
 USER root
 
 # install mongodb
-RUN apt-get update -y && apt-get install -y gnupg curl vim wget
+RUN apt-get update -y && apt-get install -y gnupg curl vim
 RUN curl -fsSL https://pgp.mongodb.com/server-6.0.asc | gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
 RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 RUN apt-get update -y && apt-get install -y mongodb-org
+
+RUN pip3 install poetry==1.7.1
+WORKDIR /app
+COPY pyproject.toml poetry.lock /app/
+# Install dependencies
+RUN poetry install --no-root
 
 RUN groupadd user
 RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
