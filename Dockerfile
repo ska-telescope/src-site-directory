@@ -9,17 +9,21 @@ RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] http://rep
 RUN apt-get update -y && apt-get install -y mongodb-org
 
 RUN pip3 install poetry==1.7.1
+
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+RUN poetry config virtualenvs.create false 
+
 WORKDIR /app
 COPY pyproject.toml poetry.lock /app/
 # Install dependencies
-RUN poetry install --no-root
+RUN poetry install --only main
 
 RUN groupadd user
 RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
 
 COPY --chown=user . /opt/ska-src-site-capabilities-api
 
-RUN cd /opt/ska-src-site-capabilities-api && python3 -m pip install -e .
+RUN cd /opt/ska-src-site-capabilities-api
 
 WORKDIR /opt/ska-src-site-capabilities-api
 
