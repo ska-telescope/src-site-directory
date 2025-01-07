@@ -7,6 +7,14 @@ ADDMARK ?= # additional markers
 PYTHON_VARS_BEFORE_PYTEST ?= PYTHONPATH=.:./src
 
 PYTHON_VARS_AFTER_PYTEST ?= -m '$(MARK)' $(ADD_ARGS) $(FILE)
+IAM_CLIENT_SECRET ?= QUpnZFZySVF6UTgtS09WRUVMZm95Mjg1Z2ltT1FXUm9ZVVdvUmJDcU4wSWtTbHFDYkJGS0lJc0JKSWFSR05zcmRJdTVVNzR5ZUVpODBOY1RJcVBjVXVZCg==
+MONGO_PASSWORD ?= c2VjcmV0Cg==
+KUBE_NAMESPACE ?= ska-src-site-capabilities-api
+HELM_RELEASE ?= ska-src-site-capabilities-api
+CHART_PATH ?= ./etc/helm
+
+CHART_PARAMS ?= --set secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
+--set secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 
 bump-and-commit: 
 	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
@@ -39,6 +47,11 @@ patch-branch:
 
 push:
 	@git push origin `git branch | grep "*" | awk -F'[*]' '{ print $$2 }' | tr -d ' '`
+
+helm-install:
+	helm install $(HELM_RELEASE) \
+	$(CHART_PARAMS) \
+	$(CHART_PATH) --namespace $(KUBE_NAMESPACE)
 
 
 -include .make/python.mk

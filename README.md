@@ -164,5 +164,8 @@ After editing the `values.yaml` (template in `/etc/helm/`):
 
 ```bash
 $ create namespace ska-src-site-capabilities-api
-$ helm install --namespace ska-src-site-capabilities-api ska-src-site-capabilities-api .
+
+Ask for values to repo maintainers to edit Makefile variables IAM_CLIENT_SECRET and MONGO_PASSWORD
+then execute
+$ make helm-install
 ```
