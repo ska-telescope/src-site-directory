@@ -36,6 +36,19 @@ join_linting_reports:
     when: always
 
 
+k8s-test:
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+    COUNT: 1
+    PYTHON_TEST_COUNT: 1
+    ADDMARK: ""
+  before_script:
+    - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+    - make k8s-install-chart
+    - make k8s-wait
+
+  
 # Standardised included jobs
 include:
 # Python packages lint
@@ -50,4 +63,11 @@ include:
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
 
-# TBD: Include helm
+
+# Helm Chart linting and Publish
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/helm-chart.gitlab-ci.yml'
+
+# Release Automation
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/release.gitlab-ci.yml'

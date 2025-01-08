@@ -1,5 +1,3 @@
-image_registry_url: registry.gitlab.com/ska-telescope/src/src-service-apis/ska-src-site-capabilities-api/api
-image_tag: site-capabilities.srcdev.skao.int
 svc:
   api:
     root_path: /api
@@ -36,3 +34,10 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 10Gi
+
+site_capabilities_api:
+  image:
+    registry: artefact.skao.int
+    image: ska-src-site-capabilities-api
+    tag: 0.3.49
+    pullPolicy: Always
