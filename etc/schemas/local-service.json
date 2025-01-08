@@ -25,7 +25,8 @@
         "monitoring",
         "perfsonar",
         "canfar",
-        "carta"
+        "carta",
+        "prepare_data"
       ],
       "default": null,
       "required": true
