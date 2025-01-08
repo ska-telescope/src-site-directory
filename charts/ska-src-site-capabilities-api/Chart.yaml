@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 name: ska-src-site-capabilities-api
 description: A helm chart for ska-src-site-capabilities-api deployment
 type: application
