@@ -47,6 +47,8 @@ k8s-test:
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
     - make k8s-wait
+  script:
+    - make k8s-test
 
   
 # Standardised included jobs
