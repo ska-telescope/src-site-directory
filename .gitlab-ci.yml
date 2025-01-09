@@ -36,23 +36,12 @@ join_linting_reports:
     when: always
 
 
-k8s-test:
-  variables:
-    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
-    COUNT: 1
-    PYTHON_TEST_COUNT: 1
-    ADDMARK: ""
-  before_script:
-    - echo "$CI_PROJECT_NAME"
-    - echo "$CI_COMMIT_SHORT_SHA"
-    - make k8s-install-chart
-    - make k8s-wait
-  script:
-    - make k8s-test
-
-  
 # Standardised included jobs
 include:
+# k8s steps
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
+
 # Python packages lint
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/python.gitlab-ci.yml'
@@ -76,3 +65,20 @@ include:
 # Release Automation
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/release.gitlab-ci.yml'
+
+
+k8s-test:
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+    COUNT: 1
+    PYTHON_TEST_COUNT: 1
+    ADDMARK: ""
+  before_script:
+    - echo "$CI_PROJECT_NAME"
+    - echo "$CI_COMMIT_SHORT_SHA"
+    - make k8s-install-chart
+    - make k8s-wait
+  script:
+    - make k8s-test
+
+  
