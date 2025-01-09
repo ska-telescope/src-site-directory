@@ -28,8 +28,8 @@ K8S_CHART ?= $(HELM_CHART)
 CI_REGISTRY ?= gitlab.com
 
 CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION) \
---set secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
---set secrets.credentials.mongo_password=$(MONGO_PASSWORD)
+--set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
+--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 
 K8S_TEST_IMAGE_TO_TEST=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
 
@@ -37,8 +37,8 @@ ifneq ($(CI_JOB_ID),)
 CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
 	--set site_capabilities_api.image.registry=$(CAR_OCI_REGISTRY_HOST) \
 	--set site_capabilities_api.image.tag=$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA) \
-	--set secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
-	--set secrets.credentials.mongo_password=$(MONGO_PASSWORD)
+	--set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
+	--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 K8S_TEST_IMAGE_TO_TEST=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA)
 endif
 
