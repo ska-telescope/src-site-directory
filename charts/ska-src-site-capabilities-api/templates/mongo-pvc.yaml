@@ -1,4 +1,4 @@
-{{- if and $.Values.persistence.enabled (not $.Values.persistence.existingClaim) }}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
 {{- $pvc := lookup "v1" "PersistentVolumeClaim" .Release.Namespace "database" }}
 {{- if not $pvc }}
 kind: PersistentVolumeClaim
