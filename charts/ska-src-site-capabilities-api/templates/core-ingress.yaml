@@ -11,15 +11,8 @@ spec:
   - host: {{ .Values.ing.api.host }}
     http:
       paths:
-      - path: {{ .Values.svc.api.root_path }}
-        pathType: Prefix
-        backend:
-          service:
-            name: core
-            port:
-              number: 8080
-      - path: {{ .Values.svc.api.root_path }}(/)
-        pathType: Prefix
+      - path: {{ .Values.svc.api.root_path }}(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: core
