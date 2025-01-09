@@ -65,10 +65,13 @@ include:
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
 
-
-# Helm Chart linting and Publish
+# Helm Chart linting
 - project: 'ska-telescope/templates-repository'
-  file: 'gitlab-ci/includes/helm-chart.gitlab-ci.yml'
+  file: gitlab-ci/includes/helm-chart-lint.gitlab-ci.yml
+
+# Helm Chart publish
+- project: 'ska-telescope/templates-repository'
+  file: gitlab-ci/includes/helm-chart-publish.gitlab-ci.yml
 
 # Release Automation
 - project: 'ska-telescope/templates-repository'
