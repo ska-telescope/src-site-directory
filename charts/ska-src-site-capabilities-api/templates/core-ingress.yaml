@@ -11,7 +11,7 @@ spec:
   - host: {{ .Values.ing.api.host }}
     http:
       paths:
-      - path: {{ .Values.svc.api.root_path }}(/|$)
+      - path: "{{ .Values.svc.api.root_path }}"(/|$)(.*)
         pathType: Prefix
         backend:
           service:
