@@ -11,7 +11,7 @@ ADDMARK ?= # additional markers
 
 ifeq ($(MAKECMDGOALS),k8s-test)
 ADD_ARGS +=  --true-context --count=$(COUNT)
-MARK = post_deployment $(ADDMARK)
+MARK = post_deployment
 endif
 
 ifeq ($(EXIT_AT_FAIL),true)
