@@ -70,12 +70,14 @@ include:
 k8s-test:
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
   before_script:
     - echo "$CI_PROJECT_NAME"
     - echo "$CI_COMMIT_SHORT_SHA"
+    - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
     # - kubectl wait --for=jsonpath='{.status.phase}'=Running --all
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
