@@ -9,6 +9,15 @@ ADD_ARGS ?= ## Additional args to pass to pytest
 MARK ?= unit_test
 ADDMARK ?= # additional markers
 
+ifeq ($(MAKECMDGOALS),k8s-test)
+ADD_ARGS +=  --true-context --count=$(COUNT)
+MARK = post_deployment $(ADDMARK)
+endif
+
+ifeq ($(EXIT_AT_FAIL),true)
+ADD_ARGS += -x
+endif
+
 IAM_CLIENT_SECRET ?=
 MONGO_PASSWORD ?=
 
@@ -39,7 +48,7 @@ CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
 	--set site_capabilities_api.image.tag=$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA) \
 	--set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
 	--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
-K8S_TEST_IMAGE_TO_TEST=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA)
+K8S_TEST_IMAGE_TO_TEST=$(CI_REGISTRY)/$(PROJECT)/$(PROJECT):$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA)
 endif
 
 # Test runner - run to completion job in K8s
@@ -57,13 +66,6 @@ K8S_TEST_TEST_COMMAND = $(PYTHON_VARS_BEFORE_PYTEST) $(PYTHON_RUNNER) \
 						pytest \
 						$(PYTHON_VARS_AFTER_PYTEST) ./tests \
 						| tee pytest.stdout
-
-
-# HELM_RELEASE ?= ska-src-site-capabilities-api
-# CHART_PATH ?= ./etc/helm
-
-# CHART_PARAMS ?= --set secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
-# --set secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 
 bump-and-commit: 
 	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
@@ -96,12 +98,6 @@ patch-branch:
 
 push:
 	@git push origin `git branch | grep "*" | awk -F'[*]' '{ print $$2 }' | tr -d ' '`
-
-# helm-install:
-# 	helm install $(HELM_RELEASE) \
-# 	$(CHART_PARAMS) \
-# 	$(CHART_PATH) --namespace $(KUBE_NAMESPACE)
-
 
 -include .make/python.mk
 -include .make/base.mk
