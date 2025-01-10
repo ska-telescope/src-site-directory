@@ -26,6 +26,10 @@ spec:
               key: mongo_password
         - name: MONGO_INITDB_ROOT_USERNAME
           value: {{ .Values.svc.common.mongo_username }}
+        - name: MONGO_HOST
+          value: {{ .Values.svc.api.mongo_host }}
+        - name: MONGO_PORT
+          value: {{ .Values.svc.api.mongo_port }}
         image: mongo:5.0.15
         imagePullPolicy: ""
         name: ska-src-site-capabilities-api-mongo
