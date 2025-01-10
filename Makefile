@@ -44,7 +44,7 @@ K8S_TEST_IMAGE_TO_TEST=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
 
 ifneq ($(CI_JOB_ID),)
 CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
-	--set site_capabilities_api.image.registry=$(CAR_OCI_REGISTRY_HOST) \
+	--set site_capabilities_api.image.registry=$(CI_REGISTRY) \
 	--set site_capabilities_api.image.tag=$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA) \
 	--set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET)\
 	--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
