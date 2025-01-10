@@ -78,7 +78,7 @@ k8s-test:
     - echo "$CI_COMMIT_SHORT_SHA"
     - make k8s-install-chart
     # - kubectl wait --for=jsonpath='{.status.phase}'=Running --all
-    - kubectl wait --for=condition=ready pod --all
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all
     - make k8s-watch
   script:
     - make k8s-test
