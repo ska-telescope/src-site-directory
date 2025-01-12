@@ -69,15 +69,15 @@ include:
 
 python-lint:
   tags:
-    - ska-k8s
+    - ska-default-xlarge
 
 oci-image-lint:
   tags:
-    - ska-k8s
+    - ska-default-xlarge
 
 helm-chart-lint:
   tags:
-    - ska-k8s
+    - ska-default-xlarge
 
 
 k8s-test:
