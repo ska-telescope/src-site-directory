@@ -23,6 +23,18 @@ stages:
 - scan
 
 
+python-lint:
+  stage: lint
+  when: never
+
+oci-image-lint:
+  stage: lint
+  when: never
+
+helm-chart-lint:
+  stage: lint
+  when: never
+
 join_linting_reports:
   stage: join-reports
   tags:
