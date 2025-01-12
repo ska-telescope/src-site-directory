@@ -23,18 +23,6 @@ stages:
 - scan
 
 
-python-lint:
-  stage: lint
-  when: never
-
-oci-image-lint:
-  stage: lint
-  when: never
-
-helm-chart-lint:
-  stage: lint
-  when: never
-
 join_linting_reports:
   stage: join-reports
   tags:
@@ -77,6 +65,19 @@ include:
 # Release Automation
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/release.gitlab-ci.yml'
+
+
+python-lint:
+  tags:
+    - ska-k8s
+
+oci-image-lint:
+  tags:
+    - ska-k8s
+
+helm-chart-lint:
+  tags:
+    - ska-k8s
 
 
 k8s-test:
