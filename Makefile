@@ -57,7 +57,9 @@ K8S_TEST_IMAGE_TO_TEST=$(CI_REGISTRY)/ska-telescope/src/src-service-apis/$(PROJE
 endif
 
 K8S_TEST_RUNNER_ADD_ARGS = --env=MONGO_HOST=mongo \
-                           --env=MONGO_PORT=27017
+                           --env=MONGO_PORT=27017 \
+						   --env=API_IAM_CLIENT_SECRET=$(IAM_CLIENT_SECRET) \
+						   --env=MONGO_PASSWORD=$(MONGO_PASSWORD)
 
 # Test runner - run to completion job in K8s
 # name of the pod running the k8s_tests
