@@ -7,13 +7,13 @@ KUBE_NAMESPACE ?= ska-src-site-capabilities-api
 
 FILE ?= tests## A specific test file to pass to pytest
 ADD_ARGS ?= ## Additional args to pass to pytest
-MARK ?= unit_test
+MARK ?=
 ADDMARK ?= # additional markers
 PYTHON_TEST_COUNT ?= 1
 
 ifeq ($(MAKECMDGOALS),python-test)
 ADD_ARGS +=  --forked --count=$(PYTHON_TEST_COUNT)
-MARK = not post_deployment $(ADDMARK)
+MARK = not post_deployment
 endif
 ifeq ($(MAKECMDGOALS),k8s-test)
 ADD_ARGS +=  --true-context --count=$(COUNT)
