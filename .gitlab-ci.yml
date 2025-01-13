@@ -81,6 +81,8 @@ helm-chart-lint:
 
 
 k8s-test:
+  tags:
+    - ska-default-xlarge
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
@@ -94,7 +96,6 @@ k8s-test:
     - make k8s-install-chart
     # - kubectl wait --for=jsonpath='{.status.phase}'=Running --all
     - kubectl -n $KUBE_NAMESPACE describe pods
-    - kubectl -n $KUBE_NAMESPACE describe deployment/$DEPLOY_NAME
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE describe deployment/$DEPLOY_NAME
     # - make k8s-watch
