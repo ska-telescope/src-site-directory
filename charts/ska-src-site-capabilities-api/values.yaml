@@ -33,7 +33,7 @@ persistence:
   existingClaim: ""
   enabled: true
   accessMode: ReadWriteOnce
-  size: 10Gi
+  size: 1Gi
 
 site_capabilities_api:
   image:
