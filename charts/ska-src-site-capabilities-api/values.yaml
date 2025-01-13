@@ -29,7 +29,7 @@ ing:
     host: site-capabilities.srcdev.skao.int
 
 persistence:
-  storageClass: csi-manila-cephfs-retain
+  storageClass: bds1
   existingClaim: ""
   enabled: true
   accessMode: ReadWriteOnce
