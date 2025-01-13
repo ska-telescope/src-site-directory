@@ -2,13 +2,19 @@
 
 CAR_OCI_REGISTRY_HOST:=artefact.skao.int
 PROJECT = ska-src-site-capabilities-api
+KUBE_APP = ska-src-site-capabilities-api
 KUBE_NAMESPACE ?= ska-src-site-capabilities-api
 
 FILE ?= tests## A specific test file to pass to pytest
 ADD_ARGS ?= ## Additional args to pass to pytest
 MARK ?= unit_test
 ADDMARK ?= # additional markers
+PYTHON_TEST_COUNT ?= 1
 
+ifeq ($(MAKECMDGOALS),python-test)
+ADD_ARGS +=  --forked --count=$(PYTHON_TEST_COUNT)
+MARK = not post_deployment $(ADDMARK)
+endif
 ifeq ($(MAKECMDGOALS),k8s-test)
 ADD_ARGS +=  --true-context --count=$(COUNT)
 MARK = post_deployment
@@ -29,7 +35,6 @@ HELM_CHARTS_TO_PUBLISH=
 # UMBRELLA_CHART_PATH Path of the umbrella chart to work with
 HELM_CHART=ska-src-site-capabilities-api
 UMBRELLA_CHART_PATH ?= charts/$(HELM_CHART)/
-# UMBRELLA_CHART_PATH ?= ./etc/helm
 K8S_CHARTS ?= ska-src-site-capabilities-api ## list of charts
 K8S_CHART ?= $(HELM_CHART)
 
@@ -110,4 +115,12 @@ push:
 test-requirements:
 	@poetry export --without-hashes --with dev --format requirements.txt --output tests/requirements.txt
 
-k8s-pre-test: test-requirements
+k8s-pre-test: python-pre-test test-requirements
+
+requirements: ## Install Dependencies
+	poetry install
+
+cred:
+	make k8s-namespace
+	make k8s-namespace-credentials
+
