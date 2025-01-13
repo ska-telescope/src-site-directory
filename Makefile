@@ -45,7 +45,7 @@ CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION) \
 --set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
 --set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 
-K8S_TEST_IMAGE_TO_TEST=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
+K8S_TEST_IMAGE_TO_TEST ?=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
 
 ifneq ($(CI_JOB_ID),)
 CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
@@ -55,6 +55,9 @@ CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
 	--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD)
 K8S_TEST_IMAGE_TO_TEST=$(CI_REGISTRY)/ska-telescope/src/src-service-apis/$(PROJECT)/$(PROJECT):$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA)
 endif
+
+K8S_TEST_RUNNER_ADD_ARGS = --env=MONGO_HOST=mongo \
+                           --env=MONGO_PORT=27017
 
 # Test runner - run to completion job in K8s
 # name of the pod running the k8s_tests
