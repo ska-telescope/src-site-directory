@@ -12,6 +12,9 @@ from pydantic import BaseModel, Field
 from ska_src_site_capabilities_api.models.service import LocalService
 
 # get hardware capabilities and types from schema
+print(":::::::::::", os.environ.get("SCHEMAS_RELPATH"))
+print("+++++++++", os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute"))
+
 schema_path = pathlib.Path(
     "{}.json".format(
         os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute")
