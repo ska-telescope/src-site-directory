@@ -93,6 +93,9 @@ k8s-test:
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
     # - kubectl wait --for=jsonpath='{.status.phase}'=Running --all
+    - kubectl -n $KUBE_NAMESPACE describe pods
+    - kubectl -n $KUBE_NAMESPACE describe deployment/$DEPLOY_NAME
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+    - kubectl -n $KUBE_NAMESPACE describe deployment/$DEPLOY_NAME
     # - make k8s-watch
   
