@@ -37,7 +37,6 @@ HELM_CHART=ska-src-site-capabilities-api
 UMBRELLA_CHART_PATH ?= charts/$(HELM_CHART)/
 K8S_CHARTS ?= ska-src-site-capabilities-api ## list of charts
 K8S_CHART ?= $(HELM_CHART)
-SCHEMAS_RELPATH ?= etc/schemas
 
 CI_REGISTRY ?= gitlab.com
 
@@ -56,13 +55,6 @@ CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
 K8S_TEST_IMAGE_TO_TEST=python:3.8-bullseye
 endif
 
-# TODO:  This is required if site capabilities image is used for 
-# test runner pod
-# K8S_TEST_RUNNER_ADD_ARGS = --env=MONGO_HOST=mongo \
-#                            --env=MONGO_PORT=27017 \
-#  						   --env=API_IAM_CLIENT_SECRET=$(IAM_CLIENT_SECRET) \
-#  						   --env=MONGO_PASSWORD=$(MONGO_PASSWORD)
-
 # Test runner - run to completion job in K8s
 # name of the pod running the k8s_tests
 K8S_TEST_RUNNER = test-runner-$(HELM_RELEASE)
@@ -79,37 +71,12 @@ K8S_TEST_TEST_COMMAND = $(PYTHON_VARS_BEFORE_PYTEST) $(PYTHON_RUNNER) \
 						$(PYTHON_VARS_AFTER_PYTEST) ./tests \
 						| tee pytest.stdout
 
-bump-and-commit: 
-	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
-	@git add VERSION etc/helm/Chart.yaml
-	@git commit
 
 code-samples:
 	@cd etc/scripts && bash generate-code-samples.sh
 
 docs:
 	@cd docs && make clean && make html
-
-major-branch:
-	@test -n "$(NAME)"
-	@echo "making major branch \"$(NAME)\""
-	@git branch major-$(NAME)
-	@git checkout major-$(NAME)
-
-minor-branch:
-	@test -n "$(NAME)"
-	@echo "making minor branch \"$(NAME)\""
-	git branch minor-$(NAME)
-	git checkout minor-$(NAME)
-
-patch-branch:
-	@test -n "$(NAME)"
-	@echo "making patch branch \"$(NAME)\""
-	@git branch patch-$(NAME)
-	@git checkout patch-$(NAME)
-
-push:
-	@git push origin `git branch | grep "*" | awk -F'[*]' '{ print $$2 }' | tr -d ' '`
 
 -include .make/python.mk
 -include .make/base.mk

@@ -67,22 +67,7 @@ include:
   file: 'gitlab-ci/includes/release.gitlab-ci.yml'
 
 
-python-lint:
-  tags:
-    - ska-default-xlarge
-
-oci-image-lint:
-  tags:
-    - ska-default-xlarge
-
-helm-chart-lint:
-  tags:
-    - ska-default-xlarge
-
-
 k8s-test:
-  tags:
-    - ska-default-xlarge
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
@@ -94,8 +79,4 @@ k8s-test:
     - echo "$CI_COMMIT_SHORT_SHA"
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
-    # - kubectl wait --for=jsonpath='{.status.phase}'=Running --all
-    - kubectl -n $KUBE_NAMESPACE describe pods
-    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
-    # - make k8s-watch
-  
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s  
