@@ -34,7 +34,7 @@ html_css_files = [
 source_suffix = ['.rst', '.md']
 
 # -- Options for apidoc ------------------------------------------------------
-autoapi_dirs = '../src/ska_src_site_capabilities_api'
+autoapi_dirs = '../../src/ska_src_site_capabilities_api'
 autoapi_member_order = 'alphabetical'
 autoapi_options = ['members', 'undoc-members', 'private-members', 'show-inheritance', 
         'show-inheritance-diagram', 'show-module-summary', 'special-members', 'imported-members']
