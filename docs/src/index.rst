@@ -8,6 +8,8 @@ Welcome to ska-src-site-capabilities-api's developer documentation!
 
 .. toctree::
    :maxdepth: 2
-
-   readme.md
-   contributing.md
+   :caption: Contents:
+   
+   ...
+   include_readme
+   ...
