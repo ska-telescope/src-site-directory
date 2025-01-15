@@ -52,13 +52,37 @@ Package Registry.
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
+
+## Formatting and Linting
+
+There is a makefile target to check formatting and linting for the code, create venv and execute below commands
+
+To create virtual env
+
+```bash
+ska-src-data-management-api$ poetry shell
+```
+
+To install dependencies from pyproject.toml
+
+```bash
+(venv)ska-src-data-management-api$ poetry install
+```
+
+To do code formatting
+```bash
+ska-src-data-management-api$ make python-format
+```
+
+To do code linting
+```bash
+ska-src-data-management-api$ make python-lint
+```
+
 ## Documentation
 
 There is a Makefile target for generating documentation locally:
 
 ```bash
-ska-src-data-management-api$ make docs
+ska-src-data-management-api/docs$ make html
 ```
-
-but you will need to ensure the necessary sphinx extensions are installed as these are not included in the core 
-requirements.
