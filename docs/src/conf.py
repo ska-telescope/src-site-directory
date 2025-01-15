@@ -34,6 +34,7 @@ extensions = ['sphinxcontrib.mermaid', 'sphinxcontrib.plantuml', 'myst_parser', 
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
+    "m2r2",
 ]
 autodoc_typehints = "none"
 
