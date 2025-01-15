@@ -160,12 +160,14 @@ eng@ubuntu:~/SKAO/ska-src-site-capabilities-api$ docker-compose up
 
 ### Example via Helm
 
-After editing the `values.yaml` (template in `/etc/helm/`):
-
 ```bash
-$ create namespace ska-src-site-capabilities-api
+To build the docker image locally
+$ make oci-image-build
 
-Ask for values to repo maintainers to edit Makefile variables IAM_CLIENT_SECRET and MONGO_PASSWORD
-then execute
-$ make helm-install
+To install the site capabilities deployment locally
+Ask for values to repo maintainers/create your own values to edit Makefile variables IAM_CLIENT_SECRET and MONGO_PASSWORD then execute
+$ make k8s-install-chart
+
+To watch the running pod in namespace
+$ make k8s-watch
 ```
