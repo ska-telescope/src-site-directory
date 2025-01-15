@@ -6,15 +6,9 @@
 Welcome to ska-src-site-capabilities-api's developer documentation!
 ===================================================================
 
-.. toctree::
-   :maxdepth: 1
-   :caption: README
 
-   readme.rst
-   
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer guide
+.. include:: ../../README.md
+   :parser: myst
 
-   contributing.rst
-   
+.. include:: ../../CONTRIBUTING.md
+   :parser: myst
