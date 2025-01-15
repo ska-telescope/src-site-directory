@@ -5,29 +5,9 @@
 
 Welcome to ska-src-site-capabilities-api's developer documentation!
 ===================================================================
-
 .. toctree::
-   :maxdepth: 1
-   :caption: Getting started
+   :maxdepth: 2
 
-   readme
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer guide
-
-   contributing
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Releases
-
+   readme.md
+   contributing.md
    CHANGELOG.rst
-
-
-Indices and tables
-------------------
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
