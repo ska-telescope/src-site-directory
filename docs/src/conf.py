@@ -34,7 +34,6 @@ extensions = ['sphinxcontrib.mermaid', 'sphinxcontrib.plantuml', 'myst_parser', 
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
-    "m2r2",
 ]
 autodoc_typehints = "none"
 
@@ -76,7 +75,7 @@ latex_documents = [
 ]
 
 # -- Options for MD ----------------------------------------------------------
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst']
 
 # -- Options for apidoc ------------------------------------------------------
 autoapi_dirs = '../../src/ska_src_site_capabilities_api'
