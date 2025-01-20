@@ -13,3 +13,4 @@ def test_get_sites_api():
     )
     response_data = response.json()
     print(response_data)
+    assert 0
