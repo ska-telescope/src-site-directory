@@ -1,3 +1,26 @@
+display: ":0"
+xauthority: "~/.Xauthority"
+
+enabled: true
+
+legacy_compatibility: true
+
+system: SW-infrastructure
+subsystem: ska-src-site-capabilities-api
+
+global:
+  minikube: true
+  retry:
+    - "--tries=10"
+    - "--sleep=5"
+
+labels:
+  app: ska-src-site-capabilities-api
+
+annotations:
+  app.gitlab.com/app: CI_PROJECT_PATH_SLUG
+  app.gitlab.com/env: CI_ENVIRONMENT_SLUG
+
 svc:
   api:
     root_path: /api
