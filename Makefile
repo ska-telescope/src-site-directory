@@ -25,7 +25,7 @@ endif
 ifeq ($(EXIT_AT_FAIL),true)
 ADD_ARGS += -x
 endif
-Q
+
 IAM_CLIENT_SECRET ?=
 MONGO_PASSWORD ?=
 
