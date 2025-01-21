@@ -16,6 +16,8 @@ def test_get_sites_api():
     # response = httpx.get(
     #     "https://site-capabilities.srcdev.skao.int/api/v1/sites"
     # )
+    print(KUBE_NAMESPACE)
+    print(CLUSTER_DOMAIN)
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/sites"
     )
