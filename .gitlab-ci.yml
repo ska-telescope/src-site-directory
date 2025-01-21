@@ -79,4 +79,7 @@ k8s-test:
     - echo "$CI_COMMIT_SHORT_SHA"
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
-    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s  
+    # - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360
+    # - kubectl -n $KUBE_NAMESPACE get svc,pv, pvc
+    - make k8s-wait
+     
