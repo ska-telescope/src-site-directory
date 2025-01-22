@@ -2,6 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: core-ingress
+  namespace: {{ .Release.Namespace }}
+  label:
+    app: core
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/proxy-buffer-size: 8k
@@ -10,7 +13,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: {{ .Values.svc.api.root_path }}(/|$)(.*)
+      - path: /{{ .Release.Namespace }}/alarm-configurator/(.*)
         pathType: ImplementationSpecific
         backend:
           service:
