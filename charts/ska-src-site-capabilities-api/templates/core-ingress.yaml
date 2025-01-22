@@ -14,7 +14,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /{{ .Release.Namespace }}/(.*)
+      - path: /{{ .Release.Namespace }}(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
