@@ -11,6 +11,34 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
 @pytest.mark.post_deployment
+def test_check_ping():
+    """Test method for ping API"""
+    print(KUBE_NAMESPACE)
+    print(CLUSTER_DOMAIN)
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/ping"
+    )
+    print(response)
+    response_data = response.json()
+    print(response_data)
+    assert 0
+
+
+@pytest.mark.post_deployment
+def test_check_health():
+    """Test method for health API"""
+    print(KUBE_NAMESPACE)
+    print(CLUSTER_DOMAIN)
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/health"
+    )
+    print(response)
+    response_data = response.json()
+    print(response_data)
+    assert 0
+
+
+@pytest.mark.post_deployment
 def test_get_sites_api():
     """Test method for get sites API"""
     # response = httpx.get(
