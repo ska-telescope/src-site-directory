@@ -18,6 +18,8 @@ spec:
     spec:
       containers:
       - env:
+        - name: KUBE_NAMESPACE
+          value: {{.Release.Namespace}}
         - name: MONGO_INITDB_DATABASE
           value: {{ .Values.svc.common.mongo_database }}
         - name: MONGO_INITDB_ROOT_PASSWORD

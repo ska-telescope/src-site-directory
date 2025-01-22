@@ -18,6 +18,8 @@ spec:
     spec:
       containers:
       - env:
+        - name: KUBE_NAMESPACE
+          value: {{.Release.Namespace}}
         - name: API_ROOT_PATH
           value: {{ .Values.svc.api.root_path }}
         - name: API_SCHEME
