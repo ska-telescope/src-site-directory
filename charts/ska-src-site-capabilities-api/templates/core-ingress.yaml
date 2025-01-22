@@ -13,7 +13,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /{{ .Release.Namespace }}/alarm-configurator/(.*)
+      - path: /{{ .Release.Namespace }}/(.*)
         pathType: ImplementationSpecific
         backend:
           service:
