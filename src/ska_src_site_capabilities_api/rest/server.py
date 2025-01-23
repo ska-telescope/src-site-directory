@@ -69,7 +69,7 @@ DEBUG = (
     if config.get("DISABLE_AUTHENTICATION", default=None) == "yes"
     else False
 )
-logger.info(f"debug value: {DEBUG}")
+logger.info("debug value %s:", DEBUG)
 
 # Instantiate FastAPI() allowing CORS. Static mounts
 # must be added later after the versionize() call.
