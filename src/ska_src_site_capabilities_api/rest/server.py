@@ -5,6 +5,7 @@ import asyncio
 import copy
 import io
 import json
+import logging
 import os
 import pathlib
 import tempfile
@@ -57,6 +58,8 @@ from ska_src_site_capabilities_api.common.utility import (
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_site_capabilities_api.rest import dependencies
 
+logger = logging.getLogger(__name__)
+
 config = Config(".env")
 
 # Debug mode (runs unauthenticated)
@@ -66,6 +69,7 @@ DEBUG = (
     if config.get("DISABLE_AUTHENTICATION", default=None) == "yes"
     else False
 )
+logger.info(f"debug value: {DEBUG}")
 
 # Instantiate FastAPI() allowing CORS. Static mounts
 # must be added later after the versionize() call.
