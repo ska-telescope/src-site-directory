@@ -35,16 +35,49 @@ def test_check_health():
 
 
 @pytest.mark.post_deployment
-def test_get_sites_api():
+def test_get_sites():
     """Test method for get sites API"""
-    print(KUBE_NAMESPACE)
-    print(CLUSTER_DOMAIN)
-    response_a = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/www/sites/add"
-    )
-    print(response_a)
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
+    )
+
+    response_data = response.json()
+    assert len(response_data) != 0
+
+
+@pytest.mark.parametrize(
+    "site_name",
+    [
+        "SWESRC",
+        "CHSRC",
+        "CNSRC",
+        "UKSRC",
+        "SKAOSRC",
+        "AUSSRC",
+        "KRSRC",
+        "NLSRC",
+        "ESPSRC",
+        "JPSRC",
+        "CANSRC",
+    ],
+)
+@pytest.mark.post_deployment
+def test_get_all_versions_sites(site_name):
+    """Test method to get all versions for sites"""
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_name}"
+    )
+
+    response_data = response.json()
+    print(response_data)
+    assert 0
+
+
+@pytest.mark.post_deployment
+def test_get_latest_version_sites(site_name):
+    """Test method to get all versions for sites"""
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/latest"
     )
 
     response_data = response.json()
