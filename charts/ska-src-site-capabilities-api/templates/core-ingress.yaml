@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: core-ingress
   namespace: {{ .Release.Namespace }}
-  label:
+  labels:
     io.kompose.service: core
   annotations:
     kubernetes.io/ingress.class: nginx
