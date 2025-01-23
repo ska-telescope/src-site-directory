@@ -5,7 +5,7 @@ PROJECT = ska-src-site-capabilities-api
 KUBE_APP = ska-src-site-capabilities-api
 KUBE_NAMESPACE ?= ska-src-site-capabilities-api
 CLUSTER_DOMAIN ?= cluster.local
-CI_KEEP_NAMESPACE=true
+# CI_KEEP_NAMESPACE=true
 DISABLE_AUTHENTICATION=yes
 
 FILE ?= tests## A specific test file to pass to pytest
