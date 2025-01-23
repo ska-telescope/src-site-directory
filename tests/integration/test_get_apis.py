@@ -40,7 +40,7 @@ def test_get_sites_api():
     print(KUBE_NAMESPACE)
     print(CLUSTER_DOMAIN)
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/www/sites/add"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/www/sites/add"
     )
     print(response)
     response_data = response.json()
