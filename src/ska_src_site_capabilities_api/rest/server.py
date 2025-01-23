@@ -24,6 +24,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi_versionizer.versionizer import api_version, versionize
 from jinja2 import Template
 from plantuml import PlantUML
+from ska_ser_logging import configure_logging
 from ska_src_authn_api.client.authentication import AuthenticationClient
 from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
@@ -35,7 +36,7 @@ from starlette.responses import (
     RedirectResponse,
     StreamingResponse,
 )
-from ska_ser_logging import configure_logging
+
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.common.exceptions import (
@@ -57,7 +58,6 @@ from ska_src_site_capabilities_api.common.utility import (
 )
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_site_capabilities_api.rest import dependencies
-
 
 configure_logging("DEBUG")
 
