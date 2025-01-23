@@ -62,6 +62,8 @@ spec:
           value: {{ .Values.svc.api.sessions_secret_key }}
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote}}
         image: {{ .Values.site_capabilities_api.image.registry }}/{{ .Values.site_capabilities_api.image.image }}:{{ .Values.site_capabilities_api.image.tag }}
         imagePullPolicy: Always
         name: ska-src-site-capabilities-api-core

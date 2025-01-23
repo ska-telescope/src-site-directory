@@ -74,7 +74,6 @@ k8s-test:
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
-    DISABLE_AUTHENTICATION: 'yes'
     # CI_KEEP_NAMESPACE: 'true'
   before_script:
     - echo "$CI_PROJECT_NAME"
