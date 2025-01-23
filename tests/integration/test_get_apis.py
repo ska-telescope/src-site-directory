@@ -46,6 +46,7 @@ def test_get_sites_api():
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
+
     response_data = response.json()
     print(response_data)
     assert 0

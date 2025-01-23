@@ -1,9 +1,15 @@
 """
 A abstract class and method modules for backend
 """
+import logging
 from abc import ABC, abstractmethod
 
 from pymongo import MongoClient
+from ska_ser_logging import configure_logging
+
+configure_logging("DEBUG")
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Backend(ABC):
@@ -137,6 +143,7 @@ class MongoBackend(Backend):
         """
         Add sites
         """
+        LOGGER.info("connection_string:: %s", self.connection_string)
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
@@ -350,6 +357,7 @@ class MongoBackend(Backend):
         """
         List site names
         """
+        LOGGER.info("connection_string:: %s", self.connection_string)
         client = MongoClient(self.connection_string)
         db = client[self.mongo_database]
         sites = db.sites
