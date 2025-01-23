@@ -41,13 +41,14 @@ svc:
   common:
     mongo_database: site-capabilities
     mongo_username: root
+    mongo_password: secret
   secrets:
   # This map should contain environment variables that influence client secrets,
   # for example iam_client_secret or mongo_password
     credentials:
       iam_client_secret: ""
       mongo_password: ""
- 
+
 ing:
   api:
     host: site-capabilities.srcdev.skao.int
