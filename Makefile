@@ -45,6 +45,7 @@ CI_REGISTRY ?= gitlab.com
 
 CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION) \
 --set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
+--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD) \
 --set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
 
 K8S_TEST_IMAGE_TO_TEST ?=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
@@ -54,6 +55,7 @@ CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
 	--set site_capabilities_api.image.registry=$(CI_REGISTRY)/ska-telescope/src/src-service-apis/$(PROJECT) \
 	--set site_capabilities_api.image.tag=$(VERSION)-dev.c$(CI_COMMIT_SHORT_SHA) \
 	--set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
+	--set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD) \
 	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
 K8S_TEST_IMAGE_TO_TEST=python:3.8-bullseye
 endif
