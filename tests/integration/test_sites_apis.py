@@ -69,12 +69,11 @@ def test_get_all_versions_sites(site_name):
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data["version"] is not None
 
 
 @pytest.mark.post_deployment
-def test_get_latest_version_sites(site_name):
+def test_get_latest_version_sites():
     """Test method to get all versions for sites"""
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/latest"
