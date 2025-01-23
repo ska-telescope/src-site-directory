@@ -69,7 +69,7 @@ def test_get_all_versions_sites(site_name):
     )
 
     response_data = response.json()
-    assert response_data["version"] is not None
+    assert response_data[0]["version"] is not None
 
 
 @pytest.mark.post_deployment
@@ -80,5 +80,4 @@ def test_get_latest_version_sites():
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert len(response_data) > 0
