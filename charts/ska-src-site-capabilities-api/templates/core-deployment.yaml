@@ -46,7 +46,6 @@ spec:
             secretKeyRef:
               name: site-capabilities-values
               key: mongo_password
-          # value: {{ .Values.svc.common.mongo_password }}
         - name: MONGO_PORT
           value: {{ .Values.svc.api.mongo_port | quote }}
         - name: MONGO_USERNAME

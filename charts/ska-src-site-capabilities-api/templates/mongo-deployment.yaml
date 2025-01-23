@@ -27,7 +27,6 @@ spec:
             secretKeyRef:
               name: site-capabilities-values
               key: mongo_password
-          # value: {{ .Values.svc.common.mongo_password }}
         - name: MONGO_INITDB_ROOT_USERNAME
           value: {{ .Values.svc.common.mongo_username }}
         - name: MONGO_HOST
