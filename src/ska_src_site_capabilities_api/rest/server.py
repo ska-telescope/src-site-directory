@@ -35,7 +35,7 @@ from starlette.responses import (
     RedirectResponse,
     StreamingResponse,
 )
-
+from ska_ser_logging import configure_logging
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.common.exceptions import (
@@ -58,7 +58,10 @@ from ska_src_site_capabilities_api.common.utility import (
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_site_capabilities_api.rest import dependencies
 
-logger = logging.getLogger(__name__)
+
+configure_logging("DEBUG")
+
+LOGGER = logging.getLogger(__name__)
 
 config = Config(".env")
 
@@ -69,7 +72,7 @@ DEBUG = (
     if config.get("DISABLE_AUTHENTICATION", default=None) == "yes"
     else False
 )
-logger.info("debug value %s:", DEBUG)
+LOGGER.info("debug value %s:", DEBUG)
 
 # Instantiate FastAPI() allowing CORS. Static mounts
 # must be added later after the versionize() call.

@@ -1457,12 +1457,13 @@ reference = "PyPI-public"
 
 [[package]]
 name = "pylint-junit"
-version = "0.3.4"
+version = "0.3.5"
 description = "pylint reporter for junit format."
 optional = false
 python-versions = "*"
 files = [
-    {file = "pylint_junit-0.3.4-py2.py3-none-any.whl", hash = "sha256:006f8e793a1b64f1e0c8a29c6ee531b8af971deddafbc605c3076270f36c88f0"},
+    {file = "pylint_junit-0.3.5-py2.py3-none-any.whl", hash = "sha256:6f6554a357ba7b6c3329c3f350150585bd9031374eb78bcb7c407ce32399e036"},
+    {file = "pylint_junit-0.3.5.tar.gz", hash = "sha256:a7cbeebfaf392e79cbecc76b244589ffb81771bfeb15df5596fbe25700a96b5e"},
 ]
 
 [package.dependencies]
@@ -2068,6 +2069,25 @@ files = [
 type = "legacy"
 url = "https://pypi.org/simple"
 reference = "PyPI-public"
+
+[[package]]
+name = "ska-ser-logging"
+version = "0.4.1+0a677a67"
+description = "Square Kilometre Array logging configuration library"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "ska_ser_logging-0.4.1+0a677a67-py3-none-any.whl", hash = "sha256:8b2bf14e9981966c22503b6b6477b6386dec1def1f71295579f0686d55b83841"},
+    {file = "ska_ser_logging-0.4.1+0a677a67.tar.gz", hash = "sha256:558622000db39668d3a35b6986af9d70dac36635826636ef2c07f816a149a06d"},
+]
+
+[package.extras]
+dev = ["black", "isort", "prospector[with-pyroma]"]
+
+[package.source]
+type = "legacy"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
+reference = "ska-nexus"
 
 [[package]]
 name = "ska-ser-sphinx-theme"
@@ -2840,4 +2860,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0.0"
-content-hash = "5082f92af021bb3871085f2e40e95cb3c8a99c43216c2bade9c4ddacbafecd01"
+content-hash = "eace5d5c6d6c734e13b4c7f6a0af7419000260800a94e917d85e425233efb2e7"
