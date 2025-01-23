@@ -16,7 +16,7 @@ def test_check_ping():
     print(KUBE_NAMESPACE)
     print(CLUSTER_DOMAIN)
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/ping"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/ping"
     )
     print(response)
     response_data = response.json()
@@ -30,7 +30,7 @@ def test_check_health():
     print(KUBE_NAMESPACE)
     print(CLUSTER_DOMAIN)
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/health"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health"
     )
     print(response)
     response_data = response.json()
@@ -47,7 +47,7 @@ def test_get_sites_api():
     print(KUBE_NAMESPACE)
     print(CLUSTER_DOMAIN)
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/sites"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
     print(response)
     response_data = response.json()
