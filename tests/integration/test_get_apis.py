@@ -39,10 +39,13 @@ def test_get_sites_api():
     """Test method for get sites API"""
     print(KUBE_NAMESPACE)
     print(CLUSTER_DOMAIN)
-    response = httpx.get(
+    response_a = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/www/sites/add"
     )
-    print(response)
+    print(response_a)
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
+    )
     response_data = response.json()
     print(response_data)
     assert 0
