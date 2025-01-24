@@ -21,7 +21,8 @@ def test_get_list(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
-    print(response_data)
+    if api_name == "storage-areas":
+        api_name = api_name.replace("-", "_")
     for item in response_data:
         assert item[api_name][0]["id"] != ""
 
@@ -33,7 +34,7 @@ def test_get_list(api_name):
 @pytest.mark.post_deployment
 def test_get_list_from_id(api_name):
     """Test API to get storage and storage areas from storage id"""
-    id = "89ee6cac-0977-425e-b766-780a8e14420d"
+    id = "b183cfeb-03e7-4c38-a9cf-1f4307dad45a"
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
@@ -55,7 +56,7 @@ def test_get_list_failure(api_name):
     )
     response_data = response.json()
     assert (
-        f"Compute element with identifier '{id}' could not be found"
+        f"Storage with identifier '{id}' could not be found"
         in response_data["detail"]
     )
 

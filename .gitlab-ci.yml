@@ -84,4 +84,20 @@ k8s-test:
     - kubectl -n $KUBE_NAMESPACE get all
     - kubectl -n $KUBE_NAMESPACE get services
 
-     
+stop-k8s-test:
+  image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+  stage: test
+  tags:
+    - k8srunner
+  when: manual
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+  script:
+    - make k8s-uninstall-chart
+    - kubectl -n $KUBE_NAMESPACE delete pods,svc,daemonsets,deployments,replicasets,statefulsets,cronjobs,jobs,ingresses,configmaps --all
+    - make k8s-delete-namespace
+  environment:
+    name: test/$CI_COMMIT_REF_SLUG
+    action: stop
+  rules:
+    when: always

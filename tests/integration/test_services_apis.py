@@ -19,13 +19,14 @@ def test_list_services():
 
     response_data = response.json()
     print(response_data)
-    assert 0
+    for item in response_data:
+        assert item["services"] is not None
 
 
 @pytest.mark.post_deployment
 def test_list_services_using_id():
     """Test API to get services with id"""
-    service_id = "19498554-8b10-4000-8ee5-a9ae31910401"
+    service_id = "1f73c95e-301b-4f5e-a2cf-aeb461da2d70"
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}"
     )
@@ -43,5 +44,26 @@ def test_list_services_types():
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data["local"] == [
+        "echo",
+        "jupyterhub",
+        "binderhub",
+        "dask",
+        "ingest",
+        "soda_sync",
+        "soda_async",
+        "gatekeeper",
+        "monitoring",
+        "perfsonar",
+        "canfar",
+        "carta",
+    ]
+    assert response_data["global"] == [
+        "rucio",
+        "iam",
+        "data-management-api",
+        "site-capabilities-api",
+        "permissions-api",
+        "auth-api",
+        "gms",
+    ]

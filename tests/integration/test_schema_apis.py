@@ -22,14 +22,16 @@ def test_list_schemas():
     assert 0
 
 
-# @pytest.mark.post_deployment
-# def test_get_schema():
-#     """Test API to get particular schema"""
-#     schema_str = "xyz"
-#     response = httpx.get(
-#         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/schemas/{schema_str}"
-#     )
+@pytest.mark.parametrize(
+    "schema_str", ["site", "compute", "storage-area", "storage"]
+)
+@pytest.mark.post_deployment
+def test_get_schema(schema_str):
+    """Test API to get particular schema"""
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/schemas/{schema_str}"
+    )
 
-#     response_data = response.json()
-#     print(response_data)
-#     assert 0
+    response_data = response.json()
+    print(response_data)
+    assert 0
