@@ -21,6 +21,7 @@ def test_get_list(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
+    print(response_data)
     for item in response_data:
         assert item[api_name][0]["id"] != ""
 
@@ -37,6 +38,7 @@ def test_get_list_from_id(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
+    print(response_data)
     assert response_data["id"] == id
 
 
@@ -53,7 +55,7 @@ def test_get_list_failure(api_name):
     )
     response_data = response.json()
     assert (
-        f"Compute element with identifier {id} could not be found"
+        f"Compute element with identifier '{id}' could not be found"
         in response_data["detail"]
     )
 
@@ -69,8 +71,6 @@ def test_get_list_in_grafana_format(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/grafana"
     )
     response_data = response.json()
-    print(response_data)
-    print(type(response_data))
     for item in response_data:
         storage_format = item.keys()
         assert list(storage_format) == ["key", "latitude", "longitude", "name"]
@@ -87,6 +87,4 @@ def test_get_list_in_topojson_format(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/topojson"
     )
     response_data = response.json()
-    print(response_data)
-    print(type(response_data))
     assert response_data["type"] == "Topology"

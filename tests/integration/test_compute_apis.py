@@ -48,6 +48,6 @@ def test_fail_to_get_compute_from_id():
     )
     response_data = response.json()
     assert (
-        f"Compute element with identifier {compute_id} could not be found"
+        f"Compute element with identifier '{compute_id}' could not be found"
         in response_data["detail"]
     )
