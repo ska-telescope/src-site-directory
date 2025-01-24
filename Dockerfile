@@ -29,7 +29,7 @@ RUN cd /opt/ska-src-site-capabilities-api
 WORKDIR /opt/ska-src-site-capabilities-api
 
 EXPOSE 8080
-EXPOSE 8004
+EXPOSE 27017
 
 ENV API_ROOT_PATH ''
 ENV API_SCHEME ''

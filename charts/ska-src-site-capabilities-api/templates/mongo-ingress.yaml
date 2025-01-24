@@ -20,5 +20,5 @@ spec:
           service:
             name: mongo
             port:
-              number: 8004
+              number: 27017
   ingressClassName: nginx

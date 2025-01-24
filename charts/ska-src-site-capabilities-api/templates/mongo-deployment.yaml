@@ -39,7 +39,7 @@ spec:
         imagePullPolicy: ""
         name: ska-src-site-capabilities-api-mongo
         ports:
-        - containerPort: 8004
+        - containerPort: 27017
         resources: {}
         volumeMounts:
           - mountPath: /data/db
