@@ -22,7 +22,7 @@ def test_get_list(api_name):
     )
     response_data = response.json()
     for item in response_data:
-        assert item[0][api_name] is not None
+        assert item[api_name] is not None
 
 
 @pytest.mark.post_deployment
@@ -33,7 +33,6 @@ def test_get_list_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{id}"
     )
     response_data = response.json()
-    print(response_data)
     assert response_data["id"] == id
 
 
