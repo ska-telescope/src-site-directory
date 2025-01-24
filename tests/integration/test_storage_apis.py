@@ -12,7 +12,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 @pytest.mark.parametrize(
     "api_name",
-    ["storages", "storage_areas"],
+    ["storages", "storage-areas"],
 )
 @pytest.mark.post_deployment
 def test_get_list(api_name):
@@ -27,23 +27,22 @@ def test_get_list(api_name):
 
 @pytest.mark.parametrize(
     "api_name",
-    ["storages", "storage_areas"],
+    ["storages", "storage-areas"],
 )
 @pytest.mark.post_deployment
 def test_get_list_from_id(api_name):
-    """Test API to get storage and storage_area from storage id"""
+    """Test API to get storage and storage areas from storage id"""
     id = "89ee6cac-0977-425e-b766-780a8e14420d"
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data["id"] == id
 
 
 @pytest.mark.parametrize(
     "api_name",
-    ["storages", "storage_areas"],
+    ["storages", "storage-areas"],
 )
 @pytest.mark.post_deployment
 def test_get_list_failure(api_name):
@@ -61,7 +60,7 @@ def test_get_list_failure(api_name):
 
 @pytest.mark.parametrize(
     "api_name",
-    ["storages", "storage_areas"],
+    ["storages", "storage-areas"],
 )
 @pytest.mark.post_deployment
 def test_get_list_in_grafana_format(api_name):
@@ -70,6 +69,8 @@ def test_get_list_in_grafana_format(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/grafana"
     )
     response_data = response.json()
+    print(response_data)
+    print(type(response_data))
     for item in response_data:
         storage_format = item.keys()
         assert list(storage_format) == ["key", "latitude", "longitude", "name"]
@@ -77,7 +78,7 @@ def test_get_list_in_grafana_format(api_name):
 
 @pytest.mark.parametrize(
     "api_name",
-    ["storages", "storage_areas"],
+    ["storages", "storage-areas"],
 )
 @pytest.mark.post_deployment
 def test_get_list_in_topojson_format(api_name):
@@ -86,4 +87,6 @@ def test_get_list_in_topojson_format(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/topojson"
     )
     response_data = response.json()
+    print(response_data)
+    print(type(response_data))
     assert response_data["type"] == "Topology"

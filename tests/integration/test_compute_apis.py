@@ -36,8 +36,7 @@ def test_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data["id"] == compute_id
 
 
 @pytest.mark.post_deployment
