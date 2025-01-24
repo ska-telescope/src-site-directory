@@ -74,7 +74,7 @@ k8s-test:
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
-    CI_KEEP_NAMESPACE: 'true'
+    # CI_KEEP_NAMESPACE: 'true'
   before_script:
     - echo "$CI_PROJECT_NAME"
     - echo "$CI_COMMIT_SHORT_SHA"

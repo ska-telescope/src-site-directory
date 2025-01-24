@@ -32,8 +32,7 @@ def test_list_services_using_id():
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data["id"] == service_id
 
 
 @pytest.mark.post_deployment

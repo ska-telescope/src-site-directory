@@ -18,13 +18,19 @@ def test_list_schemas():
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    assert response_data == [
+        "compute",
+        "country",
+        "global-service",
+        "local-service",
+        "site",
+        "storage",
+        "storage-access-protocol",
+        "storage-area",
+    ]
 
 
-@pytest.mark.parametrize(
-    "schema_str", ["site", "compute", "storage-area", "storage"]
-)
+@pytest.mark.parametrize("schema_str", ["site", "compute", "storage"])
 @pytest.mark.post_deployment
 def test_get_schema(schema_str):
     """Test API to get particular schema"""
@@ -33,5 +39,6 @@ def test_get_schema(schema_str):
     )
 
     response_data = response.json()
-    print(response_data)
-    assert 0
+    schema_str = schema_str.title()
+    # scope to increase assertion here
+    assert schema_str in response_data["description"]

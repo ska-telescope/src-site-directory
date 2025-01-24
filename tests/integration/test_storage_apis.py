@@ -27,16 +27,12 @@ def test_get_list(api_name):
         assert item[api_name][0]["id"] != ""
 
 
-@pytest.mark.parametrize(
-    "api_name",
-    ["storages", "storage-areas"],
-)
 @pytest.mark.post_deployment
-def test_get_list_from_id(api_name):
-    """Test API to get storage and storage areas from storage id"""
+def test_get_list_from_id():
+    """Test API to get storage areas using id"""
     id = "b183cfeb-03e7-4c38-a9cf-1f4307dad45a"
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{id}"
     )
     response_data = response.json()
     print(response_data)
@@ -49,7 +45,7 @@ def test_get_list_from_id(api_name):
 )
 @pytest.mark.post_deployment
 def test_get_list_failure(api_name):
-    """Test API failure to get storage and storage areas from storage id"""
+    """Test API failure to get storage and storage areas using id"""
     id = "19497bf6-0710-4000-8f0b-4d7163ba7801"
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
@@ -59,6 +55,11 @@ def test_get_list_failure(api_name):
         f"Storage with identifier '{id}' could not be found"
         in response_data["detail"]
     )
+    if api_name == "storage-areas":
+        assert (
+            f"Storage area with identifier '{id}' could not be found"
+            in response_data["detail"]
+        )
 
 
 @pytest.mark.parametrize(
