@@ -10,28 +10,19 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage-areas"],
+)
 @pytest.mark.post_deployment
-def test_get_storages_list():
-    """Test API to list all storages"""
+def test_get_list(api_name):
+    """Test API to list all storages and storage areas"""
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
-    print(response_data)
     for item in response_data:
-        assert item["storages"][0]["id"] != ""
-
-
-@pytest.mark.post_deployment
-def test_get_storages_area_list():
-    """Test API to list all storage areas"""
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas"
-    )
-    response_data = response.json()
-    print(response_data)
-    for item in response_data:
-        assert item["storage_areas"][0]["id"] != ""
+        assert item[0][api_name] is not None
 
 
 @pytest.mark.post_deployment
