@@ -43,6 +43,7 @@ def test_list_services_types():
     )
 
     response_data = response.json()
+    print(response_data)
     assert response_data["local"] == [
         "echo",
         "jupyterhub",
