@@ -1,5 +1,5 @@
 """
-A module with integration tests for SKA SRC Site Capabilities GET APIs.
+A module with integration tests for SKA SRC Site Capabilities Site APIs.
 """
 import os
 
