@@ -48,9 +48,45 @@ Package Registry.
 
 ## Development tips
 
+1. Clone the repository locally
+
+git clone <site-capabilities-repository-url>
+
+2. Add the submodules for make targets and variables
+
+```bash
+ska-src-data-management-api$ git submodule update --recursive --init
+```
+
 ### Bypassing AuthN/Z
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
+
+## Formatting and Linting
+
+There is a makefile target to check formatting and linting for the code, create venv and execute below commands
+
+To create virtual env
+
+```bash
+ska-src-data-management-api$ poetry shell
+```
+
+To install dependencies from pyproject.toml
+
+```bash
+(venv)ska-src-data-management-api$ poetry install
+```
+
+To do code formatting
+```bash
+ska-src-data-management-api$ make python-format
+```
+
+To do code linting
+```bash
+ska-src-data-management-api$ make python-lint
+```
 
 ## Documentation
 
@@ -62,3 +98,15 @@ ska-src-data-management-api$ make docs
 
 but you will need to ensure the necessary sphinx extensions are installed as these are not included in the core 
 requirements.
+
+## To build site capabilities docker image
+
+```bash
+ska-src-data-management-api$ make oci-image-build
+```
+
+## To install site capabilities deployment locally
+
+```bash
+ska-src-data-management-api$ make k8s-install-chart
+```

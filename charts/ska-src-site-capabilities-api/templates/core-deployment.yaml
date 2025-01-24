@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: core
+  name: core
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: core
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: core
+    spec:
+      containers:
+      - env:
+        - name: KUBE_NAMESPACE
+          value: {{.Release.Namespace}}
+        - name: API_ROOT_PATH
+          value: {{ .Values.svc.api.root_path }}
+        - name: API_SCHEME
+          value: {{ .Values.svc.api.scheme }}
+        - name: IAM_CLIENT_CONF_URL
+          value: {{ .Values.svc.api.iam_client_conf_url }}
+        - name: API_IAM_CLIENT_ID
+          value: {{ .Values.svc.api.iam_client_id }}
+        - name: API_IAM_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: site-capabilities-values
+              key: iam_client_secret
+        - name: API_IAM_CLIENT_SCOPES
+          value: {{ .Values.svc.api.iam_client_scopes }}
+        - name: API_IAM_CLIENT_AUDIENCE
+          value: {{ .Values.svc.api.iam_client_audience }}
+        - name: MONGO_DATABASE
+          value: {{ .Values.svc.common.mongo_database }}
+        - name: MONGO_HOST
+          value: {{ .Values.svc.api.mongo_host }}
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: site-capabilities-values
+              key: mongo_password
+        - name: MONGO_PORT
+          value: {{ .Values.svc.api.mongo_port | quote }}
+        - name: MONGO_USERNAME
+          value: {{ .Values.svc.common.mongo_username }}
+        - name: PERMISSIONS_API_URL
+          value: {{ .Values.svc.api.permissions_api_url }}
+        - name: PERMISSIONS_SERVICE_NAME
+          value: {{ .Values.svc.api.permissions_service_name }}
+        - name: PERMISSIONS_SERVICE_VERSION
+          value: {{ .Values.svc.api.permissions_service_version | quote }}
+        - name: AUTH_API_URL
+          value: {{ .Values.svc.api.auth_api_url }}
+        - name: SESSIONS_SECRET_KEY
+          value: {{ .Values.svc.api.sessions_secret_key }}
+        - name: SCHEMAS_RELPATH
+          value: {{ .Values.svc.api.schemas_relpath}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote }}
+        image: {{ .Values.site_capabilities_api.image.registry }}/{{ .Values.site_capabilities_api.image.image }}:{{ .Values.site_capabilities_api.image.tag }}
+        imagePullPolicy: Always
+        name: ska-src-site-capabilities-api-core
+        ports:
+        - containerPort: 8080
+        resources: {}
+        livenessProbe:
+          httpGet:
+            path: /v1/ping
+            port: 8080
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}

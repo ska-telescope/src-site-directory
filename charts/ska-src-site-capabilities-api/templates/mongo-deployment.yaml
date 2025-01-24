@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: mongo
+  name: mongo
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mongo
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mongo
+    spec:
+      containers:
+      - env:
+        - name: KUBE_NAMESPACE
+          value: {{.Release.Namespace}}
+        - name: MONGO_INITDB_DATABASE
+          value: {{ .Values.svc.common.mongo_database }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: site-capabilities-values
+              key: mongo_password
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: {{ .Values.svc.common.mongo_username }}
+        - name: MONGO_HOST
+          value: {{ .Values.svc.api.mongo_host }}
+        - name: MONGO_PORT
+          value: {{ .Values.svc.api.mongo_port | quote}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote }}
+        image: mongo:5.0.15
+        imagePullPolicy: ""
+        name: ska-src-site-capabilities-api-mongo
+        ports:
+        - containerPort: 27017
+        resources: {}
+        volumeMounts:
+          - mountPath: /data/db
+            name: database
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: database
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default "database" }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+
+status: {}

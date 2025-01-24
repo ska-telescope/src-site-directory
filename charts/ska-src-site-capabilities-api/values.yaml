@@ -1,0 +1,68 @@
+display: ":0"
+xauthority: "~/.Xauthority"
+
+enabled: true
+
+legacy_compatibility: true
+
+system: SW-infrastructure
+subsystem: ska-src-site-capabilities-api
+
+global:
+  minikube: true
+  retry:
+    - "--tries=10"
+    - "--sleep=5"
+
+labels:
+  app: ska-src-site-capabilities-api
+
+annotations:
+  app.gitlab.com/app: CI_PROJECT_PATH_SLUG
+  app.gitlab.com/env: CI_ENVIRONMENT_SLUG
+
+svc:
+  api:
+    root_path: /api
+    scheme: https
+    iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
+    iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
+    iam_client_scopes: "openid profile"
+    iam_client_audience: site-capabilities-api
+    mongo_host: mongo
+    mongo_port: 27017
+    permissions_api_url: https://permissions.srcdev.skao.int/api/v1
+    permissions_service_name: site-capabilities-api
+    permissions_service_version: 1
+    auth_api_url: https://authn.srcdev.skao.int/api/v1
+    sessions_secret_key: 
+    schemas_relpath: ../../../etc/schemas
+    disable_authentication: "yes"
+  common:
+    mongo_database: site-capabilities
+    mongo_username: root
+    # mongo_password: secret
+  secrets:
+  # This map should contain environment variables that influence client secrets,
+  # for example iam_client_secret or mongo_password
+    credentials:
+      iam_client_secret: ""
+      mongo_password: ""
+
+ing:
+  api:
+    host: site-capabilities.srcdev.skao.int
+
+persistence:
+  storageClass: bds1
+  existingClaim: ""
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+site_capabilities_api:
+  image:
+    registry: artefact.skao.int
+    image: ska-src-site-capabilities-api
+    tag: 0.3.49
+    pullPolicy: Always
