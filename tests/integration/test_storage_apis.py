@@ -21,6 +21,8 @@ def test_get_list(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
+    if api_name == "storage-areas":
+        api_name = api_name.replace("-", "_")
     for item in response_data:
         assert item[api_name] is not None
 
