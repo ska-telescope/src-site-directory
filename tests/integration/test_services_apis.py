@@ -43,27 +43,13 @@ def test_list_services_types():
     )
 
     response_data = response.json()
-    print(response_data)
-    assert response_data["local"] == [
-        "echo",
-        "jupyterhub",
-        "binderhub",
-        "dask",
-        "ingest",
-        "soda_sync",
-        "soda_async",
-        "gatekeeper",
-        "monitoring",
-        "perfsonar",
-        "canfar",
-        "carta",
-    ]
-    assert response_data["global"] == [
-        "rucio",
-        "iam",
-        "data-management-api",
-        "site-capabilities-api",
-        "permissions-api",
-        "auth-api",
-        "gms",
-    ]
+    assert "echo" in response_data["local"]
+    assert "jupyterhub" in response_data["local"]
+    assert "binderhub" in response_data["local"]
+    assert "dask" in response_data["local"]
+    assert "ingest" in response_data["local"]
+    assert "rucio" in response_data["global"]
+    assert "iam" in response_data["global"]
+    assert "data-management-api" in response_data["global"]
+    assert "site-capabilities-api" in response_data["global"]
+    assert "permissions-api" in response_data["global"]

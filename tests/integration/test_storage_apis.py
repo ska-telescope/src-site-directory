@@ -11,25 +11,27 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
 @pytest.mark.post_deployment
-def test_get_storages_list(api_name):
+def test_get_storages_list():
     """Test API to list all storages"""
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages"
     )
     response_data = response.json()
+    print(response_data)
     for item in response_data:
-        assert item[api_name][0]["id"] != ""
+        assert item["storages"][0]["id"] != ""
 
 
 @pytest.mark.post_deployment
-def test_get_storages_area_list(api_name):
+def test_get_storages_area_list():
     """Test API to list all storage areas"""
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas"
     )
     response_data = response.json()
+    print(response_data)
     for item in response_data:
-        assert item[api_name][0]["id"] != ""
+        assert item["storage_areas"][0]["id"] != ""
 
 
 @pytest.mark.post_deployment
@@ -56,10 +58,6 @@ def test_get_list_failure(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
-    assert (
-        f"Storage with identifier '{id}' could not be found"
-        in response_data["detail"]
-    )
     if api_name == "storage-areas":
         assert (
             f"Storage area with identifier '{id}' could not be found"
