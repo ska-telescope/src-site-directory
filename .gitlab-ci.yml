@@ -100,4 +100,4 @@ stop-k8s-test:
     name: test/$CI_COMMIT_REF_SLUG
     action: stop
   rules:
-    when: always
+    - when: always
