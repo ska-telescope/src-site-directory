@@ -10,48 +10,64 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage_areas"],
+)
 @pytest.mark.post_deployment
-def test_list_all_storages():
-    """Test to list all storages"""
+def test_get_list(api_name):
+    """Test API to list all storages and storage areas"""
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
     for item in response_data:
-        assert item["storages"][0]["id"] != ""
+        assert item[api_name][0]["id"] != ""
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage_areas"],
+)
 @pytest.mark.post_deployment
-def test_get_storage_from_id():
-    """Test to get strorage from storage id"""
-    storage_id = "89ee6cac-0977-425e-b766-780a8e14420d"
+def test_get_list_from_id(api_name):
+    """Test API to get storage and storage_area from storage id"""
+    id = "89ee6cac-0977-425e-b766-780a8e14420d"
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{storage_id}"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
     print(response_data)
     assert 0
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage_areas"],
+)
 @pytest.mark.post_deployment
-def test_fail_to_get_storage_from_id():
-    """Test fail to get storage from storage id"""
-    storage_id = "19497bf6-0710-4000-8f0b-4d7163ba7801"
+def test_get_list_failure(api_name):
+    """Test API failure to get storage and storage areas from storage id"""
+    id = "19497bf6-0710-4000-8f0b-4d7163ba7801"
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{storage_id}"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
     assert (
-        f"Compute element with identifier {storage_id} could not be found"
+        f"Compute element with identifier {id} could not be found"
         in response_data["detail"]
     )
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage_areas"],
+)
 @pytest.mark.post_deployment
-def test_list_all_storages_for_grafana():
-    """Test to list all storages grafana format"""
+def test_get_list_in_grafana_format(api_name):
+    """Test API to list all storages and storage areas in grafana format"""
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages/grafana"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/grafana"
     )
     response_data = response.json()
     for item in response_data:
@@ -59,11 +75,15 @@ def test_list_all_storages_for_grafana():
         assert list(storage_format) == ["key", "latitude", "longitude", "name"]
 
 
+@pytest.mark.parametrize(
+    "api_name",
+    ["storages", "storage_areas"],
+)
 @pytest.mark.post_deployment
-def test_list_storages_in_topojson():
-    """Test to list all storages topojson format"""
+def test_get_list_in_topojson_format(api_name):
+    """Test API to list all storages and storage areas in grafana format"""
     response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages/topojson"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/topojson"
     )
     response_data = response.json()
     assert response_data["type"] == "Topology"
