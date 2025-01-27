@@ -19,8 +19,13 @@ def test_list_services():
 
     response_data = response.json()
     print(response_data)
-    for item in response_data:
-        assert item["services"] is not None
+    print(response.status_code)
+    print(os.getenv("DISABLE_AUTHENTICATION"))
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        for item in response_data:
+            assert item["services"] is not None
+    else:
+        assert "Not authenticated" in response_data
 
 
 @pytest.mark.post_deployment
@@ -32,7 +37,13 @@ def test_list_services_using_id():
     )
 
     response_data = response.json()
-    assert response_data["id"] == service_id
+    print(response_data)
+    print(response.status_code)
+    print(os.getenv("DISABLE_AUTHENTICATION"))
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response_data["id"] == service_id
+    else:
+        assert "Not authenticated" in response_data
 
 
 @pytest.mark.post_deployment

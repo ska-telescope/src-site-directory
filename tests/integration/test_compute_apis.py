@@ -17,15 +17,22 @@ def test_list_all_computes():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute"
     )
     response_data = response.json()
-    for item in response_data:
-        assert item["site_name"] in [
-            "CNSRC",
-            "UKSRC",
-            "SKAOSRC",
-            "ESPSRC",
-            "CANSRC",
-        ]
-        assert item["compute"][0]["id"] != ""
+    # This API needs authentication
+    print(os.getenv("DISABLE_AUTHENTICATION"))
+    print(response_data)
+    print(response.status_code)
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        for item in response_data:
+            assert item["site_name"] in [
+                "CNSRC",
+                "UKSRC",
+                "SKAOSRC",
+                "ESPSRC",
+                "CANSRC",
+            ]
+            assert item["compute"][0]["id"] != ""
+    else:
+        assert "Not authenticated" in response_data
 
 
 @pytest.mark.post_deployment
@@ -36,7 +43,13 @@ def test_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    assert response_data["id"] == compute_id
+    print(response_data)
+    print(response.status_code)
+    print(os.getenv("DISABLE_AUTHENTICATION"))
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response_data["id"] == compute_id
+    else:
+        assert "Not authenticated" in response_data
 
 
 @pytest.mark.post_deployment
@@ -47,7 +60,13 @@ def test_fail_to_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    assert (
-        f"Compute element with identifier '{compute_id}' could not be found"
-        in response_data["detail"]
-    )
+    print(response_data)
+    print(response.status_code)
+    print(os.getenv("DISABLE_AUTHENTICATION"))
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert (
+            f"Compute element with identifier '{compute_id}' could not be found"
+            in response_data["detail"]
+        )
+    else:
+        assert "Not authenticated" in response_data
