@@ -30,7 +30,7 @@ def test_get_list(api_name):
         for item in response_data:
             assert item[api_name] is not None
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -47,7 +47,7 @@ def test_get_list_from_id():
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data["id"] == id
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.parametrize(
@@ -77,7 +77,7 @@ def test_get_list_failure(api_name):
                 in response_data["detail"]
             )
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.parametrize(

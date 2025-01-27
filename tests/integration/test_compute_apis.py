@@ -20,7 +20,7 @@ def test_list_all_computes():
     # This API needs authentication
     print(os.getenv("DISABLE_AUTH"))
     print(response_data)
-    print(response.status_code)
+    print(type(response.status_code))
     if os.getenv("DISABLE_AUTH") == "yes":
         for item in response_data:
             assert item["site_name"] in [
@@ -32,7 +32,7 @@ def test_list_all_computes():
             ]
             assert item["compute"][0]["id"] != ""
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -49,7 +49,7 @@ def test_get_compute_from_id():
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data["id"] == compute_id
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -69,4 +69,4 @@ def test_fail_to_get_compute_from_id():
             in response_data["detail"]
         )
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]

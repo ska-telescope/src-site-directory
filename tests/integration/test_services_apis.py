@@ -25,7 +25,7 @@ def test_list_services():
         for item in response_data:
             assert item["services"] is not None
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -43,7 +43,7 @@ def test_list_services_using_id():
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data["id"] == service_id
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment

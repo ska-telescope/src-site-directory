@@ -51,9 +51,9 @@ CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION)
 
 K8S_TEST_IMAGE_TO_TEST ?=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
 
-ifeq ($(DISABLE_AUTH),no)
-CUSTOM_VALUES1 =	--set svc.api.disable_authentication=$(DISABLE_AUTH)
-endif
+# ifeq ($(DISABLE_AUTH),no)
+# CUSTOM_VALUES1 =	--set svc.api.disable_authentication=$(DISABLE_AUTH)
+# endif
 
 ifneq ($(CI_JOB_ID),)
 CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
@@ -75,8 +75,8 @@ PYTHON_VARS_BEFORE_PYTEST ?= PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN)
 PYTHON_VARS_AFTER_PYTEST ?= -m '$(MARK)' $(ADD_ARGS) $(FILE)
 
 K8S_CHART_PARAMS = --set global.cluster_domain=$(CLUSTER_DOMAIN) \
-					$(CUSTOM_VALUES)\
-					$(CUSTOM_VALUES1)
+				   --set svc.api.disable_authentication=$(DISABLE_AUTH) \
+				   $(CUSTOM_VALUES)
 
 K8S_TEST_TEST_COMMAND = $(PYTHON_VARS_BEFORE_PYTEST) $(PYTHON_RUNNER) \
 						pytest \

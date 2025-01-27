@@ -67,51 +67,63 @@ include:
   file: 'gitlab-ci/includes/release.gitlab-ci.yml'
 
 
-k8s-test-api-when-auth-enabled:
+k8s-test:
+  when: never
+
+
+stop-k8s-test:
+  when: never
+
+
+k8s-test-api-with-disabled-auth:
   extends:
     - k8s-test
+  when: always
   variables:
-    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled'
-    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled"
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+    COUNT: 1
+    PYTHON_TEST_COUNT: 1
+    ADDMARK: ""
+    CI_KEEP_NAMESPACE: 'true'
+    DISABLE_AUTH: 'yes'
+  before_script:
+    - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+    - make k8s-install-chart
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+    - kubectl -n $KUBE_NAMESPACE get all
+
+
+stop-k8s-test-api-with-disabled-auth:
+  extends:
+    - stop-k8s-test
+  when: manual
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
+
+
+k8s-test-api-with-enabled-auth:
+  extends:
+    - k8s-test
+  when: always
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
     CI_KEEP_NAMESPACE: 'true'
     DISABLE_AUTH: 'no'
   before_script:
-    - echo "$CI_PROJECT_NAME"
-    - echo "$CI_COMMIT_SHORT_SHA"
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
-    - kubectl -n $KUBE_NAMESPACE get services
 
 
-stop-k8s-test-api-when-auth-enabled:
+stop-k8s-test-api-with-enabled-auth:
   extends:
     - stop-k8s-test
+  when: manual
   variables:
-    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled'
-  script:
-    - make k8s-uninstall-chart
-    - kubectl -n $KUBE_NAMESPACE delete pods,svc,daemonsets,deployments,replicasets,statefulsets,cronjobs,jobs,ingresses,configmaps --all
-    - make k8s-delete-namespace
-
-# k8s-test:
-#   variables:
-#     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
-#     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
-#     COUNT: 1
-#     PYTHON_TEST_COUNT: 1
-#     ADDMARK: ""
-#     CI_KEEP_NAMESPACE: 'true'
-#     DISABLE_AUTH: 'no'
-#   before_script:
-#     - echo "$CI_PROJECT_NAME"
-#     - echo "$CI_COMMIT_SHORT_SHA"
-#     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
-#     - make k8s-install-chart
-#     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
-#     - kubectl -n $KUBE_NAMESPACE get all
-#     - kubectl -n $KUBE_NAMESPACE get services
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'

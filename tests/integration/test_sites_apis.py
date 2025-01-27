@@ -51,7 +51,7 @@ def test_get_all_versions_sites(site_name):
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data[0]["version"] is not None
     else:
-        assert "Not authenticated" in response_data
+        assert "Not authenticated" in response_data["detail"]
 
 
 # authentication is required
