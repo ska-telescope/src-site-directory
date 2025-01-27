@@ -18,10 +18,10 @@ def test_list_all_computes():
     )
     response_data = response.json()
     # This API needs authentication
-    print(os.getenv("DISABLE_AUTHENTICATION"))
+    print(os.getenv("DISABLE_AUTH"))
     print(response_data)
     print(response.status_code)
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    if os.getenv("DISABLE_AUTH") == "yes":
         for item in response_data:
             assert item["site_name"] in [
                 "CNSRC",
@@ -45,8 +45,8 @@ def test_get_compute_from_id():
     response_data = response.json()
     print(response_data)
     print(response.status_code)
-    print(os.getenv("DISABLE_AUTHENTICATION"))
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    print(os.getenv("DISABLE_AUTH"))
+    if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data["id"] == compute_id
     else:
         assert "Not authenticated" in response_data
@@ -62,8 +62,8 @@ def test_fail_to_get_compute_from_id():
     response_data = response.json()
     print(response_data)
     print(response.status_code)
-    print(os.getenv("DISABLE_AUTHENTICATION"))
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    print(os.getenv("DISABLE_AUTH"))
+    if os.getenv("DISABLE_AUTH") == "yes":
         assert (
             f"Compute element with identifier '{compute_id}' could not be found"
             in response_data["detail"]

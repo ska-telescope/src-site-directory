@@ -23,8 +23,8 @@ def test_get_list(api_name):
     response_data = response.json()
     print(response_data)
     print(response.status_code)
-    print(os.getenv("DISABLE_AUTHENTICATION"))
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    print(os.getenv("DISABLE_AUTH"))
+    if os.getenv("DISABLE_AUTH") == "yes":
         if api_name == "storage-areas":
             api_name = api_name.replace("-", "_")
         for item in response_data:
@@ -43,8 +43,8 @@ def test_get_list_from_id():
     response_data = response.json()
     print(response_data)
     print(response.status_code)
-    print(os.getenv("DISABLE_AUTHENTICATION"))
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    print(os.getenv("DISABLE_AUTH"))
+    if os.getenv("DISABLE_AUTH") == "yes":
         assert response_data["id"] == id
     else:
         assert "Not authenticated" in response_data
@@ -64,8 +64,8 @@ def test_get_list_failure(api_name):
     response_data = response.json()
     print(response_data)
     print(response.status_code)
-    print(os.getenv("DISABLE_AUTHENTICATION"))
-    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+    print(os.getenv("DISABLE_AUTH"))
+    if os.getenv("DISABLE_AUTH") == "yes":
         if api_name == "storage-areas":
             assert (
                 f"Storage area with identifier '{id}' could not be found"
