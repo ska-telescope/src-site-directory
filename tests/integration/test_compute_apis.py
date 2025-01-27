@@ -58,11 +58,15 @@ def test_fail_to_get_compute_from_id():
     )
     response_data = response.json()
     if os.getenv("DISABLE_AUTH") == "yes":
-        assert response.status_code == 200
+        assert (
+            response.status_code == 404
+        )  # Request not found for wrong compute_id
         assert (
             f"Compute element with identifier '{compute_id}' could not be found"
             in response_data["detail"]
         )
     else:
-        assert response.status_code == 403
+        assert (
+            response.status_code == 403
+        )  # Request forbidden for unauthorised user
         assert "Not authenticated" in response_data["detail"]

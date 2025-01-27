@@ -61,7 +61,9 @@ def test_get_list_failure(api_name):
     )
     response_data = response.json()
     if os.getenv("DISABLE_AUTH") == "yes":
-        assert response.status_code == 200
+        assert (
+            response.status_code == 404
+        )  # Request not found for wrong compute_id
         if api_name == "storage-areas":
             assert (
                 f"Storage area with identifier '{id}' could not be found"
