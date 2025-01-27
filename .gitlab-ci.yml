@@ -80,7 +80,6 @@ stop-k8s-test:
 k8s-test-api-with-disabled-auth:
   extends:
     - k8s-test
-  when: always
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
@@ -94,6 +93,8 @@ k8s-test-api-with-disabled-auth:
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
+  rules:
+  - when: always
 
 
 stop-k8s-test-api-with-disabled-auth:
@@ -107,7 +108,6 @@ stop-k8s-test-api-with-disabled-auth:
 k8s-test-api-with-enabled-auth:
   extends:
     - k8s-test
-  when: always
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'
     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
@@ -121,6 +121,8 @@ k8s-test-api-with-enabled-auth:
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
+  rules:
+  - when: always
 
 
 stop-k8s-test-api-with-enabled-auth:
