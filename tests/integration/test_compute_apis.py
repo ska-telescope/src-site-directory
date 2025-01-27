@@ -17,11 +17,8 @@ def test_list_all_computes():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute"
     )
     response_data = response.json()
-    # This API needs authentication
-    print(os.getenv("DISABLE_AUTH"))
-    print(response_data)
-    print(type(response.status_code))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         for item in response_data:
             assert item["site_name"] in [
                 "CNSRC",
@@ -32,6 +29,7 @@ def test_list_all_computes():
             ]
             assert item["compute"][0]["id"] != ""
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
 
 
@@ -43,12 +41,11 @@ def test_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         assert response_data["id"] == compute_id
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
 
 
@@ -60,13 +57,12 @@ def test_fail_to_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         assert (
             f"Compute element with identifier '{compute_id}' could not be found"
             in response_data["detail"]
         )
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]

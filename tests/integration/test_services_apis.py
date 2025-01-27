@@ -18,13 +18,12 @@ def test_list_services():
     )
 
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         for item in response_data:
             assert item["services"] is not None
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
 
 
@@ -37,12 +36,11 @@ def test_list_services_using_id():
     )
 
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         assert response_data["id"] == service_id
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
 
 
@@ -54,6 +52,7 @@ def test_list_services_types():
     )
 
     response_data = response.json()
+    assert response.status_code == 200
     assert "echo" in response_data["local"]
     assert "jupyterhub" in response_data["local"]
     assert "binderhub" in response_data["local"]

@@ -17,6 +17,7 @@ def test_check_ping():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/ping"
     )
     response_data = response.json()
+    assert response.status_code == 200
     assert response_data["status"] == "UP"
 
 
@@ -27,6 +28,7 @@ def test_check_health():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health"
     )
     response_data = response.json()
+    assert response.status_code == 200
     assert response_data["uptime"] > 0
     assert (
         response_data["dependent_services"]["permissions-api"]["status"]

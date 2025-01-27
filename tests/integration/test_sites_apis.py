@@ -45,12 +45,11 @@ def test_get_all_versions_sites(site_name):
     )
 
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         assert response_data[0]["version"] is not None
     else:
+        assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
 
 
@@ -63,8 +62,6 @@ def test_get_latest_version_sites():
     )
 
     response_data = response.json()
-    print(response_data)
-    print(response.status_code)
-    print(os.getenv("DISABLE_AUTH"))
     if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
         assert len(response_data) > 0
