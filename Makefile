@@ -5,7 +5,6 @@ PROJECT = ska-src-site-capabilities-api
 KUBE_APP = ska-src-site-capabilities-api
 KUBE_NAMESPACE ?= ska-src-site-capabilities-api
 CLUSTER_DOMAIN ?= cluster.local
-DISABLE_AUTHENTICATION=no
 # CI_KEEP_NAMESPACE=true
 
 FILE ?= tests## A specific test file to pass to pytest
@@ -52,7 +51,7 @@ CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION)
 
 K8S_TEST_IMAGE_TO_TEST ?=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
 
-ifeq ($(DISABLE_AUTH),yes)
+ifeq ($(DISABLE_AUTH),no)
 CUSTOM_VALUES1 =	--set svc.api.disable_authentication=$(DISABLE_AUTH)
 endif
 
