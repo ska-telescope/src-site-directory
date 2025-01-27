@@ -68,11 +68,13 @@ include:
 
 
 k8s-test:
-  when: never
+  rules:
+  - when: never
 
 
 stop-k8s-test:
-  when: never
+  rules:
+  - when: never
 
 
 k8s-test-api-with-disabled-auth:
