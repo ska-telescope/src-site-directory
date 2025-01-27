@@ -37,7 +37,7 @@ svc:
     auth_api_url: https://authn.srcdev.skao.int/api/v1
     sessions_secret_key: 
     schemas_relpath: ../../../etc/schemas
-    disable_authentication: "yes"
+    disable_authentication: "no"
   common:
     mongo_database: site-capabilities
     mongo_username: root
