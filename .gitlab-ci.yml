@@ -86,7 +86,6 @@ k8s-test-api-with-disabled-auth:
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
-    CI_KEEP_NAMESPACE: 'true'
     DISABLE_AUTH: 'yes'
   before_script:
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
@@ -100,7 +99,8 @@ k8s-test-api-with-disabled-auth:
 stop-k8s-test-api-with-disabled-auth:
   extends:
     - stop-k8s-test
-  when: manual
+  rules:
+  - when: always
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
 
@@ -114,7 +114,6 @@ k8s-test-api-with-enabled-auth:
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
-    CI_KEEP_NAMESPACE: 'true'
     DISABLE_AUTH: 'no'
   before_script:
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
@@ -128,6 +127,7 @@ k8s-test-api-with-enabled-auth:
 stop-k8s-test-api-with-enabled-auth:
   extends:
     - stop-k8s-test
-  when: manual
+  rules:
+  - when: always
   variables:
     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'
