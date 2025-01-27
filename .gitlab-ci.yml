@@ -67,14 +67,17 @@ include:
   file: 'gitlab-ci/includes/release.gitlab-ci.yml'
 
 
-k8s-test:
+k8s-test-api-when-auth-enabled:
+  extends:
+    - k8s-test
   variables:
-    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
-    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled"
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
     CI_KEEP_NAMESPACE: 'true'
+    DISABLE_AUTH: 'no'
   before_script:
     - echo "$CI_PROJECT_NAME"
     - echo "$CI_COMMIT_SHORT_SHA"
@@ -83,3 +86,32 @@ k8s-test:
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
     - kubectl -n $KUBE_NAMESPACE get services
+
+
+stop-k8s-test-api-when-auth-enabled:
+  extends:
+    - stop-k8s-test
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-auth-enabled'
+  script:
+    - make k8s-uninstall-chart
+    - kubectl -n $KUBE_NAMESPACE delete pods,svc,daemonsets,deployments,replicasets,statefulsets,cronjobs,jobs,ingresses,configmaps --all
+    - make k8s-delete-namespace
+
+# k8s-test:
+#   variables:
+#     KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+#     SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+#     COUNT: 1
+#     PYTHON_TEST_COUNT: 1
+#     ADDMARK: ""
+#     CI_KEEP_NAMESPACE: 'true'
+#     DISABLE_AUTH: 'no'
+#   before_script:
+#     - echo "$CI_PROJECT_NAME"
+#     - echo "$CI_COMMIT_SHORT_SHA"
+#     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+#     - make k8s-install-chart
+#     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+#     - kubectl -n $KUBE_NAMESPACE get all
+#     - kubectl -n $KUBE_NAMESPACE get services

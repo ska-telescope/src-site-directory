@@ -5,7 +5,7 @@ PROJECT = ska-src-site-capabilities-api
 KUBE_APP = ska-src-site-capabilities-api
 KUBE_NAMESPACE ?= ska-src-site-capabilities-api
 CLUSTER_DOMAIN ?= cluster.local
-DISABLE_AUTHENTICATION=yes
+DISABLE_AUTHENTICATION=no
 # CI_KEEP_NAMESPACE=true
 
 FILE ?= tests## A specific test file to pass to pytest
@@ -29,6 +29,7 @@ endif
 
 IAM_CLIENT_SECRET ?=
 MONGO_PASSWORD ?=
+DISABLE_AUTH ?= yes
 
 # HELM_RELEASE is the release that all Kubernetes resources will be labelled
 # with
@@ -41,14 +42,19 @@ UMBRELLA_CHART_PATH ?= charts/$(HELM_CHART)/
 K8S_CHARTS ?= ska-src-site-capabilities-api ## list of charts
 K8S_CHART ?= $(HELM_CHART)
 
+
 CI_REGISTRY ?= gitlab.com
 
-CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION) \
---set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
---set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD) \
---set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
+CUSTOM_VALUES = --set site_capabilities_api.image.tag=$(VERSION)
+# --set svc.secrets.credentials.iam_client_secret=$(IAM_CLIENT_SECRET) \
+# --set svc.secrets.credentials.mongo_password=$(MONGO_PASSWORD) \
+# --set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
 
 K8S_TEST_IMAGE_TO_TEST ?=$(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
+
+ifeq ($(DISABLE_AUTH),yes)
+CUSTOM_VALUES1 =	--set svc.api.disable_authentication=$(DISABLE_AUTH)
+endif
 
 ifneq ($(CI_JOB_ID),)
 CUSTOM_VALUES = --set site_capabilities_api.image.image=$(PROJECT) \
@@ -70,7 +76,8 @@ PYTHON_VARS_BEFORE_PYTEST ?= PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN)
 PYTHON_VARS_AFTER_PYTEST ?= -m '$(MARK)' $(ADD_ARGS) $(FILE)
 
 K8S_CHART_PARAMS = --set global.cluster_domain=$(CLUSTER_DOMAIN) \
-					$(CUSTOM_VALUES)
+					$(CUSTOM_VALUES)\
+					$(CUSTOM_VALUES1)
 
 K8S_TEST_TEST_COMMAND = $(PYTHON_VARS_BEFORE_PYTEST) $(PYTHON_RUNNER) \
 						pytest \
