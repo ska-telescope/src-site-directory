@@ -79,11 +79,13 @@ BACKEND = MongoBackend(
 )
 
 
-def make_sites_available(values: str):
+def make_sites_available(values):
     """Make sites available again"""
     print(type(values))
-    values = json.loads(values)
-    print(type(values))
+
+    values = json.loads(values.decode("utf-8"))
+
+    print("type for values", type(values))
     # values["created_at"] = datetime.now().isoformat()
     # values["created_by_username"] = "test-admin"
 
