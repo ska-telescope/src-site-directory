@@ -22,7 +22,7 @@ def test_delete_sites():
     print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
-        assert response_data["successful"] == True
+        assert response_data["successful"] is True
         tear_down()
     else:
         assert response.status_code == 403
