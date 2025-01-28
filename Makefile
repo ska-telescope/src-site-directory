@@ -14,7 +14,7 @@ PYTHON_TEST_COUNT ?= 1
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503,E231 --max-line-length=150
 ifeq ($(MAKECMDGOALS),python-test)
 ADD_ARGS += --count=$(PYTHON_TEST_COUNT)
-MARK = not post_deployment
+MARK = not delete_api
 endif
 ifeq ($(MAKECMDGOALS),k8s-test)
 ADD_ARGS +=  --count=$(COUNT)

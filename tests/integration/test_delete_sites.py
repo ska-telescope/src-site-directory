@@ -22,7 +22,7 @@ def test_delete_sites():
     print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
-        assert response_data["successful"] == "true"
+        assert response_data["successful"] == True
         tear_down()
     else:
         assert response.status_code == 403
@@ -49,6 +49,8 @@ def tear_down():
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         assert len(response_data) != 0
+        assert 0
     else:
         assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
+
