@@ -53,4 +53,3 @@ def tear_down():
     else:
         assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
-
