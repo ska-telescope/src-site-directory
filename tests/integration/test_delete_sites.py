@@ -83,8 +83,8 @@ def make_sites_available(values: str):
     print(type(values))
     values = json.loads(values)
     print(type(values))
-    values["created_at"] = datetime.now().isoformat()
-    values["created_by_username"] = "test-admin"
+    # values["created_at"] = datetime.now().isoformat()
+    # values["created_by_username"] = "test-admin"
 
     # autogenerate ids for id keys
     def recursive_autogen_id(
@@ -104,4 +104,5 @@ def make_sites_available(values: str):
 
     values = recursive_autogen_id(values)
     print(values)
-    BACKEND.add_site(values)
+    str_id = BACKEND.add_site(values)
+    print(str_id)
