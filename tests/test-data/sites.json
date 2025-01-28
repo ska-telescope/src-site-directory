@@ -1,0 +1,871 @@
+[
+    {
+        "name": "SKAOSRC",
+        "comments": "",
+        "description": "Magenta prototype site deployment",
+        "country": "GB",
+        "primary_contact_email": "rob.barnsley@skao.int",
+        "secondary_contact_email": "j.collinson@skao.int",
+        "global_services": [
+            {
+                "id": "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f",
+                "type": "rucio",
+                "version": "1.29.0",
+                "prefix": "https",
+                "host": "rucio.srcdev.skao.int",
+                "port": 443,
+                "path": "/",
+                "enabled": true,
+                "is_proxy": false
+            }
+        ],
+        "storages": [
+            {
+                "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
+                "host": "srcdev.skatelescope.org",
+                "base_path": "/storm/sa",
+                "latitude": 51.4964,
+                "longitude": -0.1224,
+                "srm": "storm",
+                "device_type": "",
+                "size_in_terabytes": 11,
+                "identifier": "SKAOSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                        "type": "rse",
+                        "relative_path": "/deterministic",
+                        "identifier": "STFC_STORM"
+                    },
+                    {
+                        "id": "f62199c3-62ad-44ee-a6e0-dd34e891d423",
+                        "type": "rse",
+                        "relative_path": "/nondeterministic",
+                        "identifier": "STFC_STORM_ND"
+                    },
+                    {
+                        "id": "f605dd74-7a43-40e5-9229-48845416e30a",
+                        "type": "ingest",
+                        "relative_path": "/ingest/staging"
+                    }
+                ]
+            }
+        ],
+        "compute": [
+            {
+                "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
+                "latitude": 51.4964,
+                "longitude": -0.1224,
+                "hardware_type": [
+                    "container",
+                    "VM"
+                ],
+                "middleware_version": "1",
+                "associated_local_services": [
+                    {
+                        "id": "cd200c23-60f4-49c0-a987-3e11f06a4c8c",
+                        "type": "ingest",
+                        "version": "1.0.0",
+                        "associated_storage_area_id": "f605dd74-7a43-40e5-9229-48845416e30a",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "4f57724b-aa73-4c6c-bf0c-3fb95677cc91",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "jupyterhub.srcdev.skao.int",
+                        "port": 443,
+                        "path": "/",
+                        "identifier": "SKAO Jupyter hub",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "fb508c67-4339-4727-b873-b1ac617d72d5",
+                        "type": "jupyterhub",
+                        "prefix": "http",
+                        "host": "localhost",
+                        "port": 8000,
+                        "identifier": "Tangerine local test JupyterHub",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "05e18fb5-5f32-4c24-a399-0c50c77fb6d7",
+                        "type": "soda_sync",
+                        "prefix": "https",
+                        "host": "gatekeeper.srcdev.skao.int",
+                        "port": 443,
+                        "path": "/soda",
+                        "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                        "other_attributes": {
+                            "resourceIdentifier": {
+                                "value": "ivo://skao.src/skaosrc-soda/"
+                            },
+                            "ivoid_to_namespace_regex": "\\?([^\\/]+)",
+                            "ivoid_to_name_regex": ".*\\/(.*)"
+                        },
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "85563c81-d7b3-47af-b6bb-390f54ae48f2",
+                        "type": "soda_async",
+                        "prefix": "https",
+                        "host": "gatekeeper.srcdev.skao.int",
+                        "port": 443,
+                        "path": "/soda/async",
+                        "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                        "other_attributes": {
+                            "resourceIdentifier": {
+                                "value": "ivo://skao.src/skaosrc-soda/"
+                            },
+                            "ivoid_to_namespace_regex": "\\?([^\\/]+)",
+                            "ivoid_to_name_regex": ".*\\/(.*)"
+                        },
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "37ff3e9e-ed8e-4432-8a10-51bc345c3eb8",
+                        "type": "echo",
+                        "version": "1",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "076f2185-f7e5-4a19-9365-523085ff64ec",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "gateway-test.srcdev.skao.int",
+                        "path": "/jupyterhub/",
+                        "identifier": "Tangerine (gateway-test) JupyterHUB",
+                        "enabled": true,
+                        "is_proxy": false
+                    }
+                ],
+                "hardware_capabilities": []
+            }
+        ],
+        "created_at": "2024-11-06T11:00:18.940626",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "SWESRC",
+        "comments": "",
+        "description": "Swedish SRC",
+        "country": "SE",
+        "primary_contact_email": "vitlacil@chalmers.se",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "e20193f4-fce9-42e1-9678-7463de884bee",
+                "host": "xrootd.e-commons.chalmers.se",
+                "base_path": "/data",
+                "latitude": 57.6898,
+                "longitude": 11.9742,
+                "srm": "xrd",
+                "device_type": "",
+                "size_in_terabytes": 0.4,
+                "identifier": "SESRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 80
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "b183cfeb-03e7-4c38-a9cf-1f4307dad45a",
+                        "type": "rse",
+                        "relative_path": "/dev/deterministic",
+                        "identifier": "SESRC_XRD"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-09-17T09:57:47.029419",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "CNSRC",
+        "comments": "",
+        "description": "China SRC",
+        "country": "CN",
+        "primary_contact_email": "xuthus@shao.ac.cn",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "4751727d-8ce3-4b53-93e1-9dac301c62aa",
+                "host": "chinasrc.shao.ac.cn",
+                "base_path": "/storm/sa",
+                "latitude": 39.9075,
+                "longitude": 116.3971,
+                "srm": "storm",
+                "device_type": "",
+                "size_in_terabytes": 0,
+                "identifier": "CNSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 8443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "e33a99fd-fe38-49fd-8519-af7715a1b7ad",
+                        "type": "rse",
+                        "relative_path": "/",
+                        "identifier": "CNSRC_STORM"
+                    }
+                ]
+            }
+        ],
+        "compute": [
+            {
+                "id": "dd875a28-2df8-4f9f-838c-aa4110b4c4b9",
+                "latitude": 31.1884,
+                "longitude": 121,
+                "description": "Shanghai Astronomical Observatory (SHAO)",
+                "associated_local_services": [
+                    {
+                        "id": "1f73c95e-301b-4f5e-a2cf-aeb461da2d70",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "canfar.shao.ac.cn",
+                        "path": "/hub",
+                        "identifier": "CNSRC JupyterHUB service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "52acaf90-2701-4f79-b696-fcc1c559e4ec",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "canfar.shao.ac.cn",
+                        "path": "/science-portal",
+                        "identifier": "CNSRC CANFAR Science Portal",
+                        "enabled": true,
+                        "is_proxy": false
+                    }
+                ],
+                "hardware_capabilities": [],
+                "hardware_type": []
+            }
+        ],
+        "created_at": "2024-08-21T11:45:43.140398",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "CHSRC",
+        "comments": "",
+        "description": "Swiss SRC",
+        "country": "CH",
+        "primary_contact_email": "pablo.llopis@epfl.ch",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "12a3ff8c-ee53-477f-949d-a6193ee51dfc",
+                "host": "rse.src.skach.org",
+                "base_path": "/data",
+                "latitude": 46.024498567725466,
+                "longitude": 8.960111183239013,
+                "srm": "xrd",
+                "device_type": "",
+                "size_in_terabytes": 9,
+                "identifier": "CHSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 80
+                    },
+                    {
+                        "prefix": "root",
+                        "port": 1094
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "f26ff4e4-30af-4339-88ed-bb0cb7037ca0",
+                        "type": "rse",
+                        "relative_path": "/dev/deterministic",
+                        "identifier": "CHSRC_XRD_DEV"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-09-17T09:57:30.078429",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "JPSRC",
+        "comments": "",
+        "description": "Japanese SRC",
+        "country": "JP",
+        "primary_contact_email": "kaz.yamashita@nao.ac.jp",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "89ee6cac-0977-425e-b766-780a8e14420d",
+                "host": "jp-src-s000.mtk.nao.ac.jp",
+                "base_path": "/storm/sa",
+                "latitude": 35.6754,
+                "longitude": 139.5369,
+                "srm": "storm",
+                "device_type": "",
+                "size_in_terabytes": 0.08,
+                "identifier": "JPSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 8443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "58aa1f5e-6eee-4fad-b991-3aef25fdfe07",
+                        "type": "rse",
+                        "identifier": "JPSRC_STORM"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-08-21T11:46:31.175392",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "CANSRC",
+        "comments": "",
+        "description": "Canadian SRC",
+        "country": "CA",
+        "primary_contact_email": "email@someone.com",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "618a8064-ef31-4dbd-ad34-c49c17b80a2a",
+                "host": "humpback.rcs.uvic.ca",
+                "base_path": "/data",
+                "latitude": 48.4634,
+                "longitude": -123.3117,
+                "srm": "xrd",
+                "device_type": "",
+                "size_in_terabytes": 0,
+                "identifier": "CASRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 8181
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "51628d24-1272-4df9-85c8-137f084eed4a",
+                        "type": "rse",
+                        "relative_path": "/dev/deterministic",
+                        "identifier": "CASRC_XRD"
+                    }
+                ]
+            }
+        ],
+        "compute": [
+            {
+                "id": "452768b4-d2da-4159-a0c3-3baa8d40ae5c",
+                "latitude": 48.520131,
+                "longitude": -123.418334,
+                "description": "Canadian Astronomy Data Centre",
+                "associated_local_services": [
+                    {
+                        "id": "3be8e727-498c-4b31-b5c0-aa6ff12c046e",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "Science portal",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "d3b7ac47-5793-43d2-a8f0-22a04a72360b",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "CANFAR JupyterHub service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "6779b7e2-8c28-49ab-99c3-dbd222d15e7f",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "VSCode (codeserver)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "1fe2c2f6-10a5-48f8-a981-33c677a0d378",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "CANFAR CARTA service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "33dbe096-18a4-4317-977a-203e698c7b80",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "CANFAR Aladin service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "3804caa9-a0c6-4c41-8305-9e2447e8f6c7",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "CANFAR VisIVO service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "89a4a2f9-4f2e-4a7d-8f5b-de6b55b74616",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "User-contributed container interactive execution",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "0d1952ee-907e-47fc-a23b-7a764ae2bb99",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "www.canfar.net",
+                        "path": "/science-portal",
+                        "identifier": "User-contributed container batch execution",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "8e3c3c19-4515-439b-9b05-b2b98cf5441f",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "images.canfar.net",
+                        "identifier": "CANFAR Harbor",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "4226c51b-4749-4993-b376-f248593d3e39",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws-uv.canfar.net",
+                        "path": "/arc",
+                        "identifier": "Storage service (VOSpace implementation)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "c45ee12e-74eb-46e8-b9e1-b7279fa897cf",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/argus",
+                        "identifier": "CAOM, ObsCore and SIA metadata TAP service (Read)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "22afced0-404f-4b35-a8b4-f0feb3a72328",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/caom2ops",
+                        "identifier": "CAOM metadata management service (Create, Update, Delete)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "ba6b885a-dfbb-424e-bbe1-cd56f3c09393",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/bifrost",
+                        "identifier": "CAOM data discovery and cutouts (Read)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "a4518879-fd1c-4668-b3de-7f9d420692f2",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc.ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/luskan",
+                        "identifier": "Storage inventory TAP service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "3e553b09-ef8a-49f5-95b8-bb0748149207",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/raven",
+                        "identifier": "Storage inventory management service (Create, Update, Delete)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "9fd1e143-7a68-4f49-b436-d19cd0332494",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc.ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/raven",
+                        "identifier": "Storage inventory data access (Read)",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "17f77482-abcf-4591-8f6b-70866594058b",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca",
+                        "path": "/raven",
+                        "identifier": "Storage inventory cutout access (Read)",
+                        "enabled": true,
+                        "is_proxy": false
+                    }
+                ],
+                "hardware_capabilities": [],
+                "hardware_type": []
+            }
+        ],
+        "created_at": "2024-08-21T11:48:13.471457",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "KRSRC",
+        "comments": "",
+        "description": "Korean SRC",
+        "country": "KR",
+        "primary_contact_email": "orionkhw@kasi.re.kr",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "b5900a8e-c5f2-429a-9343-9e7087d94974",
+                "host": "skadtn1.kreonet.net",
+                "base_path": "/storm/sa",
+                "latitude": 36.321329,
+                "longitude": 127.42001,
+                "srm": "xrd",
+                "device_type": "",
+                "size_in_terabytes": 0.1,
+                "identifier": "KRSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 8443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "1298a618-38f1-43bf-ac66-4e4c2bf20606",
+                        "type": "rse",
+                        "relative_path": "/test_rse/dev/deterministic",
+                        "identifier": "KRSRC_STORM"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-08-21T11:48:39.603756",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "ESPSRC",
+        "comments": "",
+        "description": "Spanish SRC",
+        "country": "ES",
+        "primary_contact_email": "mparra@iaa.es",
+        "secondary_contact_email": "sse@iaa.es",
+        "storages": [
+            {
+                "id": "43505e6c-7ee7-4182-8f01-7adb5ff6f7aa",
+                "host": "spsrc14.iaa.csic.es",
+                "base_path": "/disk",
+                "latitude": 37.1342,
+                "longitude": -3.613,
+                "srm": "storm",
+                "device_type": "",
+                "size_in_terabytes": 8,
+                "identifier": "SPSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 18027
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                        "type": "rse",
+                        "relative_path": "/dev/deterministic",
+                        "identifier": "SPSRC_STORM"
+                    }
+                ]
+            }
+        ],
+        "compute": [
+            {
+                "id": "f2ec82a1-6e81-4386-a838-2a57ac808430",
+                "latitude": 37.1342,
+                "longitude": -3.613,
+                "associated_local_services": [
+                    {
+                        "id": "93dffde3-1db0-44df-9379-60c546c16ff8",
+                        "type": "soda_sync",
+                        "prefix": "http",
+                        "host": "spsrc33.iaa.csic.es",
+                        "port": 18022,
+                        "path": "/soda",
+                        "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                        "other_attributes": {
+                            "resourceIdentifier": {
+                                "value": "ivo://skao.src/spsrc-soda/"
+                            }
+                        },
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "12cb64ee-df09-4e84-b304-aaed3a8ba8da",
+                        "type": "soda_async",
+                        "prefix": "http",
+                        "host": "spsrc33.iaa.csic.es",
+                        "port": 18022,
+                        "path": "/soda_uws/soda_cuts/",
+                        "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                        "other_attributes": {
+                            "resourceIdentifier": {
+                                "value": "ivo://skao.src/spsrc-soda/"
+                            }
+                        },
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "09387096-a392-4f66-9c02-1688138f5c05",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc25.iaa.csic.es",
+                        "port": 443,
+                        "path": "/session/notebook/qw5vbjhz/lab/tree/arc/home/grange?token=qw5vbjhz",
+                        "identifier": "Jupyter lab running on CANFAR",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "c0c747f5-c246-496f-afcc-096235961f7f",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc25.iaa.csic.es",
+                        "path": "/science-portal",
+                        "identifier": "CANFAR Science Platform",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "ab893340-dd28-4fe7-a560-c577065a5232",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc26.iaa.csic.es",
+                        "identifier": "Harbor container registry",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "264ab468-1dc8-472b-8b25-7b49f44b4d75",
+                        "type": "jupyterhub",
+                        "prefix": "http",
+                        "host": "193.144.42.112",
+                        "path": "/hub",
+                        "identifier": "JupyterHub + Dask platform",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "ccec14c0-170c-449d-9541-02391bf304b3",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc29.iaa.csic.es",
+                        "path": "/luskan",
+                        "identifier": "Local storage inventory metadata service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "3428e9ec-56b2-4a8e-9a98-78a1d853d7d3",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc29.iaa.csic.es",
+                        "path": "/minoc",
+                        "identifier": "Local storage inventory files service",
+                        "enabled": true,
+                        "is_proxy": false
+                    },
+                    {
+                        "id": "62e03cf1-7533-4dd0-bc23-12c0fe22442b",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "spsrc27.iaa.csic.es",
+                        "path": "/luskan",
+                        "identifier": "Global storage inventory metadata service",
+                        "enabled": true,
+                        "is_proxy": false
+                    }
+                ],
+                "hardware_capabilities": [],
+                "hardware_type": []
+            }
+        ],
+        "created_at": "2024-08-21T11:50:29.747313",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "AUSSRC",
+        "comments": "",
+        "description": "Australian SRC",
+        "country": "AU",
+        "primary_contact_email": "dave.pallot@icrar.org",
+        "secondary_contact_email": "",
+        "storages": [
+            {
+                "id": "d46c5c0f-96f0-4a9f-9fe6-02f541b6938e",
+                "host": "storm-storage-01.aussrc.org",
+                "base_path": "/storm/sa",
+                "latitude": -31.9529,
+                "longitude": 115.8613,
+                "srm": "storm",
+                "device_type": "",
+                "size_in_terabytes": 0.04,
+                "identifier": "AUSSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "f1902d12-9c48-4673-a55a-7e7d05b6c57b",
+                        "type": "rse",
+                        "relative_path": "/test_rse/dev/deterministic",
+                        "identifier": "AUSSRC_STORM"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-08-21T11:50:43.799085",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "NLSRC",
+        "comments": "",
+        "description": "Dutch SRC",
+        "country": "NL",
+        "primary_contact_email": "onno.zweers@surf.nl",
+        "secondary_contact_email": "raymond.oonk@surf.nl",
+        "storages": [
+            {
+                "id": "21c5c016-22f7-4621-9332-7d61a605df26",
+                "host": "dcachetest.grid.surfsara.nl",
+                "base_path": "/groups/ska/dev/deterministic",
+                "latitude": 52.3785,
+                "longitude": 4.9,
+                "srm": "xrd",
+                "device_type": "",
+                "size_in_terabytes": 100,
+                "identifier": "NLSRC",
+                "supported_protocols": [
+                    {
+                        "prefix": "https",
+                        "port": 443
+                    }
+                ],
+                "areas": [
+                    {
+                        "id": "09cb22fe-b60c-45c5-8749-febc66526671",
+                        "type": "rse",
+                        "relative_path": "/dev/deterministic",
+                        "identifier": "NLSRC_DCACHE"
+                    },
+                    {
+                        "id": "236c29cb-6429-476e-b7c1-bc3a2f98355d",
+                        "type": "rse",
+                        "relative_path": "/",
+                        "identifier": "NLSRC_PROD_DCACHE"
+                    }
+                ]
+            }
+        ],
+        "created_at": "2024-09-17T09:58:35.510365",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    },
+    {
+        "name": "UKSRC",
+        "comments": "",
+        "description": "UKSRC Site",
+        "country": "GB",
+        "primary_contact_email": "john.garbutt@stackhpc.com",
+        "secondary_contact_email": "",
+        "compute": [
+            {
+                "id": "e24a1a87-01f2-4a4a-8e3e-4234951c45d0",
+                "latitude": 52.211052,
+                "longitude": 0.093062,
+                "description": "University of Cambridge HPC",
+                "associated_local_services": [
+                    {
+                        "id": "21990532-7231-4ab9-9fa7-3dfe587332ec",
+                        "type": "jupyterhub",
+                        "prefix": "https",
+                        "host": "portal.apps.hpc.cam.ac.uk",
+                        "path": "/auth/federated/start/?option=ska-iam_openid",
+                        "identifier": "Cambridge HPC Azimuth Instance",
+                        "enabled": true,
+                        "is_proxy": false
+                    }
+                ],
+                "hardware_capabilities": [],
+                "hardware_type": []
+            }
+        ],
+        "created_at": "2024-08-21T11:51:51.763494",
+        "created_by_username": "robbarnsley",
+        "version": 1
+    }
+]
