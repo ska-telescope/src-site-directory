@@ -19,5 +19,5 @@ def get_test_json(slug):
     )
     with open(file_path, "r", encoding="UTF-8") as f:
         json_value = f.read()
-    print(json_value)
+    print("json_value:::", json_value)
     return json_value

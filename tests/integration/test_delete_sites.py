@@ -61,7 +61,7 @@ def tear_down():
     #     assert response.status_code == 403
     #     assert "Not authenticated" in response_data["detail"]
     json_str = get_test_json("sites")
-    print(json_str)
+    print("json_str::::", json_str)
     make_sites_available(values=json_str)
 
 
@@ -78,9 +78,11 @@ BACKEND = MongoBackend(
 )
 
 
-def make_sites_available(values: json):
+def make_sites_available(values: str):
     """Make sites available again"""
-    values = json.loads(values.decode("utf-8"))
+    print(type(values))
+    values = json.loads(values)
+    print(type(values))
     values["created_at"] = datetime.now().isoformat()
     values["created_by_username"] = "test-admin"
 
