@@ -8,6 +8,7 @@ from datetime import datetime
 
 import httpx
 import pytest
+from pymongo import MongoClient
 from starlette.config import Config
 
 from ska_src_site_capabilities_api.db.backend import MongoBackend
@@ -104,5 +105,9 @@ def make_sites_available(values: str):
 
     values = recursive_autogen_id(values)
     print(values)
-    str_id = BACKEND.add_site(values)
-    print(str_id)
+    client = MongoClient(BACKEND.connection_string)
+    db = client[BACKEND.mongo_database]
+    sites = db.sites
+    # str_id = BACKEND.add_site(values)
+    sites.insert_one(values).inserted_id
+    print("sites in tests:::", sites)

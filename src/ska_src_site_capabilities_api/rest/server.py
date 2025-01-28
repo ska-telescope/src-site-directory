@@ -582,6 +582,7 @@ async def edit_site(
     values = recursive_autogen_id(values)
 
     site_id = BACKEND.add_site(values)
+
     return HTMLResponse(repr(site_id))
 
 
