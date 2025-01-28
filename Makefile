@@ -18,7 +18,7 @@ MARK = not post_deployment
 endif
 ifeq ($(MAKECMDGOALS),k8s-test)
 ADD_ARGS +=  --count=$(COUNT)
-MARK = post_deployment
+MARK = delete_api
 endif
 
 ifeq ($(EXIT_AT_FAIL),true)
