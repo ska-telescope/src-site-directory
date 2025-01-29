@@ -17,7 +17,7 @@ def get_test_json(slug):
         "test-data",
         f"{slug}.json",
     )
-    with open(file_path, "rb") as f:
+    with open(file_path, "r") as f:
         json_value = f.read()
     print("json_value:::", json_value)
     print("type of json values:", type(json_value))
