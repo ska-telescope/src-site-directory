@@ -46,13 +46,13 @@ def check_sites_availability():
 def tear_down():
     """Make sites available again"""
     sites_json = get_test_json("sites")
-    json_data = json.loads(sites_json)
-    print("type of json_Data::::", type(json_data))
+    # json_data = json.loads(sites_json)
+    # print("type of json_Data::::", type(json_data))
 
     headers = {"Content-Type": "application/json"}
     response = httpx.post(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
-        data=json_data,
+        data=sites_json,
         headers=headers,
     )
     response_data = response.json()
