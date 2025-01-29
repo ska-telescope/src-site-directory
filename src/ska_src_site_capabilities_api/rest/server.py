@@ -368,13 +368,14 @@ async def list_sites(request: Request) -> JSONResponse:
           tags=["Sites"],
           summary="Add a site")
 @handle_exceptions
-async def add_site(request: Request, values=Body(default="Site JSON."), authorization=Depends(HTTPBearer())) \
+async def add_site(request: Request, values=Body(default="Site JSON."),
+                   authorization=Depends(HTTPBearer(auto_error=False))) \
         -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
     if isinstance(values, (bytes, bytearray)):
         values = json.loads(values.decode('utf-8'))
     values['created_at'] = datetime.now().isoformat()
-    if DEBUG and authorization.credentials == 'null':
+    if DEBUG and not authorization:
         values['created_by_username'] = 'admin'
     else:
         access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
@@ -415,13 +416,14 @@ async def add_site(request: Request, values=Body(default="Site JSON."), authoriz
           summary="Edit a site")
 @handle_exceptions
 async def edit_site(request: Request, site: str = Path(description="Site name"),
-                   values=Body(default="Site JSON."), authorization=Depends(HTTPBearer())) \
+                   values=Body(default="Site JSON."),
+                   authorization=Depends(HTTPBearer(auto_error=False))) \
         -> Union[HTMLResponse, HTTPException]:
     # add some custom fields e.g. date, user
     if isinstance(values, (bytes, bytearray)):
         values = json.loads(values.decode('utf-8'))
     values['created_at'] = datetime.now().isoformat()
-    if DEBUG and authorization.credentials == 'null':
+    if DEBUG and not authorization:
         values['created_by_username'] = 'admin'
     else:
         access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
