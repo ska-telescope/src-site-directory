@@ -1,11 +1,12 @@
 """
 A module with integration tests for SKA SRC Site Capabilities Site Delete APIs.
 """
+import json
 import os
 
 import httpx
 import pytest
-import json
+
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from tests.resources.common_utils import get_test_json
 
@@ -45,8 +46,14 @@ def check_sites_availability():
 def tear_down():
     """Make sites available again"""
     sites_json = get_test_json("sites")
+    json_data = json.loads(sites_json)
+    print("type of json_Data::::", type(json_data))
+
+    headers = {"Content-Type": "application/json"}
     response = httpx.post(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites", data=json.loads(sites_json)
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
+        data=json_data,
+        headers=headers,
     )
     response_data = response.json()
     print(response_data)
