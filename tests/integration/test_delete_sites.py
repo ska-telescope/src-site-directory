@@ -5,7 +5,7 @@ import os
 
 import httpx
 import pytest
-
+import json
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from tests.resources.common_utils import get_test_json
 
@@ -44,8 +44,9 @@ def check_sites_availability():
 
 def tear_down():
     """Make sites available again"""
+    sites_json = get_test_json("sites")
     response = httpx.post(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites", data=json.loads(sites_json)
     )
     response_data = response.json()
     print(response_data)
