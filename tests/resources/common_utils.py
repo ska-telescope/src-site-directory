@@ -1,6 +1,7 @@
 """This module implement common utils
 """
 
+import json
 from os.path import dirname, join
 
 
@@ -21,4 +22,4 @@ def get_test_json(slug):
         json_value = f.read()
     print("json_value:::", json_value)
     print("type of json values:", type(json_value))
-    return json_value
+    return json.load(json_value)
