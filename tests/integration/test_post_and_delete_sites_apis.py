@@ -7,7 +7,8 @@ import os
 import httpx
 import pytest
 
-from tests.resources.common_utils import get_test_json
+# from tests.resources.common_utils import get_test_json
+from tests.resources.site_versions import TEST_SITE_VER_1
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
@@ -17,13 +18,13 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 # @pytest.mark.post_deployment
 def test_post_sites():
     """Test to verify post sites API"""
-    sites_json = get_test_json("test_site_version_1")
+    # sites_json = get_test_json("test_site_version_1")
     # json_data = json.loads(sites_json)
 
     # headers = {"Content-Type": "application/json"}
     response = httpx.post(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
-        data=sites_json,
+        data=TEST_SITE_VER_1,
         # headers=headers,
     )
     response_data = response.json()
