@@ -7,6 +7,13 @@ import os
 import httpx
 import pytest
 
+from tests.resources.common_utils import (
+    check_site_is_present,
+    check_site_not_present,
+    check_version_not_present,
+    load_multiple_sites,
+)
+
 # from tests.resources.common_utils import get_test_json
 from tests.resources.site_versions import TEST_SITE_VER_1, TEST_SITE_VER_2
 
@@ -43,9 +50,7 @@ def test_delete_all_versions_site():
     response = httpx.delete(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_to_delete}"
     )
-    print(response)
     response_data = response.json()
-    print(response)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         assert response_data["successful"] is True
@@ -73,61 +78,5 @@ def test_delete_given_versions_site():
         assert response.status_code == 200
         assert response_data["successful"] is True
         check_version_not_present(site)
-    else:
-        assert response.status_code == 403
-
-
-def check_site_is_present(site: str):
-    """Method to verify sites"""
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
-    )
-    print(response)
-    response_data = response.json()
-    print(response_data)
-    assert response.status_code == 200
-    assert site in response_data
-
-
-def check_site_not_present(site: str):
-    """Method to verify deleted sites"""
-
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
-    )
-    print(response)
-    response_data = response.json()
-    print(response_data)
-    assert response.status_code == 200
-    assert site not in response_data
-
-
-def check_version_not_present(site_name: str):
-    """Method to verify given site version are removed"""
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
-    )
-    print(response)
-    response_data = response.json()
-    print(response_data)
-    if os.getenv("DISABLE_AUTH") == "yes":
-        assert response.status_code == 200
-        print(response_data)
-        assert site_name not in response_data
-        assert 0
-    else:
-        assert len(response_data) != 0
-
-
-def load_multiple_sites(site_list):
-    """Method to post Sites one by one"""
-
-    for site in site_list:
-        response = httpx.post(
-            f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
-            data=json.dumps(site),
-        )
-    if os.getenv("DISABLE_AUTH") == "yes":
-        assert response.status_code == 200
     else:
         assert response.status_code == 403
