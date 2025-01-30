@@ -28,12 +28,16 @@ def test_post_sites():
         # headers=headers,
     )
     print(response)
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites")
+    print(response)
+    
     response_data = response.json()
     print(response_data)
+    # print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
-        assert len(response_data) != 0
-        assert 0
+        assert 'TestSite' in response_data
     else:
         assert response.status_code == 403
         assert "Not authenticated" in response_data["detail"]
