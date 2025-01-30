@@ -24,7 +24,7 @@ def test_post_sites():
     # headers = {"Content-Type": "application/json"}
     response = httpx.post(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
-        data=TEST_SITE_VER_1,
+        data=json.dumps(TEST_SITE_VER_1),
         # headers=headers,
     )
     response_data = response.json()
