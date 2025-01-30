@@ -27,6 +27,7 @@ def test_post_sites():
         data=json.dumps(TEST_SITE_VER_1),
         # headers=headers,
     )
+    print(response)
     response_data = response.json()
     print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
