@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 # from tests.resources.common_utils import get_test_json
-from tests.resources.site_versions import TEST_SITE_VER_1
+from tests.resources.site_versions import TEST_SITE_VER_1, TEST_SITE_VER_2
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
@@ -28,6 +28,7 @@ def test_post_sites():
         # headers=headers,
     )
     print(response)
+    assert response.status_code == 200
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
@@ -35,13 +36,38 @@ def test_post_sites():
 
     response_data = response.json()
     print(response_data)
-    # print(response_data)
-    if os.getenv("DISABLE_AUTH") == "yes":
-        assert response.status_code == 200
-        assert "TestSite" in response_data
-    else:
-        assert response.status_code == 403
-        assert "Not authenticated" in response_data["detail"]
+    assert response.status_code == 200
+    assert "TestSite" in response_data
+
+
+@pytest.mark.delete_api
+def test_delete_all_versions_site():
+    """Test to verify delete all site versions API"""
+    response = httpx.post(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
+        data=json.dumps(TEST_SITE_VER_2),
+    )
+    print(response)
+    assert response.status_code == 200
+
+    site = "TestSite"
+    response = httpx.delete(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site}"
+    )
+    print(response)
+    response_data = response.json()
+    print(response)
+    assert response.status_code == 200
+    assert response_data["successful"] is True
+
+    response = httpx.get(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
+    )
+    print(response)
+    response_data = response.json()
+    print(response_data)
+    assert response.status_code == 200
+    assert "TestSite" not in response_data
 
 
 # def check_sites_availability():

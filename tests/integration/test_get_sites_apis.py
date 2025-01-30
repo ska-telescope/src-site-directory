@@ -20,7 +20,6 @@ def test_get_sites():
     response_data = response.json()
     print(response_data)
     assert len(response_data) != 0
-    assert 0
 
 
 @pytest.mark.parametrize(
