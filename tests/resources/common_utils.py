@@ -4,7 +4,7 @@ import json
 import os
 from os.path import dirname, join
 
-from tests.resources.site_versions import TEST_SITE_VER_1, TEST_SITE_VER_2
+import httpx
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
