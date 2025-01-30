@@ -16,7 +16,6 @@ def test_delete_sites():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         assert response_data["successful"] is True

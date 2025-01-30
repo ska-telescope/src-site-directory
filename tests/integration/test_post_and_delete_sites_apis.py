@@ -26,7 +26,6 @@ def test_post_sites():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
         data=json.dumps(TEST_SITE_VER_1),
     )
-    print(response)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         check_site_is_present(site="TestSite")
@@ -64,9 +63,7 @@ def test_delete_given_versions_site():
         response = httpx.delete(
             f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site}/{ver}"
         )
-    print(response)
     response_data = response.json()
-    print(response)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         assert response_data["successful"] is True

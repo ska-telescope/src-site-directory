@@ -25,8 +25,6 @@ def get_test_json(slug):
     )
     with open(file_path, "r", encoding="UTF-8") as f:
         json_value = f.read()
-    print("json_value:::", json_value)
-    print("type of json values:", type(json_value))
     return json.load(json_value)
 
 
@@ -35,9 +33,7 @@ def check_site_is_present(site: str):
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
-    print(response)
     response_data = response.json()
-    print(response_data)
     assert response.status_code == 200
     assert site in response_data
 
@@ -48,9 +44,7 @@ def check_site_not_present(site: str):
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
-    print(response)
     response_data = response.json()
-    print(response_data)
     assert response.status_code == 200
     assert site not in response_data
 
@@ -60,14 +54,10 @@ def check_version_not_present(site_name: str):
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
-    print(response)
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
-        print(response_data)
         assert site_name not in response_data
-        assert 0
     else:
         assert len(response_data) != 0
 
