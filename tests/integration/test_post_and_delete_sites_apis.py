@@ -28,7 +28,11 @@ def test_post_sites():
         # headers=headers,
     )
     print(response)
-    assert response.status_code == 200
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+    else:
+        assert response.status_code == 403
+
     response = httpx.get(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites"
     )
