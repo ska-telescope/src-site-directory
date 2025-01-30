@@ -19,8 +19,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.delete_api
-# @pytest.mark.post_deployment
+@pytest.mark.post_deployment
 def test_post_sites():
     """Test to verify post sites API"""
     response = httpx.post(
@@ -35,7 +34,7 @@ def test_post_sites():
         assert response.status_code == 403
 
 
-@pytest.mark.delete_api
+@pytest.mark.post_deployment
 def test_delete_all_versions_site():
     """Test to verify delete all site versions API"""
     load_multiple_sites([TEST_SITE_VER_1, TEST_SITE_VER_2])
@@ -54,7 +53,7 @@ def test_delete_all_versions_site():
 
 
 @pytest.mark.skip(reason="The API is currently broken")
-@pytest.mark.delete_api
+@pytest.mark.post_deployment
 def test_delete_given_versions_site():
     """Test to verify delete given site versions API"""
     load_multiple_sites([TEST_SITE_VER_1, TEST_SITE_VER_2])

@@ -9,8 +9,7 @@ import pytest
 from tests.resources.common_utils import CLUSTER_DOMAIN, KUBE_NAMESPACE
 
 
-@pytest.mark.delete_api
-# @pytest.mark.post_deployment
+@pytest.mark.post_deployment
 def test_delete_sites():
     """Test to verify delete sites API"""
     response = httpx.delete(
