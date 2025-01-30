@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.delete_api
+@pytest.mark.post_deployment
 def test_get_sites():
     """Test method for get sites API"""
     response = httpx.get(
