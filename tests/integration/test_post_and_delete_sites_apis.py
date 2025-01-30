@@ -18,12 +18,12 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 def test_post_sites():
     """Test to verify post sites API"""
     sites_json = get_test_json("test_site_version_1")
-    # json_data = json.loads(sites_json)
+    json_data = json.loads(sites_json)
 
     # headers = {"Content-Type": "application/json"}
     response = httpx.post(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites",
-        data=sites_json,
+        data=json.dumps(json_data),
         # headers=headers,
     )
     response_data = response.json()
