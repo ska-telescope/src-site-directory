@@ -60,7 +60,7 @@ def test_delete_given_versions_site():
     load_multiple_sites([TEST_SITE_VER_1, TEST_SITE_VER_2])
 
     site = "TestSite"
-    version = ["1", "2"]
+    version = [1, 2]
     for ver in version:
         response = httpx.delete(
             f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site}/{ver}"
