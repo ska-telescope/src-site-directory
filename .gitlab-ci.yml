@@ -89,8 +89,8 @@ k8s-test-api-with-disabled-auth:
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
   allow_failure: false
-  rules:
-  - when: always
+  # rules:
+  # - when: always
 
 
 stop-k8s-test-api-with-disabled-auth:
@@ -118,8 +118,8 @@ k8s-test-api-with-enabled-auth:
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
   allow_failure: false
-  rules:
-  - when: always
+  # rules:
+  # - when: always
 
 
 stop-k8s-test-api-with-enabled-auth:
