@@ -88,8 +88,7 @@ k8s-test-api-with-disabled-auth:
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
-  rules:
-  - when: always
+  when: on_success
 
 
 stop-k8s-test-api-with-disabled-auth:
@@ -116,8 +115,7 @@ k8s-test-api-with-enabled-auth:
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
-  rules:
-  - when: always
+  when: on_success
 
 
 stop-k8s-test-api-with-enabled-auth:
