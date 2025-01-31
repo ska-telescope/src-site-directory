@@ -437,6 +437,11 @@
                           "placeholder": "A name used to identify this storage area"
                         },
                         {
+                          "key": "storages[].areas[].tier",
+                          "placeholder": "The storage area tier",
+                          "type": "radios"
+                        },
+                        {
                           "key": "storages[].areas[].other_attributes",
                           "type": "ace",
                           "aceMode": "json",
