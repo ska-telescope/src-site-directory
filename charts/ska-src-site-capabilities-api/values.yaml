@@ -63,5 +63,5 @@ site_capabilities_api:
   image:
     registry: artefact.skao.int
     image: ska-src-site-capabilities-api
-    tag: 0.3.49
+    tag: 0.3.50
     pullPolicy: Always
