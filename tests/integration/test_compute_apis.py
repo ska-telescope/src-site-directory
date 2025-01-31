@@ -20,7 +20,8 @@ def test_list_all_computes():
     if os.getenv("DISABLE_AUTH") == "yes":
         assert response.status_code == 200
         for item in response_data:
-            assert item["site_name"] in ["CNSRC",
+            assert item["site_name"] in [
+                "CNSRC",
                 "UKSRC",
                 "SKAOSRC",
                 "ESPSRC",
