@@ -78,15 +78,15 @@ AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICAT
 
 1. Code formatting / style
 
-Formatting
-^^^^^^^^^^
+### Formatting
+
 SKA SRC Site Capabilities API repository uses the ``black`` code formatter to format its code.
- Formatting can be checked using command ``make python-format`` after creating venv.
+Formatting can be checked using command ``make python-format`` after creating venv.
 
 The CI pipeline does check that if code has been formatted using black or not.
 
-Linting
-^^^^^^^
+### Linting
+
 SKA SRC Site Capabilities API repository uses below libraries/utilities for linting.
  Linting can be checked using command ``make python-lint`` after creating venv.
 
@@ -109,24 +109,69 @@ measuring coverage.
 
 ## SKA SRC Site Capabilities API Integration Testing guidelines
 
-The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration
-Implemented integration tests covers positive scenarios for all the API operations.
+The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration folder.
+Implemented integration tests covers positive scenarios for all API operations.
 
-Integrations tests get executed on pipeline in ``test`` stage under ``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth jobs``
-
-All tests are implemented to verify below APIs including AUTHENTICATION as enabled and disabled.
-
-APIs verified via tests
-^^^^^^^^^^^^^^^^^^^^^^^
+These Integrations tests get executed on pipeline in ``test`` stage under ``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth`` jobs.
 Tests get executed on pipeline using command `make k8s-test`.
 
-* ``get /sites`` 
-* ``delete /sites``
-* ``get /sites/{site}``
-* ``delete /sites/{site}``
-* ``get /sites/{site}/{version}``
-* ``delete /sites/{site}/{version}``
-* ``get /sites/dump``
+All tests are implemented to verify below APIs including AUTHENTICATION as enabled and disabled.
+For testing libraries like ``pytest``, ``httpx`` along with pytest plugins e.g ``pytest-cov`` ``pytest-json-report`` ``pytest-forked`` ``pytest-mock`` ``pytest-xdist`` ``pytest-repeat`` are used.
+
+
+### APIs verified via tests
+
+* ``get /health`` Test to verify Service health e.g ska-src-site-capabilities-api.
+
+* ``get /ping`` Test to verify Service aliveness.
+
+* ``get /sites``  Test to verify list sites operation. 
+
+* ``delete /sites`` Test to verify Delete all sites operation.
+
+* ``get /sites/{site}`` Test to verify Get all versions of site operation.
+
+* ``delete /sites/{site}`` Test to verify Delete all versions of perticular site operation.
+
+* ``get /sites/{site}/{version}`` Test to verify Get perticular version of perticular site operation.
+
+* ``delete /sites/{site}/{version}`` Test to verify Delete perticular version of perticular site operation.
+
+* ``get /sites/latest`` Test to verify Get latest versions of all sites operation.
+
+* ``get /compute`` Test to verify List of all available computes operation.
+
+* ``get /compute/{compute_id}`` Test to verify Get description of a compute element from a unique identifier operation.
+
+* ``get /storages`` Test to verify List all storages operation.
+
+* ``get /storages/{storage_id}`` Test to verify Get a storage description from a unique identifier operation.
+
+* ``get /storages/grafana`` Test to verify List all storages in a format digestible by Grafana world map panels operation.
+
+* ``get /storages/topojson`` Test to verify List all storages in topojson format operation.
+
+* ``get /storage-areas`` Test to verify List all storage areas operation.
+
+* ``get /storage-areas/{storage_area_id}`` Test to verify Get a storage area description from a unique identifier. operation.
+
+* ``get /storage-areas/grafana`` Test to verify List all storage areas in a format digestible by Grafana world map panel operation.
+
+* ``get /storage-areas/topojson`` Test to verify List all storage areas in topojson format operation.
+
+* ``get /storage-areas/types`` Test to verify List storage area types operation.
+
+* ``get /services`` Test to verify List all services operation.
+
+* ``get /services/{service_id}`` Test to verify Get a service description from a unique identifier operation.
+
+* ``get /services/types`` Test to verify List service types operation.
+
+* ``get /schemas`` Test to verify Get a list of schema names used to define entities operation.
+
+* ``get /schemas/{schema}`` Test to verify Get a schema by name operation.
+
+
 
 
 
