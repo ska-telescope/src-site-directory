@@ -57,10 +57,101 @@ git clone <site-capabilities-repository-url>
 ```bash
 ska-src-data-management-api$ git submodule update --recursive --init
 ```
+3. To create virtual env
+
+```bash
+ska-src-data-management-api$ poetry shell
+```
+
+4. To install dependencies from pyproject.toml
+
+```bash
+(venv)ska-src-data-management-api$ poetry install
+```
 
 ### Bypassing AuthN/Z
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
+
+
+## SKA SRC Site Capabilities API code quality guidelines
+
+1. Code formatting / style
+
+Formatting
+^^^^^^^^^^
+SKA SRC Site Capabilities API repository uses the ``black`` code formatter to format its code.
+ Formatting can be checked using command ``make python-format`` after creating venv.
+
+The CI pipeline does check that if code has been formatted using black or not.
+
+Linting
+^^^^^^^
+SKA SRC Site Capabilities API repository uses below libraries/utilities for linting.
+ Linting can be checked using command ``make python-lint`` after creating venv.
+
+* ``isort`` - It provides a command line utility, Python library and 
+    plugins for various editors to quickly sort all your imports.
+
+* ``black`` - It is used to check if the code has been blacked.
+
+* ``flake8`` - It is used to check code base against coding style (PEP8), 
+    programming errors (like “library imported but unused” and “Undefined name”),etc.
+
+* ``pylint`` - It is looks for programming errors, helps enforcing a coding standard, 
+    sniffs for code smells and offers simple refactoring suggestions.
+
+2. Test coverage
+
+SKA SRC Site Capabilities API repository uses pytest to test its code, with the pytest-cov plugin for
+measuring coverage.
+
+
+## SKA SRC Site Capabilities API Integration Testing guidelines
+
+The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration
+Implemented integration tests covers positive scenarios for all the API operations.
+
+Integrations tests get executed on pipeline in ``test`` stage under ``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth jobs``
+
+All tests are implemented to verify below APIs including AUTHENTICATION as enabled and disabled.
+
+APIs verified via tests
+^^^^^^^^^^^^^^^^^^^^^^^
+Tests get executed on pipeline using command `make k8s-test`.
+
+* ``get /sites`` 
+* ``delete /sites``
+* ``get /sites/{site}``
+* ``delete /sites/{site}``
+* ``get /sites/{site}/{version}``
+* ``delete /sites/{site}/{version}``
+* ``get /sites/dump``
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Formatting and Linting
 

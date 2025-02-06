@@ -1,31 +1,13 @@
-==================================
-SKA SRC Site Capabilities Documentation
-==================================
+.. ska-src-site-capabilities-api documentation master file, created by
+   sphinx-quickstart on Thu Oct 19 13:55:40 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-This project is developing the SKA SRC Site Capabilities for Square Kilometre Array Observatory Regional Centre Networks
-
+Welcome to ska-src-site-capabilities-api's developer documentation!
+===================================================================
 .. toctree::
-   :maxdepth: 1
-   :caption: Getting started
+   :maxdepth: 2
 
-   getting_started/getting_started
-   
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer guide
-
-   developer_guide/code_quality
-
-.. toctree::
-   :maxdepth: 1
-   :caption: API
-
-   api/index
-
-
-Indices and tables
-------------------
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   readme.md
+   contributing.md
+   CHANGELOG.rst
