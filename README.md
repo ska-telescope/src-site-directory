@@ -174,7 +174,8 @@ $ kubectl get all -n namespace
 
 ## Testing
 
-The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration
+The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration.
+
 Implemented integration tests covers all the API operations added e.g operations for compute, site, services, schema, storage and also to verify health and status for SKA SRC Site Capabilities API.
 
 For detail design of test structure [refer](https://confluence.skatelescope.org/display/SRCSC/%5BSP-5020%5D+SRCnet%3A+Client+server+tests+setup+in+k8s+cluster+and+repository+artifacts)

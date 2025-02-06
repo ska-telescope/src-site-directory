@@ -74,6 +74,61 @@ ska-src-data-management-api$ poetry shell
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
 
+### Formatting and Linting
+
+There is a makefile target to check formatting and linting for the code, create venv and execute below commands
+
+To create virtual env
+
+```bash
+ska-src-data-management-api$ poetry shell
+```
+
+To install dependencies from pyproject.toml
+
+```bash
+(venv)ska-src-data-management-api$ poetry install
+```
+
+To do code formatting
+```bash
+ska-src-data-management-api$ make python-format
+```
+
+To do code linting
+```bash
+ska-src-data-management-api$ make python-lint
+```
+
+### Documentation
+
+There is a Makefile target for generating documentation locally:
+
+```bash
+ska-src-data-management-api$ make docs
+```
+
+but you will need to ensure the necessary sphinx extensions are installed as these are not included in the core 
+requirements.
+
+### To build site capabilities docker image
+
+```bash
+ska-src-data-management-api$ make oci-image-build
+```
+
+### To install site capabilities deployment locally
+
+```bash
+ska-src-data-management-api$ make k8s-install-chart
+```
+
+### To uninstall site capabilities deployment locally
+
+```bash
+ska-src-data-management-api$ make k8s-uninstall-chart
+```
+
 ## SKA SRC Site Capabilities API code quality guidelines
 
 1. Code formatting / style
@@ -103,7 +158,7 @@ SKA SRC Site Capabilities API repository uses below libraries/utilities for lint
 
 2. Test coverage
 
-SKA SRC Site Capabilities API repository uses pytest to test its code, with the pytest-cov plugin for
+SKA SRC Site Capabilities API repository uses ``pytest`` to test its code, with the ``pytest-cov`` plugin for
 measuring coverage.
 
 
@@ -171,78 +226,3 @@ For testing libraries like ``pytest``, ``httpx`` along with pytest plugins e.g `
 
 * ``get /schemas/{schema}`` Test to verify Get a schema by name operation.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Formatting and Linting
-
-There is a makefile target to check formatting and linting for the code, create venv and execute below commands
-
-To create virtual env
-
-```bash
-ska-src-data-management-api$ poetry shell
-```
-
-To install dependencies from pyproject.toml
-
-```bash
-(venv)ska-src-data-management-api$ poetry install
-```
-
-To do code formatting
-```bash
-ska-src-data-management-api$ make python-format
-```
-
-To do code linting
-```bash
-ska-src-data-management-api$ make python-lint
-```
-
-## Documentation
-
-There is a Makefile target for generating documentation locally:
-
-```bash
-ska-src-data-management-api$ make docs
-```
-
-but you will need to ensure the necessary sphinx extensions are installed as these are not included in the core 
-requirements.
-
-## To build site capabilities docker image
-
-```bash
-ska-src-data-management-api$ make oci-image-build
-```
-
-## To install site capabilities deployment locally
-
-```bash
-ska-src-data-management-api$ make k8s-install-chart
-```
