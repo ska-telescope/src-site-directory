@@ -129,7 +129,7 @@ ska-src-data-management-api$ make k8s-install-chart
 ska-src-data-management-api$ make k8s-uninstall-chart
 ```
 
-## SKA SRC Site Capabilities API code quality guidelines
+## SKA SRC site capabilities api code quality guidelines
 
 1. Code formatting / style
 
@@ -162,8 +162,7 @@ SKA SRC Site Capabilities API repository uses ``pytest`` to test its code, with 
 measuring coverage.
 
 
-## SKA SRC Site Capabilities API Integration Testing guidelines
-
+## SKA SRC site capabilities api integration testing guidelines
 The integration tests implemented for SKA SRC Site Capabilities API are present under /tests/integration folder.
 Implemented integration tests covers positive scenarios for all API operations.
 
