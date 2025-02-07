@@ -16,7 +16,7 @@ sys.path.insert(2, os.path.abspath("../../tests"))
 
 project = 'ska-src-site-capabilities-api'
 copyright = '2024, Rob Barnsley'
-author = ['Rob Barnsley', 'Shraddha Bajare']
+author = 'Rob Barnsley, Shraddha Bajare'
 
 # The short X.Y version
 version = "1.0"
