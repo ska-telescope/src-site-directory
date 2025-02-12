@@ -179,7 +179,9 @@ For testing libraries like ``pytest``, ``httpx`` along with pytest plugins e.g `
 
 * ``get /ping`` Test to verify Service aliveness.
 
-* ``get /sites``  Test to verify list sites operation. 
+* ``get /sites``  Test to verify list sites operation.
+
+* ``post /sites`` Test to verify new site is added via site json.
 
 * ``delete /sites`` Test to verify Delete all sites operation.
 
