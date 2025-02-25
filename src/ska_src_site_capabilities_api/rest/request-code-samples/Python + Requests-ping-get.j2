@@ -1,0 +1,7 @@
+import requests
+
+url = "{{ api_server_url }}/ping"
+
+response = requests.request("GET", url)
+
+print(response.text)

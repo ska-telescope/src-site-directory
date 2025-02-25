@@ -1,0 +1,7 @@
+import requests
+
+url = "{{ api_server_url }}/health"
+
+response = requests.request("GET", url)
+
+print(response.text)
