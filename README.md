@@ -1,6 +1,6 @@
 # SKA SRC Site Capabilities API
 
-This API exposes functionality related to SRCNet site storage/service discovery and management.
+This API exposes enables functionality related to SRCNet site service discovery and management.
 
 [TOC]
 

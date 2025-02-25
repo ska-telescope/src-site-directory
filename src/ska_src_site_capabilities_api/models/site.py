@@ -24,3 +24,4 @@ class Site(BaseModel):
     created_by_username: str = Field(examples=["username"])
     version: NonNegativeInt = Field(examples=[1])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+

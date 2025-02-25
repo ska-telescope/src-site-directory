@@ -20,33 +20,28 @@ follows:
 
 2. Make your changes.
 
-3. Create new (OpenAPI) code samples if necessary (requires the service to be running):
+3. Create new (OpenAPI) code samples if necessary (requires the service to be running).
    ```bash
    ska-src-data-management-api$ make code-samples
    ```
-
-4. Update `poetry.lock`
-   ```bash
-   ska-src-data-management-api$ poetry lock --no-update
-   ```
    
-5. Add your changes to the branch:
+4. Add your changes to the branch:
     ```bash
    ska-src-data-management-api$ git add ...
     ```
    
-6. Bump the version and commit, entering a commit message when prompted:
+5. Bump the version and commit, entering a commit message when prompted:
     ```bash
    ska-src-data-management-api$ make bump-and-commit
     ```
    This is essential to keep version numbers consistent across the helm chart and python package.
    
-7. Push the changes to your fork when ready:
+6. Push the changes to your fork when ready:
     ```bash
    ska-src-data-management-api$ make push
     ```
 
-8. Create a merge request against upstream main.
+7. Create a merge request against upstream main
    
 Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
 Package Registry.
@@ -57,46 +52,13 @@ Package Registry.
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
-## Code formatting and linting
-
-Code formatting and linting can be assessed by running the `python-format` and `python-lint` Makefile targets inside a 
-virtual environment (venv). These targets are provided by the `.make` submodule. To use these targets, first initialise 
-and update this submodule:
-
-```bash
-ska-src-data-management-api$ git submodule init && git submodule update
-```
-
-then create a virtual environment:
-
-```bash
-ska-src-data-management-api$ poetry shell
-```
-
-and install all the dependencies listed in `pyproject.toml`:
-
-```bash
-(venv)ska-src-data-management-api$ poetry install
-```
-
-To run code formatting checks:
-
-```bash
-ska-src-data-management-api$ make python-format
-```
-
-To run linting:
-
-```bash
-ska-src-data-management-api$ make python-lint
-```
-
 ## Documentation
 
 There is a Makefile target for generating documentation locally:
 
 ```bash
-ska-src-data-management-api/docs$ make html
+ska-src-data-management-api$ make docs
 ```
 
-To render inheritance diagrams etc., the `graphviz` library must be installed.
+but you will need to ensure the necessary sphinx extensions are installed as these are not included in the core 
+requirements.

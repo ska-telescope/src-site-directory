@@ -24,11 +24,9 @@ build/
 dist/
 *.egg-info/
 
-# Bespoke environment files
 docker-compose.local.yml
 .env
 etc/helm/values.yaml
 
-# IDE/development files
-.idea
-.DS_Store
+# IDE
+.idea 
