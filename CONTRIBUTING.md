@@ -20,7 +20,7 @@ follows:
 
 2. Make your changes.
 
-3. Create new (OpenAPI) code samples if necessary (requires the service to be running).
+3. Create new (OpenAPI) code samples if necessary (requires the service to be running):
    ```bash
    ska-src-data-management-api$ make code-samples
    ```
@@ -41,7 +41,7 @@ follows:
    ska-src-data-management-api$ make push
     ```
 
-7. Create a merge request against upstream main
+7. Create a merge request against upstream main.
    
 Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
 Package Registry.
@@ -52,29 +52,36 @@ Package Registry.
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
+## Code formatting and linting
 
-## Formatting and Linting
+Code formatting and linting can be assessed by running the `python-format` and `python-lint` Makefile targets inside a 
+virtual environment (venv). These targets are provided by the `.make` submodule. To use these targets, first initialise 
+and update this submodule:
 
-There is a makefile target to check formatting and linting for the code, create venv and execute below commands
+```bash
+ska-src-data-management-api$ git submodule init && git submodule update
+```
 
-To create virtual env
+then create a virtual environment:
 
 ```bash
 ska-src-data-management-api$ poetry shell
 ```
 
-To install dependencies from pyproject.toml
+and install all the dependencies listed in `pyproject.toml`:
 
 ```bash
 (venv)ska-src-data-management-api$ poetry install
 ```
 
-To do code formatting
+To run code formatting checks:
+
 ```bash
 ska-src-data-management-api$ make python-format
 ```
 
-To do code linting
+To run linting:
+
 ```bash
 ska-src-data-management-api$ make python-lint
 ```
@@ -86,3 +93,5 @@ There is a Makefile target for generating documentation locally:
 ```bash
 ska-src-data-management-api/docs$ make html
 ```
+
+To render inheritance diagrams etc., the `graphviz` library must be installed.

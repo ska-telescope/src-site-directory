@@ -65,7 +65,6 @@ class CustomException(Exception):
     """Class that all custom exceptions must inherit in order for exception to be caught by the
     handle_exceptions decorator.
     """
-
     pass
 
 
@@ -83,7 +82,6 @@ class CustomHTTPException(Exception):
     """Class that all custom HTTP exceptions must inherit in order for exception to be caught by
     the handle_exceptions decorator.
     """
-
     pass
 
 

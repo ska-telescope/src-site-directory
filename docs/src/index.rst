@@ -10,4 +10,4 @@ Welcome to ska-src-site-capabilities-api's developer documentation!
 
    readme.md
    contributing.md
-   CHANGELOG.rst
+   changelog.md

@@ -42,7 +42,6 @@ patch-branch:
 push:
 	@git push origin `git branch | grep "*" | awk -F'[*]' '{ print $$2 }' | tr -d ' '`
 
-
 -include .make/python.mk
 -include .make/base.mk
 -include .make/oci.mk
