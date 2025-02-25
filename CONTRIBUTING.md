@@ -24,24 +24,29 @@ follows:
    ```bash
    ska-src-data-management-api$ make code-samples
    ```
+
+4. Update `poetry.lock`
+   ```bash
+   ska-src-data-management-api$ poetry lock --no-update
+   ```
    
-4. Add your changes to the branch:
+5. Add your changes to the branch:
     ```bash
    ska-src-data-management-api$ git add ...
     ```
    
-5. Bump the version and commit, entering a commit message when prompted:
+6. Bump the version and commit, entering a commit message when prompted:
     ```bash
    ska-src-data-management-api$ make bump-and-commit
     ```
    This is essential to keep version numbers consistent across the helm chart and python package.
    
-6. Push the changes to your fork when ready:
+7. Push the changes to your fork when ready:
     ```bash
    ska-src-data-management-api$ make push
     ```
 
-7. Create a merge request against upstream main.
+8. Create a merge request against upstream main.
    
 Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
 Package Registry.
