@@ -1,24 +1,36 @@
 .PHONY: docs
 
--include .make/base.mk      # provides make help, required for CI build process
+-include .make/base.mk      # provides make help, required for CI build process, and version tooling
 -include .make/oci.mk       # provides oci-* targets, required for CI build process
 -include .make/python.mk    # provides python-* targets, required for CI build process
--include .make/release.mk   # provides version tooling
 
-# Configuration for python-lint and python-format targets.
+# Configuration for python linting and formatting targets (python.mk)
 PYTHON_LINE_LENGTH=120
 PYTHON_SWITCHES_FOR_ISORT=
 PYTHON_SWITCHES_FOR_BLACK=
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503
 PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503
 
-# Configuration for .release
+# Configuration for release management targets (release.mk)
 HELM_CHARTS_TO_PUBLISH=ska-src-site-capabilities-api
 
 bump-and-commit:
-	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
-	@git add VERSION etc/helm/Chart.yaml
-	@git commit
+	@bash -c ' \
+		CURRENT_BRANCH=$$(git branch --show-current); \
+		echo "Current branch: $$CURRENT_BRANCH"; \
+		if echo "$$CURRENT_BRANCH" | grep -q "patch"; then \
+			make bump-patch-release; \
+		elif echo "$$CURRENT_BRANCH" | grep -q "minor"; then \
+			make bump-minor-release; \
+		elif echo "$$CURRENT_BRANCH" | grep -q "major"; then \
+			make bump-major-release; \
+		else \
+			echo "Error: Current branch $$CURRENT_BRANCH is not a valid patch, minor, or major branch"; \
+			exit 1; \
+		fi; \
+		git add .release etc/helm/Chart.yaml pyproject.toml; \
+		git commit -m "Bump version for $$CURRENT_BRANCH"; \
+	'
 
 code-samples:
 	@cd etc/scripts && bash generate-code-samples.sh
@@ -45,4 +57,4 @@ patch-branch:
 	@git checkout patch-$(NAME)
 
 push:
-	@git push origin `git branch | grep "*" | awk -F'[*]' '{ print $$2 }' | tr -d ' '`
+	@git push origin `git branch --show-current`
