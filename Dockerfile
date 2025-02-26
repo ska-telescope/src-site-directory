@@ -8,25 +8,18 @@ RUN curl -fsSL https://pgp.mongodb.com/server-6.0.asc | gpg -o /usr/share/keyrin
 RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 RUN apt-get update -y && apt-get install -y mongodb-org
 
+# install and configure poetry
 RUN pip3 install poetry==1.7.1
+RUN poetry config virtualenvs.create false          # install dependencies directly into system (not venv)
 
-ENV SETUPTOOLS_USE_DISTUTILS=stdlib
-RUN poetry config virtualenvs.create false 
-
-WORKDIR /app
-
-COPY . /app 
-# Install dependencies
-RUN poetry install --only main
-
+# add non-root user and copy repository files
 RUN groupadd user
 RUN adduser --system --no-create-home --disabled-password --shell /bin/bash user
-
 COPY --chown=user . /opt/ska-src-site-capabilities-api
-
-RUN cd /opt/ska-src-site-capabilities-api
-
 WORKDIR /opt/ska-src-site-capabilities-api
+
+# install dependencies via poetry
+RUN poetry install --only main
 
 ENV API_ROOT_PATH ''
 ENV API_SCHEME ''
