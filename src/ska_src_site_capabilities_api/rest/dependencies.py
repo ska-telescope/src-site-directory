@@ -5,10 +5,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from starlette.requests import Request
 
-from ska_src_site_capabilities_api.common.exceptions import (
-    PermissionDenied,
-    handle_exceptions,
-)
+from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
 
 
 class Common:

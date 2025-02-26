@@ -1,4 +1,3 @@
-# See: https://docs.gitlab.com/ee/ci/yaml/includes.html
 image: $SKA_K8S_TOOLS_BUILD_DEPLOY
 
 services:
@@ -13,19 +12,18 @@ cache:
 
 stages:
 - lint
-- join-reports
+- join-lint-reports
 - build
 - test
 - publish
 - pages
 - scan
 
-join_linting_reports:
-  stage: join-reports
+join_lint_reports:
+  stage: join-lint-reports
   tags:
     - k8srunner
   script:
-    - echo "This step is needed as the artifacts can't be passed in the same stage"
     - make join-lint-reports
   artifacts:
     paths:
@@ -33,13 +31,13 @@ join_linting_reports:
     when: always
 
 include:
+  # python formatting, linting and testing
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/python.gitlab-ci.yml'     # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
-# Docs pages
+  # docs
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/docs.gitlab-ci.yml'       # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
-# OCI images build and publish
+  # OCI images build and publish
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'  # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
-
-# TBD: Include helm
+  # TBD: helm

@@ -21,9 +21,7 @@ def handle_client_exceptions(func):
         except CustomException as e:
             raise Exception(message=e.message)
         except CustomHTTPException as e:
-            raise HTTPException(
-                status_code=e.http_error_status, detail=e.message
-            )
+            raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(
                 repr(e), "".join(traceback.format_tb(e.__traceback__))
@@ -49,9 +47,7 @@ def handle_exceptions(func):
         except CustomException as e:
             raise Exception(message=e.message)
         except CustomHTTPException as e:
-            raise HTTPException(
-                status_code=e.http_error_status, detail=e.message
-            )
+            raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(
                 repr(e), "".join(traceback.format_tb(e.__traceback__))
@@ -71,11 +67,7 @@ class CustomException(Exception):
 
 class IAMEndpointNotFoundInWellKnown(CustomException):
     def __init__(self, endpoint):
-        self.message = (
-            "Error setting IAM {} endpoint, not found in .well_known".format(
-                endpoint
-            )
-        )
+        self.message = "Error setting IAM {} endpoint, not found in .well_known".format(endpoint)
         super().__init__(self.message)
 
 
@@ -103,31 +95,21 @@ class PermissionDenied(CustomHTTPException):
 
 class ComputeNotFound(CustomHTTPException):
     def __init__(self, compute_id):
-        self.message = (
-            "Compute element with identifier '{}' could not be found".format(
-                compute_id
-            )
-        )
+        self.message = "Compute element with identifier '{}' could not be found".format(compute_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class SchemaNotFound(CustomHTTPException):
     def __init__(self, schema):
-        self.message = "Schema with name '{}' could not be found".format(
-            schema
-        )
+        self.message = "Schema with name '{}' could not be found".format(schema)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class ServiceNotFound(CustomHTTPException):
     def __init__(self, service_id):
-        self.message = (
-            "Service with identifier '{}' could not be found".format(
-                service_id
-            )
-        )
+        self.message = "Service with identifier '{}' could not be found".format(service_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -141,32 +123,20 @@ class SiteNotFound(CustomHTTPException):
 
 class SiteVersionNotFound(CustomHTTPException):
     def __init__(self, site, version):
-        self.message = (
-            "Version {} of site with name '{}' and could not be found".format(
-                version, site
-            )
-        )
+        self.message = "Version {} of site with name '{}' and could not be found".format(version, site)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class StorageNotFound(CustomHTTPException):
     def __init__(self, storage_id):
-        self.message = (
-            "Storage with identifier '{}' could not be found".format(
-                storage_id
-            )
-        )
+        self.message = "Storage with identifier '{}' could not be found".format(storage_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class StorageAreaNotFound(CustomHTTPException):
     def __init__(self, storage_area_id):
-        self.message = (
-            "Storage area with identifier '{}' could not be found".format(
-                storage_area_id
-            )
-        )
+        self.message = "Storage area with identifier '{}' could not be found".format(storage_area_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)

@@ -1,8 +1,6 @@
 import requests
 
-from ska_src_site_capabilities_api.common.exceptions import (
-    handle_client_exceptions,
-)
+from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
 
 
 class SiteCapabilitiesClient:
@@ -19,9 +17,7 @@ class SiteCapabilitiesClient:
 
         :return: The url.
         """
-        add_site_www_url = "{api_url}/www/sites/add".format(
-            api_url=self.api_url
-        )
+        add_site_www_url = "{api_url}/www/sites/add".format(api_url=self.api_url)
         return add_site_www_url
 
     @handle_client_exceptions
@@ -30,9 +26,7 @@ class SiteCapabilitiesClient:
 
         :return: The url.
         """
-        edit_site_www_url = "{api_url}/www/sites/add/{site_name}".format(
-            api_url=self.api_url, site_name=site_name
-        )
+        edit_site_www_url = "{api_url}/www/sites/add/{site_name}".format(api_url=self.api_url, site_name=site_name)
         return edit_site_www_url
 
     @handle_client_exceptions
@@ -60,9 +54,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_schema_endpoint = "{api_url}/schemas/{schema}".format(
-            api_url=self.api_url, schema=schema
-        )
+        get_schema_endpoint = "{api_url}/schemas/{schema}".format(api_url=self.api_url, schema=schema)
         resp = self.session.get(get_schema_endpoint)
         resp.raise_for_status()
         return resp
@@ -108,10 +100,8 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_area_by_id_endpoint = (
-            "{api_url}/storage-areas/{storage_area_id}".format(
-                api_url=self.api_url, storage_area_id=storage_area_id
-            )
+        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(
+            api_url=self.api_url, storage_area_id=storage_area_id
         )
         resp = self.session.get(get_storage_area_by_id_endpoint)
         resp.raise_for_status()
@@ -154,9 +144,7 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_services(
-        self, include_associated_with_compute=True, include_disabled=False
-    ):
+    def list_services(self, include_associated_with_compute=True, include_disabled=False):
         """List services.
 
         :return: A requests response.
@@ -178,9 +166,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        service_types_endpoint = "{api_url}/services/types".format(
-            api_url=self.api_url
-        )
+        service_types_endpoint = "{api_url}/services/types".format(api_url=self.api_url)
         resp = self.session.get(service_types_endpoint)
         resp.raise_for_status()
         return resp
@@ -191,9 +177,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        service_types_core_endpoint = "{api_url}/services/types/core".format(
-            api_url=self.api_url
-        )
+        service_types_core_endpoint = "{api_url}/services/types/core".format(api_url=self.api_url)
         resp = self.session.get(service_types_core_endpoint)
         resp.raise_for_status()
         return resp
@@ -217,9 +201,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        sites_latest_endpoint = "{api_url}/sites/latest".format(
-            api_url=self.api_url
-        )
+        sites_latest_endpoint = "{api_url}/sites/latest".format(api_url=self.api_url)
         resp = self.session.get(sites_latest_endpoint)
         resp.raise_for_status()
         return resp
@@ -243,9 +225,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        storages_grafana_endpoint = "{api_url}/storages/grafana".format(
-            api_url=self.api_url
-        )
+        storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
         resp = self.session.get(storages_grafana_endpoint)
         resp.raise_for_status()
         return resp
@@ -257,9 +237,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        storages_topojson_endpoint = "{api_url}/storages/topojson".format(
-            api_url=self.api_url
-        )
+        storages_topojson_endpoint = "{api_url}/storages/topojson".format(api_url=self.api_url)
         resp = self.session.get(storages_topojson_endpoint)
         resp.raise_for_status()
         return resp
@@ -271,9 +249,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        storage_areas_endpoint = "{api_url}/storage-areas".format(
-            api_url=self.api_url
-        )
+        storage_areas_endpoint = "{api_url}/storage-areas".format(api_url=self.api_url)
         resp = self.session.get(storage_areas_endpoint)
         resp.raise_for_status()
         return resp
@@ -285,9 +261,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        storage_areas_grafana_endpoint = (
-            "{api_url}/storage-areas/grafana".format(api_url=self.api_url)
-        )
+        storage_areas_grafana_endpoint = "{api_url}/storage-areas/grafana".format(api_url=self.api_url)
         resp = self.session.get(storage_areas_grafana_endpoint)
         resp.raise_for_status()
         return resp
@@ -299,9 +273,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        storage_areas_topojson_endpoint = (
-            "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
-        )
+        storage_areas_topojson_endpoint = "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
         resp = self.session.get(storage_areas_topojson_endpoint)
         resp.raise_for_status()
         return resp
