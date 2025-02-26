@@ -12,10 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Symlink in charts/ska-src-site-capabilities-api pointing to etc/helm, as release machinery from System assumes
   this location.
 
+### Changed
+
+- Makefile now uses System Makefile targets for release handling
+
 ### Removed
 
 - VERSION now handled by pyproject.toml
 - Reference to VERSION in Dockerfile init, now reference pyproject.toml
+- etc/scripts/increment* scripts, now handled by System Makefile targets
 
 ## [0.3.53]
 
