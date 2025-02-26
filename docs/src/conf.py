@@ -1,5 +1,6 @@
 import os
 import sys
+import toml
 
 sys.path.insert(0, os.path.abspath("../../src"))
 sys.path.insert(1, os.path.abspath("../.."))
@@ -18,7 +19,8 @@ copyright = '2024, Rob Barnsley'
 author = 'Rob Barnsley'
 
 # The short X.Y version
-version = release = open('../../VERSION', 'r').read().strip()
+pyproject = toml.load('../../pyproject.toml')
+version = release = pyproject['tool']['poetry']['version']
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
