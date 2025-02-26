@@ -160,7 +160,7 @@ eng@ubuntu:~/SKAO/ska-src-site-capabilities-api$ docker-compose up
 
 ### Example via Helm
 
-After editing the `values.yaml` (template in `/etc/helm/`):
+First, create a `values.yaml` using the template in `/etc/helm/` as a basis, then install:
 
 ```bash
 $ create namespace ska-src-site-capabilities-api
