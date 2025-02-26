@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "type": "object",
   "description": "Storage area definition schema.",
   "properties": {
@@ -40,6 +40,13 @@
       "type": "textarea",
       "title": "Other storage area attributes (as json)",
       "allowEmpty": true
+    },
+    "tier": {
+      "type": "string",
+      "title": "Tier",
+      "enum": ["Tier 0", "Tier 1"],
+      "default": "Tier 1",
+      "required": true
     }
   }
 }

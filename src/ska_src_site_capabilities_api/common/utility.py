@@ -1,6 +1,3 @@
-"""
-A commonly used helper utility method module
-"""
 from urllib.parse import urlparse
 
 import markdown
@@ -12,15 +9,13 @@ def convert_readme_to_html_docs(
     convert_mermaid_diagrams=True,
     exclude_sections=None,
 ):
-    """Take an application's README file and parse it for display
-    in HTML documentation.
+    """Take an application's README file and parse it for display in HTML documentation.
 
     Options:
 
     remove_first_heading: removes any first level headings ("#")
     convert_mermaid_diagrams: change ```mermaid``` blocks into HTML <div>s
-    exclude_sections: Remove sections with headings in
-    the list <exclude_sections>.
+    exclude_sections: Remove sections with headings in the list <exclude_sections>.
     """
     parsed_text_lines = []
     in_mermaid_diagram = False
@@ -62,23 +57,18 @@ def convert_readme_to_html_docs(
 
 
 def get_api_server_url_from_request(request, scheme="http"):
-    """Return the api server url given an instance of Request, <request>,
-    and scheme, <scheme>.
+    """Return the api server url given an instance of Request, <request>, and scheme, <scheme>.
 
-    Scheme is required in case the original scheme is not forwarded
-    correctly through proxies.
+    Scheme is required in case the original scheme is not forwarded correctly through proxies.
 
     Example returns:
      - http://localhost/v1/
      - https://service.srcdev.skao.int/api/v1
 
     Note:
-      - request.scope.get('root_path') returns either
-      e.g. /v1 or /api/v1 (if proxied)
-      - request.base_url returns the full path up to and including
-      the proxy base path (e.g. api)
-      - request.app.url_path_for(function_name) returns the
-      (sub)application path for a given function name
+      - request.scope.get('root_path') returns either e.g. /v1 or /api/v1 (if proxied)
+      - request.base_url returns the full path up to and including the proxy base path (e.g. api)
+      - request.app.url_path_for(function_name) returns the (sub)application path for a given function name
         (function_name)
     """
     parsed_url = urlparse(str(request.base_url))
@@ -88,11 +78,9 @@ def get_api_server_url_from_request(request, scheme="http"):
 
 
 def get_base_url_from_request(request, scheme="http"):
-    """Return the base url given an instance of Request, <request>,
-    and scheme, <scheme>.
+    """Return the base url given an instance of Request, <request>, and scheme, <scheme>.
 
-    Scheme is required in case the original scheme is not forwarded
-    correctly through proxies.
+    Scheme is required in case the original scheme is not forwarded correctly through proxies.
 
     Example returns:
      - http://localhost
@@ -105,28 +93,19 @@ def get_base_url_from_request(request, scheme="http"):
 def get_url_for_app_from_request(
     function_name, request, path_params={}, scheme="http"
 ):
-    """Return an url for a particular (sub)application's function name,
-    <function_name>, with path params,
-    <path_params>, given an instance of Request, <request>,
-    and scheme, <scheme>.
+    """Return an url for a particular (sub)application's function name, <function_name>, with path params,
+    <path_params>, given an instance of Request, <request>, and scheme, <scheme>.
 
-    Scheme is required in case the original scheme is not forwarded
-    correctly through proxies.
+    Scheme is required in case the original scheme is not forwarded correctly through proxies.
 
     Examples:
-     - on localhost,
-     function_name="add_site": http://localhost/v1/www/sites/add
-     - in production,
-     function_name="add_site":
-     https://service.srcdev.skao.int/api/v1/www/sites/add
+     - on localhost, function_name="add_site": http://localhost/v1/www/sites/add
+     - in production, function_name="add_site": https://service.srcdev.skao.int/api/v1/www/sites/add
 
     Note:
-      - request.scope.get('root_path') returns either
-      e.g. /v1 or /api/v1 (if proxied)
-      - request.base_url returns the full path up to
-      and including the proxy base path (e.g. api)
-      - request.app.url_path_for(function_name) returns
-      the (sub)application path for a given function name
+      - request.scope.get('root_path') returns either e.g. /v1 or /api/v1 (if proxied)
+      - request.base_url returns the full path up to and including the proxy base path (e.g. api)
+      - request.app.url_path_for(function_name) returns the (sub)application path for a given function name
         (function_name)
     """
     parsed_url = urlparse(str(request.base_url))

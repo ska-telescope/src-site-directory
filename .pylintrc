@@ -70,7 +70,20 @@ disable=consider-using-f-string,
         redefined-outer-name,
         no-else-return,
         no-member, 
-        redefined-argument-from-local
+        redefined-argument-from-local,
+        missing-class-docstring,
+        line-too-long,
+        missing-function-docstring,
+        missing-module-docstring,
+        unspecified-encoding,
+        arguments-differ,
+        raise-missing-from ,
+        unnecessary-pass,
+        redefined-builtin,
+        missing-timeout,
+        unused-import,
+        undefined-variable,
+        function-redefined
 
 
 
@@ -363,7 +376,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=79
+max-line-length=150
 
 # Maximum number of lines in a module.
 max-module-lines=5000

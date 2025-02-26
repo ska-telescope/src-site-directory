@@ -1,6 +1,3 @@
-"""
-A module for site class
-"""
 from typing import List
 
 from pydantic import BaseModel, Field, NonNegativeInt
@@ -12,10 +9,6 @@ from ska_src_site_capabilities_api.models.storage import Storage
 
 
 class Site(BaseModel):
-    """
-    Class for represention of SRCnet site details.
-    """
-
     _id: str = Field(examples=["651d7968ebc02f9f2d66b3df"])
     name: str = Field(examples=["SKAOSRC"])
     comments: str = Field(examples=["Some version comments"])

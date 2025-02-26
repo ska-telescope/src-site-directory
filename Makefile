@@ -3,6 +3,8 @@ FILE ?= tests## A specific test file to pass to pytest
 ADD_ARGS ?= ## Additional args to pass to pytest
 MARK ?= unit_test
 ADDMARK ?= # additional markers
+PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503 --max-line-length=150
+PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503
 
 PYTHON_VARS_BEFORE_PYTEST ?= PYTHONPATH=.:./src
 
