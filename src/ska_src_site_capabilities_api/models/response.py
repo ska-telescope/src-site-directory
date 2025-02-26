@@ -26,9 +26,7 @@ class Response(BaseModel):
 
 
 class ListResponse(Response):
-    site_name: str = Field(
-        examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"]
-    )
+    site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
 ComputeGetResponse = Compute
@@ -56,9 +54,7 @@ class HealthResponse(Response):
         class DependentServiceStatus(BaseModel):
             status: Literal["UP", "DOWN"] = Field(examples=["UP"])
 
-        permissions_api: DependentServiceStatus = Field(
-            alias="permissions-api"
-        )
+        permissions_api: DependentServiceStatus = Field(alias="permissions-api")
 
     uptime: NonNegativeInt = Field(examples=[1000])
     number_of_managed_requests: NonNegativeInt = Field(examples=[50])

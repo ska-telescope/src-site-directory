@@ -28,9 +28,7 @@ def convert_readme_to_html_docs(
             elif line.startswith("##"):
                 line = line[1:]  # reduce headings by 1
         if convert_mermaid_diagrams:
-            if line.startswith(
-                "```mermaid"
-            ):  # convert mermaid diagrams to divs
+            if line.startswith("```mermaid"):  # convert mermaid diagrams to divs
                 line = '<div class="mermaid">'
                 in_mermaid_diagram = True
             elif line.startswith("```") and in_mermaid_diagram:
@@ -51,9 +49,7 @@ def convert_readme_to_html_docs(
                 continue
         parsed_text_lines.append(line)
     parsed_text = "\n".join(parsed_text_lines)
-    return markdown.markdown(
-        parsed_text, extensions=["codehilite", "fenced_code", "toc", "tables"]
-    )
+    return markdown.markdown(parsed_text, extensions=["codehilite", "fenced_code", "toc", "tables"])
 
 
 def get_api_server_url_from_request(request, scheme="http"):
@@ -72,9 +68,7 @@ def get_api_server_url_from_request(request, scheme="http"):
         (function_name)
     """
     parsed_url = urlparse(str(request.base_url))
-    return parsed_url._replace(
-        scheme=scheme, path="{}".format(request.scope.get("root_path"))
-    ).geturl()
+    return parsed_url._replace(scheme=scheme, path="{}".format(request.scope.get("root_path"))).geturl()
 
 
 def get_base_url_from_request(request, scheme="http"):
@@ -90,9 +84,7 @@ def get_base_url_from_request(request, scheme="http"):
     return parsed_url._replace(scheme=scheme).geturl()
 
 
-def get_url_for_app_from_request(
-    function_name, request, path_params={}, scheme="http"
-):
+def get_url_for_app_from_request(function_name, request, path_params={}, scheme="http"):
     """Return an url for a particular (sub)application's function name, <function_name>, with path params,
     <path_params>, given an instance of Request, <request>, and scheme, <scheme>.
 

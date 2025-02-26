@@ -8,29 +8,21 @@ from pydantic import BaseModel, Field, NonNegativeInt
 
 # get local services from schema
 schema_path = pathlib.Path(
-    "{}.json".format(
-        os.path.join(os.environ.get("SCHEMAS_RELPATH"), "local-service")
-    )
+    "{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "local-service"))
 ).absolute()
 with open(schema_path) as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-local_services = (
-    dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
-)
+local_services = dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
 
 LocalServiceType = Literal[tuple(local_services)]
 
 # get global services from schema
 schema_path = pathlib.Path(
-    "{}.json".format(
-        os.path.join(os.environ.get("SCHEMAS_RELPATH"), "global-service")
-    )
+    "{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "global-service"))
 ).absolute()
 with open(schema_path) as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-global_services = (
-    dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
-)
+global_services = dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
 
 GlobalServiceType = Literal[tuple(global_services)]
 

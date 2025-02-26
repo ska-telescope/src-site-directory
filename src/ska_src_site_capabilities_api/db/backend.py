@@ -164,9 +164,7 @@ class MongoBackend(Backend):
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(
-            include_associated_with_compute=True, include_disabled=True
-        ):
+        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
             site_name = entry.get("site_name")
             services = entry.get("services", [])
             for service in services:
@@ -241,9 +239,7 @@ class MongoBackend(Backend):
                 )
         return response
 
-    def list_services(
-        self, include_associated_with_compute=True, include_disabled=True
-    ):
+    def list_services(self, include_associated_with_compute=True, include_disabled=True):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
@@ -255,9 +251,7 @@ class MongoBackend(Backend):
             if include_associated_with_compute:
                 for compute in full_site_json.get("compute", []):
                     # add the associated compute id
-                    for service in compute.get(
-                        "associated_local_services", []
-                    ):
+                    for service in compute.get("associated_local_services", []):
                         services.append(
                             {
                                 "associated_compute_id": compute.get("id"),
@@ -265,9 +259,7 @@ class MongoBackend(Backend):
                             }
                         )
 
-            response.append(
-                {"site_name": full_site_json.get("name"), "services": services}
-            )
+            response.append({"site_name": full_site_json.get("name"), "services": services})
         return response
 
     def list_service_types_from_schema(self, schema):
@@ -295,9 +287,7 @@ class MongoBackend(Backend):
         if topojson:
             response = {
                 "type": "Topology",
-                "objects": {
-                    "sites": {"type": "GeometryCollection", "geometries": []}
-                },
+                "objects": {"sites": {"type": "GeometryCollection", "geometries": []}},
             }
         else:
             response = []
@@ -314,9 +304,7 @@ class MongoBackend(Backend):
                                     storage.get("longitude"),
                                     storage.get("latitude"),
                                 ],
-                                "properties": {
-                                    "name": storage.get("identifier")
-                                },
+                                "properties": {"name": storage.get("identifier")},
                             }
                         )
                     elif for_grafana:
@@ -342,9 +330,7 @@ class MongoBackend(Backend):
         if topojson:
             response = {
                 "type": "Topology",
-                "objects": {
-                    "sites": {"type": "GeometryCollection", "geometries": []}
-                },
+                "objects": {"sites": {"type": "GeometryCollection", "geometries": []}},
             }
         else:
             response = []
@@ -363,9 +349,7 @@ class MongoBackend(Backend):
                                     storage.get("longitude"),
                                     storage.get("latitude"),
                                 ],
-                                "properties": {
-                                    "name": storage_area.get("identifier")
-                                },
+                                "properties": {"name": storage_area.get("identifier")},
                             }
                         )
                     elif for_grafana:

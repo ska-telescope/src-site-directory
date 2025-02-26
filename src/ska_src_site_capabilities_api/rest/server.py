@@ -26,12 +26,7 @@ from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from starlette.responses import (
-    HTMLResponse,
-    JSONResponse,
-    RedirectResponse,
-    StreamingResponse,
-)
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
@@ -60,11 +55,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = (
-    True
-    if config.get("DISABLE_AUTHENTICATION", default=None) == "yes"
-    else False
-)
+DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -84,9 +75,7 @@ app.add_middleware(
 
 # Get instance of IAM constants.
 #
-IAM_CONSTANTS = constants.IAM(
-    client_conf_url=config.get("IAM_CLIENT_CONF_URL")
-)
+IAM_CONSTANTS = constants.IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
 
 # Get templates.
 #
@@ -207,21 +196,14 @@ async def get_compute_from_id(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Schemas"],
     summary="List schemas",
 )
 @handle_exceptions
 async def list_schemas(request: Request) -> JSONResponse:
     """Get a list of schema names used to define entities."""
-    schema_basenames = sorted(
-        [
-            "".join(fi.split(".")[:-1])
-            for fi in os.listdir(config.get("SCHEMAS_RELPATH"))
-        ]
-    )
+    schema_basenames = sorted(["".join(fi.split(".")[:-1]) for fi in os.listdir(config.get("SCHEMAS_RELPATH"))])
     return JSONResponse(schema_basenames)
 
 
@@ -234,9 +216,7 @@ async def list_schemas(request: Request) -> JSONResponse:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Schemas"],
     summary="Get schema",
 )
@@ -246,18 +226,10 @@ async def get_schema(
 ) -> Union[JSONResponse, HTTPException]:
     """Get a schema by name."""
     try:
-        schema_path = pathlib.Path(
-            "{}.json".format(
-                os.path.join(config.get("SCHEMAS_RELPATH"), schema)
-            )
-        ).absolute()
+        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
         with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(
-                f, base_uri=schema_path.as_uri()
-            )
-        return JSONResponse(
-            ast.literal_eval(str(dereferenced_schema))
-        )  # some issue with jsonref return != dict
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+        return JSONResponse(ast.literal_eval(str(dereferenced_schema)))  # some issue with jsonref return != dict
     except FileNotFoundError:
         raise SchemaNotFound
 
@@ -271,9 +243,7 @@ async def get_schema(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Schemas"],
     summary="Render a schema",
 )
@@ -283,15 +253,9 @@ async def render_schema(
 ) -> Union[JSONResponse, HTTPException]:
     """Render a schema by name."""
     try:
-        schema_path = pathlib.Path(
-            "{}.json".format(
-                os.path.join(config.get("SCHEMAS_RELPATH"), schema)
-            )
-        ).absolute()
+        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
         with open(schema_path) as f:
-            dereferenced_schema = ast.literal_eval(
-                str(jsonref.load(f, base_uri=schema_path.as_uri()))
-            )
+            dereferenced_schema = ast.literal_eval(str(jsonref.load(f, base_uri=schema_path.as_uri())))
     except FileNotFoundError:
         raise SchemaNotFound
 
@@ -300,17 +264,11 @@ async def render_schema(
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as schema_file:
-        schema_file.write(
-            "@startjson\n{}\n@endjson\n".format(
-                json.dumps(dereferenced_schema, indent=2)
-            )
-        )
+        schema_file.write("@startjson\n{}\n@endjson\n".format(json.dumps(dereferenced_schema, indent=2)))
         schema_file.flush()
 
         image_temp_file_descriptor, image_temp_file_name = tempfile.mkstemp()
-        plantuml.processes_file(
-            filename=schema_file.name, outfile=image_temp_file_name
-        )
+        plantuml.processes_file(filename=schema_file.name, outfile=image_temp_file_name)
         with open(image_temp_file_name, "rb") as image_temp_file:
             png = image_temp_file.read()
         os.close(image_temp_file_descriptor)
@@ -341,9 +299,7 @@ async def list_services(
     include_associated_with_compute: bool = Query(
         default=True, description="Include services associated with compute?"
     ),
-    include_disabled: bool = Query(
-        default=False, description="Include disabled services?"
-    ),
+    include_disabled: bool = Query(default=False, description="Include disabled services?"),
 ) -> JSONResponse:
     """List all services."""
     rtn = BACKEND.list_services(
@@ -361,9 +317,7 @@ async def list_services(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Services"],
     summary="List service types",
 )
@@ -373,34 +327,22 @@ async def list_service_types(request: Request) -> JSONResponse:
     try:
         # local
         local_schema_path = pathlib.Path(
-            "{}.json".format(
-                os.path.join(config.get("SCHEMAS_RELPATH"), "local-service")
-            )
+            "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "local-service"))
         ).absolute()
         with open(local_schema_path) as f:
-            dereferenced_local_schema = jsonref.load(
-                f, base_uri=local_schema_path.as_uri()
-            )
+            dereferenced_local_schema = jsonref.load(f, base_uri=local_schema_path.as_uri())
 
         # global
         global_schema_path = pathlib.Path(
-            "{}.json".format(
-                os.path.join(config.get("SCHEMAS_RELPATH"), "global-service")
-            )
+            "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "global-service"))
         ).absolute()
         with open(global_schema_path) as f:
-            dereferenced_global_schema = jsonref.load(
-                f, base_uri=global_schema_path.as_uri()
-            )
+            dereferenced_global_schema = jsonref.load(f, base_uri=global_schema_path.as_uri())
     except FileNotFoundError:
         raise SchemaNotFound
     rtn = {
-        "local": BACKEND.list_service_types_from_schema(
-            schema=dereferenced_local_schema
-        ),
-        "global": BACKEND.list_service_types_from_schema(
-            schema=dereferenced_global_schema
-        ),
+        "local": BACKEND.list_service_types_from_schema(schema=dereferenced_local_schema),
+        "global": BACKEND.list_service_types_from_schema(schema=dereferenced_global_schema),
     }
     return JSONResponse(rtn)
 
@@ -448,9 +390,7 @@ async def get_service_from_id(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Sites"],
     summary="List sites",
 )
@@ -488,17 +428,11 @@ async def add_site(
     if DEBUG and not authorization:
         values["created_by_username"] = "admin"
     else:
-        access_token_decoded = jwt.decode(
-            authorization.credentials, options={"verify_signature": False}
-        )
-        values["created_by_username"] = access_token_decoded.get(
-            "preferred_username"
-        )
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values["created_by_username"] = access_token_decoded.get("preferred_username")
 
     # autogenerate ids for id keys
-    def recursive_autogen_id(
-        data, autogen_keys=["id"], placeholder_value="to be assigned"
-    ):
+    def recursive_autogen_id(data, autogen_keys=["id"], placeholder_value="to be assigned"):
         if isinstance(data, dict):
             for key, value in data.items():
                 if key in autogen_keys:
@@ -545,17 +479,11 @@ async def edit_site(
     if DEBUG and not authorization:
         values["created_by_username"] = "admin"
     else:
-        access_token_decoded = jwt.decode(
-            authorization.credentials, options={"verify_signature": False}
-        )
-        values["created_by_username"] = access_token_decoded.get(
-            "preferred_username"
-        )
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values["created_by_username"] = access_token_decoded.get("preferred_username")
 
     # autogenerate ids for id keys
-    def recursive_autogen_id(
-        data, autogen_keys=["id"], placeholder_value="to be assigned"
-    ):
+    def recursive_autogen_id(data, autogen_keys=["id"], placeholder_value="to be assigned"):
         if isinstance(data, dict):
             for key, value in data.items():
                 if key in autogen_keys:
@@ -803,9 +731,7 @@ async def list_storages(request: Request) -> JSONResponse:
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Storages"],
     summary="List all storages (Grafana format)",
 )
@@ -824,9 +750,7 @@ async def list_storages_for_grafana(request: Request) -> JSONResponse:
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Storages"],
     summary="List all storages (topojson format)",
 )
@@ -899,9 +823,7 @@ async def list_storages(request: Request) -> JSONResponse:
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Storage Areas"],
     summary="List all storage areas (Grafana format)",
 )
@@ -920,9 +842,7 @@ async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Storage Areas"],
     summary="List all storage areas (topojson format)",
 )
@@ -943,9 +863,7 @@ async def list_storage_areas_in_topojson_format(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Storage Areas"],
     summary="List storage area types",
 )
@@ -954,19 +872,13 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
     """List storage area types."""
     try:
         storage_area_schema_path = pathlib.Path(
-            "{}.json".format(
-                os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area")
-            )
+            "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area"))
         ).absolute()
         with open(storage_area_schema_path) as f:
-            dereferenced_storage_area_schema = jsonref.load(
-                f, base_uri=storage_area_schema_path.as_uri()
-            )
+            dereferenced_storage_area_schema = jsonref.load(f, base_uri=storage_area_schema_path.as_uri())
     except FileNotFoundError:
         raise SchemaNotFound
-    rtn = BACKEND.list_storage_area_types_from_schema(
-        schema=dereferenced_storage_area_schema
-    )
+    rtn = BACKEND.list_storage_area_types_from_schema(schema=dereferenced_storage_area_schema)
     return JSONResponse(rtn)
 
 
@@ -1004,9 +916,7 @@ async def get_storage_area_from_id(
 @app.get(
     "/www/docs/oper",
     include_in_schema=False,
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
 )
 @handle_exceptions
 async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
@@ -1016,9 +926,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
     else:
         with open("../../../README.md") as f:
             readme_text_md = f.read()
-    readme_text_html = convert_readme_to_html_docs(
-        readme_text_md, exclude_sections=["Deployment"]
-    )
+    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
 
     openapi_schema = request.scope.get("app").openapi_schema
     openapi_schema_template = Template(json.dumps(openapi_schema))
@@ -1026,21 +934,13 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
         "docs.html",
         {
             "request": request,
-            "base_url": get_base_url_from_request(
-                request, config.get("API_SCHEME", default="http")
-            ),
+            "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
             "page_title": "Site Capabilities API Operator Documentation",
             "openapi_schema": openapi_schema_template.render(
-                {
-                    "api_server_url": get_api_server_url_from_request(
-                        request, config.get("API_SCHEME", default="http")
-                    )
-                }
+                {"api_server_url": get_api_server_url_from_request(request, config.get("API_SCHEME", default="http"))}
             ),
             "readme_text_md": readme_text_html,
-            "version": "v{version}".format(
-                version=os.environ.get("SERVICE_VERSION")
-            ),
+            "version": "v{version}".format(version=os.environ.get("SERVICE_VERSION")),
         },
     )
 
@@ -1049,9 +949,7 @@ async def oper_docs(request: Request) -> TEMPLATES.TemplateResponse:
 @app.get(
     "/www/docs/user",
     include_in_schema=False,
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
 )
 @handle_exceptions
 async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
@@ -1087,21 +985,13 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
         "docs.html",
         {
             "request": request,
-            "base_url": get_base_url_from_request(
-                request, config.get("API_SCHEME", default="http")
-            ),
+            "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
             "page_title": "Site Capabilities API User Documentation",
             "openapi_schema": openapi_schema_template.render(
-                {
-                    "api_server_url": get_api_server_url_from_request(
-                        request, config.get("API_SCHEME", default="http")
-                    )
-                }
+                {"api_server_url": get_api_server_url_from_request(request, config.get("API_SCHEME", default="http"))}
             ),
             "readme_text_md": readme_text_html,
-            "version": "v{version}".format(
-                version=os.environ.get("SERVICE_VERSION")
-            ),
+            "version": "v{version}".format(version=os.environ.get("SERVICE_VERSION")),
         },
     )
 
@@ -1111,9 +1001,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     "/www/login",
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     summary="Login",
 )
 @handle_exceptions
@@ -1123,20 +1011,14 @@ async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
     elif request.query_params.get("code"):
         # get token from authorization code
         code = request.query_params.get("code")
-        original_request_uri = request.url.remove_query_params(
-            keys=["code", "state"]
-        )
+        original_request_uri = request.url.remove_query_params(keys=["code", "state"])
         response = AUTH.token(code=code, redirect_uri=original_request_uri)
 
         # exchange token for site-capabilities-api
         access_token = response.json().get("token", {}).get("access_token")
         if access_token:
-            response = AUTH.exchange_token(
-                service="site-capabilities-api", access_token=access_token
-            )
-            request.session["access_token"] = response.json().get(
-                "access_token"
-            )
+            response = AUTH.exchange_token(service="site-capabilities-api", access_token=access_token)
+            request.session["access_token"] = response.json().get("access_token")
 
         # redirect back now we have a valid token
         return RedirectResponse(original_request_uri)
@@ -1152,9 +1034,7 @@ async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
     "/www/logout",
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     summary="Logout",
 )
 @handle_exceptions
@@ -1172,9 +1052,7 @@ async def www_logout(request: Request) -> Union[HTMLResponse]:
 @app.get(
     "/www/sites/add",
     responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Sites"],
     summary="Add site form",
 )
@@ -1200,21 +1078,15 @@ async def add_site_form(
             raise PermissionDenied
 
         # Get schema.
-        schema_path = pathlib.Path(
-            os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")
-        ).absolute()
+        schema_path = pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")).absolute()
         with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(
-                f, base_uri=schema_path.as_uri()
-            )
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
         schema = ast.literal_eval(str(dereferenced_schema))
         return TEMPLATES.TemplateResponse(
             "site.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(
-                    request, config.get("API_SCHEME", default="http")
-                ),
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "schema": schema,
                 "add_site_url": get_url_for_app_from_request(
                     "add_site",
@@ -1231,9 +1103,7 @@ async def add_site_form(
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + ">login</a> first."
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first."
         )
 
 
@@ -1241,16 +1111,12 @@ async def add_site_form(
 @app.get(
     "/www/sites/add/{site}",
     responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Sites"],
     summary="Update existing site form",
 )
 @handle_exceptions
-async def add_site_form_existing(
-    request: Request, site: str
-) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
+async def add_site_form_existing(request: Request, site: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
     """Web form to update an existing site with JSON schema validation."""
     if request.session.get("access_token"):
         # Check access permissions.
@@ -1269,13 +1135,9 @@ async def add_site_form_existing(
             raise PermissionDenied
 
         # Get schema.
-        schema_path = pathlib.Path(
-            os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")
-        ).absolute()
+        schema_path = pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")).absolute()
         with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(
-                f, base_uri=schema_path.as_uri()
-            )
+            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
         schema = ast.literal_eval(str(dereferenced_schema))
 
         # Get latest values for requested site.
@@ -1306,9 +1168,7 @@ async def add_site_form_existing(
             "site.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(
-                    request, config.get("API_SCHEME", default="http")
-                ),
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "schema": schema,
                 "add_site_url": get_url_for_app_from_request(
                     "edit_site",
@@ -1327,9 +1187,7 @@ async def add_site_form_existing(
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + ">login</a> first."
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first."
         )
 
 
@@ -1378,17 +1236,13 @@ async def health(request: Request):
     #
     healthy_criteria = [permissions_api_response.status_code == 200]
     return JSONResponse(
-        status_code=status.HTTP_200_OK
-        if all(healthy_criteria)
-        else status.HTTP_500_INTERNAL_SERVER_ERROR,
+        status_code=status.HTTP_200_OK if all(healthy_criteria) else status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "uptime": round(time.time() - SERVICE_START_TIME),
             "number_of_managed_requests": REQUESTS_COUNTER,
             "dependent_services": {
                 "permissions-api": {
-                    "status": "UP"
-                    if permissions_api_response.status_code == 200
-                    else "DOWN",
+                    "status": "UP" if permissions_api_response.status_code == 200 else "DOWN",
                 }
             },
         },
@@ -1397,9 +1251,7 @@ async def health(request: Request):
 
 # Versionise the API.
 #
-versions = versionize(
-    app=app, prefix_format="/v{major}", docs_url=None, redoc_url=None
-)
+versions = versionize(app=app, prefix_format="/v{major}", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Customise openapi.json.
@@ -1409,18 +1261,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # - Remove 422 responses.
 #
 for route in app.routes:
-    if isinstance(
-        route.app, FastAPI
-    ):  # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
+    if isinstance(route.app, FastAPI):  # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
         subapp = route.app
-        subapp_base_path = "{}{}".format(
-            os.environ.get("API_ROOT_PATH", default=""), route.path
-        )
+        subapp_base_path = "{}{}".format(os.environ.get("API_ROOT_PATH", default=""), route.path)
         subapp.openapi()
         subapp.openapi_schema["servers"] = [{"url": subapp_base_path}]
-        subapp.openapi_schema["info"][
-            "title"
-        ] = "Site Capabilities API Overview"
+        subapp.openapi_schema["info"]["title"] = "Site Capabilities API Overview"
         subapp.openapi_schema["tags"] = [
             {
                 "name": "Sites",
@@ -1466,12 +1312,8 @@ for route in app.routes:
                     if attr.get("responses", {}).get("422"):
                         del attr.get("responses")["422"]
                     method = method.strip("/")
-                    sample_template_filename = "{}-{}-{}.j2".format(
-                        language, path, method
-                    ).replace("/", "-")
-                    sample_template_path = os.path.join(
-                        "request-code-samples", sample_template_filename
-                    )
+                    sample_template_filename = "{}-{}-{}.j2".format(language, path, method).replace("/", "-")
+                    sample_template_path = os.path.join("request-code-samples", sample_template_filename)
                     if os.path.exists(sample_template_path):
                         with open(sample_template_path, "r") as f:
                             sample_source_template = f.read()
@@ -1479,9 +1321,7 @@ for route in app.routes:
                         code_samples.append(
                             {
                                 "lang": language,
-                                "source": str(
-                                    sample_source_template
-                                ),  # rendered later in route
+                                "source": str(sample_source_template),  # rendered later in route
                             }
                         )
                         attr["x-code-samples"] = code_samples
