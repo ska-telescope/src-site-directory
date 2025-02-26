@@ -29,7 +29,7 @@ bump-and-commit:
 			exit 1; \
 		fi; \
 		git add .release etc/helm/Chart.yaml pyproject.toml; \
-		git commit -m "Bump version for $$CURRENT_BRANCH"; \
+		git commit \
 	'
 
 code-samples:
