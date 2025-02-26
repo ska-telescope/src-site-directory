@@ -15,11 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Makefile now uses System Makefile targets for release handling
+- Reference to VERSION in Dockerfile init, now references version in pyproject.toml
+- Reference to VERSION in docs/conf.py, now references version in pyproject.toml
 
 ### Removed
 
 - VERSION now handled by pyproject.toml
-- Reference to VERSION in Dockerfile init, now reference pyproject.toml
 - etc/scripts/increment* scripts, now handled by System Makefile targets
 
 ## [0.3.53]
