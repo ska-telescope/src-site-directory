@@ -12,7 +12,10 @@ PYTHON_SWITCHES_FOR_BLACK=
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503
 PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503
 
-bump-and-commit: 
+# Configuration for .release
+HELM_CHARTS_TO_PUBLISH=ska-src-site-capabilities-api
+
+bump-and-commit:
 	@cd etc/scripts && bash increment-app-version.sh `git branch | grep "*" | awk -F'[*-]' '{ print $$2 }' | tr -d ' '`
 	@git add VERSION etc/helm/Chart.yaml
 	@git commit
