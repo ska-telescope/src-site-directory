@@ -1,7 +1,7 @@
 .PHONY: docs
 
-# Includes
--include .make/python.mk
+-include .make/python.mk    # python related targets
+-include .make/base.mk      # required for pipeline template scripts to run successfully
 
 # Configuration for python-lint and python-format targets.
 PYTHON_LINE_LENGTH=120
