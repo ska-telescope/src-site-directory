@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.54]
+
+### Added
+
+- Symlink in charts/ska-src-site-capabilities-api pointing to etc/helm, as release machinery from System assumes
+  this location.
+
+### Removed
+
+- VERSION now handled by pyproject.toml
+- Reference to VERSION in Dockerfile init, now reference pyproject.toml
+
 ## [0.3.53]
 
 ### Added
@@ -12,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed redundant includes and parameters from Makefile, changed ordering and included comments.
-- dockerfile copy redundancy. Now only copy application files across once.
+- Dockerfile copy redundancy. Now only copy application files across once.
 
 ### Fixed
 

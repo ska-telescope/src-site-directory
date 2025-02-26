@@ -3,6 +3,7 @@
 -include .make/base.mk      # provides make help, required for CI build process
 -include .make/oci.mk       # provides oci-* targets, required for CI build process
 -include .make/python.mk    # provides python-* targets, required for CI build process
+-include .make/release.mk   # provides version tooling
 
 # Configuration for python-lint and python-format targets.
 PYTHON_LINE_LENGTH=120
