@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska-src-site-capabilities-api"
-version = "0.3.49"
+version = "0.3.54"
 description = "SKA SRC Site capabilities API"
 authors = ["Rob Barnsley"]
 license = "BSD-3-Clause"
