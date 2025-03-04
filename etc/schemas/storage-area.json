@@ -42,11 +42,10 @@
       "allowEmpty": true
     },
     "tier": {
-      "type": "string",
-      "title": "Tier",
+      "type": "integer",
+      "title": "Tier (if applicable)",
       "enum": [0, 1],
-      "default": "1",
-      "required": true
+      "default": 1
     }
   }
 }
