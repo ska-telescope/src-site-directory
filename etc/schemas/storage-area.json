@@ -44,8 +44,8 @@
     "tier": {
       "type": "string",
       "title": "Tier",
-      "enum": ["Tier 0", "Tier 1"],
-      "default": "Tier 1",
+      "enum": [0, 1],
+      "default": "1",
       "required": true
     }
   }
