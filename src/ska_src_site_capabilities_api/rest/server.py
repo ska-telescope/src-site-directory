@@ -7,6 +7,7 @@ import os
 import pathlib
 import tempfile
 import time
+import urllib
 import uuid
 from datetime import datetime
 from typing import Union
@@ -1005,14 +1006,21 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
     summary="Login",
 )
 @handle_exceptions
-async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
+async def www_login(
+        request: Request,
+        landing_page: str = Query(default=None, description="Landing page to redirect back to")
+) -> Union[HTMLResponse, RedirectResponse]:
     if request.session.get("access_token"):
-        return HTMLResponse("You are logged in.")
+        if request.session.get("landing_page"):
+            return RedirectResponse(request.session.get("landing_page"))
+        else:
+            return HTMLResponse("You are logged in.")
     elif request.query_params.get("code"):
         # get token from authorization code
         code = request.query_params.get("code")
-        original_request_uri = request.url.remove_query_params(keys=["code", "state"])
-        response = AUTH.token(code=code, redirect_uri=original_request_uri)
+        original_request_url = request.url.remove_query_params(keys=["code", "state"])
+        print(original_request_url)
+        response = AUTH.token(code=code, redirect_uri=original_request_url)
 
         # exchange token for site-capabilities-api
         access_token = response.json().get("token", {}).get("access_token")
@@ -1021,10 +1029,12 @@ async def www_login(request: Request) -> Union[HTMLResponse, RedirectResponse]:
             request.session["access_token"] = response.json().get("access_token")
 
         # redirect back now we have a valid token
-        return RedirectResponse(original_request_uri)
+        return RedirectResponse(original_request_url)
     else:
         # start login process
-        response = AUTH.login(flow="legacy", redirect_uri=request.url)
+        request.session["landing_page"] = landing_page  # if being redirected from /www/sites/add
+        redirect_uri = request.url.remove_query_params(keys=["landing_page"])
+        response = AUTH.login(flow="legacy", redirect_uri=redirect_uri)
         authorization_uri = response.json().get("authorization_uri")
         return RedirectResponse(authorization_uri)
 
@@ -1103,7 +1113,8 @@ async def add_site_form(
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first."
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) +
+            "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -1187,7 +1198,8 @@ async def add_site_form_existing(request: Request, site: str) -> Union[TEMPLATES
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + ">login</a> first."
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) +
+            "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
