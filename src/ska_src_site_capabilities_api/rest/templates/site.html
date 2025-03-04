@@ -11,6 +11,7 @@
      <img src="{{ base_url }}static/img/logo2.png"/>
      <h1>Manage SRCNet Site</h1>
      <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
+      <div id="token-timer"></div>
   </div>
   <form></form>
   <div id="res" class="alert" role="alert"></div>
@@ -41,6 +42,67 @@
   <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-less.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-markdown.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/jsonform/lib/jsonform.js"></script>
+
+  <script type="text/javascript">
+    function parse_jwt(token) {
+        let base64_url = token.split('.')[1];
+        let base64 = base64_url.replace(/-/g, '+').replace(/_/g, '/');
+        let json_payload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(json_payload);
+    }
+
+    function start_token_timer(token) {
+        try {
+            let decoded = parse_jwt(token);
+            if (!decoded.exp) {
+                console.error("JWT does not contain an expiration time.");
+                return;
+            }
+
+            let exp_time = decoded.exp * 1000; // convert to milliseconds
+            let current_time = Date.now();
+
+            function update_timer() {
+                let now = Date.now();
+                let remaining_time = exp_time - now;
+
+                if (remaining_time <= 0) {
+                    document.getElementById("token-timer").innerHTML =  `Session has expired, please <a href="${window.location.href}">login</a>.`;
+                    alert("Session has expired. Changes cannot be saved.");
+                    document.getElementById("token-timer").style.color = "red";
+                    clearInterval(timer);
+                    return;
+                } else if (remaining_time <= 1000*60*5) {
+                    document.getElementById("token-timer").innerHTML =  `Session is expiring soon (5m), save changes.`;
+                    document.getElementById("token-timer").style.color = "#FF8C00";
+                    return;
+                }
+
+                let seconds = Math.floor((remaining_time / 1000) % 60);
+                let minutes = Math.floor((remaining_time / 1000 / 60) % 60);
+                let hours = Math.floor((remaining_time / (1000 * 60 * 60)) % 24);
+
+                document.getElementById("token-timer").innerHTML = `Token expires in: ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            update_timer();
+            let timer = setInterval(update_timer, 1000);
+        } catch (e) {
+            console.error("Error parsing JWT:", e);
+        }
+    }
+
+    window.onload = function() {
+        let token = "{{ access_token }}";
+        if (token) {
+            start_token_timer(token);
+        } else {
+            console.warn("No access token found.");
+        }
+    };
+  </script>
 
   <script type="text/javascript">
     fetch('{{ base_url }}static/js/form-ui.js')
