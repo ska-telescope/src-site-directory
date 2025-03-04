@@ -36,16 +36,43 @@
       "title": "Identifier (if applicable)",
       "default": null
     },
-    "other_attributes": {
-      "type": "textarea",
-      "title": "Other storage area attributes (as json)",
-      "allowEmpty": true
-    },
     "tier": {
       "type": "integer",
       "title": "Tier (if applicable)",
       "enum": [0, 1],
       "default": 1
+    },
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
+    },
+    "other_attributes": {
+      "type": "textarea",
+      "title": "Other storage area attributes (as json)",
+      "allowEmpty": true
     }
   }
 }

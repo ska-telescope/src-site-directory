@@ -1008,7 +1008,7 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 @handle_exceptions
 async def www_login(
         request: Request,
-        landing_page: str = Query(default=None, description="Landing page to redirect back to")
+        landing_page: str = Query(default=None, description="Landing page to redirect back to.")
 ) -> Union[HTMLResponse, RedirectResponse]:
     if request.session.get("access_token"):
         if request.session.get("landing_page"):
@@ -1072,6 +1072,7 @@ async def add_site_form(
 ) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
     """Web form to add a new site with JSON schema validation."""
     if request.session.get("access_token"):
+
         # Check access permissions.
         try:
             rtn = PERMISSIONS.authorise_service_route(

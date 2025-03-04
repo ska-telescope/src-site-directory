@@ -40,7 +40,7 @@ h1 {
 }
 
 form {
-  max-width: 800px;
+  max-width: 1000px;
   margin: auto;
   padding: 2rem;
   background: white;
@@ -140,4 +140,3 @@ a:visited {
 a:active {
     color: inherit;
 }
-

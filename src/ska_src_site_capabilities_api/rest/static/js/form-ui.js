@@ -332,6 +332,37 @@
                   "inlinetitle": "Enabled?"
                 },
                 {
+                  "type": "fieldset",
+                  "title": "Downtime",
+                  "expandable": true,
+                  "items": [
+                    {
+                      "type": "tabarray",
+                      "items": {
+                        "type": "section",
+                        "legend": "{{value}}",
+                        "items": [
+                          {
+                            "key": "global_services[].downtime[].date_range",
+                            "type": "text",
+                            "placeholder": "Select date range",
+                            "htmlClass": "datepicker"
+                          },
+                          {
+                            "key": "global_services[].downtime[].type",
+                            "placeholder": "Type of downtime"
+                          },
+                          {
+                            "key": "global_services[].downtime[].reason",
+                            "type": "textarea",
+                            "placeholder": "Reason for downtime"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
                   "key": "global_services[].other_attributes",
                   "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)",
                   "type": "ace",
@@ -413,6 +444,36 @@
                   ]
                 },
                 {
+                  "type": "fieldset",
+                  "title": "Downtime",
+                  "expandable": true,
+                  "items": [
+                    {
+                      "type": "tabarray",
+                      "items": {
+                        "type": "section",
+                        "items": [
+                          {
+                            "key": "storages[].downtime[].date_range",
+                            "type": "text",
+                            "placeholder": "Select date range",
+                            "htmlClass": "datepicker"
+                          },
+                          {
+                            "key": "storages[].downtime[].type",
+                            "placeholder": "Type of downtime"
+                          },
+                          {
+                            "key": "storages[].downtime[].reason",
+                            "type": "textarea",
+                            "placeholder": "Reason for downtime"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "tabarray",
                   "title": "Areas",
                   "expandable": false,
@@ -440,6 +501,36 @@
                           "key": "storages[].areas[].tier",
                           "placeholder": "The storage area tier",
                           "type": "radios"
+                        },
+                        {
+                          "type": "fieldset",
+                          "title": "Downtime",
+                          "expandable": true,
+                          "items": [
+                            {
+                              "type": "tabarray",
+                              "items": {
+                                "type": "section",
+                                "items": [
+                                  {
+                                    "key": "storages[].areas[].downtime[].date_range",
+                                    "type": "text",
+                                    "placeholder": "Select date range",
+                                    "htmlClass": "datepicker"
+                                  },
+                                  {
+                                    "key": "storages[].areas[].downtime[].type",
+                                    "placeholder": "Type of downtime"
+                                  },
+                                  {
+                                    "key": "storages[].areas[].downtime[].reason",
+                                    "type": "textarea",
+                                    "placeholder": "Reason for downtime"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         },
                         {
                           "key": "storages[].areas[].other_attributes",
@@ -500,6 +591,36 @@
                   "placeholder": "Middleware version for this compute element"
                 },
                 {
+                  "type": "fieldset",
+                  "title": "Downtime",
+                  "expandable": true,
+                  "items": [
+                    {
+                      "type": "tabarray",
+                      "items": {
+                        "type": "section",
+                        "items": [
+                          {
+                            "key": "compute[].downtime[].date_range",
+                            "type": "text",
+                            "placeholder": "Select date range",
+                            "htmlClass": "datepicker"
+                          },
+                          {
+                            "key": "compute[].downtime[].type",
+                            "placeholder": "Type of downtime"
+                          },
+                          {
+                            "key": "compute[].downtime[].reason",
+                            "type": "textarea",
+                            "placeholder": "Reason for downtime"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "tabarray",
                   "title": "Associated local services",
                   "expandable": false,
@@ -556,7 +677,37 @@
                         {
                           "key": "compute[].associated_local_services[].enabled",
                           "notitle": true,
-                          "inlinetitle": "Enabled?"
+                          "inlinetitle": "Disable?"
+                        },
+                        {
+                          "type": "fieldset",
+                          "title": "Downtime",
+                          "expandable": true,
+                          "items": [
+                            {
+                              "type": "tabarray",
+                              "items": {
+                                "type": "section",
+                                "items": [
+                                  {
+                                    "key": "compute[].associated_local_services[].downtime[].date_range",
+                                    "type": "text",
+                                    "placeholder": "Select date range",
+                                    "htmlClass": "datepicker"
+                                  },
+                                  {
+                                    "key": "compute[].associated_local_services[].downtime[].type",
+                                    "placeholder": "Type of downtime"
+                                  },
+                                  {
+                                    "key": "compute[].associated_local_services[].downtime[].reason",
+                                    "type": "textarea",
+                                    "placeholder": "Reason for downtime"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         },
                         {
                           "key": "compute[].associated_local_services[].other_attributes",
@@ -590,6 +741,6 @@
     },
     {
       "type": "submit",
-      "title": "Add"
+      "title": "Save"
     }
 ]
