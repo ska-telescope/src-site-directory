@@ -1,7 +1,161 @@
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: inherit;
+  font-weight: bold;
+}
+
+a:visited {
+  color: inherit;
+}
+
+a:active {
+  color: inherit;
+}
+
 body {
   background-color: #f9f9f9;
+  color: #333333;
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  color: #333;
+}
+
+@keyframes rotateGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+h1 {
+  background-clip: text;
+  background-image: linear-gradient(140deg, #E70068, #070068);
+  color: transparent;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 4rem;
+  font-weight: 1000;
+  text-align: center;
+  margin: auto;
+  margin-bottom: 2rem;
+  padding: 0.2rem 0.5rem;
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  -webkit-background-clip: text;
+  background-size: 200% 200%; /* Makes the gradient move smoothly */
+  animation: rotateGradient 5s infinite linear;
+}
+
+form {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  max-width: 800px;
+  padding: 2rem;
+}
+
+fieldset {
+  background-color: inherit;
+  border-radius: 4px;
+  min-width: 300px;
+  padding: 0px 12px 0px 12px;
+  transition: all 0.1s ease-in-out;
+  width: 100%;
+}
+
+fieldset > legend {
+  background-color: inherit;
+  border: 0;
+  color: #333333;
+  display: inline-block;
+  font-size: 1.3em;
+  font-weight: 300;
+  padding: 0 10px;
+  width: auto;
+}
+
+fieldset.expandable.expanded {
+  background-color: inherit;
+  border: 1px solid #070068;
+  padding: 0px 12px 0px 12px;
+}
+
+fieldset.expandable:not(.expanded) {
+  background-color: transparent;
+  border: 1px solid #ddd;
+  box-shadow: none;
+  cursor: pointer;
+  padding: 0px 12px 0px 12px;
+}
+
+fieldset.expandable:not(.expanded):hover {
+  background-color: inherit;
+  border-color: #070068;
+  border-radius: 5px;
+  padding: 0px 12px 0px 12px;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #555;
+  padding: 0.8rem;
+  transition: border-color 0.3s;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #070068 !important;
+  box-shadow: 0 0 5px rgba(9, 0, 104, 0.3) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #aaa;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+input[type="submit"],
+button {
+  background-color: #E70068;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover,
+button:hover {
+  background-color: #c50159;
+}
+
+.alert {
+  border-radius: 5px;
+  margin: auto;
+  margin-top: 1rem;
+  max-width: 800px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
 #header {
@@ -17,126 +171,13 @@ body {
 
 #header img {
   margin: 0 auto;
-  width: 100px;
   margin-bottom: 1rem;
-}
-
-h1 {
-  font-family: 'Noto Sans', sans-serif;
-  font-weight: 800;
-  font-size: 3.5rem;
-  color: #333333;
-  text-align: center;
-  margin: auto;
-  margin-bottom: 2rem;
-  color:  #070068;
-  padding: 0.2rem 0.5rem;
-  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-  background-image: linear-gradient(110deg, #E70068, #070068);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-form {
-  max-width: 1000px;
-  margin: auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-fieldset {
-  border: none;
-  padding: 0;
-}
-
-legend {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #E70068;
-  margin-bottom: 0.5rem;
-}
-
-input[type="text"],
-input[type="email"],
-textarea,
-select {
-  width: 100%;
-  padding: 0.8rem;
-  color: #555;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  transition: border-color 0.3s;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-textarea:focus,
-select:focus {
-  border-color: #070068;
-  box-shadow: 0 0 5px rgba(9, 0, 104, 0.3);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #aaa;
-  font-style: italic;
-  font-size: 1rem;
-}
-
-input[type="submit"],
-button {
-  background-color: #E70068;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  padding: 8px;
-}
-
-input[type="submit"]:hover,
-button:hover {
-  background-color: #c50159;
-}
-
-.alert {
-  max-width: 800px;
-  margin: auto;
-  border-radius: 5px;
-  margin-top: 1rem;
+  width: 200px;
 }
 
 #token-timer {
   color: #c50159;
+  font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
-  font-size: 1.2em;
-}
-
-a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-a:hover {
-    color: inherit;
-    font-weight: bold;
-}
-
-a:visited {
-    color: inherit;
-}
-
-a:active {
-    color: inherit;
 }

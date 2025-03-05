@@ -12,15 +12,16 @@ function initialiseDatePickers(dateElementDivSelector, easepickCssUrl) {
                     delimiter: " to "
                 },
                 TimePlugin: {
-                    format: "HH:mm:ss",
+                    format: "HH:mm",
                     hours: { step: 1 },
-                    minutes: { step: 1 },
-                    seconds: { step: 1 }
+                    minutes: { step: 1 }
                 },
-                format: "YYYY-MM-DD HH:mm:ss",
+                format: "YYYY-MM-DD HH:mm",
                 setup(picker) {
                     picker.on("select", (evt) => {
-                        input.value = evt.detail.start + " to " + evt.detail.end;
+                        const start = evt.detail.start.format("DD/MM/YY HH:mm");
+                        const end = evt.detail.end.format("DD/MM/YY HH:mm");
+                        input.value = `${start} to ${end}`;
                     });
                 }
             });
