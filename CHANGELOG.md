@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.55]
+
+### Added
+
+- Redirect from www/sites/add/<site> when not logged in.
+- Token expiration warnings and timer.
+- Downtime/disabled fields for all entities.
+- Favicon to site html.
+
+### Changed
+
+- Tier value is now integer, not string.
+- CSS layout to be a bit more clear for nested fieldsets.
+- Global services now part of compute.
+- Name of associated_compute_id or associate_storage_id to parent_compute_id and parent_storage_id.
+- List services endpoint now takes service_scope (all||local||global).
+- Compute hardware_type changed from checkbox to radio (no longer array).
+- Updated out of date models.
+
+### Removed
+
+- Tier titles from form.
+- via_proxy flag from schemas.
+
 ## [0.3.54]
 
 ### Added
@@ -14,14 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Makefile now uses System Makefile targets for release handling
-- Reference to VERSION in Dockerfile init, now references version in pyproject.toml
-- Reference to VERSION in docs/conf.py, now references version in pyproject.toml
+- Makefile now uses System Makefile targets for release handling.
+- Reference to VERSION in Dockerfile init, now references version in pyproject.toml.
+- Reference to VERSION in docs/conf.py, now references version in pyproject.toml.
 
 ### Removed
 
-- VERSION now handled by pyproject.toml
-- etc/scripts/increment* scripts, now handled by System Makefile targets
+- VERSION now handled by pyproject.toml.
+- etc/scripts/increment* scripts, now handled by System Makefile targets.
 
 ## [0.3.53]
 
@@ -34,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- PYTHON_LINE_LENGTH to Makefile
+- PYTHON_LINE_LENGTH to Makefile.
 
 ### Removed
 
