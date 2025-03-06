@@ -117,7 +117,6 @@ class MongoBackend(Backend):
         return site.get("disabled", False)
 
     def _is_storage_down_or_disabled(self, storage):
-        print(storage)
         return storage.get("disabled", False)
 
     def _is_storage_area_down_or_disabled(self, storage_area):

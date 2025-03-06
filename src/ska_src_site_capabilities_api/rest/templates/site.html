@@ -53,7 +53,7 @@
             console.warn("No access token found.");
         }
 
-        // ✅initialise existing date pickers and watch for new date picker elements
+        // initialise existing date pickers and watch for new date picker elements
         document.addEventListener("DOMContentLoaded", () => {
             initialiseDatePickers(".datepicker", "{{ base_url }}static/css/easepick.css");
         });
@@ -81,7 +81,6 @@
                   // parse all other_attributes fields to convert to json objects
                   function parseOtherAttributes(obj) {
                       let errors = [];
-
                       function recursiveParse(obj) {
                           for (let key in obj) {
                               if (obj.hasOwnProperty(key)) {
@@ -103,13 +102,11 @@
                               }
                           }
                       }
-
                       recursiveParse(obj);
                       return errors.length > 0 ? errors : false;
                   }
 
                   let jsonParsingErrors = parseOtherAttributes(values);
-
                   if (formErrors) {
                       showAndDismissAlert('danger', formErrors[0].uri + " " + formErrors[0].message);
                       console.log(formErrors);
