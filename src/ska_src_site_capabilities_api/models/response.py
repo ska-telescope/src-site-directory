@@ -71,7 +71,7 @@ SchemasListResponse = List[str]
 SchemaGetResponse = Schema
 
 
-class ServicesResponse(ListResponse):
+class ServicesResponse(Response):
     services: List[Union[GlobalService, LocalService]]
 
 

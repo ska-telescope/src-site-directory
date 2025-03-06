@@ -68,9 +68,15 @@
               "schema": {{ schema | tojson }},
               "form": form_ui,
               "validate": true,
-              "value": {{ values | default({"global_services": []}) | default({"storages.supported_protocols": []}) |
-                               default({"storages": []}) | default({"storages.areas": []}) |
-                               default({"compute.associated_local_services": []}) | tojson }},
+              "value": {{
+                  values |
+                    default({"storages.supported_protocols": []}) |
+                    default({"storages": []}) |
+                    default({"storages.areas": []}) |
+                    default({"compute.associated_local_services": []}) |
+                    default({"compute.associated_global_services": []}) |
+                  tojson
+              }},
               onSubmit: function (formErrors, values) {
                   // parse all other_attributes fields to convert to json objects
                   function parseOtherAttributes(obj) {

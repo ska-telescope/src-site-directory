@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import jsonref
 from pydantic import BaseModel, Field
 
-from ska_src_site_capabilities_api.models.service import LocalService
+from ska_src_site_capabilities_api.models.service import GlobalService, LocalService
 
 # get hardware capabilities and types from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute"))).absolute()
@@ -30,4 +30,5 @@ class Compute(BaseModel):
     hardware_type: HardwareType = Field(examples=[*hardware_type])
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
+    associated_global_services: List[GlobalService]
     associated_local_services: List[LocalService]

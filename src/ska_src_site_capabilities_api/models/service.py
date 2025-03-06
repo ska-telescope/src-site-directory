@@ -35,7 +35,6 @@ class Service(BaseModel):
     port: NonNegativeInt = Field(examples=[443])
     path: str = Field(examples=["/path/to/service"])
     is_mandatory: bool = Field(examples=[True, False])
-    is_proxied: bool = Field(examples=[True, False])
     identifier: str = Field(examples=["SKAOSRC"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
 
@@ -48,3 +47,5 @@ class LocalService(Service):
 
 class GlobalService(Service):
     type: GlobalServiceType = Field(examples=["rucio"])
+    associated_compute_id: UUID = Field(default_factory=uuid4)
+    associated_storage_area_id: UUID = Field(default_factory=uuid4)

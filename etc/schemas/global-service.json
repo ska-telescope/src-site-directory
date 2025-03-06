@@ -54,10 +54,10 @@
       "default": null,
       "required": false
     },
-    "is_proxied": {
-      "type": "boolean",
-      "title": "Is proxy?",
-      "default": false
+    "associated_storage_area_id": {
+      "type": "string",
+      "title": "Associated storage area ID (if applicable)",
+      "default": null
     },
     "identifier": {
       "type": "string",

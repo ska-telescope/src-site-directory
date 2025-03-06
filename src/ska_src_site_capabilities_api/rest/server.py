@@ -56,7 +56,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
+DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -297,14 +297,10 @@ async def render_schema(
 @handle_exceptions
 async def list_services(
     request: Request,
-    include_associated_with_compute: bool = Query(
-        default=True, description="Include services associated with compute?"
-    ),
     include_disabled: bool = Query(default=False, description="Include disabled services?"),
 ) -> JSONResponse:
     """List all services."""
     rtn = BACKEND.list_services(
-        include_associated_with_compute=include_associated_with_compute,
         include_disabled=include_disabled,
     )
     return JSONResponse(rtn)

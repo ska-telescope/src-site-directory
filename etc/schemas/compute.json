@@ -68,6 +68,13 @@
       },
       "allowEmpty": true
     },
+    "associated_global_services": {
+      "type": "array",
+      "items": {
+        "$ref": "global-service.json"
+      },
+      "allowEmpty": true
+    },
     "downtime": {
       "type": "array",
       "title": "Downtime",

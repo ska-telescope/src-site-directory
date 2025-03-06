@@ -299,98 +299,6 @@
     },
     {
       "type": "fieldset",
-      "title": "Global Services",
-      "expandable": true,
-      "items": [
-        {
-          "type": "tabarray",
-          "expandable": false,
-          "items": [
-            {
-              "type": "section",
-              "legend": "{{value}}",
-              "items": [
-                {
-                  "key": "global_services[].id"
-                },
-                {
-                  "key": "global_services[].type",
-                  "valueInLegend": true
-                },
-                {
-                  "key": "global_services[].version",
-                  "placeholder": "The version of this service"
-                },
-                {
-                  "key": "global_services[].prefix",
-                  "placeholder": "The prefix for this service"
-                },
-                {
-                  "key": "global_services[].host",
-                  "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
-                },
-                {
-                  "key": "global_services[].port",
-                  "placeholder": "The port for this service (if applicable)"
-                },
-                {
-                  "key": "global_services[].path",
-                  "placeholder": "The path for this service (if applicable)"
-                },
-                {
-                  "key": "global_services[].identifier",
-                  "placeholder": "A name used to identify this service"
-                },
-                {
-                  "key": "global_services[].is_proxied",
-                  "notitle": true,
-                  "inlinetitle": "Via proxy?"
-                },
-                {
-                  "key": "global_services[].enabled",
-                  "notitle": true,
-                  "inlinetitle": "Enabled?"
-                },
-                {
-                  "title": "Downtime",
-                  "type": "tabarray",
-                  "items": {
-                    "type": "section",
-                    "legend": "{{value}}",
-                    "items": [
-                      {
-                        "key": "global_services[].downtime[].date_range",
-                        "type": "text",
-                        "placeholder": "Select date range",
-                        "htmlClass": "datepicker"
-                      },
-                      {
-                        "key": "global_services[].downtime[].type",
-                        "placeholder": "Type of downtime"
-                      },
-                      {
-                        "key": "global_services[].downtime[].reason",
-                        "type": "textarea",
-                        "placeholder": "Reason for downtime"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "key": "global_services[].other_attributes",
-                  "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)",
-                  "type": "ace",
-                  "aceMode": "json",
-                  "aceTheme": "twilight"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "fieldset",
       "title": "Storage",
       "expandable": true,
       "items": [
@@ -666,11 +574,6 @@
                           "inlinetitle": "Mandatory?"
                         },
                         {
-                          "key": "compute[].associated_local_services[].is_proxied",
-                          "notitle": true,
-                          "inlinetitle": "Via proxy?"
-                        },
-                        {
                           "key": "compute[].associated_local_services[].enabled",
                           "notitle": true,
                           "inlinetitle": "Disable?"
@@ -708,6 +611,97 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "type": "fieldset",
+                  "title": "Associated global services",
+                  "expandable": true,
+                  "items": [
+                    {
+                      "type": "tabarray",
+                      "expandable": false,
+                      "items": [
+                        {
+                          "type": "section",
+                          "legend": "{{value}}",
+                          "items": [
+                            {
+                              "key": "compute[].associated_global_services[].id"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].type",
+                              "valueInLegend": true
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].version",
+                              "placeholder": "The version of this service"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].prefix",
+                              "placeholder": "The prefix for this service"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].host",
+                              "placeholder": "The hostname for this service excluding prefix and path (if applicable)"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].port",
+                              "placeholder": "The port for this service (if applicable)"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].path",
+                              "placeholder": "The path for this service (if applicable)"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].associated_storage_area_id",
+                              "placeholder": "Associated storage area ID (if applicable)"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].identifier",
+                              "placeholder": "A name used to identify this service"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].enabled",
+                              "notitle": true,
+                              "inlinetitle": "Enabled?"
+                            },
+                            {
+                              "title": "Downtime",
+                              "type": "tabarray",
+                              "items": {
+                                "type": "section",
+                                "legend": "{{value}}",
+                                "items": [
+                                  {
+                                    "key": "compute[].associated_global_services[].downtime[].date_range",
+                                    "type": "text",
+                                    "placeholder": "Select date range",
+                                    "htmlClass": "datepicker"
+                                  },
+                                  {
+                                    "key": "compute[].associated_global_services[].downtime[].type",
+                                    "placeholder": "Type of downtime"
+                                  },
+                                  {
+                                    "key": "compute[].associated_global_services[].downtime[].reason",
+                                    "type": "textarea",
+                                    "placeholder": "Reason for downtime"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].other_attributes",
+                              "placeholder": "Other attributes for this service in format {\"other_attribute_key\":\"other_attribute_value\"} (if applicable)",
+                              "type": "ace",
+                              "aceMode": "json",
+                              "aceTheme": "twilight"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -716,13 +710,11 @@
       ]
     },
     {
-
           "key": "other_attributes",
           "title": "Other attributes (as json)",
           "type": "ace",
           "aceMode": "json",
           "aceTheme": "twilight"
-
     },
     {
       "type": "submit",

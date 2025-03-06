@@ -164,7 +164,7 @@ class MongoBackend(Backend):
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
+        for entry in self.list_services(include_disabled=True):
             site_name = entry.get("site_name")
             services = entry.get("services", [])
             for service in services:
@@ -239,25 +239,28 @@ class MongoBackend(Backend):
                 )
         return response
 
-    def list_services(self, include_associated_with_compute=True, include_disabled=True):
+    def list_services(self, include_disabled=True):
         response = []
         for site_name in self.list_site_names_unique():
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
-            # concatenate services (global + associated local services)
-            for service in full_site_json.get("global_services", []):
-                services.append(service)
-            if include_associated_with_compute:
-                for compute in full_site_json.get("compute", []):
-                    # add the associated compute id
-                    for service in compute.get("associated_local_services", []):
-                        services.append(
-                            {
-                                "associated_compute_id": compute.get("id"),
-                                **service,
-                            }
-                        )
+            for compute in full_site_json.get("compute", []):
+                # add the associated compute id
+                for service in compute.get("associated_global_services", []):
+                    services.append(
+                        {
+                            "associated_compute_id": compute.get("id"),
+                            **service,
+                        }
+                    )
+                for service in compute.get("associated_local_services", []):
+                    services.append(
+                        {
+                            "associated_compute_id": compute.get("id"),
+                            **service,
+                        }
+                    )
 
             response.append({"site_name": full_site_json.get("name"), "services": services})
         return response
