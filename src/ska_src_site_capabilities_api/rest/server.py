@@ -249,7 +249,7 @@ async def render_schema(request: Request,
 @api_version(1)
 @app.get('/services',
          responses={
-             200: {"model": models.response.ServicesResponse},
+             200: {'model': models.response.ServicesResponse},
              401: {},
              403: {}
          },
@@ -257,16 +257,16 @@ async def render_schema(request: Request,
              Depends(increment_request_counter),
              Depends(permission_dependencies.verify_permission_for_service_route)
          ],
-         tags=["Services"],
-         summary="List all services")
+         tags=['Services'],
+         summary='List all services')
 @handle_exceptions
 async def list_services(request: Request,
                         include_associated_with_compute: bool = \
-                                Query(default=True, description="Include services associated with compute?"),
-                        include_disabled: bool = Query(default=False, description="Include disabled services?"),
-                        service_type: str = Query(default=None, description="Filter by service type"),
-                        site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-                        compute_id: str = Query(default=None, description="Filter by compute ID")
+                                Query(default=True, description='Include services associated with compute?'),
+                        include_disabled: bool = Query(default=False, description='Include disabled services?'),
+                        service_type: str = Query(default=None, description='Filter by service type'),
+                        site_names: str = Query(default=None, description='Filter by site names (comma-separated)'),
+                        compute_id: str = Query(default=None, description='Filter by compute ID')
                         ) -> JSONResponse:
     """ List all services. """
     rtn = BACKEND.list_services(include_associated_with_compute=include_associated_with_compute,

@@ -4,7 +4,7 @@ from pymongo import MongoClient
 
 
 class Backend(ABC):
-    """Backend API abstract base class."""
+    """ Backend API abstract base class. """
 
     def __init__(self):
         pass
@@ -257,26 +257,26 @@ class MongoBackend(Backend):
 
             services = []
             # concatenate services (global + associated local services)
-            for service in full_site_json.get("global_services", []):
-                if service_type is None or service.get("type") == service_type:
+            for service in full_site_json.get('global_services', []):
+                if service_type is None or service.get('type') == service_type:
                     services.append(service)
             if include_associated_with_compute:
-                for compute in full_site_json.get("compute", []):
+                for compute in full_site_json.get('compute', []):
                     # Skip if compute_id filter is set and doesn't match
-                    if compute_id is not None and compute.get("id") != compute_id:
+                    if compute_id is not None and compute.get('id') != compute_id:
                         continue
                     # add the associated compute id
-                    for service in compute.get("associated_local_services", []):
-                        if service_type is None or service.get("type") == service_type:
+                    for service in compute.get('associated_local_services', []):
+                        if service_type is None or service.get('type') == service_type:
                             services.append(
                                 {
-                                    "associated_compute_id": compute.get("id"),
+                                    'associated_compute_id': compute.get('id'),
                                     **service,
                                 }
                             )
 
             if services:  # Only add to response if there are matching services
-                response.append({"site_name": full_site_json.get("name"), "services": services})
+                response.append({'site_name': full_site_json.get('name'), 'services': services})
         return response
 
     def list_service_types_from_schema(self, schema):
