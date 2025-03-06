@@ -257,30 +257,43 @@ class MongoBackend(Backend):
                     {
                         "site_name": site.get("name"),
                         "compute": [compute for compute in site.get("compute") if
-                                    not self._is_compute_down_or_disabled(compute)],
+                                     include_inactive or
+                                     (not include_inactive and
+                                      not self._is_compute_down_or_disabled(compute))],
                     }
                 )
         return response
 
-    def list_services(self, include_inactive=False):
+    def list_services(self, service_scope="all", include_inactive=False):
         response = []
         for entry in self.list_compute(include_inactive=include_inactive):
             site_name = entry.get("site_name")
             services = []
             for compute in entry.get("compute", []):
-                if self._is_compute_down_or_disabled(compute):
+                if not include_inactive and self._is_compute_down_or_disabled(compute):
                     continue
-                # group both global and local services
-                for service in (compute.get("associated_global_services", []) +
-                                compute.get("associated_local_services", [])):
-                    if self._is_service_down_or_disabled(service):
-                        continue
-                    services.append(
-                        {
-                            "parent_compute_id": compute.get("id"),
-                            **service,
-                        }
-                    )
+                if service_scope in ['all', 'local']:
+                    for service in compute.get("associated_local_services", []):
+                        if not include_inactive and self._is_service_down_or_disabled(service):
+                            continue
+                        services.append(
+                            {
+                                "scope": "local",
+                                "parent_compute_id": compute.get("id"),
+                                **service,
+                            }
+                        )
+                if service_scope in ['all', 'global']:
+                    for service in compute.get("associated_global_services", []):
+                        if not include_inactive and self._is_service_down_or_disabled(service):
+                            continue
+                        services.append(
+                            {
+                                "scope": "global",
+                                "parent_compute_id": compute.get("id"),
+                                **service,
+                            }
+                        )
             response.append(
                 {
                     "site_name": site_name,
@@ -326,7 +339,7 @@ class MongoBackend(Backend):
         for site in self.list_sites_version_latest(include_inactive=include_inactive):
             if topojson or for_grafana:
                 for storage in site.get("storages", []):
-                    if self._is_storage_down_or_disabled(storage):
+                    if not include_inactive and self._is_storage_down_or_disabled(storage):
                         continue
                     if topojson:
                         response["objects"]["sites"]["geometries"].append(
@@ -354,7 +367,9 @@ class MongoBackend(Backend):
                         {
                             "site_name": site.get("name"),
                             "storages": [storage for storage in site.get("storages") if
-                                         not self._is_storage_down_or_disabled(storage)],
+                                         include_inactive or
+                                         (not include_inactive and
+                                          not self._is_storage_down_or_disabled(storage))],
                         }
                     )
         return response
@@ -372,10 +387,11 @@ class MongoBackend(Backend):
             site_name = entry.get("site_name")
             storage_areas = []
             for storage in entry.get("storages"):
-                if self._is_storage_down_or_disabled(storage):
+                if not include_inactive and self._is_storage_down_or_disabled(storage):
                     continue
                 for storage_area in storage.get("areas", []):
-                    if self._is_storage_area_down_or_disabled(storage_area):
+                    if (not include_inactive and
+                            self._is_storage_area_down_or_disabled(storage_area)):
                         continue
                     if topojson:
                         response["objects"]["sites"]["geometries"].append(

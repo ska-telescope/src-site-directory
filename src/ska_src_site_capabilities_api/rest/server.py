@@ -301,11 +301,14 @@ async def render_schema(
 @handle_exceptions
 async def list_services(
     request: Request,
+    service_scope: str = Query(
+        default="all", description="Scope of service to include? (all||local||global)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive (down/disabled) services?")
 ) -> JSONResponse:
     """List all services."""
     rtn = BACKEND.list_services(
+        service_scope=service_scope,
         include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
@@ -570,7 +573,7 @@ async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
     summary="Get latest versions of all sites",
 )
 @handle_exceptions
-async def get_sites_latest(
+async def list_sites_latest(
     request: Request,
     include_inactive: bool = Query(
         default=False, description="Include inactive (down/disabled) sites?"
