@@ -49,7 +49,7 @@ h1 {
   text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
   -webkit-background-clip: text;
   background-size: 200% 200%; /* Makes the gradient move smoothly */
-  animation: rotateGradient 5s infinite linear;
+  animation: rotateGradient 3s infinite linear;
 }
 
 form {
@@ -63,6 +63,7 @@ form {
 
 fieldset {
   background-color: inherit;
+  border: 1px;
   border-radius: 4px;
   min-width: 300px;
   padding: 0px 12px 0px 12px;
@@ -74,6 +75,7 @@ fieldset > legend {
   background-color: inherit;
   border: 0;
   color: #333333;
+  cursor: pointer;
   display: inline-block;
   font-size: 1.3em;
   font-weight: 300;
@@ -83,7 +85,7 @@ fieldset > legend {
 
 fieldset.expandable.expanded {
   background-color: inherit;
-  border: 1px solid #070068;
+  border: 1px solid #E70068;
   padding: 0px 12px 0px 12px;
 }
 
@@ -91,13 +93,12 @@ fieldset.expandable:not(.expanded) {
   background-color: transparent;
   border: 1px solid #ddd;
   box-shadow: none;
-  cursor: pointer;
   padding: 0px 12px 0px 12px;
 }
 
 fieldset.expandable:not(.expanded):hover {
   background-color: inherit;
-  border-color: #070068;
+  border-color: #E70068;
   border-radius: 5px;
   padding: 0px 12px 0px 12px;
 }
@@ -109,6 +110,7 @@ select {
   border: 1px solid #ddd;
   border-radius: 4px;
   color: #555;
+  margin-bottom: 1rem;
   padding: 0.8rem;
   transition: border-color 0.3s;
   width: 100%;
@@ -145,6 +147,20 @@ button {
 input[type="submit"]:hover,
 button:hover {
   background-color: #c50159;
+}
+
+@keyframes fadeInBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .alert {

@@ -16,12 +16,11 @@ function initialiseDatePickers(dateElementDivSelector, easepickCssUrl) {
                     hours: { step: 1 },
                     minutes: { step: 1 }
                 },
-                format: "YYYY-MM-DD HH:mm",
                 setup(picker) {
                     picker.on("select", (evt) => {
-                        const start = evt.detail.start.format("DD/MM/YY HH:mm");
-                        const end = evt.detail.end.format("DD/MM/YY HH:mm");
-                        input.value = `${start} to ${end}`;
+                        const start = evt.detail.start.toJSDate()
+                        const end = evt.detail.end.toJSDate()
+                        input.value = `${start.toUTCString()} to ${end.toUTCString()}`;
                     });
                 }
             });

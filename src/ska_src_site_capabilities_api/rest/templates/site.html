@@ -15,19 +15,16 @@
       <div id="token-timer"></div>
   </div>
   <form></form>
-  <div id="res" class="alert" role="alert"></div>
+  <div id="alert" class="alert" role="alert"></div>
   <div id="footer"></div>
   <div id="values"/>
   <script type="text/javascript">
     function showAndDismissAlert(type, message) {
       var htmlAlert = '<div class="alert alert-' + type + '"><p style="margin: 10px;">' + message + '</p></div>';
-
-      // Prepend so that alert is on top, could also append if we want new alerts to show below instead of on top.
-      $("#res").html(htmlAlert);
-
-      // Since we are prepending, take the first alert and tell it to fade in and then fade out.
-      // Note: if we were appending, then should use last() instead of first()
-      $("#res").fadeIn(200).delay(2000).fadeOut(1000, function () {});
+      $("#alert").html(htmlAlert).fadeIn(200, function () {
+        this.scrollIntoView({behavior: "smooth", block: "end" });
+        $(this).focus();
+      }).delay(2000).fadeOut(1000);
     }
   </script>
   <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/jquery.min.js"></script>
