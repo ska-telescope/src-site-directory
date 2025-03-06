@@ -109,6 +109,11 @@
           }
         }
       }
+    },
+    "disabled": {
+      "type": "boolean",
+      "title": "Disabled?",
+      "default": false
     }
   }
 }

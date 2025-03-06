@@ -447,10 +447,22 @@
                           "type": "ace",
                           "aceMode": "json",
                           "aceTheme": "twilight"
+                        },
+                        {
+                          "key": "storages[].areas[].disabled",
+                          "notitle": true,
+                          "inlinetitle": "Force disable storage area?",
+                          "htmlClass": "highlight-disable"
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "key": "storages[].disabled",
+                  "notitle": true,
+                  "inlinetitle": "Force disable storage?",
+                  "htmlClass": "highlight-disable"
                 }
               ]
             }
@@ -574,11 +586,6 @@
                           "inlinetitle": "Mandatory?"
                         },
                         {
-                          "key": "compute[].associated_local_services[].enabled",
-                          "notitle": true,
-                          "inlinetitle": "Disable?"
-                        },
-                        {
                           "title": "Downtime",
                           "type": "tabarray",
                           "items": {
@@ -607,6 +614,12 @@
                           "type": "ace",
                           "aceMode": "json",
                           "aceTheme": "twilight"
+                        },
+                        {
+                          "key": "compute[].associated_local_services[].disabled",
+                          "notitle": true,
+                          "inlinetitle": "Force disable service?",
+                          "htmlClass": "highlight-disable"
                         }
                       ]
                     }
@@ -696,12 +709,24 @@
                               "type": "ace",
                               "aceMode": "json",
                               "aceTheme": "twilight"
+                            },
+                            {
+                              "key": "compute[].associated_global_services[].disabled",
+                              "notitle": true,
+                              "inlinetitle": "Force disable service?",
+                              "htmlClass": "highlight-disable"
                             }
                           ]
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "key": "compute[].disabled",
+                  "notitle": true,
+                  "inlinetitle": "Force disable compute?",
+                  "htmlClass": "highlight-disable"
                 }
               ]
             }
@@ -715,6 +740,12 @@
           "type": "ace",
           "aceMode": "json",
           "aceTheme": "twilight"
+    },
+    {
+      "key": "disabled",
+      "notitle": true,
+      "inlinetitle": "Force disable site?",
+      "htmlClass": "highlight-disable"
     },
     {
       "type": "submit",

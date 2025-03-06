@@ -1,5 +1,4 @@
-
-a {
+ {
   color: inherit;
   text-decoration: underline;
 }
@@ -179,6 +178,15 @@ label[for] {
 
 .form-group {
   margin-bottom: 1.5rem;
+}
+
+.highlight-disable {
+  background-color: #f8d7da;
+  border: 1px solid #a84652;
+  color: #721c24;
+  font-weight: bold;
+  padding: 0px 10px 0px 10px;
+  text-align: center;
 }
 
 #header {

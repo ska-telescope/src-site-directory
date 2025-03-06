@@ -79,6 +79,11 @@
       "type": "textarea",
       "title": "Other attributes (as json)",
       "allowEmpty": true
+    },
+    "disabled": {
+      "type": "boolean",
+      "title": "Disabled?",
+      "default": false
     }
   }
 }
