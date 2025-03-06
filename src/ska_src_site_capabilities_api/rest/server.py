@@ -263,11 +263,17 @@ async def render_schema(request: Request,
 async def list_services(request: Request,
                         include_associated_with_compute: bool = \
                                 Query(default=True, description="Include services associated with compute?"),
-                        include_disabled: bool = Query(default=False, description="Include disabled services?")
+                        include_disabled: bool = Query(default=False, description="Include disabled services?"),
+                        service_type: str = Query(default=None, description="Filter by service type"),
+                        site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+                        compute_id: str = Query(default=None, description="Filter by compute ID")
                         ) -> JSONResponse:
     """ List all services. """
     rtn = BACKEND.list_services(include_associated_with_compute=include_associated_with_compute,
-                                include_disabled=include_disabled)
+                                include_disabled=include_disabled,
+                                service_type=service_type,
+                                site_names=site_names,
+                                compute_id=compute_id)
     return JSONResponse(rtn)
 
 
