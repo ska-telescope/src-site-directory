@@ -274,7 +274,7 @@
       "placeholder": "Secondary contact email"
     },
     {
-      "title": "Downtime",
+      "title": "Downtime (site)",
       "type": "tabarray",
       "items": {
         "type": "section",
@@ -366,7 +366,7 @@
                   ]
                 },
                 {
-                  "title": "Downtime",
+                  "title": "Downtime (storage)",
                   "type": "tabarray",
                   "items": {
                     "type": "section",
@@ -419,7 +419,7 @@
                           "type": "radios"
                         },
                         {
-                          "title": "Downtime",
+                          "title": "Downtime (storage area)",
                           "type": "tabarray",
                           "items": {
                             "type": "section",
@@ -513,7 +513,7 @@
                   "placeholder": "Middleware version for this compute element"
                 },
                 {
-                  "title": "Downtime",
+                  "title": "Downtime (compute)",
                   "type": "tabarray",
                   "items": {
                     "type": "section",
@@ -586,7 +586,7 @@
                           "inlinetitle": "Mandatory?"
                         },
                         {
-                          "title": "Downtime",
+                          "title": "Downtime (service)",
                           "type": "tabarray",
                           "items": {
                             "type": "section",
@@ -679,7 +679,7 @@
                               "inlinetitle": "Enabled?"
                             },
                             {
-                              "title": "Downtime",
+                              "title": "Downtime (service)",
                               "type": "tabarray",
                               "items": {
                                 "type": "section",

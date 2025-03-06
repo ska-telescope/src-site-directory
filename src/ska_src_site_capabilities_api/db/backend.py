@@ -10,15 +10,15 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def add_site(self):
+    def add_site(self, json):
         raise NotImplementedError
 
     @abstractmethod
-    def add_sites_bulk(self):
+    def add_sites_bulk(self, json):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_site(self):
+    def delete_site(self, site):
         raise NotImplementedError
 
     @abstractmethod
@@ -26,7 +26,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_site_version(self):
+    def delete_site_version(self, site, version):
         raise NotImplementedError
 
     @abstractmethod
@@ -34,31 +34,31 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_compute(self):
+    def get_compute(self, compute_id):
         raise NotImplementedError
 
     @abstractmethod
-    def get_site(self):
+    def get_service(self, service_id):
         raise NotImplementedError
 
     @abstractmethod
-    def get_service(self):
+    def get_site(self, site):
         raise NotImplementedError
 
     @abstractmethod
-    def get_storage(self):
+    def get_site_version(self, site, version):
         raise NotImplementedError
 
     @abstractmethod
-    def get_storage_area(self):
+    def get_site_version_latest(self, site):
         raise NotImplementedError
 
     @abstractmethod
-    def get_site_version(self):
+    def get_storage(self, storage_id):
         raise NotImplementedError
 
     @abstractmethod
-    def get_site_version_latest(self):
+    def get_storage_area(self, storage_area_id):
         raise NotImplementedError
 
     @abstractmethod
@@ -70,7 +70,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_service_types_from_schema(self):
+    def list_service_types_from_schema(self, schema):
         raise NotImplementedError
 
     @abstractmethod
@@ -89,18 +89,16 @@ class Backend(ABC):
     def list_storage_areas(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def list_storage_area_types_from_schema(self, schema):
+        raise NotImplementedError
+
 
 class MongoBackend(Backend):
     """Backend API for mongodb."""
 
-    def __init__(
-        self,
-        mongo_username,
-        mongo_password,
-        mongo_host,
-        mongo_port,
-        mongo_database,
-    ):
+    def __init__(self, mongo_username, mongo_password, mongo_host, mongo_port, mongo_database):
+        super().__init__()
         self.connection_string = "mongodb://{}:{}@{}:{}/".format(
             mongo_username,
             mongo_password,
@@ -108,6 +106,22 @@ class MongoBackend(Backend):
             int(mongo_port),
         )
         self.mongo_database = mongo_database
+
+    def _is_compute_down_or_disabled(self, compute):
+        return compute.get("disabled", False)
+
+    def _is_service_down_or_disabled(self, service):
+        return service.get("disabled", False)
+
+    def _is_site_down_or_disabled(self, site):
+        return site.get("disabled", False)
+
+    def _is_storage_down_or_disabled(self, storage):
+        print(storage)
+        return storage.get("disabled", False)
+
+    def _is_storage_area_down_or_disabled(self, storage_area):
+        return storage_area.get("disabled", False)
 
     def add_site(self, site_values):
         client = MongoClient(self.connection_string)
@@ -155,21 +169,27 @@ class MongoBackend(Backend):
 
     def get_compute(self, compute_id):
         response = {}
-        for site in self.list_sites_version_latest():
-            for compute in site.get("compute", []):
-                if compute["id"] == compute_id:
-                    response = compute
+        for entry in self.list_compute(include_inactive=True):
+            site_name = entry.get("site_name")
+            for element in entry.get("compute", []):
+                if element.get("id") == compute_id:
+                    response = {
+                        "site_name": site_name,
+                        **element
+                    }
                     break
         return response
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(include_disabled=True):
+        for entry in self.list_services(include_inactive=True):
             site_name = entry.get("site_name")
-            services = entry.get("services", [])
-            for service in services:
-                if service.get("id") == service_id:
-                    response = {"site_name": site_name, **service}
+            for element in entry.get("services", []):
+                if element.get("id") == service_id:
+                    response = {
+                        "site_name": site_name,
+                        **element
+                    }
                     break
         return response
 
@@ -185,7 +205,6 @@ class MongoBackend(Backend):
 
     def get_site_version(self, site, version):
         site_versions = self.get_site(site)
-
         this_version = None
         for site_version in site_versions:
             if str(site_version["version"]) == version:
@@ -195,74 +214,79 @@ class MongoBackend(Backend):
 
     def get_site_version_latest(self, site):
         site_versions = self.get_site(site)
-
-        latest = None
+        site = None
         for site_version in site_versions:
-            if latest:
-                if site_version.get("version") > latest.get("version"):
-                    latest = site_version
+            if site:
+                if site_version.get("version"):
+                    site = site_version
             else:
-                latest = site_version
-        return latest
+                site = site_version
+        return site
 
     def get_storage(self, storage_id):
         response = {}
-        for site in self.list_sites_version_latest():
-            for storage in site.get("storages", []):
-                if storage["id"] == storage_id:
-                    response = storage
+        for entry in self.list_storages(include_inactive=True):
+            site_name = entry.get("site_name")
+            for element in entry.get("storages", []):
+                if element.get("id") == storage_id:
+                    response = {
+                        "site_name": site_name,
+                        **element
+                    }
                     break
         return response
 
     def get_storage_area(self, storage_area_id):
         response = {}
-        for site in self.list_sites_version_latest():
-            for storage in site.get("storages", []):
-                for storage_area in storage.get("areas", []):
-                    if storage_area["id"] == storage_area_id:
-                        response = {
-                            "associated_storage_id": storage.get("id"),
-                            **storage_area,
-                        }
-                        break
+        for entry in self.list_storage_areas(include_inactive=True):
+            site_name = entry.get("site_name")
+            for element in entry.get("storage_areas", []):
+                if element.get("id") == storage_area_id:
+                    response = {
+                        "site_name": site_name,
+                        **element
+                    }
+                    break
         return response
 
-    def list_compute(self):
+    def list_compute(self, include_inactive=False):
         response = []
-        for site in self.list_sites_version_latest():
+        for site in self.list_sites_version_latest(include_inactive=include_inactive):
             if site.get("compute"):
                 response.append(
                     {
                         "site_name": site.get("name"),
-                        "compute": site.get("compute"),
+                        "compute": [compute for compute in site.get("compute") if
+                                    not self._is_compute_down_or_disabled(compute)],
                     }
                 )
         return response
 
-    def list_services(self, include_disabled=True):
+    def list_services(self, include_inactive=False):
         response = []
-        for site_name in self.list_site_names_unique():
-            full_site_json = self.get_site_version_latest(site_name)
-
+        for entry in self.list_compute(include_inactive=include_inactive):
+            site_name = entry.get("site_name")
             services = []
-            for compute in full_site_json.get("compute", []):
-                # add the associated compute id
-                for service in compute.get("associated_global_services", []):
+            for compute in entry.get("compute", []):
+                if self._is_compute_down_or_disabled(compute):
+                    continue
+                # group both global and local services
+                for service in (compute.get("associated_global_services", []) +
+                                compute.get("associated_local_services", [])):
+                    if self._is_service_down_or_disabled(service):
+                        continue
                     services.append(
                         {
-                            "associated_compute_id": compute.get("id"),
+                            "parent_compute_id": compute.get("id"),
                             **service,
                         }
                     )
-                for service in compute.get("associated_local_services", []):
-                    services.append(
-                        {
-                            "associated_compute_id": compute.get("id"),
-                            **service,
-                        }
-                    )
-
-            response.append({"site_name": full_site_json.get("name"), "services": services})
+            response.append(
+                {
+                    "site_name": site_name,
+                    "services": services
+                }
+            )
         return response
 
     def list_service_types_from_schema(self, schema):
@@ -280,13 +304,18 @@ class MongoBackend(Backend):
                 response.append(site_name)
         return response
 
-    def list_sites_version_latest(self):
+    def list_sites_version_latest(self, include_inactive=False):
         response = []
         for site_name in self.list_site_names_unique():
-            response.append(self.get_site_version_latest(site_name))
+            site = self.get_site_version_latest(site_name)
+            if include_inactive:
+                response.append(site)
+            else:
+                if not self._is_site_down_or_disabled(site):
+                    response.append(site)
         return response
 
-    def list_storages(self, topojson=False, for_grafana=False):
+    def list_storages(self, topojson=False, for_grafana=False, include_inactive=False):
         if topojson:
             response = {
                 "type": "Topology",
@@ -294,11 +323,11 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-
-        for site_name in self.list_site_names_unique():
-            full_site_json = self.get_site_version_latest(site_name)
+        for site in self.list_sites_version_latest(include_inactive=include_inactive):
             if topojson or for_grafana:
-                for storage in full_site_json.get("storages", []):
+                for storage in site.get("storages", []):
+                    if self._is_storage_down_or_disabled(storage):
+                        continue
                     if topojson:
                         response["objects"]["sites"]["geometries"].append(
                             {
@@ -320,16 +349,17 @@ class MongoBackend(Backend):
                             }
                         )
             else:
-                if full_site_json.get("storages"):
+                if site.get("storages"):
                     response.append(
                         {
-                            "site_name": full_site_json.get("name"),
-                            "storages": full_site_json.get("storages"),
+                            "site_name": site.get("name"),
+                            "storages": [storage for storage in site.get("storages") if
+                                         not self._is_storage_down_or_disabled(storage)],
                         }
                     )
         return response
 
-    def list_storage_areas(self, topojson=False, for_grafana=False):
+    def list_storage_areas(self, topojson=False, for_grafana=False, include_inactive=False):
         if topojson:
             response = {
                 "type": "Topology",
@@ -338,12 +368,15 @@ class MongoBackend(Backend):
         else:
             response = []
 
-        for site_name in self.list_site_names_unique():
-            full_site_json = self.get_site_version_latest(site_name)
-
+        for entry in self.list_storages(include_inactive=include_inactive):
+            site_name = entry.get("site_name")
             storage_areas = []
-            for storage in full_site_json.get("storages", []):
+            for storage in entry.get("storages"):
+                if self._is_storage_down_or_disabled(storage):
+                    continue
                 for storage_area in storage.get("areas", []):
+                    if self._is_storage_area_down_or_disabled(storage_area):
+                        continue
                     if topojson:
                         response["objects"]["sites"]["geometries"].append(
                             {
@@ -365,17 +398,17 @@ class MongoBackend(Backend):
                             }
                         )
                     else:
-                        # add the associated storage id
+                        # add the parent storage id
                         storage_areas.append(
                             {
-                                "associated_storage_id": storage.get("id"),
+                                "parent_storage_id": storage.get("id"),
                                 **storage_area,
                             }
                         )
             if not for_grafana and not topojson:
                 response.append(
                     {
-                        "site_name": full_site_json.get("name"),
+                        "site_name": site_name,
                         "storage_areas": storage_areas,
                     }
                 )

@@ -153,9 +153,13 @@ async def increment_request_counter(
     summary="List all compute",
 )
 @handle_exceptions
-async def list_compute(request: Request) -> JSONResponse:
+async def list_compute(
+    request: Request,
+    include_inactive: bool = Query(
+        default=False, description="Include inactivate (down/disabled) compute?")
+) -> JSONResponse:
     """List all compute."""
-    rtn = BACKEND.list_compute()
+    rtn = BACKEND.list_compute(include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -297,11 +301,12 @@ async def render_schema(
 @handle_exceptions
 async def list_services(
     request: Request,
-    include_disabled: bool = Query(default=False, description="Include disabled services?"),
+    include_inactive: bool = Query(
+        default=False, description="Include inactive (down/disabled) services?")
 ) -> JSONResponse:
     """List all services."""
     rtn = BACKEND.list_services(
-        include_disabled=include_disabled,
+        include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
 
@@ -567,9 +572,12 @@ async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
 @handle_exceptions
 async def get_sites_latest(
     request: Request,
+    include_inactive: bool = Query(
+        default=False, description="Include inactive (down/disabled) sites?"
+    ),
 ) -> Union[JSONResponse, HTTPException]:
     """Get the latest version of all sites."""
-    rtn = BACKEND.list_sites_version_latest()
+    rtn = BACKEND.list_sites_version_latest(include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -593,7 +601,8 @@ async def get_sites_latest(
 )
 @handle_exceptions
 async def get_site_versions(
-    request: Request, site: str = Path(description="Site name")
+        request: Request,
+        site: str = Path(description="Site name")
 ) -> Union[JSONResponse, HTTPException]:
     """Get all versions of a site."""
     rtn = BACKEND.get_site(site)
@@ -714,9 +723,13 @@ async def delete_site_version(
     summary="List all storages",
 )
 @handle_exceptions
-async def list_storages(request: Request) -> JSONResponse:
+async def list_storages(
+        request: Request,
+        include_inactive: bool = Query(
+            default=False, description="Include inactivate (down/disabled) storages?")
+) -> JSONResponse:
     """List all storages."""
-    rtn = BACKEND.list_storages()
+    rtn = BACKEND.list_storages(include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -733,9 +746,13 @@ async def list_storages(request: Request) -> JSONResponse:
     summary="List all storages (Grafana format)",
 )
 @handle_exceptions
-async def list_storages_for_grafana(request: Request) -> JSONResponse:
+async def list_storages_for_grafana(
+        request: Request,
+        include_inactive: bool = Query(
+            default=False, description="Include inactivate (down/disabled) storages?")
+) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
-    rtn = BACKEND.list_storages(for_grafana=True)
+    rtn = BACKEND.list_storages(for_grafana=True, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -752,9 +769,13 @@ async def list_storages_for_grafana(request: Request) -> JSONResponse:
     summary="List all storages (topojson format)",
 )
 @handle_exceptions
-async def list_storages_in_topojson_format(request: Request) -> JSONResponse:
+async def list_storages_in_topojson_format(
+        request: Request,
+        include_inactive: bool = Query(
+            default=False, description="Include inactivate (down/disabled) storages?")
+) -> JSONResponse:
     """List all storages in topojson format."""
-    rtn = BACKEND.list_storages(topojson=True)
+    rtn = BACKEND.list_storages(topojson=True, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -806,9 +827,13 @@ async def get_storage_from_id(
     summary="List all storage areas",
 )
 @handle_exceptions
-async def list_storages(request: Request) -> JSONResponse:
+async def list_storages(
+        request: Request,
+        include_inactive: bool = Query(
+            default=False, description="Include inactivate (down/disabled) storage areas?")
+) -> JSONResponse:
     """List all storage areas."""
-    rtn = BACKEND.list_storage_areas()
+    rtn = BACKEND.list_storage_areas(include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -825,9 +850,13 @@ async def list_storages(request: Request) -> JSONResponse:
     summary="List all storage areas (Grafana format)",
 )
 @handle_exceptions
-async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
+async def list_storage_areas_for_grafana(
+        request: Request,
+        include_inactive: bool = Query(
+            default=False, description="Include inactivate (down/disabled) storage areas?")
+) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
-    rtn = BACKEND.list_storage_areas(for_grafana=True)
+    rtn = BACKEND.list_storage_areas(for_grafana=True, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -846,9 +875,11 @@ async def list_storage_areas_for_grafana(request: Request) -> JSONResponse:
 @handle_exceptions
 async def list_storage_areas_in_topojson_format(
     request: Request,
+    include_inactive: bool = Query(
+        default=False, description="Include inactivate (down/disabled) storages?")
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
-    rtn = BACKEND.list_storage_areas(topojson=True)
+    rtn = BACKEND.list_storage_areas(topojson=True, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
