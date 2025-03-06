@@ -38,17 +38,13 @@
       "allowEmpty": true
     },
     "hardware_type": {
-      "type": "array",
+      "type": "string",
       "title": "Hardware types",
-      "items": {
-        "type": "string",
-        "enum": [
-          "bare-metal",
-          "container",
-          "vm"
-        ]
-      },
-      "default": null,
+      "enum": [
+        "bare-metal",
+        "container",
+        "vm"
+      ],
       "allowEmpty": true
     },
     "description": {

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
@@ -6,6 +6,12 @@ from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.service import GlobalService
 from ska_src_site_capabilities_api.models.storage import Storage
+
+
+class Downtime(BaseModel):
+    date_range: str = Field(examples=["2025-03-04T00:00:00.000Z to 2025-03-30T00:00:00.000Z"])
+    type: Literal['Planned', 'Unplanned']
+    reason: str = Field(examples=["Network issues."])
 
 
 class Site(BaseModel):
@@ -16,7 +22,6 @@ class Site(BaseModel):
     country: str = Field(examples=["GB"])
     primary_contact_email: str = Field(Examples=["someone1@email.com"])
     secondary_contact_email: str = Field(Examples=["someone2@email.com"])
-    global_services: List[GlobalService]
     compute: List[Compute]
     storages: List[Storage]
     schema_: Schema = Field(alias="schema")
@@ -24,3 +29,5 @@ class Site(BaseModel):
     created_by_username: str = Field(examples=["username"])
     version: NonNegativeInt = Field(examples=[1])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+    downtime: List[Downtime]
+    disabled: bool = Field(examples=[True, False])

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 
+import dateutil.parser
 from pymongo import MongoClient
 
 
@@ -107,20 +109,37 @@ class MongoBackend(Backend):
         )
         self.mongo_database = mongo_database
 
+    def _is_in_downtime(self, downtime):
+        for entry in downtime:
+            if entry.get("date_range"):
+                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
+                start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
+                end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
+                now_utc = datetime.now(timezone.utc)
+                if now_utc > start_date_utc and now_utc < end_date_utc:
+                    return True
+        return False
+
     def _is_compute_down_or_disabled(self, compute):
-        return compute.get("disabled", False)
+        if compute.get("disabled", False) or self._is_in_downtime(compute.get("downtime", [])):
+            return True
 
     def _is_service_down_or_disabled(self, service):
-        return service.get("disabled", False)
+        if service.get("disabled", False) or self._is_in_downtime(service.get("downtime", [])):
+            return True
 
     def _is_site_down_or_disabled(self, site):
-        return site.get("disabled", False)
+        if site.get("disabled", False) or self._is_in_downtime(site.get("downtime", [])):
+            return True
 
     def _is_storage_down_or_disabled(self, storage):
-        return storage.get("disabled", False)
+        if storage.get("disabled", False) or self._is_in_downtime(storage.get("downtime", [])):
+            return True
 
     def _is_storage_area_down_or_disabled(self, storage_area):
-        return storage_area.get("disabled", False)
+        if storage_area.get("disabled", False) or self._is_in_downtime(
+                storage_area.get("downtime", [])):
+            return True
 
     def add_site(self, site_values):
         client = MongoClient(self.connection_string)

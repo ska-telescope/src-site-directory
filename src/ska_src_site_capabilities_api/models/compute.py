@@ -15,10 +15,16 @@ with open(schema_path) as f:
 hardware_capabilities = (
     dereferenced_schema.get("properties", {}).get("hardware_capabilities", {}).get("items", {}).get("enum", [])
 )
-hardware_type = dereferenced_schema.get("properties", {}).get("hardware_type", {}).get("items", {}).get("enum", [])
+hardware_type = dereferenced_schema.get("properties", {}).get("hardware_type", {}).get("enum", [])
 
 HardwareCapabilities = Literal[tuple(hardware_capabilities)]
 HardwareType = Literal[tuple(hardware_type)]
+
+
+class Downtime(BaseModel):
+    date_range: str = Field(examples=["2025-03-04T00:00:00.000Z to 2025-03-30T00:00:00.000Z"])
+    type: Literal['Planned', 'Unplanned']
+    reason: str = Field(examples=["Network issues."])
 
 
 class Compute(BaseModel):
@@ -32,3 +38,5 @@ class Compute(BaseModel):
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]
     associated_local_services: List[LocalService]
+    downtime: List[Downtime]
+    disabled: bool = Field(examples=[True, False])

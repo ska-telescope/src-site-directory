@@ -500,7 +500,7 @@
                 },
                 {
                   "key": "compute[].hardware_type",
-                  "type": "checkboxes",
+                  "type": "radios",
                   "placeholder": "Hardware types for this compute element"
                 },
                 {
