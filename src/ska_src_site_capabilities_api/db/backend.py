@@ -4,7 +4,7 @@ from pymongo import MongoClient
 
 
 class Backend(ABC):
-    """Backend API abstract base class."""
+    """ Backend API abstract base class. """
 
     def __init__(self):
         pass
@@ -164,7 +164,7 @@ class MongoBackend(Backend):
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True):
+        for entry in self.list_services(include_associated_with_compute=True, include_disabled=True, service_type=None, site_names=None):
             site_name = entry.get("site_name")
             services = entry.get("services", [])
             for service in services:
@@ -239,27 +239,44 @@ class MongoBackend(Backend):
                 )
         return response
 
-    def list_services(self, include_associated_with_compute=True, include_disabled=True):
+    def list_services(self, include_associated_with_compute=True, include_disabled=True, service_type=None, site_names=None, compute_id=None):
         response = []
+        # Convert site_names to list if it's a string
+        if isinstance(site_names, str):
+            # Handle comma-separated strings
+            site_names = [name.strip() for name in site_names.split(',')]
+        elif site_names is None:
+            site_names = None
+
         for site_name in self.list_site_names_unique():
+            # Skip sites that don't match the filter
+            if site_names is not None and site_name not in site_names:
+                continue
+
             full_site_json = self.get_site_version_latest(site_name)
 
             services = []
             # concatenate services (global + associated local services)
-            for service in full_site_json.get("global_services", []):
-                services.append(service)
+            for service in full_site_json.get('global_services', []):
+                if service_type is None or service.get('type') == service_type:
+                    services.append(service)
             if include_associated_with_compute:
-                for compute in full_site_json.get("compute", []):
+                for compute in full_site_json.get('compute', []):
+                    # Skip if compute_id filter is set and doesn't match
+                    if compute_id is not None and compute.get('id') != compute_id:
+                        continue
                     # add the associated compute id
-                    for service in compute.get("associated_local_services", []):
-                        services.append(
-                            {
-                                "associated_compute_id": compute.get("id"),
-                                **service,
-                            }
-                        )
+                    for service in compute.get('associated_local_services', []):
+                        if service_type is None or service.get('type') == service_type:
+                            services.append(
+                                {
+                                    'associated_compute_id': compute.get('id'),
+                                    **service,
+                                }
+                            )
 
-            response.append({"site_name": full_site_json.get("name"), "services": services})
+            if services:  # Only add to response if there are matching services
+                response.append({'site_name': full_site_json.get('name'), 'services': services})
         return response
 
     def list_service_types_from_schema(self, schema):

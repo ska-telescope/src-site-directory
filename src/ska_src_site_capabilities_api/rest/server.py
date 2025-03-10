@@ -277,35 +277,33 @@ async def render_schema(
 
 
 @api_version(1)
-@app.get(
-    "/services",
-    responses={
-        200: {"model": models.response.ServicesResponse},
-        401: {},
-        403: {},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Services"],
-    summary="List all services",
-)
+@app.get('/services',
+         responses={
+             200: {'model': models.response.ServicesResponse},
+             401: {},
+             403: {}
+         },
+         dependencies=[Depends(increment_request_counter)] if DEBUG else [
+             Depends(increment_request_counter),
+             Depends(permission_dependencies.verify_permission_for_service_route)
+         ],
+         tags=['Services'],
+         summary='List all services')
 @handle_exceptions
-async def list_services(
-    request: Request,
-    include_associated_with_compute: bool = Query(
-        default=True, description="Include services associated with compute?"
-    ),
-    include_disabled: bool = Query(default=False, description="Include disabled services?"),
-) -> JSONResponse:
-    """List all services."""
-    rtn = BACKEND.list_services(
-        include_associated_with_compute=include_associated_with_compute,
-        include_disabled=include_disabled,
-    )
+async def list_services(request: Request,
+                        include_associated_with_compute: bool = \
+                                Query(default=True, description='Include services associated with compute?'),
+                        include_disabled: bool = Query(default=False, description='Include disabled services?'),
+                        service_type: str = Query(default=None, description='Filter by service type'),
+                        site_names: str = Query(default=None, description='Filter by site names (comma-separated)'),
+                        compute_id: str = Query(default=None, description='Filter by compute ID')
+                        ) -> JSONResponse:
+    """ List all services. """
+    rtn = BACKEND.list_services(include_associated_with_compute=include_associated_with_compute,
+                                include_disabled=include_disabled,
+                                service_type=service_type,
+                                site_names=site_names,
+                                compute_id=compute_id)
     return JSONResponse(rtn)
 
 
