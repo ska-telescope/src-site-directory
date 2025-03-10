@@ -24,9 +24,15 @@ spec:
         - name: IAM_CLIENT_CONF_URL
           value: {{ .Values.svc.api.iam_client_conf_url }}
         - name: API_IAM_CLIENT_ID
-          value: {{ .Values.svc.api.iam_client_id }}
+          valueFrom:
+            secretKeyRef:
+              name: iam-client-credentials
+              key: client_id
         - name: API_IAM_CLIENT_SECRET
-          value: {{ .Values.svc.api.iam_client_secret }}
+          valueFrom:
+            secretKeyRef:
+              name: iam-client-credentials
+              key: client_secret
         - name: API_IAM_CLIENT_SCOPES
           value: {{ .Values.svc.api.iam_client_scopes }}
         - name: API_IAM_CLIENT_AUDIENCE
@@ -36,7 +42,10 @@ spec:
         - name: MONGO_HOST
           value: {{ .Values.svc.api.mongo_host }}
         - name: MONGO_PASSWORD
-          value: {{ .Values.svc.common.mongo_password }}
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: password
         - name: MONGO_PORT
           value: {{ .Values.svc.api.mongo_port | quote }}
         - name: MONGO_USERNAME
@@ -50,7 +59,10 @@ spec:
         - name: AUTH_API_URL
           value: {{ .Values.svc.api.auth_api_url }}
         - name: SESSIONS_SECRET_KEY
-          value: {{ .Values.svc.api.sessions_secret_key }}
+          valueFrom:
+            secretKeyRef:
+              name: sessions-secret
+              key: key
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
         image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}
