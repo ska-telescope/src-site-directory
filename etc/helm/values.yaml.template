@@ -5,8 +5,6 @@ svc:
     root_path: /api
     scheme: https
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
-    iam_client_id: 1f901a38-955f-4198-aedb-002332a3c551
-    iam_client_secret:
     iam_client_scopes: "openid profile"
     iam_client_audience: site-capabilities-api
     mongo_host: mongo
@@ -20,7 +18,27 @@ svc:
   common:
     mongo_database: site-capabilities
     mongo_username: root
-    mongo_password:
+
+secrets:
+  api:
+    iam_client:
+      id: ""
+      secret: ""
+      # If existingSecret is defined and set to true, the above attributes will be ignored in favour of the data
+      # contained in an existing secret, "iam-client-credentials".
+      existingSecret: false
+    sessions:
+      key: ""
+      # If existingSecret is defined and set to true, the above attributes will be ignored in favour of the data
+      # contained in an existing secret, "sessions-secret".
+      existingSecret: false
+  common:
+    mongo:
+      password: ""
+      # If existingSecret is defined and set to true, the above attributes will be ignored in favour of the data
+      # contained in an existing secret, "mongo-credentials".
+      existingSecret: false
+
 ing:
   api:
     host: site-capabilities.srcdev.skao.int

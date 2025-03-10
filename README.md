@@ -1,6 +1,6 @@
 # SKA SRC Site Capabilities API
 
-This API exposes enables functionality related to SRCNet site service discovery and management.
+This API exposes functionality related to SRCNet site storage/service discovery and management.
 
 [TOC]
 
@@ -160,9 +160,12 @@ eng@ubuntu:~/SKAO/ska-src-site-capabilities-api$ docker-compose up
 
 ### Example via Helm
 
-After editing the `values.yaml` (template in `/etc/helm/`):
+First, create a `values.yaml` using the template in `/etc/helm/` as a basis, then install:
 
 ```bash
 $ create namespace ska-src-site-capabilities-api
-$ helm install --namespace ska-src-site-capabilities-api ska-src-site-capabilities-api .
+
+Ask for values to repo maintainers to edit Makefile variables IAM_CLIENT_SECRET and MONGO_PASSWORD
+then execute
+$ make helm-install
 ```

@@ -1,61 +1,43 @@
-image: docker:git
+image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+
 services:
 - docker:dind
 
-stages:
-- build
-- deploy
-
 variables:
-  API_IMAGE_NAME: $CI_REGISTRY_IMAGE/api
   GIT_SUBMODULE_STRATEGY: recursive
 
-build-api:
-  only:
-    - main
-  stage: build
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build . -f Dockerfile --tag $API_IMAGE_NAME:site-capabilities.srcdev.skao.int
-    - docker push $API_IMAGE_NAME:site-capabilities.srcdev.skao.int
+cache:
+  paths:
+    - build
 
-helm-publish:
-  only:
-    - main
-  stage: deploy
-  image:
-    name: alpine/helm:latest
-    entrypoint: [""]
-  script:
-    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD repo ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/stable
-    - helm package etc/helm
-    - export CHART_NAME=`ls | grep ska-src-site-capabilities-api*.tgz`
-    - helm plugin install https://github.com/chartmuseum/helm-push
-    - helm cm-push $CHART_NAME repo
+stages:
+- lint
+- join-lint-reports
+- build
+- test
+- publish
+- pages
+- scan
 
-pages:
-  only:
-    - main
-  stage: deploy
-  image:
-    name: python:latest
+join_lint_reports:
+  stage: join-lint-reports
+  tags:
+    - k8srunner
   script:
-  - python3 -m pip install -U sphinx
-  - python3 -m pip install -r docs/requirements.txt
-  - apt-get update -y && apt-get install -y plantuml graphviz
-  - cd docs && make html
+    - make join-lint-reports
   artifacts:
     paths:
-      - docs/_build/html
-  publish: docs/_build/html
+      - build/
+    when: always
 
-pypi-publish:
-  only:
-    - main
-  stage: deploy
-  image:
-    name: python:latest
-  script:
-    - pip install build twine
-    - python -m build
-    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+include:
+  # python formatting, linting and testing
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/python.gitlab-ci.yml'     # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  # docs
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/docs.gitlab-ci.yml'       # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  # OCI images build and publish
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'  # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  # TBD: helm

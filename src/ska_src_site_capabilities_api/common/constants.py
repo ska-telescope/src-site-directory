@@ -7,6 +7,7 @@ class IAM:
     """
     IAM related REST endpoints.
     """
+
     def __init__(self, client_conf_url=None):
         # Get oidc endpoints from IAM .well_known.
         resp = requests.get(client_conf_url)
@@ -15,21 +16,21 @@ class IAM:
 
     @property
     def iam_endpoint_authorization(self):
-        authorization_endpoint = self.client_well_known.get('authorization_endpoint')
+        authorization_endpoint = self.client_well_known.get("authorization_endpoint")
         if not authorization_endpoint:
             raise IAMEndpointNotFoundInWellKnown("authorization_endpoint")
         return authorization_endpoint
 
     @property
     def iam_endpoint_token(self):
-        token_endpoint = self.client_well_known.get('token_endpoint')
+        token_endpoint = self.client_well_known.get("token_endpoint")
         if not token_endpoint:
             raise IAMEndpointNotFoundInWellKnown("token_endpoint")
         return token_endpoint
 
     @property
     def iam_endpoint_introspection(self):
-        introspection_endpoint = self.client_well_known.get('introspection_endpoint')
+        introspection_endpoint = self.client_well_known.get("introspection_endpoint")
         if not introspection_endpoint:
             raise IAMEndpointNotFoundInWellKnown("introspection_endpoint")
         return introspection_endpoint

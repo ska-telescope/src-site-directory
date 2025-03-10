@@ -5,9 +5,9 @@
 
 Welcome to ska-src-site-capabilities-api's developer documentation!
 ===================================================================
-
 .. toctree::
    :maxdepth: 2
 
    readme.md
    contributing.md
+   changelog.md
