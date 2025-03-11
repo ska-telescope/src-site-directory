@@ -343,7 +343,7 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, topojson=False, for_grafana=False):
+    def list_storage_areas(self, topojson=False, for_grafana=False, site_name=None):
         if topojson:
             response = {
                 "type": "Topology",
@@ -352,8 +352,17 @@ class MongoBackend(Backend):
         else:
             response = []
 
-        for site_name in self.list_site_names_unique():
-            full_site_json = self.get_site_version_latest(site_name)
+        ### filter by site_name (storage-areas?site_name= )
+        if site_name:
+            sites = [site_name]
+        else:
+            sites = self.list_site_names_unique()
+
+        for site in sites:
+            full_site_json = self.get_site_version_latest(site)
+            if not full_site_json:
+                continue
+        ###
 
             storage_areas = []
             for storage in full_site_json.get("storages", []):
