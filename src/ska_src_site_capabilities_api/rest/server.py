@@ -303,7 +303,7 @@ async def list_services(
     site_names: str = Query(default=None, description='Filter by site names (comma-separated)'),
     compute_id: str = Query(default=None, description='Filter by compute ID')
 ) -> JSONResponse:
-    """ List all services. """
+    """List all services."""
     rtn = BACKEND.list_services(
         include_associated_with_compute=include_associated_with_compute,
         include_disabled=include_disabled,
