@@ -343,7 +343,7 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, topojson=False, for_grafana=False, site_name=None):
+    def list_storage_areas(self, topojson=False, for_grafana=False, site_name=None, identifier=None):
         if topojson:
             response = {
                 "type": "Topology",
@@ -367,6 +367,10 @@ class MongoBackend(Backend):
             storage_areas = []
             for storage in full_site_json.get("storages", []):
                 for storage_area in storage.get("areas", []):
+
+                    if identifier and identifier != storage_area.get("identifier"):
+                        continue
+
                     if topojson:
                         response["objects"]["sites"]["geometries"].append(
                             {
@@ -395,7 +399,7 @@ class MongoBackend(Backend):
                                 **storage_area,
                             }
                         )
-            if not for_grafana and not topojson:
+            if storage_areas and not for_grafana and not topojson:
                 response.append(
                     {
                         "site_name": full_site_json.get("name"),
