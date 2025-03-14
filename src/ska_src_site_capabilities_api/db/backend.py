@@ -288,9 +288,7 @@ class MongoBackend(Backend):
                             )
 
             if services:  # Only add to response if there are matching services
-                response.append(
-                    {"site_name": full_site_json.get("name"), "services": services}
-                )
+                response.append({"site_name": full_site_json.get("name"), "services": services})
         return response
 
     def list_service_types_from_schema(self, schema):
