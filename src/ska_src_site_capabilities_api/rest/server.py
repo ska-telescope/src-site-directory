@@ -26,7 +26,12 @@ from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from starlette.responses import (
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
@@ -303,7 +308,7 @@ async def list_services(
     site_names: str = Query(default=None, description='Filter by site names (comma-separated)'),
     compute_id: str = Query(default=None, description='Filter by compute ID')
 ) -> JSONResponse:
-    """ List all services. """
+    """List all services."""
     rtn = BACKEND.list_services(
         include_associated_with_compute=include_associated_with_compute,
         include_disabled=include_disabled,
