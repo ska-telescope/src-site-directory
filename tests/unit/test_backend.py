@@ -1,6 +1,6 @@
 import pytest
 
-from src.ska_src_site_capabilities_api.db.backend import MongoBackend
+from ska_src_site_capabilities_api.db.backend import MongoBackend
 
 
 @pytest.fixture
