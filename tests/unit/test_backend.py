@@ -13,9 +13,7 @@ def backend(mocker):
         mongo_port=27017,
         mongo_database="test_db",
     )
-    mocker.patch.object(
-        backend, "list_site_names_unique", return_value=["CNSRC", "UKSRC"]
-    )
+    mocker.patch.object(backend, "list_site_names_unique", return_value=["CNSRC", "UKSRC"])
     mocker.patch.object(
         backend,
         "get_site_version_latest",
@@ -100,10 +98,7 @@ def test_list_services_with_compute_id_filter(backend):
     assert len(services) == 1
     assert services[0]["site_name"] == "CNSRC"
     assert len(services[0]["services"]) == 2
-    assert all(
-        s["associated_compute_id"] == "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-        for s in services[0]["services"]
-    )
+    assert all(s["associated_compute_id"] == "dd875a28-2df8-4f9f-838c-aa4110b4c4b9" for s in services[0]["services"])
 
 
 def test_add_site(backend, mocker):
@@ -111,9 +106,7 @@ def test_add_site(backend, mocker):
     site_values = {"name": "TestSite", "description": "A test site"}
 
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch(
-        "src.ska_src_site_capabilities_api.db.backend.MongoClient"
-    )
+    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.insert_one.return_value.inserted_id = "mock_id"
     mock_db.sites.find.return_value = []  # Simulate no existing versions
@@ -123,16 +116,12 @@ def test_add_site(backend, mocker):
 
     # Assertions
     assert inserted_id == "mock_id"
-    mock_db.sites.insert_one.assert_called_once_with(
-        {"name": "TestSite", "description": "A test site", "version": 1}
-    )
+    mock_db.sites.insert_one.assert_called_once_with({"name": "TestSite", "description": "A test site", "version": 1})
 
 
 def test_delete_site_version(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch(
-        "src.ska_src_site_capabilities_api.db.backend.MongoClient"
-    )
+    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.delete_one.return_value.deleted_count = 1
 
@@ -146,9 +135,7 @@ def test_delete_site_version(backend, mocker):
 
 def test_dump_sites(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch(
-        "src.ska_src_site_capabilities_api.db.backend.MongoClient"
-    )
+    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.find.return_value = [{"name": "TestSite", "_id": "mock_id"}]
 
@@ -197,13 +184,9 @@ def test_get_service(backend, mocker):
 
 def test_get_site(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch(
-        "src.ska_src_site_capabilities_api.db.backend.MongoClient"
-    )
+    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
-    mock_db.sites.find.return_value = [
-        {"name": "TestSite", "version": 1, "_id": "mock_id"}
-    ]
+    mock_db.sites.find.return_value = [{"name": "TestSite", "version": 1, "_id": "mock_id"}]
 
     # Call the get_site function
     result = backend.get_site("TestSite")
