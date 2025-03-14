@@ -245,8 +245,6 @@ class MongoBackend(Backend):
         if isinstance(site_names, str):
             # Handle comma-separated strings
             site_names = [name.strip() for name in site_names.split(',')]
-        elif site_names is None:
-            site_names = None
 
         for site_name in self.list_site_names_unique():
             # Skip sites that don't match the filter
