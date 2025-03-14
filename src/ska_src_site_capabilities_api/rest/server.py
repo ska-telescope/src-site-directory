@@ -26,12 +26,7 @@ from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
-from starlette.responses import (
-    HTMLResponse,
-    JSONResponse,
-    RedirectResponse,
-    StreamingResponse,
-)
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
