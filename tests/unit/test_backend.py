@@ -106,7 +106,7 @@ def test_add_site(backend, mocker):
     site_values = {"name": "TestSite", "description": "A test site"}
 
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
+    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.insert_one.return_value.inserted_id = "mock_id"
     mock_db.sites.find.return_value = []  # Simulate no existing versions
@@ -121,7 +121,7 @@ def test_add_site(backend, mocker):
 
 def test_delete_site_version(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
+    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.delete_one.return_value.deleted_count = 1
 
@@ -135,7 +135,7 @@ def test_delete_site_version(backend, mocker):
 
 def test_dump_sites(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
+    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.find.return_value = [{"name": "TestSite", "_id": "mock_id"}]
 
@@ -184,7 +184,7 @@ def test_get_service(backend, mocker):
 
 def test_get_site(backend, mocker):
     # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("src.ska_src_site_capabilities_api.db.backend.MongoClient")
+    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
     mock_db = mock_client.return_value.__getitem__.return_value
     mock_db.sites.find.return_value = [{"name": "TestSite", "version": 1, "_id": "mock_id"}]
 
