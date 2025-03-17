@@ -846,16 +846,14 @@ async def get_storage_from_id(
     tags=["Storage Areas"],
     summary="List all storage areas",
 )
-
 @handle_exceptions
 async def list_storage_areas(
-    request: Request,
-    site_name: str = Query(None),
-    identifier: str = Query(None)
+    request: Request, site_name: str = Query(None), identifier: str = Query(None)
 ) -> JSONResponse:
     """Filter storage_areas by site_name and identifier"""
     rtn = BACKEND.list_storage_areas(site_name=site_name, identifier=identifier)
     return JSONResponse(rtn)
+
 
 @api_version(1)
 @app.get(

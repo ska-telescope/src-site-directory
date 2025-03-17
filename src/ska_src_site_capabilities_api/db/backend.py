@@ -359,7 +359,7 @@ class MongoBackend(Backend):
         else:
             response = []
 
-        ### filter by site_name (storage-areas?site_name= )
+        # filter by site_name (storage-areas?site_name= )
         if site_name:
             sites = [site_name]
         else:
@@ -369,12 +369,11 @@ class MongoBackend(Backend):
             full_site_json = self.get_site_version_latest(site)
             if not full_site_json:
                 continue
-        ###
+            #
 
             storage_areas = []
             for storage in full_site_json.get("storages", []):
                 for storage_area in storage.get("areas", []):
-
                     if identifier and identifier != storage_area.get("identifier"):
                         continue
 
