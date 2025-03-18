@@ -3,6 +3,12 @@
   "type": "object",
   "description": "Site definition schema.",
   "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": "to be assigned"
+    },
     "name": {
       "type": "string",
       "title": "Name",
@@ -13,14 +19,9 @@
       "title": "Description",
       "default": null
     },
-    "comments": {
-      "type": "textarea",
-      "title": "Version comments"
-    },
     "country": {
       "type": "string",
-      "$ref": "country.json",
-      "default": null
+      "$ref": "country.json"
     },
     "primary_contact_email": {
       "type": "email",
@@ -80,9 +81,9 @@
       "title": "Other attributes (as json)",
       "allowEmpty": true
     },
-    "disabled": {
+    "is_force_disabled": {
       "type": "boolean",
-      "title": "Disabled?",
+      "title": "Force disable?",
       "default": false
     }
   }

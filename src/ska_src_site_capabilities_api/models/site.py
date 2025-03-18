@@ -1,4 +1,5 @@
 from typing import List, Literal
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
@@ -15,7 +16,7 @@ class Downtime(BaseModel):
 
 
 class Site(BaseModel):
-    _id: str = Field(examples=["651d7968ebc02f9f2d66b3df"])
+    id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["SKAOSRC"])
     comments: str = Field(examples=["Some version comments"])
     description: str = Field(examples=["Some description"])
@@ -24,10 +25,6 @@ class Site(BaseModel):
     secondary_contact_email: str = Field(Examples=["someone2@email.com"])
     compute: List[Compute]
     storages: List[Storage]
-    schema_: Schema = Field(alias="schema")
-    created_at: str = Field(examples=["2023-09-14T13:43:09.239513"])
-    created_by_username: str = Field(examples=["username"])
-    version: NonNegativeInt = Field(examples=[1])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
     disabled: bool = Field(examples=[True, False])

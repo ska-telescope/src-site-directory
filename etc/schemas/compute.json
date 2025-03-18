@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "latitude": {
       "type": "number",
@@ -50,6 +49,11 @@
     "description": {
       "type": "string",
       "title": "Description",
+      "default": null
+    },
+    "identifier": {
+      "type": "string",
+      "title": "Identifier (if applicable)",
       "default": null
     },
     "middleware_version": {
@@ -98,9 +102,9 @@
         }
       }
     },
-    "disabled": {
+    "is_force_disabled": {
       "type": "boolean",
-      "title": "Disabled?",
+      "title": "Force disable?",
       "default": false
     }
   }

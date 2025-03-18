@@ -35,7 +35,6 @@ class Downtime(BaseModel):
 
 class Service(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    parent_service_id: UUID = Field(default_factory=uuid4)
     version: str = Field(examples=["1.0.0"])
     prefix: str = Field(examples=["https"])
     host: str = Field(examples=["rucio.srcdev.skao.int"])

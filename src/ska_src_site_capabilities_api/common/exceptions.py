@@ -98,6 +98,28 @@ class ComputeNotFound(CustomHTTPException):
         super().__init__(self.message)
 
 
+class IncorrectNodeVersionType(CustomHTTPException):
+    def __init__(self):
+        self.message = "Node version must be an integer"
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
+class NodeAlreadyExists(CustomHTTPException):
+    def __init__(self, node_name):
+        self.message = "Node with name '{}' already exists".format(node_name)
+        self.http_error_status = status.HTTP_409_CONFLICT
+        super().__init__(self.message)
+
+
+class NodeVersionNotFound(CustomHTTPException):
+    def __init__(self, node_name, node_version):
+        self.message = "Node with name '{}' and version '{}' could not be found".format(
+            node_name, node_version)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
 class SchemaNotFound(CustomHTTPException):
     def __init__(self, schema):
         self.message = "Schema with name '{}' could not be found".format(schema)
@@ -113,15 +135,16 @@ class ServiceNotFound(CustomHTTPException):
 
 
 class SiteNotFound(CustomHTTPException):
-    def __init__(self, site):
-        self.message = "Site with name '{}' could not be found".format(site)
+    def __init__(self, site_id):
+        self.message = "Site element with identifier '{}' could not be found".format(site_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
-class SiteVersionNotFound(CustomHTTPException):
-    def __init__(self, site, version):
-        self.message = "Version {} of site with name '{}' and could not be found".format(version, site)
+class SiteNotFoundInNodeVersion(CustomHTTPException):
+    def __init__(self, node_name, node_version, site_name):
+        self.message = "No site '{}' found at node '{}' with version '{}'".format(
+            site_name, node_name, node_version)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -138,3 +161,5 @@ class StorageAreaNotFound(CustomHTTPException):
         self.message = "Storage area with identifier '{}' could not be found".format(storage_area_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
+
+

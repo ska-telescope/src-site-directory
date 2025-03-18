@@ -10,6 +10,7 @@ The Site Capabilities API enables the following functionality by group:
 
 | <div style="width:160px">Group</div> | Description                                  |
 |:-------------------------------------|:---------------------------------------------|
+| Nodes                                | Operations on nodes.                         |
 | Sites                                | Operations on sites.                         |
 | Compute                              | Operations on processing offered by sites    |
 | Storages                             | Operations on storages offered by sites      |
@@ -46,16 +47,16 @@ The token audience must also match the expected audience, also defined in the si
 The presented token must include a specific scope expected by the service to be permitted access to all API routes. This 
 scope is defined in the site-capabilities-api permissions policy (default: “site-capabilities-api-service”). 
 
-**This scope must also be added to the IAM permissions client otherwise the process of token instrospection will drop 
+**This scope must also be added to the IAM permissions client otherwise the process of token introspection will drop 
 this scope.**
 
 #### Restricting user access to routes using IAM groups
 
 Access to a specific route of this API depends on user IAM group membership and is determined by calls to the 
 `/authorise/route` path of the Permissions API. Groups are typically nested with the pattern 
-`root_group/roles/site/role` for site specific permissions or `root_group/roles/role` for global permissions.
+`root_group/roles/node/role` for node specific permissions or `root_group/roles/role` for global permissions.
 
-As an example, consider get/set site services functionality. For specific site permissions for the site "SKAOSRC", the 
+As an example, consider get/set node services functionality. For specific node permissions for the node "SKAOSRC", the 
 required group hierarchy may look something like:
 
 ```
@@ -65,52 +66,53 @@ required group hierarchy may look something like:
       manager
 ```
 
-where the `/sites/{site}` get route is protected by the following permission policy mapping API routes to "roles":
+where the `/nodes/{node}` get route is protected by the following permission policy mapping API routes to "roles":
 
 ```json
 {
-   "/sites/{site}": {
-      "GET": "site-viewer or site-manager",
-      "DELETE": "site-manager"
+   "/nodes/{node}": {
+      "GET": "node-viewer or node-manager",
+      "DELETE": "node-manager"
    },
 }
 ```
 
-and the roles `site-viewer` and `site-manager` are only assigned for users who have the following IAM group membership:
+and the roles `node-viewer` and `node-manager` are only assigned for users who have the following IAM group membership:
 
 ```json
 {
-   "site-viewer": [
-      "{root_group}/roles/{site}/viewer"
+   "node-viewer": [
+      "{root_group}/roles/{node}/viewer"
     ],
-   "site-manager": [
-      "{root_group}/roles/{site}/manager"
+   "node-manager": [
+      "{root_group}/roles/{node}/manager"
    ],
 }
 ```
 
 Roles are assigned when a request to a particular endpoint is made. This enables information from the request to be used 
-to understand if a role can be assigned. For example, consider the `site-viewer` role:
+to understand if a role can be assigned. For example, consider the `node-viewer` role:
 
 ```
-    "site-viewer": [
-        "{root_group}/roles/{site}/viewer"
+    "node-viewer": [
+        "{root_group}/roles/{node}/viewer"
     ],
 ```
 
-which requires both `root_group` and `site` to be provided. The `root_group` is an application specific parameter, 
-but the `site` parameter is substituted when the request is made. In the case of a GET request for metadata, the 
-route ```/sites/{site}``` provides the `site` as a path parameter, and this value is substituted 
+which requires both `root_group` and `node` to be provided. The `root_group` is an application specific parameter, 
+but the `node` parameter is substituted when the request is made. In the case of a GET request for metadata, the 
+route ```/nodes/{node}``` provides the `node` as a path parameter, and this value is substituted 
 into the role definition. The source of the substitution for the role definition depends on either the path parameters, 
 query parameters or body of the request; which are used depends on where the parameters are expected to come from.
 
 ## Schemas
 
-It is recommended to record data in the document database by using the web frontend (`/www/sites/add`). This form 
-verifies the input against the site schema at `etc/schemas/site.json` (which is, as an aside, constructed using 
+It is recommended to record data in the document database by using the web frontend
+(`/www/nodes/`, `/www/nodes/<node_name>`). These forms perform both client and server side verification of the input 
+against the node schema at `etc/schemas/node.json` (which is, as an aside, constructed using 
 other schemas in the same directory by referencing). For each record created or modified, a version number is 
-incremented for the corresponding site and the input stored alongside the schema used to generate the form. All 
-versions of a site specification are retained. Sites can be added programmatically, but care should be taken to keep 
+incremented for the corresponding node and the input stored alongside the schema used to generate the form. All 
+versions of a node specification are retained. Nodes can be added programmatically, but care should be taken to keep 
 the input in line with the corresponding schema.
 
 Schemas are flexible and new ones can be added/existing ones amended.
@@ -123,16 +125,14 @@ To amend/add a new resource, the following checklist may be helpful:
 - (amending only) Edit the corresponding schema in the `etc/schemas` directory
 - Add to or amend any models (`src/ska_src_site_capabilities_api/models`) if there are new ones or the schema of an 
   existing model has changed
-- Amend the form ui (`src/ska_src_site_capabilities_api/rest/static/js/form-ui.js`):
-- Amend the site template (`src/ska_src_site_capabilities_api/rest/templates/site.html`):
-    - Ensure that if there are object fields that a default `value` of `[]` is set using the jinja2 template `| default` 
-    filter
+- Amend the form uis (`src/ska_src_site_capabilities_api/rest/static/js/add-node-form-ui.js`, `src/ska_src_site_capabilities_api/rest/static/js/edit-node-form-ui.js`)
+- Amend the node template (`src/ska_src_site_capabilities_api/rest/templates/node.html`):
 - Amend the REST server (`src/ska_src_site_capabilities_api/rest/server.py`):
     - Add any routes and corresponding backend functions (check that existing functionality isn't broken with any big
       changes!)
     - Add a new tag to the `openapi_schema` (if a new section for routes has been defined)
     - Change `responses` in the `app` route decorator to reference the appropriate models
-- (optional) Check that the `etc/init/sites.json` has entries that conform to the new schema
+- (optional) Check that the `etc/init/nodes.json` has entries that conform to the new schema
 
 In addition you will need to amend external dependencies by:
 

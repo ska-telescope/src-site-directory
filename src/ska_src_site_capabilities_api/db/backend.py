@@ -12,27 +12,7 @@ class Backend(ABC):
         pass
 
     @abstractmethod
-    def add_site(self, json):
-        raise NotImplementedError
-
-    @abstractmethod
-    def add_sites_bulk(self, json):
-        raise NotImplementedError
-
-    @abstractmethod
-    def delete_site(self, site):
-        raise NotImplementedError
-
-    @abstractmethod
-    def delete_sites(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def delete_site_version(self, site, version):
-        raise NotImplementedError
-
-    @abstractmethod
-    def dump_sites(self):
+    def add_edit_node(self, node_values):
         raise NotImplementedError
 
     @abstractmethod
@@ -40,19 +20,18 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_node(self, node_name, node_version):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_service(self, service_id):
         raise NotImplementedError
 
     @abstractmethod
-    def get_site(self, site):
+    def get_site(self, site_id):
         raise NotImplementedError
 
-    @abstractmethod
-    def get_site_version(self, site, version):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_site_version_latest(self, site):
+    def get_site_from_names(self, node_name, node_version, site_name):
         raise NotImplementedError
 
     @abstractmethod
@@ -64,11 +43,15 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_compute(self):
+    def list_compute(self, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self):
+    def list_nodes(self, include_archived, include_inactive):
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_services(self, service_scope, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -76,19 +59,15 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_site_names_unique(self):
+    def list_sites(self, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_sites_version_latest(self):
+    def list_storages(self, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storages(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_storage_areas(self):
+    def list_storage_areas(self, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -109,241 +88,247 @@ class MongoBackend(Backend):
         )
         self.mongo_database = mongo_database
 
-    def _is_in_downtime(self, downtime):
+    def _is_element_in_downtime(self, downtime):
+        """ Checks if an element is in downtime. """
         for entry in downtime:
             if entry.get("date_range"):
                 start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
                 start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
                 end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
                 now_utc = datetime.now(timezone.utc)
+
                 if now_utc > start_date_utc and now_utc < end_date_utc:
                     return True
         return False
 
-    def _is_compute_down_or_disabled(self, compute):
-        if compute.get("disabled", False) or self._is_in_downtime(compute.get("downtime", [])):
-            return True
+    def _remove_inactive_elements(self, element):
+        """
+        Recursively removes elements from a nested structure if they are in downtime or disabled.
+        """
+        if isinstance(element, dict):
+            if (self._is_element_in_downtime(element.get("downtime", []))
+                    or element.get("is_force_disabled", False)):
+                return None
 
-    def _is_service_down_or_disabled(self, service):
-        if service.get("disabled", False) or self._is_in_downtime(service.get("downtime", [])):
-            return True
+            # Recurse through the element, checking downtime at each level
+            filtered_element = {}
+            for key, value in element.items():
+                filtered_child = self._remove_inactive_elements(value)
+                if filtered_child:
+                    filtered_element[key] = filtered_child
+            return filtered_element if filtered_element else None
 
-    def _is_site_down_or_disabled(self, site):
-        if site.get("disabled", False) or self._is_in_downtime(site.get("downtime", [])):
-            return True
+        elif isinstance(element, list):
+            filtered_list = [self._remove_inactive_elements(item) for item in element]
+            return [item for item in filtered_list if item is not None]
+        return element
 
-    def _is_storage_down_or_disabled(self, storage):
-        if storage.get("disabled", False) or self._is_in_downtime(storage.get("downtime", [])):
-            return True
+    def add_edit_node(self, node_values, node_name=None):
+        with MongoClient(self.connection_string) as client:
+            db = client[self.mongo_database]
+            nodes = db.nodes
+            nodes_archived = db.nodes_archived
 
-    def _is_storage_area_down_or_disabled(self, storage_area):
-        if storage_area.get("disabled", False) or self._is_in_downtime(
-                storage_area.get("downtime", [])):
-            return True
+            # get latest version of this node
+            latest_node = self.get_node(node_name=node_name, node_version="latest")
+            if not latest_node:                             # adding new node
+                node_values["version"] = 1
+            else:                                           # updating existing node
+                node_values["version"] = latest_node.get("version") + 1
 
-    def add_site(self, site_values):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        existing_versions = self.get_site(site_values["name"])
-        if not existing_versions:
-            site_values["version"] = 1
-        else:
-            site_values["version"] = len(existing_versions) + 1
-        return sites.insert_one(site_values).inserted_id
+            # insert this new version of node into the nodes collection
+            inserted_node = nodes.insert_one(node_values)
 
-    def add_sites_bulk(self, json):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        return sites.insert_many(json)
+            # move the previous version of the node to nodes_archived collection only if a previous
+            # version existed & insertion into nodes was successful
+            if latest_node and inserted_node.inserted_id:
+                # only delete it from nodes if we successfully added the previous version to
+                # nodes_archived
+                if nodes_archived.insert_one(latest_node).inserted_id:
+                    nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
 
-    def delete_site(self, site):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        return sites.delete_many({"name": site})
-
-    def delete_sites(self):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        return sites.delete_many({})
-
-    def delete_site_version(self, site, version):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        return sites.delete_one({"name": site, "version": version})
-
-    def dump_sites(self):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        response = list(sites.find({}))
-        for site in response:
-            site.pop("_id")
-        return response
+            return inserted_node.inserted_id
 
     def get_compute(self, compute_id):
         response = {}
-        for entry in self.list_compute(include_inactive=True):
-            site_name = entry.get("site_name")
-            for element in entry.get("compute", []):
-                if element.get("id") == compute_id:
-                    response = {
-                        "site_name": site_name,
-                        **element
-                    }
-                    break
+        for compute in self.list_compute(include_inactive=True):
+            parent_node_name = compute.get("parent_node_name")
+            parent_site_name = compute.get("parent_site_name")
+            if compute.get("id") == compute_id:
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    **compute
+                }
+                break
         return response
+
+    def get_node(self, node_name, node_version="latest"):
+        """ Get a version of a node. """
+        with MongoClient(self.connection_string) as client:
+            db = client[self.mongo_database]
+
+            # If node_version is latest, only search the latest collection, otherwise search both latest
+            # and archived.
+            if node_version == "latest":
+                this_node = db.nodes.find_one({"name": node_name})
+            else:
+                this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
+                if not this_node:
+                    this_node = db.nodes_archived.find_one(
+                        {"name": node_name, "version": int(node_version)})
+
+            if this_node:
+                this_node.pop("_id")
+            return this_node if this_node else {}
 
     def get_service(self, service_id):
         response = {}
-        for entry in self.list_services(include_inactive=True):
-            site_name = entry.get("site_name")
-            for element in entry.get("services", []):
-                if element.get("id") == service_id:
-                    response = {
-                        "site_name": site_name,
-                        **element
-                    }
-                    break
-        return response
-
-    def get_site(self, site):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
-        response = []
-        for site in sites.find({"name": site}):
-            site["_id"] = str(site["_id"])
-            response.append(site)
-        return response
-
-    def get_site_version(self, site, version):
-        site_versions = self.get_site(site)
-        this_version = None
-        for site_version in site_versions:
-            if str(site_version["version"]) == version:
-                this_version = site_version
+        for service in self.list_services(include_inactive=True):
+            parent_node_name = service.get("parent_node_name")
+            parent_site_name = service.get("parent_site_name")
+            parent_compute_id = service.get("parent_compute_id")
+            if service.get("id") == service_id:
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_compute_id": parent_compute_id,
+                    **service
+                }
                 break
-        return this_version
+        return response
 
-    def get_site_version_latest(self, site):
-        site_versions = self.get_site(site)
-        site = None
-        for site_version in site_versions:
-            if site:
-                if site_version.get("version"):
-                    site = site_version
-            else:
-                site = site_version
-        return site
+    def get_site(self, site_id):
+        response = {}
+        for site in self.list_sites(include_inactive=True):
+            parent_node_name = site.get("parent_node_name")
+            if site.get("id") == site_id:
+                response = {
+                    "parent_node_name": parent_node_name,
+                    **site
+                }
+                break
+        return response
+
+    def get_site_from_names(self, node_name, node_version, site_name):
+        """ Get site at a given node and version. """
+        node = self.get_node(node_name=node_name, node_version=node_version)
+        if not node:
+            return None
+
+        for site in node.get("sites", []):
+            if site.get("name") == site_name:
+                return site
+        return None
 
     def get_storage(self, storage_id):
         response = {}
-        for entry in self.list_storages(include_inactive=True):
-            site_name = entry.get("site_name")
-            for element in entry.get("storages", []):
-                if element.get("id") == storage_id:
-                    response = {
-                        "site_name": site_name,
-                        **element
-                    }
-                    break
+        for storage in self.list_storages(include_inactive=True):
+            parent_node_name = storage.get("parent_node_name")
+            parent_site_name = storage.get("parent_site_name")
+            if storage.get("id") == storage_id:
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    **storage
+                }
+                break
         return response
 
     def get_storage_area(self, storage_area_id):
         response = {}
-        for entry in self.list_storage_areas(include_inactive=True):
-            site_name = entry.get("site_name")
-            for element in entry.get("storage_areas", []):
-                if element.get("id") == storage_area_id:
-                    response = {
-                        "site_name": site_name,
-                        **element
-                    }
-                    break
+        for storage_area in self.list_storage_areas(include_inactive=True):
+            parent_node_name = storage_area.get("parent_node_name")
+            parent_site_name = storage_area.get("parent_site_name")
+            parent_storage_id = storage_area.get("parent_storage_id")
+            if storage_area.get("id") == storage_area_id:
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_storage_id": parent_storage_id,
+                    **storage_area
+                }
+                break
         return response
 
     def list_compute(self, include_inactive=False):
         response = []
-        for site in self.list_sites_version_latest(include_inactive=include_inactive):
-            if site.get("compute"):
+        for site in self.list_sites(include_inactive=include_inactive):
+            for compute in site.get("compute", []):
+                # add parent information
                 response.append(
                     {
-                        "site_name": site.get("name"),
-                        "compute": [compute for compute in site.get("compute") if
-                                     include_inactive or
-                                     (not include_inactive and
-                                      not self._is_compute_down_or_disabled(compute))],
+                        "parent_node_name": site.get("parent_node_name"),
+                        "parent_site_name": site.get("name"),
+                        **compute
                     }
                 )
         return response
 
+    def list_nodes(self, include_archived=False, include_inactive=True):
+        """Retrieve versions of all nodes."""
+        with MongoClient(self.connection_string) as client:
+            db = client[self.mongo_database]
+
+            nodes = list(db.nodes.find({}))                         # query for active nodes
+
+            if include_archived:
+                nodes.extend(db.nodes_archived.find({}))            # include archived nodes
+
+            if not include_inactive:
+                nodes = self._remove_inactive_elements(nodes)       # filter out inactive nodes
+
+            for node in nodes:
+                node.pop("_id", None)
+
+            return nodes or []
+
     def list_services(self, service_scope="all", include_inactive=False):
         response = []
-        for entry in self.list_compute(include_inactive=include_inactive):
-            site_name = entry.get("site_name")
-            services = []
-            for compute in entry.get("compute", []):
-                if not include_inactive and self._is_compute_down_or_disabled(compute):
-                    continue
-                if service_scope in ['all', 'local']:
-                    for service in compute.get("associated_local_services", []):
-                        if not include_inactive and self._is_service_down_or_disabled(service):
-                            continue
-                        services.append(
-                            {
-                                "scope": "local",
-                                "parent_compute_id": compute.get("id"),
-                                **service,
-                            }
-                        )
-                if service_scope in ['all', 'global']:
-                    for service in compute.get("associated_global_services", []):
-                        if not include_inactive and self._is_service_down_or_disabled(service):
-                            continue
-                        services.append(
-                            {
-                                "scope": "global",
-                                "parent_compute_id": compute.get("id"),
-                                **service,
-                            }
-                        )
-            response.append(
-                {
-                    "site_name": site_name,
-                    "services": services
-                }
-            )
+        for compute in self.list_compute(include_inactive=include_inactive):
+            node_name = compute.get("parent_node_name")
+            site_name = compute.get("parent_site_name")
+            if service_scope in ['all', 'local']:
+                for service in compute.get("associated_local_services", []):
+                    # add parent information
+                    response.append(
+                        {
+                            "scope": "local",
+                            "parent_node_name": node_name,
+                            "parent_site_name": site_name,
+                            "parent_compute_id": compute.get("id"),
+                            **service,
+                        }
+                    )
+            if service_scope in ['all', 'global']:
+                for service in compute.get("associated_global_services", []):
+                    # add parent information
+                    response.append(
+                        {
+                            "scope": "global",
+                            "parent_node_name": node_name,
+                            "parent_site_name": site_name,
+                            "parent_compute_id": compute.get("id"),
+                            **service,
+                        }
+                    )
         return response
 
     def list_service_types_from_schema(self, schema):
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def list_site_names_unique(self):
-        client = MongoClient(self.connection_string)
-        db = client[self.mongo_database]
-        sites = db.sites
+    def list_sites(self, include_inactive=False):
+        """ List versions of all sites. """
         response = []
-        for site in sites.find({}):
-            site_name = site.get("name")
-            if site_name not in response:
-                response.append(site_name)
-        return response
-
-    def list_sites_version_latest(self, include_inactive=False):
-        response = []
-        for site_name in self.list_site_names_unique():
-            site = self.get_site_version_latest(site_name)
-            if include_inactive:
-                response.append(site)
-            else:
-                if not self._is_site_down_or_disabled(site):
-                    response.append(site)
+        for node in self.list_nodes(include_inactive=include_inactive):
+            for site in node.get("sites", []):
+                response.append(
+                    {
+                        "parent_node_name": node.get("name"),
+                        **site
+                    }
+                )
         return response
 
     def list_storages(self, topojson=False, for_grafana=False, include_inactive=False):
@@ -354,40 +339,35 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites_version_latest(include_inactive=include_inactive):
-            if topojson or for_grafana:
-                for storage in site.get("storages", []):
-                    if not include_inactive and self._is_storage_down_or_disabled(storage):
-                        continue
-                    if topojson:
-                        response["objects"]["sites"]["geometries"].append(
-                            {
-                                "type": "Point",
-                                "coordinates": [
-                                    storage.get("longitude"),
-                                    storage.get("latitude"),
-                                ],
-                                "properties": {"name": storage.get("identifier")},
-                            }
-                        )
-                    elif for_grafana:
-                        response.append(
-                            {
-                                "key": storage.get("identifier"),
-                                "latitude": storage["latitude"],
-                                "longitude": storage["longitude"],
-                                "name": storage.get("identifier"),
-                            }
-                        )
-            else:
-                if site.get("storages"):
+        for site in self.list_sites(include_inactive=include_inactive):
+            for storage in site.get("storages", []):
+                if topojson:
+                    response["objects"]["sites"]["geometries"].append(
+                        {
+                            "type": "Point",
+                            "coordinates": [
+                                storage.get("longitude"),
+                                storage.get("latitude"),
+                            ],
+                            "properties": {"name": storage.get("identifier")},
+                        }
+                    )
+                elif for_grafana:
                     response.append(
                         {
-                            "site_name": site.get("name"),
-                            "storages": [storage for storage in site.get("storages") if
-                                         include_inactive or
-                                         (not include_inactive and
-                                          not self._is_storage_down_or_disabled(storage))],
+                            "key": storage.get("identifier"),
+                            "latitude": storage["latitude"],
+                            "longitude": storage["longitude"],
+                            "name": storage.get("identifier"),
+                        }
+                    )
+                else:
+                    # add parent information
+                    response.append(
+                        {
+                            "parent_node_name": site.get("parent_node_name"),
+                            "parent_site_name": site.get("name"),
+                            **storage
                         }
                     )
         return response
@@ -400,52 +380,40 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-
-        for entry in self.list_storages(include_inactive=include_inactive):
-            site_name = entry.get("site_name")
-            storage_areas = []
-            for storage in entry.get("storages"):
-                if not include_inactive and self._is_storage_down_or_disabled(storage):
-                    continue
-                for storage_area in storage.get("areas", []):
-                    if (not include_inactive and
-                            self._is_storage_area_down_or_disabled(storage_area)):
-                        continue
-                    if topojson:
-                        response["objects"]["sites"]["geometries"].append(
-                            {
-                                "type": "Point",
-                                "coordinates": [
-                                    storage.get("longitude"),
-                                    storage.get("latitude"),
-                                ],
-                                "properties": {"name": storage_area.get("identifier")},
-                            }
-                        )
-                    elif for_grafana:
-                        response.append(
-                            {
-                                "key": storage_area.get("identifier"),
-                                "latitude": storage["latitude"],
-                                "longitude": storage["longitude"],
-                                "name": storage_area.get("identifier"),
-                            }
-                        )
-                    else:
-                        # add the parent storage id
-                        storage_areas.append(
-                            {
-                                "parent_storage_id": storage.get("id"),
-                                **storage_area,
-                            }
-                        )
-            if not for_grafana and not topojson:
-                response.append(
-                    {
-                        "site_name": site_name,
-                        "storage_areas": storage_areas,
-                    }
-                )
+        for storage in self.list_storages(include_inactive=include_inactive):
+            node_name = storage.get("parent_node_name")
+            site_name = storage.get("parent_site_name")
+            for storage_area in storage.get("areas", []):
+                if topojson:
+                    response["objects"]["sites"]["geometries"].append(
+                        {
+                            "type": "Point",
+                            "coordinates": [
+                                storage.get("longitude"),
+                                storage.get("latitude"),
+                            ],
+                            "properties": {"name": storage_area.get("identifier")},
+                        }
+                    )
+                elif for_grafana:
+                    response.append(
+                        {
+                            "key": storage_area.get("identifier"),
+                            "latitude": storage["latitude"],
+                            "longitude": storage["longitude"],
+                            "name": storage_area.get("identifier"),
+                        }
+                    )
+                else:
+                    # add parent information
+                    response.append(
+                        {
+                            "parent_node_name": node_name,
+                            "parent_site_name": site_name,
+                            "parent_storage_id": storage.get("id"),
+                            **storage_area,
+                        }
+                    )
         return response
 
     def list_storage_area_types_from_schema(self, schema):

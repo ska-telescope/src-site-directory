@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.56]
+
+### Added
+
+- New add node landing page at www/nodes
+- New edit node landing page at www/nodes/<node_name>
+
+### Changed
+
+- Restructed MongoDB database to have nodes at top level.
+- Added concept of parent_* ids for subelements in list endpoints (for traceability).
+- Renamed disabled to is_force_disabled for clarity.
+- All list endpoints now have a different model response.
+- Site now includes site_id (like other child elements of node).
+- Added some common functions in server.py to common/utility.py.
+- Two collections in backend now used, one for archival documents and one for latest.
+
+### Removed
+
+- Ability to add_site, this is now done through /www/nodes/<node_name>
+- 
+
 ## [0.3.55]
 
 ### Added
@@ -13,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Token expiration warnings and timer.
 - Downtime/disabled fields for all entities.
 - Favicon to site html.
+- Server side constraint on node_name being unique
 
 ### Changed
 
@@ -23,6 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - List services endpoint now takes service_scope (all||local||global).
 - Compute hardware_type changed from checkbox to radio (no longer array).
 - Updated out of date models.
+
+### Fixed
+
+- Set default items in tabarrays to 0 (ln2456 of jsonform).
+- Issue around non-focusable elements with hidden tabs in Chrome. Location of validation error now presented in box.
 
 ### Removed
 

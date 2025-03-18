@@ -26,7 +26,6 @@ class Downtime(BaseModel):
 
 class StorageArea(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    parent_storage_id: UUID = Field(default_factory=uuid4)
     type: StorageAreaType = Field(examples=["rse"])
     relative_path: str = Field(examples=["/rel/path/to/storage/area"])
     identifier: str = Field(examples=["STFC_STORM"])

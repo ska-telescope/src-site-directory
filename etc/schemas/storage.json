@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "host": {
       "type": "string",
@@ -110,9 +109,9 @@
         }
       }
     },
-    "disabled": {
+    "is_force_disabled": {
       "type": "boolean",
-      "title": "Disabled?",
+      "title": "Force disable?",
       "default": false
     }
   }

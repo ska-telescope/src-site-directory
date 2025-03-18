@@ -1,4 +1,3 @@
-import ast
 import asyncio
 import copy
 import io
@@ -8,11 +7,9 @@ import pathlib
 import tempfile
 import time
 import urllib
-import uuid
 from datetime import datetime
 from typing import Union
 
-import jsonref
 import jwt
 from fastapi import Body, Depends, FastAPI, HTTPException, Path, Query, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,11 +30,14 @@ from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.common.exceptions import (
     ComputeNotFound,
+    IncorrectNodeVersionType,
+    NodeAlreadyExists,
+    NodeVersionNotFound,
     PermissionDenied,
     SchemaNotFound,
     ServiceNotFound,
     SiteNotFound,
-    SiteVersionNotFound,
+    SiteNotFoundInNodeVersion,
     StorageAreaNotFound,
     StorageNotFound,
     UnauthorizedRequest,
@@ -48,6 +48,9 @@ from ska_src_site_capabilities_api.common.utility import (
     get_api_server_url_from_request,
     get_base_url_from_request,
     get_url_for_app_from_request,
+    recursive_autogen_id,
+    recursive_stringify,
+    load_and_dereference_schema
 )
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_site_capabilities_api.rest import dependencies
@@ -56,7 +59,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
+DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -156,7 +159,7 @@ async def increment_request_counter(
 async def list_compute(
     request: Request,
     include_inactive: bool = Query(
-        default=False, description="Include inactivate (down/disabled) compute?")
+        default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all compute."""
     rtn = BACKEND.list_compute(include_inactive=include_inactive)
@@ -190,6 +193,216 @@ async def get_compute_from_id(
     rtn = BACKEND.get_compute(compute_id)
     if not rtn:
         raise ComputeNotFound(compute_id)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get(
+    "/nodes",
+    responses={
+        200: {"model": models.response.NodesListResponse},
+        401: {},
+        403: {},
+    },
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    tags=["Nodes"],
+    summary="List all nodes",
+)
+@handle_exceptions
+async def list_nodes(
+    request: Request,
+    only_names: bool = Query(default=False, description="Return only node names"),
+    include_inactive: bool = Query(
+        default=False, description="Include inactive resources? e.g. in downtime, force disabled")
+) -> JSONResponse:
+    """ List nodes with an option to return only node names. """
+    nodes = BACKEND.list_nodes(include_archived=False, include_inactive=include_inactive)
+    if only_names:
+        names_only = [node["name"] for node in nodes if "name" in node]
+        return JSONResponse(names_only)
+
+    return JSONResponse(nodes)
+
+
+@api_version(1)
+@app.post(
+    "/nodes",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}, 409: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Add a node",
+)
+@handle_exceptions
+async def add_node(
+    request: Request,
+    values=Body(default="Node JSON."),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[HTMLResponse, HTTPException]:
+    # load json values
+    if isinstance(values, (bytes, bytearray)):
+        values = json.loads(values.decode("utf-8"))
+
+    # check node doesn't already exist
+    node_name = values.get("name")
+    if BACKEND.get_node(node_name, node_version="latest"):
+        raise NodeAlreadyExists(node_name=node_name)
+
+    # add some custom fields e.g. date, user
+    values["created_at"] = datetime.now().isoformat()
+    if DEBUG and not authorization:
+        values["created_by_username"] = "admin"
+    else:
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values["created_by_username"] = access_token_decoded.get("preferred_username")
+
+    # autogenerate ids for id keys
+    values = recursive_autogen_id(values)
+
+    id = BACKEND.add_edit_node(values)
+    return HTMLResponse(repr(id))
+
+
+@api_version(1)
+@app.post(
+    "/nodes/{node_name}",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Edit a node",
+)
+@handle_exceptions
+async def edit_node(
+    request: Request,
+    node_name: str = Path(description="Node name"),
+    values=Body(default="Site JSON."),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[HTMLResponse, HTTPException]:
+    # load json values
+    if isinstance(values, (bytes, bytearray)):
+        values = json.loads(values.decode("utf-8"))
+
+    # add some custom fields e.g. date, user
+    values["last_updated_at"] = datetime.now().isoformat()
+    if DEBUG and not authorization:
+        values["last_updated_by_username"] = "admin"
+    else:
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values["last_updated_by_username"] = access_token_decoded.get("preferred_username")
+
+    # autogenerate ids for id keys
+    values = recursive_autogen_id(values)
+
+    id = BACKEND.add_edit_node(values, node_name=node_name)
+    return HTMLResponse(repr(id))
+
+
+@api_version(1)
+@app.get(
+    "/nodes/dump",
+    responses={
+        200: {"model": models.response.NodesDumpResponse},
+        401: {},
+        403: {},
+    },
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Dump all versions of all nodes",
+)
+@handle_exceptions
+async def dump_nodes(request: Request) -> Union[HTMLResponse, HTTPException]:
+    """Dump all versions of all nodes."""
+    rtn = BACKEND.list_nodes(include_archived=True)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.get(
+    "/nodes/{node_name}",
+    responses={
+        200: {"model": models.response.NodesGetResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Get node from name",
+)
+@handle_exceptions
+async def get_node_version(
+        request: Request,
+        node_name: str = Path(description="Node name"),
+        node_version: str = Query(
+            default="latest", description="Version of node ({version}||latest")
+) -> Union[JSONResponse, HTTPException]:
+    """ Get a version of a node. """
+    if node_version != "latest":
+        try:
+            int(node_version)
+        except ValueError:
+            raise IncorrectNodeVersionType
+    return JSONResponse(BACKEND.get_node(node_name=node_name, node_version=node_version))
+
+
+@api_version(1)
+@app.get(
+    "/nodes/{node_name}/sites/{site_name}",
+    responses={
+        200: {"model": models.response.SiteGetResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Sites"],
+    summary="Get site from node and site names",
+)
+@handle_exceptions
+async def get_site_from_node_version(
+        request: Request,
+        node_name: str = Path(description="Node name"),
+        site_name: str = Path(description="Site name"),
+        node_version: str = Query(
+            default="latest", description="Version of node ({version}||latest")
+) -> Union[JSONResponse, HTTPException]:
+    """ Get site from node version. """
+    if node_version != "latest":
+        try:
+            int(node_version)
+        except ValueError:
+            raise IncorrectNodeVersionType
+    rtn = BACKEND.get_site_from_names(
+        node_name=node_name, node_version=node_version, site_name=site_name)
+    if not rtn:
+        raise SiteNotFoundInNodeVersion(
+            node_name=node_name, node_version=node_version, site_name=site_name)
     return JSONResponse(rtn)
 
 
@@ -231,10 +444,10 @@ async def get_schema(
 ) -> Union[JSONResponse, HTTPException]:
     """Get a schema by name."""
     try:
-        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-        return JSONResponse(ast.literal_eval(str(dereferenced_schema)))  # some issue with jsonref return != dict
+        dereferenced_schema = load_and_dereference_schema(schema_path=pathlib.Path(
+            "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))
+        ).absolute())
+        return JSONResponse(dereferenced_schema)  # some issue with jsonref return != dict
     except FileNotFoundError:
         raise SchemaNotFound
 
@@ -258,14 +471,15 @@ async def render_schema(
 ) -> Union[JSONResponse, HTTPException]:
     """Render a schema by name."""
     try:
-        schema_path = pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = ast.literal_eval(str(jsonref.load(f, base_uri=schema_path.as_uri())))
+        dereferenced_schema = load_and_dereference_schema(schema_path=pathlib.Path(
+            "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))
+        ).absolute())
     except FileNotFoundError:
         raise SchemaNotFound
 
     # pop countries enum for readability
-    dereferenced_schema.get("properties").get("country", {}).pop("enum", None)
+    dereferenced_schema.get("properties").get("sites", {}).get("items", {}).get(
+        "properties", {}).get("country", {}).pop("enum", None)
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as schema_file:
@@ -285,7 +499,7 @@ async def render_schema(
 @app.get(
     "/services",
     responses={
-        200: {"model": models.response.ServicesResponse},
+        200: {"model": models.response.ServicesListResponse},
         401: {},
         403: {},
     },
@@ -331,18 +545,14 @@ async def list_service_types(request: Request) -> JSONResponse:
     """List service types."""
     try:
         # local
-        local_schema_path = pathlib.Path(
+        dereferenced_local_schema = load_and_dereference_schema(schema_path=pathlib.Path(
             "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "local-service"))
-        ).absolute()
-        with open(local_schema_path) as f:
-            dereferenced_local_schema = jsonref.load(f, base_uri=local_schema_path.as_uri())
+        ).absolute())
 
         # global
-        global_schema_path = pathlib.Path(
+        dereferenced_global_schema = load_and_dereference_schema(schema_path=pathlib.Path(
             "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "global-service"))
-        ).absolute()
-        with open(global_schema_path) as f:
-            dereferenced_global_schema = jsonref.load(f, base_uri=global_schema_path.as_uri())
+        ).absolute())
     except FileNotFoundError:
         raise SchemaNotFound
     rtn = {
@@ -397,257 +607,24 @@ async def get_service_from_id(
     },
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
     tags=["Sites"],
-    summary="List sites",
+    summary="List all sites",
 )
 @handle_exceptions
-async def list_sites(request: Request) -> JSONResponse:
-    """List all sites."""
-    rtn = BACKEND.list_site_names_unique()
-    return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.post(
-    "/sites",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Add a site",
-)
-@handle_exceptions
-async def add_site(
-    request: Request,
-    values=Body(default="Site JSON."),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
-    # add some custom fields e.g. date, user
-    if isinstance(values, (bytes, bytearray)):
-        values = json.loads(values.decode("utf-8"))
-    values["created_at"] = datetime.now().isoformat()
-    if DEBUG and not authorization:
-        values["created_by_username"] = "admin"
-    else:
-        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
-        values["created_by_username"] = access_token_decoded.get("preferred_username")
-
-    # autogenerate ids for id keys
-    def recursive_autogen_id(data, autogen_keys=["id"], placeholder_value="to be assigned"):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if key in autogen_keys:
-                    if value == placeholder_value:
-                        data[key] = str(uuid.uuid4())
-                elif isinstance(value, (dict, list)):
-                    data[key] = recursive_autogen_id(value)
-        elif isinstance(data, list):
-            for i in range(len(data)):
-                data[i] = recursive_autogen_id(data[i])
-        return data
-
-    values = recursive_autogen_id(values)
-
-    id = BACKEND.add_site(values)
-    return HTMLResponse(repr(id))
-
-
-@api_version(1)
-@app.post(
-    "/sites/{site}",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Edit a site",
-)
-@handle_exceptions
-async def edit_site(
-    request: Request,
-    site: str = Path(description="Site name"),
-    values=Body(default="Site JSON."),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
-    # add some custom fields e.g. date, user
-    if isinstance(values, (bytes, bytearray)):
-        values = json.loads(values.decode("utf-8"))
-    values["created_at"] = datetime.now().isoformat()
-    if DEBUG and not authorization:
-        values["created_by_username"] = "admin"
-    else:
-        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
-        values["created_by_username"] = access_token_decoded.get("preferred_username")
-
-    # autogenerate ids for id keys
-    def recursive_autogen_id(data, autogen_keys=["id"], placeholder_value="to be assigned"):
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if key in autogen_keys:
-                    if value == placeholder_value:
-                        data[key] = str(uuid.uuid4())
-                elif isinstance(value, (dict, list)):
-                    data[key] = recursive_autogen_id(value)
-        elif isinstance(data, list):
-            for i in range(len(data)):
-                data[i] = recursive_autogen_id(data[i])
-        return data
-
-    values = recursive_autogen_id(values)
-
-    id = BACKEND.add_site(values)
-    return HTMLResponse(repr(id))
-
-
-@api_version(1)
-@app.delete(
-    "/sites",
-    responses={
-        200: {"model": models.response.GenericOperationResponse},
-        401: {},
-        403: {},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Delete all sites",
-)
-@handle_exceptions
-async def delete_sites(request: Request) -> Union[JSONResponse, HTTPException]:
-    """Delete all sites."""
-    BACKEND.delete_sites()
-    return JSONResponse({"successful": True})
-
-
-@api_version(1)
-@app.get(
-    "/sites/dump",
-    responses={
-        200: {"model": models.response.SitesDumpResponse},
-        401: {},
-        403: {},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Dump all versions of sites",
-)
-@handle_exceptions
-async def dump_sites(request: Request) -> Union[HTMLResponse, HTTPException]:
-    """Dump sites."""
-    rtn = BACKEND.dump_sites()
-    return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.get(
-    "/sites/latest",
-    responses={
-        200: {"model": models.response.SitesGetResponse},
-        401: {},
-        403: {},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Get latest versions of all sites",
-)
-@handle_exceptions
-async def list_sites_latest(
-    request: Request,
-    include_inactive: bool = Query(
-        default=False, description="Include inactive (down/disabled) sites?"
-    ),
-) -> Union[JSONResponse, HTTPException]:
-    """Get the latest version of all sites."""
-    rtn = BACKEND.list_sites_version_latest(include_inactive=include_inactive)
-    return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.get(
-    "/sites/{site}",
-    responses={
-        200: {"model": models.response.SitesGetResponse},
-        401: {},
-        403: {},
-        404: {"model": models.response.GenericErrorResponse},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Get all versions of site",
-)
-@handle_exceptions
-async def get_site_versions(
+async def list_sites(
         request: Request,
-        site: str = Path(description="Site name")
-) -> Union[JSONResponse, HTTPException]:
-    """Get all versions of a site."""
-    rtn = BACKEND.get_site(site)
-    if not rtn:
-        raise SiteNotFound(site)
+        include_inactive: bool = Query(
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
+) -> JSONResponse:
+    """List versions of all sites."""
+    rtn = BACKEND.list_sites(include_inactive=include_inactive)
     return JSONResponse(rtn)
-
-
-@api_version(1)
-@app.delete(
-    "/sites/{site}",
-    responses={
-        200: {"model": models.response.GenericOperationResponse},
-        401: {},
-        403: {},
-        404: {"model": models.response.GenericErrorResponse},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Delete all versions of site",
-)
-@handle_exceptions
-async def delete_site(
-    request: Request, site: str = Path(description="Site name")
-) -> Union[JSONResponse, HTTPException]:
-    """Delete all versions of a site."""
-    rtn = BACKEND.delete_site(site)
-    if rtn.deleted_count == 0:
-        raise SiteNotFound(site)
-    return JSONResponse({"successful": True})
 
 
 @api_version(1)
 @app.get(
-    "/sites/{site}/{version}",
+    "/sites/{site_id}",
     responses={
-        200: {"model": models.response.SiteGetVersionResponse},
+        200: {"model": models.response.SiteGetResponse},
         401: {},
         403: {},
         404: {"model": models.response.GenericErrorResponse},
@@ -659,53 +636,19 @@ async def delete_site(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Sites"],
-    summary="Get version of site",
+    summary="Get site from id",
 )
 @handle_exceptions
-async def get_site_version(
+async def get_site_from_id(
     request: Request,
-    site: str = Path(description="Site name"),
-    version: str = Path(example="latest", description="Site version"),
-) -> HTMLResponse:
-    """Get a version of a site."""
-    if version == "latest":
-        rtn = BACKEND.get_site_version_latest(site)
-    else:
-        rtn = BACKEND.get_site_version(site, version)
+    site_id: str = Path(description="Unique site identifier"),
+) -> Union[JSONResponse, HTTPException]:
+    """Get a site description from a unique identifier."""
+    rtn = BACKEND.get_site(site_id)
     if not rtn:
-        raise SiteVersionNotFound(site, version)
+        raise SiteNotFound(site_id)
     return JSONResponse(rtn)
 
-
-@api_version(1)
-@app.delete(
-    "/sites/{site}/{version}",
-    responses={
-        200: {"model": models.response.GenericOperationResponse},
-        401: {},
-        403: {},
-        404: {"model": models.response.GenericErrorResponse},
-    },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites"],
-    summary="Delete version of site",
-)
-@handle_exceptions
-async def delete_site_version(
-    request: Request,
-    site: str = Path(description="Site name."),
-    version: str = Path(example="latest", description="Site version"),
-) -> Union[JSONResponse, HTTPException]:
-    """Delete a version of a site."""
-    rtn = BACKEND.delete_site_version(site, version)
-    if rtn.deleted_count == 0:
-        raise SiteVersionNotFound(site, version)
-    return JSONResponse({"successful": True})
 
 
 @api_version(1)
@@ -729,7 +672,7 @@ async def delete_site_version(
 async def list_storages(
         request: Request,
         include_inactive: bool = Query(
-            default=False, description="Include inactivate (down/disabled) storages?")
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storages."""
     rtn = BACKEND.list_storages(include_inactive=include_inactive)
@@ -752,7 +695,7 @@ async def list_storages(
 async def list_storages_for_grafana(
         request: Request,
         include_inactive: bool = Query(
-            default=False, description="Include inactivate (down/disabled) storages?")
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
     rtn = BACKEND.list_storages(for_grafana=True, include_inactive=include_inactive)
@@ -775,7 +718,7 @@ async def list_storages_for_grafana(
 async def list_storages_in_topojson_format(
         request: Request,
         include_inactive: bool = Query(
-            default=False, description="Include inactivate (down/disabled) storages?")
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storages in topojson format."""
     rtn = BACKEND.list_storages(topojson=True, include_inactive=include_inactive)
@@ -833,7 +776,7 @@ async def get_storage_from_id(
 async def list_storages(
         request: Request,
         include_inactive: bool = Query(
-            default=False, description="Include inactivate (down/disabled) storage areas?")
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storage areas."""
     rtn = BACKEND.list_storage_areas(include_inactive=include_inactive)
@@ -856,7 +799,7 @@ async def list_storages(
 async def list_storage_areas_for_grafana(
         request: Request,
         include_inactive: bool = Query(
-            default=False, description="Include inactivate (down/disabled) storage areas?")
+            default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
     rtn = BACKEND.list_storage_areas(for_grafana=True, include_inactive=include_inactive)
@@ -879,7 +822,7 @@ async def list_storage_areas_for_grafana(
 async def list_storage_areas_in_topojson_format(
     request: Request,
     include_inactive: bool = Query(
-        default=False, description="Include inactivate (down/disabled) storages?")
+        default=False, description="Include inactive resources? e.g. in downtime, force disabled")
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
     rtn = BACKEND.list_storage_areas(topojson=True, include_inactive=include_inactive)
@@ -902,11 +845,9 @@ async def list_storage_areas_in_topojson_format(
 async def list_storage_area_types(request: Request) -> JSONResponse:
     """List storage area types."""
     try:
-        storage_area_schema_path = pathlib.Path(
+        dereferenced_storage_area_schema = load_and_dereference_schema(schema_path=pathlib.Path(
             "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area"))
-        ).absolute()
-        with open(storage_area_schema_path) as f:
-            dereferenced_storage_area_schema = jsonref.load(f, base_uri=storage_area_schema_path.as_uri())
+        ).absolute())
     except FileNotFoundError:
         raise SchemaNotFound
     rtn = BACKEND.list_storage_area_types_from_schema(schema=dereferenced_storage_area_schema)
@@ -1062,7 +1003,7 @@ async def www_login(
         return RedirectResponse(original_request_url)
     else:
         # start login process
-        request.session["landing_page"] = landing_page  # if being redirected from /www/sites/add
+        request.session["landing_page"] = landing_page  # if being redirected from /www/sites
         redirect_uri = request.url.remove_query_params(keys=["landing_page"])
         response = AUTH.login(flow="legacy", redirect_uri=redirect_uri)
         authorization_uri = response.json().get("authorization_uri")
@@ -1090,47 +1031,52 @@ async def www_logout(request: Request) -> Union[HTMLResponse]:
 
 @api_version(1)
 @app.get(
-    "/www/sites/add",
-    responses={200: {}, 401: {}, 403: {}},
+    "/www/nodes",
+    responses={200: {}, 401: {}, 403: {}, 409: {}},
+    include_in_schema=False,
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
-    tags=["Sites"],
-    summary="Add site form",
+    tags=["Nodes"],
+    summary="Add node form",
 )
 @handle_exceptions
-async def add_site_form(
+async def add_node_form(
     request: Request,
 ) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
-    """Web form to add a new site with JSON schema validation."""
+    """Web form to add a new node with JSON schema validation."""
     if request.session.get("access_token"):
-
         # Check access permissions.
-        try:
-            rtn = PERMISSIONS.authorise_service_route(
-                service=PERMISSIONS_SERVICE_NAME,
-                version=PERMISSIONS_SERVICE_VERSION,
-                route=request.scope["route"].path,
-                method=request.method,
-                token=request.session.get("access_token"),
-                body=request.path_params,
-            ).json()
-        except Exception as err:
-            raise err
-        if not rtn.get("is_authorised", False):
-            raise PermissionDenied
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
 
-        # Get schema.
-        schema_path = pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-        schema = ast.literal_eval(str(dereferenced_schema))
+        # Load schema.
+        schema = load_and_dereference_schema(schema_path=pathlib.Path(
+            os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
+
+        # Remove sites
+        schema.get("properties", {}).pop("sites")
+
         return TEMPLATES.TemplateResponse(
-            "site.html",
+            "node.html",
             {
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "schema": schema,
-                "add_site_url": get_url_for_app_from_request(
-                    "add_site",
+                "title": "Add SRCNet Node",
+                "form_name": "add-node-form-ui.js",
+                "submit_form_endpoint": get_url_for_app_from_request(
+                    "add_node",
                     request,
                     scheme=config.get("API_SCHEME", default="http"),
                 ),
@@ -1140,6 +1086,7 @@ async def add_site_form(
                     scheme=config.get("API_SCHEME", default="http"),
                 ),
                 "access_token": request.session.get("access_token"),
+                "values": {}
             },
         )
     else:
@@ -1151,69 +1098,65 @@ async def add_site_form(
 
 @api_version(1)
 @app.get(
-    "/www/sites/add/{site}",
+    "/www/nodes/{node_name}",
     responses={200: {}, 401: {}, 403: {}},
+    include_in_schema=False,
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
-    tags=["Sites"],
-    summary="Update existing site form",
+    tags=["Nodes"],
+    summary="Edit existing node form",
 )
 @handle_exceptions
-async def add_site_form_existing(request: Request, site: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
-    """Web form to update an existing site with JSON schema validation."""
+async def edit_node_form(
+        request: Request,
+        node_name: str
+) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
+    """Web form to edit an existing node with JSON schema validation."""
     if request.session.get("access_token"):
         # Check access permissions.
-        try:
-            rtn = PERMISSIONS.authorise_service_route(
-                service=PERMISSIONS_SERVICE_NAME,
-                version=PERMISSIONS_SERVICE_VERSION,
-                route=request.scope["route"].path,
-                method=request.method,
-                token=request.session.get("access_token"),
-                body=request.path_params,
-            ).json()
-        except Exception as err:
-            raise err
-        if not rtn.get("is_authorised", False):
-            raise PermissionDenied
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
 
-        # Get schema.
-        schema_path = pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "site.json")).absolute()
-        with open(schema_path) as f:
-            dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-        schema = ast.literal_eval(str(dereferenced_schema))
+        # Load schema.
+        schema = load_and_dereference_schema(schema_path=pathlib.Path(
+            os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
 
-        # Get latest values for requested site.
-        latest = BACKEND.get_site_version_latest(site)
-        if not latest:
-            raise SiteVersionNotFound(site, "latest")
+        # Get latest values for requested node.
+        node = BACKEND.get_node(node_name=node_name)
+        if not node:
+            raise NodeVersionNotFound(node_name=node_name, node_version="latest")
+
+        # Pop comments from version.
         try:
-            latest.pop("comments")
+            node.pop("comments")
         except KeyError:
             pass
 
-        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as [Object object].
-        def recursive_stringify(data, stringify_keys=["other_attributes"]):
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    if key in stringify_keys:
-                        data[key] = json.dumps(value)
-                    elif isinstance(value, (dict, list)):
-                        data[key] = recursive_stringify(value)
-            elif isinstance(data, list):
-                for i in range(len(data)):
-                    data[i] = recursive_stringify(data[i])
-            return data
-
-        latest = recursive_stringify(latest)
+        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as
+        # [Object object].
+        node = recursive_stringify(node)
 
         return TEMPLATES.TemplateResponse(
-            "site.html",
+            "node.html",
             {
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "schema": schema,
-                "add_site_url": get_url_for_app_from_request(
-                    "edit_site",
+                "title": "Edit SRCNet Node ({})".format(node_name),
+                "form_name": "edit-node-form-ui.js",
+                "submit_form_endpoint": get_url_for_app_from_request(
+                    "edit_node",
                     request,
                     path_params=request.path_params,
                     scheme=config.get("API_SCHEME", default="http"),
@@ -1224,7 +1167,7 @@ async def add_site_form_existing(request: Request, site: str) -> Union[TEMPLATES
                     scheme=config.get("API_SCHEME", default="http"),
                 ),
                 "access_token": request.session.get("access_token"),
-                "values": latest,
+                "values": node,
             },
         )
     else:
@@ -1311,6 +1254,11 @@ for route in app.routes:
         subapp.openapi_schema["servers"] = [{"url": subapp_base_path}]
         subapp.openapi_schema["info"]["title"] = "Site Capabilities API Overview"
         subapp.openapi_schema["tags"] = [
+            {
+                "name": "Nodes",
+                "description": "Operations on nodes.",
+                "x-tag-expanded": False,
+            },
             {
                 "name": "Sites",
                 "description": "Operations on sites.",
