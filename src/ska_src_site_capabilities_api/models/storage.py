@@ -32,7 +32,7 @@ class StorageArea(BaseModel):
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     tier: int = Field(examples=[0, 1])
     downtime: List[Downtime]
-    disabled: bool = Field(examples=[True, False])
+    is_force_disabled: bool = Field(examples=[True, False])
 
 
 class StorageProtocol(BaseModel):
@@ -53,7 +53,7 @@ class Storage(BaseModel):
     supported_protocols: List[StorageProtocol]
     areas: List[StorageArea]
     downtime: List[Downtime]
-    disabled: bool = Field(examples=[True, False])
+    is_force_disabled: bool = Field(examples=[True, False])
 
 
 class StorageAreaGrafana(BaseModel):

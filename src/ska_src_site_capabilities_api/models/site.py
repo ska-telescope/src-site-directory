@@ -27,4 +27,4 @@ class Site(BaseModel):
     storages: List[Storage]
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
-    disabled: bool = Field(examples=[True, False])
+    is_force_disabled: bool = Field(examples=[True, False])
