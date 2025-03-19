@@ -51,8 +51,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self, only_node_names, only_site_names, only_service_types,
-                      only_service_scope, include_inactive):
+    def list_services(self, only_node_names, only_site_names, only_service_types, only_service_scope, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -64,13 +63,11 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storages(self, only_node_names, only_site_names, topojson, for_grafana,
-                      include_inactive):
+    def list_storages(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storage_areas(self, only_node_names, only_site_names, topojson, for_grafana,
-                           include_inactive):
+    def list_storage_areas(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -243,8 +240,7 @@ class MongoBackend(Backend):
 
     def list_compute(self, only_node_names=[], only_site_names=[], include_inactive=False):
         response = []
-        for site in self.list_sites(only_node_names=only_node_names,
-                                    include_inactive=include_inactive):
+        for site in self.list_sites(only_node_names=only_node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             for compute in site.get("compute", []):
                 if only_site_names:
@@ -252,11 +248,7 @@ class MongoBackend(Backend):
                         continue
                 # add parent information
                 response.append(
-                    {
-                        "parent_node_name": site.get("parent_node_name"),
-                        "parent_site_name": parent_site_name,
-                        **compute
-                    }
+                    {"parent_node_name": site.get("parent_node_name"), "parent_site_name": parent_site_name, **compute}
                 )
         return response
 
@@ -278,12 +270,18 @@ class MongoBackend(Backend):
 
             return nodes or []
 
-    def list_services(self, only_node_names=[], only_site_names=[], only_service_types=[],
-                      only_service_scope="all", include_inactive=False):
+    def list_services(
+        self,
+        only_node_names=[],
+        only_site_names=[],
+        only_service_types=[],
+        only_service_scope="all",
+        include_inactive=False,
+    ):
         response = []
-        for compute in self.list_compute(only_node_names=only_node_names,
-                                         only_site_names=only_site_names,
-                                         include_inactive=include_inactive):
+        for compute in self.list_compute(
+            only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
+        ):
             if only_service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
                     if only_service_types:
@@ -329,14 +327,12 @@ class MongoBackend(Backend):
                 if only_node_names:
                     if parent_node_name not in only_node_names:
                         continue
-                response.append({
-                    "parent_node_name": parent_node_name,
-                    **site
-                })
+                response.append({"parent_node_name": parent_node_name, **site})
         return response
 
-    def list_storages(self, only_node_names=[], only_site_names=[], topojson=False,
-                      for_grafana=False, include_inactive=False):
+    def list_storages(
+        self, only_node_names=[], only_site_names=[], topojson=False, for_grafana=False, include_inactive=False
+    ):
         if topojson:
             response = {
                 "type": "Topology",
@@ -344,8 +340,7 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites(only_node_names=only_node_names,
-                                    include_inactive=include_inactive):
+        for site in self.list_sites(only_node_names=only_node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             for storage in site.get("storages", []):
                 if only_site_names:
@@ -382,8 +377,9 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, only_node_names=[], only_site_names=[], topojson=False,
-                           for_grafana=False, include_inactive=False):
+    def list_storage_areas(
+        self, only_node_names=[], only_site_names=[], topojson=False, for_grafana=False, include_inactive=False
+    ):
         if topojson:
             response = {
                 "type": "Topology",
@@ -391,9 +387,9 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for storage in self.list_storages(only_node_names=only_node_names,
-                                          only_site_names=only_site_names,
-                                          include_inactive=include_inactive):
+        for storage in self.list_storages(
+            only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
+        ):
             for storage_area in storage.get("areas", []):
                 if topojson:
                     response["objects"]["sites"]["geometries"].append(

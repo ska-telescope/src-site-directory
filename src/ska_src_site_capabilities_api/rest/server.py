@@ -171,9 +171,7 @@ async def list_compute(
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_compute(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
-        include_inactive=include_inactive
+        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
     )
     return JSONResponse(rtn)
 
@@ -646,10 +644,7 @@ async def list_sites(
     if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
 
-    rtn = BACKEND.list_sites(
-        only_node_names=only_node_names,
-        include_inactive=include_inactive
-    )
+    rtn = BACKEND.list_sites(only_node_names=only_node_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -716,9 +711,7 @@ async def list_storages(
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storages(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
-        include_inactive=include_inactive
+        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
     )
     return JSONResponse(rtn)
 
@@ -754,7 +747,7 @@ async def list_storages_for_grafana(
         only_node_names=only_node_names,
         only_site_names=only_site_names,
         for_grafana=True,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
 
@@ -790,7 +783,7 @@ async def list_storages_in_topojson_format(
         only_node_names=only_node_names,
         only_site_names=only_site_names,
         topojson=True,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
 
@@ -858,9 +851,7 @@ async def list_storage_areas(
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
-        include_inactive=include_inactive
+        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
     )
     return JSONResponse(rtn)
 
@@ -896,7 +887,7 @@ async def list_storage_areas_for_grafana(
         only_node_names=only_node_names,
         only_site_names=only_site_names,
         for_grafana=True,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
 
@@ -932,7 +923,7 @@ async def list_storage_areas_in_topojson_format(
         only_node_names=only_node_names,
         only_site_names=only_site_names,
         topojson=True,
-        include_inactive=include_inactive
+        include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
 
