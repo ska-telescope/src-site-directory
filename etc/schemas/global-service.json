@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "type": {
       "type": "enum",
@@ -54,25 +53,52 @@
       "default": null,
       "required": false
     },
-    "is_proxied": {
-      "type": "boolean",
-      "title": "Is proxy?",
-      "default": false
+    "associated_storage_area_id": {
+      "type": "string",
+      "title": "Associated storage area ID (if applicable)",
+      "default": null
     },
     "identifier": {
       "type": "string",
       "title": "Identifier (if applicable)",
       "default": null
     },
-    "enabled": {
-      "type": "boolean",
-      "title": "Enabled?",
-      "default": true
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
     },
     "other_attributes": {
       "type": "textarea",
       "title": "Other service attributes (as json)",
       "allowEmpty": true
+    },
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
     }
   }
 }

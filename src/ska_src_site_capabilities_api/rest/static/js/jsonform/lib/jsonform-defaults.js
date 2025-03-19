@@ -296,7 +296,6 @@
     return Object.prototype.toString.call(obj) == '[object Array]';
   };
 
-
   // Export the code as:
   //  1. an AMD module (the "define" method exists in that case), or
   //  2. a node.js module ("module.exports" is defined in that case), or

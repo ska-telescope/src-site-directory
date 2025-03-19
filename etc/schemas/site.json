@@ -3,6 +3,12 @@
   "type": "object",
   "description": "Site definition schema.",
   "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": "to be assigned"
+    },
     "name": {
       "type": "string",
       "title": "Name",
@@ -13,14 +19,9 @@
       "title": "Description",
       "default": null
     },
-    "comments": {
-      "type": "textarea",
-      "title": "Version comments"
-    },
     "country": {
       "type": "string",
-      "$ref": "country.json",
-      "default": null
+      "$ref": "country.json"
     },
     "primary_contact_email": {
       "type": "email",
@@ -34,12 +35,32 @@
       "default": null,
       "required": false
     },
-    "global_services": {
+    "downtime": {
       "type": "array",
+      "title": "Downtime",
       "items": {
-        "$ref": "global-service.json"
-      },
-      "allowEmpty": true
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
     },
     "storages": {
       "type": "array",
@@ -59,6 +80,11 @@
       "type": "textarea",
       "title": "Other attributes (as json)",
       "allowEmpty": true
+    },
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
     }
   }
 }

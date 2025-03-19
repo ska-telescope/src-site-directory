@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import List, Literal
+from typing import Dict, List, Literal
 from uuid import UUID, uuid4
 
 import jsonref
@@ -18,12 +18,21 @@ storage_area_types = dereferenced_schema.get("properties", {}).get("type", {}).g
 StorageAreaType = Literal[tuple(storage_area_types)]
 
 
+class Downtime(BaseModel):
+    date_range: str = Field(examples=["2025-03-04T00:00:00.000Z to 2025-03-30T00:00:00.000Z"])
+    type: Literal["Planned", "Unplanned"]
+    reason: str = Field(examples=["Network issues."])
+
+
 class StorageArea(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     type: StorageAreaType = Field(examples=["rse"])
-    rel_path: str = Field(examples=["/rel/path/to/storage/area"])
+    relative_path: str = Field(examples=["/rel/path/to/storage/area"])
     identifier: str = Field(examples=["STFC_STORM"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+    tier: int = Field(examples=[0, 1])
+    downtime: List[Downtime]
+    disabled: bool = Field(examples=[True, False])
 
 
 class StorageProtocol(BaseModel):
@@ -43,6 +52,8 @@ class Storage(BaseModel):
     identifier: str = Field(examples=["SKAOSRC"])
     supported_protocols: List[StorageProtocol]
     areas: List[StorageArea]
+    downtime: List[Downtime]
+    disabled: bool = Field(examples=[True, False])
 
 
 class StorageAreaGrafana(BaseModel):

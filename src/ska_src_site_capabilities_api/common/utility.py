@@ -1,5 +1,9 @@
+import ast
+import json
+import uuid
 from urllib.parse import urlparse
 
+import jsonref
 import markdown
 
 
@@ -108,3 +112,40 @@ def get_url_for_app_from_request(function_name, request, path_params={}, scheme=
             request.app.url_path_for(function_name, **path_params),
         ),
     ).geturl()
+
+
+def load_and_dereference_schema(schema_path):
+    """Load a schema and dereference it."""
+    with open(schema_path) as f:
+        dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+    return ast.literal_eval(str(dereferenced_schema))
+
+
+def recursive_autogen_id(input, autogen_keys=["id"], placeholder_value="to be assigned"):
+    """Recursively autogenerate uuids in input for placeholder keys, autogen_keys, if their value
+    equals a given placerholder_value."""
+    if isinstance(input, dict):
+        for key, value in input.items():
+            if key in autogen_keys:
+                if value == placeholder_value:
+                    input[key] = str(uuid.uuid4())
+            elif isinstance(value, (dict, list)):
+                input[key] = recursive_autogen_id(value)
+    elif isinstance(input, list):
+        for i in range(len(input)):
+            input[i] = recursive_autogen_id(input[i])
+    return input
+
+
+def recursive_stringify(input, stringify_keys=["other_attributes"]):
+    """Recursively stringify keys, stringify_keys, in input."""
+    if isinstance(input, dict):
+        for key, value in input.items():
+            if key in stringify_keys:
+                input[key] = json.dumps(value)
+            elif isinstance(value, (dict, list)):
+                input[key] = recursive_stringify(value)
+    elif isinstance(input, list):
+        for i in range(len(input)):
+            input[i] = recursive_stringify(input[i])
+    return input

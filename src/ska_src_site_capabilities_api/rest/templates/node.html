@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/js/jsonform/deps/opt/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/js/jsonform/deps/opt/bootstrap-wysihtml5.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/form.css" />
+  <link rel="shortcut icon" href="{{ base_url }}static/img/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div id="header">
+     <img src="{{ base_url }}static/img/logo2.png"/>
+     <h1>{{ title }}</h1>
+     <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
+      <div id="token-timer"></div>
+  </div>
+  <form novalidate></form> <!-- novaldiate as issue with tabarrays/bootstrap: https://stackoverflow.com/questions/7168645/invalid-form-control-only-in-google-chrome# -->
+  <div id="alert" class="alert" role="alert"></div>
+  <div id="footer"></div>
+  <div id="values"/>
+  <script type="text/javascript">
+    function showAndDismissAlert(type, message) {
+      var htmlAlert = '<div class="alert alert-' + type + '"><p style="margin: 10px;">' + message + '</p></div>';
+      $("#alert").html(htmlAlert).fadeIn(200, function () {
+        this.scrollIntoView({behavior: "instant", block: "end" });
+        $(this).focus();
+      }).delay(2000).fadeOut(1000);
+    }
+  </script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/jquery-ui.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/underscore.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/jsv.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/bootstrap-wysihtml5.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/ace.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-json.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-html.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-css.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-javascript.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-less.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/deps/opt/ace/mode-markdown.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/lib/jsonform.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/jsonform/lib/jsonform-defaults.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/easepick.min.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/token.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/datepicker.js"></script>
+  <script>
+    window.onload = function() {
+        // start the token timer
+        let token = "{{ access_token }}";
+        if (token) {
+            startTokenTimer(token, "token-timer");
+        } else {
+            console.warn("No access token found.");
+        }
+
+        // initialise existing date pickers and watch for new date picker elements
+        document.addEventListener("DOMContentLoaded", () => {
+            initialiseDatePickers(".datepicker", "{{ base_url }}static/css/easepick.css");
+        });
+        startWatchingForNewDateElements(".datepicker", "{{ base_url }}static/css/easepick.css");
+    };
+  </script>
+  <script type="text/javascript">
+    fetch('{{ base_url }}static/js/{{ form_name }}')
+      .then(response => response.json())
+      .then(form_ui => {
+          $('form').jsonForm({
+              "schema": {{ schema | tojson }},
+              "form": form_ui,
+              "value": {{ values | tojson }},
+              "validate": true,
+              onSubmit: function (formErrors, values) {
+                  // parse all other_attributes fields to convert to json objects
+                  function parseOtherAttributes(obj, parentPath = '') {
+                    let errors = [];
+
+                    function recursiveParse(obj, currentPath) {
+                        for (let key in obj) {
+                            if (obj.hasOwnProperty(key)) {
+                                let newPath = currentPath ? `${currentPath}/${key}` : key;
+
+                                if (key === "other_attributes" && typeof obj[key] === "string") {
+                                    try {
+                                        if (obj[key] === "") {
+                                            obj[key] = "{}";
+                                        }
+                                        obj[key] = JSON.parse(obj[key]);  // Parse and replace
+                                    } catch (error) {
+                                        errors.push({
+                                            uri: newPath, // More readable path
+                                            message: error.message
+                                        });
+                                    }
+                                } else if (typeof obj[key] === "object" && obj[key] !== null) {
+                                    recursiveParse(obj[key], newPath);  // Recursively track path
+                                }
+                            }
+                        }
+                    }
+
+                    recursiveParse(obj, parentPath);
+                    return errors.length > 0 ? errors : false;
+                }
+
+                  let jsonParsingErrors = parseOtherAttributes(values);
+                  if (formErrors) {
+                      let fieldPath = formErrors[0].uri.split('#/')[1];
+                      let message = `The field <b>${fieldPath}</b> failed validation: ${formErrors[0].message}.`;
+                      showAndDismissAlert('danger', message);
+                  } else if (jsonParsingErrors.length > 0) {
+                      let message = `The field <b>${jsonParsingErrors[0].uri}</b> failed validation: ${jsonParsingErrors[0].message}.`;
+                      showAndDismissAlert('danger', message);
+                  } else {
+                      $.ajax({
+                          url: "{{ submit_form_endpoint }}",
+                          data: JSON.stringify(values),
+                          type: 'POST',
+                          headers: {
+                              "Authorization": 'Bearer {{ access_token }}'
+                          },
+                          success: function (data) {
+                              showAndDismissAlert('success', 'Node added/updated.')
+                          },
+                          error: function (xhr, textStatus, errorThrown) {
+                              showAndDismissAlert('danger', xhr.responseText)
+                          }
+                      });
+                  }
+              }
+          });
+      });
+  </script>
+</body>
+</html>

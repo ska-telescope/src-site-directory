@@ -1,0 +1,5 @@
+https://favicon.io/favicon-generator/
+bg colour: #E70068
+font family: noto sans
+font weight: regular 800 bold
+font size: 80

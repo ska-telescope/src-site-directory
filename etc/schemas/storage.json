@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "host": {
       "type": "string",
@@ -82,6 +81,38 @@
         "$ref": "storage-area.json"
       },
       "allowEmpty": true
+    },
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
+    },
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
     }
   }
 }
