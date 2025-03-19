@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "type": {
       "type": "enum",
@@ -36,17 +35,48 @@
       "title": "Identifier (if applicable)",
       "default": null
     },
+    "tier": {
+      "type": "integer",
+      "title": "Tier (if applicable)",
+      "enum": [0, 1],
+      "default": 1
+    },
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
+    },
     "other_attributes": {
       "type": "textarea",
       "title": "Other storage area attributes (as json)",
       "allowEmpty": true
     },
-    "tier": {
-      "type": "string",
-      "title": "Tier",
-      "enum": ["Tier 0", "Tier 1"],
-      "default": "Tier 1",
-      "required": true
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
     }
   }
 }

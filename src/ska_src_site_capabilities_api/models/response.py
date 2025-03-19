@@ -1,8 +1,10 @@
 from typing import List, Literal, Union
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
+from ska_src_site_capabilities_api.models.node import Node
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.service import (
     GlobalService,
@@ -25,20 +27,32 @@ class Response(BaseModel):
     pass
 
 
-class ListResponse(Response):
-    site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+class ComputeWithParents(Compute):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
-ComputeGetResponse = Compute
+ComputeGetResponse = ComputeWithParents
+
+ComputeListResponse = List[ComputeWithParents]
 
 
-class ComputeListResponse(ListResponse):
-    compute: List[Compute]
+class LocalServiceWithParents(LocalService):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_compute_id: UUID = Field(default_factory=uuid4)
 
 
-LocalServiceGetResponse = LocalService
+LocalServiceGetResponse = LocalServiceWithParents
 
-GlobalServiceGetResponse = GlobalService
+
+class GlobalServiceWithParents(GlobalService):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_compute_id: UUID = Field(default_factory=uuid4)
+
+
+GlobalServiceGetResponse = GlobalServiceWithParents
 
 
 class GenericErrorResponse(Response):
@@ -61,6 +75,13 @@ class HealthResponse(Response):
     dependent_services: DependentServices
 
 
+NodesDumpResponse = List[Node]
+
+NodesGetResponse = Node
+
+NodesListResponse = List[Node]
+
+
 class PingResponse(Response):
     status: Literal["UP", "DOWN"]
     version: str
@@ -71,8 +92,7 @@ SchemasListResponse = List[str]
 SchemaGetResponse = Schema
 
 
-class ServicesResponse(ListResponse):
-    services: List[Union[GlobalService, LocalService]]
+ServicesListResponse = List[Union[GlobalServiceWithParents, LocalServiceWithParents]]
 
 
 class ServicesTypesResponse(Response):
@@ -84,20 +104,25 @@ ServicesTypesLocalResponse = List[LocalServiceType]
 
 ServicesTypesGlobalResponse = List[GlobalServiceType]
 
-SiteGetVersionResponse = Site
 
-SitesGetResponse = List[Site]
-
-SitesDumpResponse = List[Site]
-
-SitesListResponse = List[str]
-
-StorageAreaGetResponse = StorageArea
+class SiteWithParents(Site):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
-class StorageAreasListResponse(ListResponse):
-    storage_areas: List[StorageArea]
+SiteGetResponse = SiteWithParents
 
+SitesListResponse = List[SiteWithParents]
+
+
+class StorageAreaWithParents(StorageArea):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_storage_id: UUID = Field(default_factory=uuid4)
+
+
+StorageAreaGetResponse = StorageAreaWithParents
+
+StorageAreasListResponse = List[StorageAreaWithParents]
 
 StorageAreasGrafanaResponse = List[StorageAreaGrafana]
 
@@ -105,12 +130,15 @@ StorageAreasTopojsonResponse = List[StorageAreaTopojson]
 
 StorageAreasTypesResponse = List[str]
 
-StorageGetResponse = Storage
+
+class StorageWithParents(Storage):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
-class StoragesListResponse(ListResponse):
-    storages: List[Storage]
+StorageGetResponse = StorageWithParents
 
+StoragesListResponse = List[StorageWithParents]
 
 StoragesGrafanaResponse = List[StorageGrafana]
 

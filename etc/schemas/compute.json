@@ -7,8 +7,7 @@
       "type": "string",
       "title": "ID",
       "format": "uuid",
-      "default": "to be assigned",
-      "readOnly": true
+      "default": "to be assigned"
     },
     "latitude": {
       "type": "number",
@@ -38,22 +37,23 @@
       "allowEmpty": true
     },
     "hardware_type": {
-      "type": "array",
+      "type": "string",
       "title": "Hardware types",
-      "items": {
-        "type": "string",
-        "enum": [
-          "bare-metal",
-          "container",
-          "vm"
-        ]
-      },
-      "default": null,
+      "enum": [
+        "bare-metal",
+        "container",
+        "vm"
+      ],
       "allowEmpty": true
     },
     "description": {
       "type": "string",
       "title": "Description",
+      "default": null
+    },
+    "identifier": {
+      "type": "string",
+      "title": "Identifier (if applicable)",
       "default": null
     },
     "middleware_version": {
@@ -67,6 +67,45 @@
         "$ref": "local-service.json"
       },
       "allowEmpty": true
+    },
+    "associated_global_services": {
+      "type": "array",
+      "items": {
+        "$ref": "global-service.json"
+      },
+      "allowEmpty": true
+    },
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date_range": {
+            "type": "text",
+            "title": "Date Range",
+            "required": true
+          },
+          "type": {
+            "title": "Type",
+            "enum": [
+              "Planned",
+              "Unplanned"
+            ],
+            "default": "Planned",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        }
+      }
+    },
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
     }
   }
 }

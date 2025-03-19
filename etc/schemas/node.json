@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Node definition schema.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "default": null
+    },
+    "comments": {
+      "type": "textarea",
+      "title": "Version comments",
+      "required": false
+    },
+    "sites": {
+      "type": "array",
+      "default": null,
+      "minItems": 0,
+      "items": {
+        "$ref": "site.json"
+      },
+      "allowEmpty": true
+    }
+  }
+}

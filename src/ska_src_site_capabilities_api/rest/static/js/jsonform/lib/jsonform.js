@@ -2453,7 +2453,7 @@ formNode.prototype.computeInitialValues = function (values, ignoreDefaultValues)
       // submitted values, the array gets rendered with one empty item as
       // it's more natural from a user experience perspective. That item can
       // be removed with a click on the "-" button.
-      nbChildren = 1;
+      nbChildren = 0;
     }
     for (i = 0; i < nbChildren; i++) {
       this.appendChild(this.childTemplate.clone());
