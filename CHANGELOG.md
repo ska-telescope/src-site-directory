@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- New add node landing page at www/nodes
-- New edit node landing page at www/nodes/<node_name>
+- New add node landing page at www/nodes.
+- New edit node landing page at www/nodes/<node_name>.
+- Filtering for service types on list services endpoint.
+- Filtering for node and site names on all relevant endpoints.
 
 ### Changed
 
@@ -21,11 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Site now includes site_id (like other child elements of node).
 - Added some common functions in server.py to common/utility.py.
 - Two collections in backend now used, one for archival documents and one for latest.
+- Added more routes to /www/docs/user page.
 
 ### Removed
 
-- Ability to add_site, this is now done through /www/nodes/<node_name>
-- 
+- Ability to add_site, this is now done through /www/nodes/<node_name>.
 
 ## [0.3.55]
 
