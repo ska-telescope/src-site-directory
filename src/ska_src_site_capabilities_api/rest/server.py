@@ -1048,7 +1048,12 @@ async def user_docs(request: Request) -> TEMPLATES.TemplateResponse:
 
     # Exclude unnecessary paths.
     paths_to_include = {
+        "/nodes": ["get"],
         "/sites": ["get"],
+        "/compute": ["get"],
+        "/services": ["get"],
+        "/storages": ["get"],
+        "/storage-areas": ["get"],
         "/ping": ["get"],
         "/health": ["get"],
     }
