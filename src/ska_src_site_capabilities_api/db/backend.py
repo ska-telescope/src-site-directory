@@ -43,7 +43,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_compute(self, include_inactive):
+    def list_compute(self, only_node_names, only_site_names, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -51,7 +51,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self, service_scope, include_inactive):
+    def list_services(self, only_node_names, only_site_names, service_scope, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -59,15 +59,17 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_sites(self, include_inactive):
+    def list_sites(self, only_node_names, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storages(self, topojson, for_grafana, include_inactive):
+    def list_storages(self, only_node_names, only_site_names, topojson, for_grafana,
+                      include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storage_areas(self, topojson, for_grafana, include_inactive):
+    def list_storage_areas(self, only_node_names, only_site_names, topojson, for_grafana,
+                           include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -238,13 +240,22 @@ class MongoBackend(Backend):
                 break
         return response
 
-    def list_compute(self, include_inactive=False):
+    def list_compute(self, only_node_names=[], only_site_names=[], include_inactive=False):
         response = []
-        for site in self.list_sites(include_inactive=include_inactive):
+        for site in self.list_sites(only_node_names=only_node_names,
+                                    include_inactive=include_inactive):
+            parent_site_name = site.get("name")
             for compute in site.get("compute", []):
+                if only_site_names:
+                    if parent_site_name not in only_site_names:
+                        continue
                 # add parent information
                 response.append(
-                    {"parent_node_name": site.get("parent_node_name"), "parent_site_name": site.get("name"), **compute}
+                    {
+                        "parent_node_name": site.get("parent_node_name"),
+                        "parent_site_name": parent_site_name,
+                        **compute
+                    }
                 )
         return response
 
@@ -266,19 +277,20 @@ class MongoBackend(Backend):
 
             return nodes or []
 
-    def list_services(self, service_scope="all", include_inactive=False):
+    def list_services(self, only_node_names=[], only_site_names=[], service_scope="all",
+                      include_inactive=False):
         response = []
-        for compute in self.list_compute(include_inactive=include_inactive):
-            node_name = compute.get("parent_node_name")
-            site_name = compute.get("parent_site_name")
+        for compute in self.list_compute(only_node_names=only_node_names,
+                                         only_site_names=only_site_names,
+                                         include_inactive=include_inactive):
             if service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
                     # add parent information
                     response.append(
                         {
                             "scope": "local",
-                            "parent_node_name": node_name,
-                            "parent_site_name": site_name,
+                            "parent_node_name": compute.get("parent_node_name"),
+                            "parent_site_name": compute.get("parent_site_name"),
                             "parent_compute_id": compute.get("id"),
                             **service,
                         }
@@ -289,8 +301,8 @@ class MongoBackend(Backend):
                     response.append(
                         {
                             "scope": "global",
-                            "parent_node_name": node_name,
-                            "parent_site_name": site_name,
+                            "parent_node_name": compute.get("parent_node_name"),
+                            "parent_site_name": compute.get("parent_node_name"),
                             "parent_compute_id": compute.get("id"),
                             **service,
                         }
@@ -301,15 +313,23 @@ class MongoBackend(Backend):
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def list_sites(self, include_inactive=False):
+    def list_sites(self, only_node_names=[], include_inactive=False):
         """List versions of all sites."""
         response = []
         for node in self.list_nodes(include_inactive=include_inactive):
+            parent_node_name = node.get("name")
             for site in node.get("sites", []):
-                response.append({"parent_node_name": node.get("name"), **site})
+                if only_node_names:
+                    if parent_node_name not in only_node_names:
+                        continue
+                response.append({
+                    "parent_node_name": parent_node_name,
+                    **site
+                })
         return response
 
-    def list_storages(self, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storages(self, only_node_names=[], only_site_names=[], topojson=False,
+                      for_grafana=False, include_inactive=False):
         if topojson:
             response = {
                 "type": "Topology",
@@ -317,8 +337,13 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites(include_inactive=include_inactive):
+        for site in self.list_sites(only_node_names=only_node_names,
+                                    include_inactive=include_inactive):
+            parent_site_name = site.get("name")
             for storage in site.get("storages", []):
+                if only_site_names:
+                    if parent_site_name not in only_site_names:
+                        continue
                 if topojson:
                     response["objects"]["sites"]["geometries"].append(
                         {
@@ -344,13 +369,14 @@ class MongoBackend(Backend):
                     response.append(
                         {
                             "parent_node_name": site.get("parent_node_name"),
-                            "parent_site_name": site.get("name"),
+                            "parent_site_name": parent_site_name,
                             **storage,
                         }
                     )
         return response
 
-    def list_storage_areas(self, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storage_areas(self, only_node_names=[], only_site_names=[], topojson=False,
+                           for_grafana=False, include_inactive=False):
         if topojson:
             response = {
                 "type": "Topology",
@@ -358,9 +384,9 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for storage in self.list_storages(include_inactive=include_inactive):
-            node_name = storage.get("parent_node_name")
-            site_name = storage.get("parent_site_name")
+        for storage in self.list_storages(only_node_names=only_node_names,
+                                          only_site_names=only_site_names,
+                                          include_inactive=include_inactive):
             for storage_area in storage.get("areas", []):
                 if topojson:
                     response["objects"]["sites"]["geometries"].append(
@@ -386,8 +412,8 @@ class MongoBackend(Backend):
                     # add parent information
                     response.append(
                         {
-                            "parent_node_name": node_name,
-                            "parent_site_name": site_name,
+                            "parent_node_name": storage.get("parent_node_name"),
+                            "parent_site_name": storage.get("parent_site_name"),
                             "parent_storage_id": storage.get("id"),
                             **storage_area,
                         }
