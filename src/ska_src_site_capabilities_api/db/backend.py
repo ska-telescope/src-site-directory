@@ -97,7 +97,7 @@ class MongoBackend(Backend):
                 end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
                 now_utc = datetime.now(timezone.utc)
 
-                if now_utc > start_date_utc and now_utc < end_date_utc:
+                if start_date_utc < now_utc < end_date_utc:
                     return True
         return False
 
