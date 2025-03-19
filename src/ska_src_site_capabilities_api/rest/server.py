@@ -165,10 +165,9 @@ async def list_compute(
     ),
 ) -> JSONResponse:
     """List all compute."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_compute(
@@ -528,20 +527,23 @@ async def list_services(
     request: Request,
     only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    service_scope: str = Query(default="all", description="Scope of service to include? (all||local||global)"),
+    only_service_types: str = Query(default=None, description="Filter by service types (comma-separated)"),
+    only_service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
 ) -> JSONResponse:
     """List all services."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if only_service_types:
+        only_service_types = [name.strip() for name in only_service_types.split(",")]
 
     rtn = BACKEND.list_services(
         only_node_names=only_node_names,
         only_site_names=only_site_names,
-        service_scope=service_scope,
+        only_service_types=only_service_types,
+        only_service_scope=only_service_scope,
         include_inactive=include_inactive,
     )
     return JSONResponse(rtn)
@@ -641,8 +643,7 @@ async def list_sites(
     ),
 ) -> JSONResponse:
     """List versions of all sites."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
 
     rtn = BACKEND.list_sites(
@@ -709,10 +710,9 @@ async def list_storages(
     ),
 ) -> JSONResponse:
     """List all storages."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storages(
@@ -745,10 +745,9 @@ async def list_storages_for_grafana(
     ),
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storages(
@@ -782,10 +781,9 @@ async def list_storages_in_topojson_format(
     ),
 ) -> JSONResponse:
     """List all storages in topojson format."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storages(
@@ -854,10 +852,9 @@ async def list_storage_areas(
     ),
 ) -> JSONResponse:
     """List all storage areas."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(
@@ -890,10 +887,9 @@ async def list_storage_areas_for_grafana(
     ),
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
-    # Convert site and node names to lists if csv
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(
@@ -927,9 +923,9 @@ async def list_storage_areas_in_topojson_format(
     ),
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
-    if isinstance(only_node_names, str):
+    if only_node_names:
         only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if isinstance(only_site_names, str):
+    if only_site_names:
         only_site_names = [name.strip() for name in only_site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(

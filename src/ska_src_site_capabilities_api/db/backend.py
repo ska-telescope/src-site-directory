@@ -51,7 +51,8 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self, only_node_names, only_site_names, service_scope, include_inactive):
+    def list_services(self, only_node_names, only_site_names, only_service_types,
+                      only_service_scope, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -277,14 +278,17 @@ class MongoBackend(Backend):
 
             return nodes or []
 
-    def list_services(self, only_node_names=[], only_site_names=[], service_scope="all",
-                      include_inactive=False):
+    def list_services(self, only_node_names=[], only_site_names=[], only_service_types=[],
+                      only_service_scope="all", include_inactive=False):
         response = []
         for compute in self.list_compute(only_node_names=only_node_names,
                                          only_site_names=only_site_names,
                                          include_inactive=include_inactive):
-            if service_scope in ["all", "local"]:
+            if only_service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
+                    if only_service_types:
+                        if service.get("type") not in only_service_types:
+                            continue
                     # add parent information
                     response.append(
                         {
@@ -295,8 +299,11 @@ class MongoBackend(Backend):
                             **service,
                         }
                     )
-            if service_scope in ["all", "global"]:
+            if only_service_scope in ["all", "global"]:
                 for service in compute.get("associated_global_services", []):
+                    if only_service_types:
+                        if service.get("type") not in only_service_types:
+                            continue
                     # add parent information
                     response.append(
                         {
