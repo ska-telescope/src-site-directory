@@ -109,7 +109,6 @@ class SiteWithParents(Site):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
-
 SiteGetResponse = SiteWithParents
 
 SitesListResponse = List[SiteWithParents]

@@ -115,15 +115,15 @@ def get_url_for_app_from_request(function_name, request, path_params={}, scheme=
 
 
 def load_and_dereference_schema(schema_path):
-    """Load a schema and dereference it. """
+    """Load a schema and dereference it."""
     with open(schema_path) as f:
         dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
     return ast.literal_eval(str(dereferenced_schema))
 
 
 def recursive_autogen_id(input, autogen_keys=["id"], placeholder_value="to be assigned"):
-    """ Recursively autogenerate uuids in input for placeholder keys, autogen_keys, if their value
-    equals a given placerholder_value. """
+    """Recursively autogenerate uuids in input for placeholder keys, autogen_keys, if their value
+    equals a given placerholder_value."""
     if isinstance(input, dict):
         for key, value in input.items():
             if key in autogen_keys:
@@ -138,7 +138,7 @@ def recursive_autogen_id(input, autogen_keys=["id"], placeholder_value="to be as
 
 
 def recursive_stringify(input, stringify_keys=["other_attributes"]):
-    """ Recursively stringify keys, stringify_keys, in input. """
+    """Recursively stringify keys, stringify_keys, in input."""
     if isinstance(input, dict):
         for key, value in input.items():
             if key in stringify_keys:

@@ -61,6 +61,7 @@ class CustomException(Exception):
     """Class that all custom exceptions must inherit in order for exception to be caught by the
     handle_exceptions decorator.
     """
+
     pass
 
 
@@ -74,6 +75,7 @@ class CustomHTTPException(Exception):
     """Class that all custom HTTP exceptions must inherit in order for exception to be caught by
     the handle_exceptions decorator.
     """
+
     pass
 
 
@@ -114,8 +116,7 @@ class NodeAlreadyExists(CustomHTTPException):
 
 class NodeVersionNotFound(CustomHTTPException):
     def __init__(self, node_name, node_version):
-        self.message = "Node with name '{}' and version '{}' could not be found".format(
-            node_name, node_version)
+        self.message = "Node with name '{}' and version '{}' could not be found".format(node_name, node_version)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -143,8 +144,7 @@ class SiteNotFound(CustomHTTPException):
 
 class SiteNotFoundInNodeVersion(CustomHTTPException):
     def __init__(self, node_name, node_version, site_name):
-        self.message = "No site '{}' found at node '{}' with version '{}'".format(
-            site_name, node_name, node_version)
+        self.message = "No site '{}' found at node '{}' with version '{}'".format(site_name, node_name, node_version)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -161,5 +161,3 @@ class StorageAreaNotFound(CustomHTTPException):
         self.message = "Storage area with identifier '{}' could not be found".format(storage_area_id)
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
-
-

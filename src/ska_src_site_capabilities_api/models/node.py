@@ -13,4 +13,3 @@ class Node(BaseModel):
     created_at: str = Field(examples=["2023-09-14T13:43:09.239513"])
     created_by_username: str = Field(examples=["username"])
     version: NonNegativeInt = Field(examples=[1])
-

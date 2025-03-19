@@ -89,7 +89,7 @@ class MongoBackend(Backend):
         self.mongo_database = mongo_database
 
     def _is_element_in_downtime(self, downtime):
-        """ Checks if an element is in downtime. """
+        """Checks if an element is in downtime."""
         for entry in downtime:
             if entry.get("date_range"):
                 start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
@@ -106,8 +106,7 @@ class MongoBackend(Backend):
         Recursively removes elements from a nested structure if they are in downtime or disabled.
         """
         if isinstance(element, dict):
-            if (self._is_element_in_downtime(element.get("downtime", []))
-                    or element.get("is_force_disabled", False)):
+            if self._is_element_in_downtime(element.get("downtime", [])) or element.get("is_force_disabled", False):
                 return None
 
             # Recurse through the element, checking downtime at each level
@@ -131,9 +130,9 @@ class MongoBackend(Backend):
 
             # get latest version of this node
             latest_node = self.get_node(node_name=node_name, node_version="latest")
-            if not latest_node:                             # adding new node
+            if not latest_node:  # adding new node
                 node_values["version"] = 1
-            else:                                           # updating existing node
+            else:  # updating existing node
                 node_values["version"] = latest_node.get("version") + 1
 
             # insert this new version of node into the nodes collection
@@ -155,16 +154,12 @@ class MongoBackend(Backend):
             parent_node_name = compute.get("parent_node_name")
             parent_site_name = compute.get("parent_site_name")
             if compute.get("id") == compute_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    **compute
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, **compute}
                 break
         return response
 
     def get_node(self, node_name, node_version="latest"):
-        """ Get a version of a node. """
+        """Get a version of a node."""
         with MongoClient(self.connection_string) as client:
             db = client[self.mongo_database]
 
@@ -175,8 +170,7 @@ class MongoBackend(Backend):
             else:
                 this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
                 if not this_node:
-                    this_node = db.nodes_archived.find_one(
-                        {"name": node_name, "version": int(node_version)})
+                    this_node = db.nodes_archived.find_one({"name": node_name, "version": int(node_version)})
 
             if this_node:
                 this_node.pop("_id")
@@ -193,7 +187,7 @@ class MongoBackend(Backend):
                     "parent_node_name": parent_node_name,
                     "parent_site_name": parent_site_name,
                     "parent_compute_id": parent_compute_id,
-                    **service
+                    **service,
                 }
                 break
         return response
@@ -203,15 +197,12 @@ class MongoBackend(Backend):
         for site in self.list_sites(include_inactive=True):
             parent_node_name = site.get("parent_node_name")
             if site.get("id") == site_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    **site
-                }
+                response = {"parent_node_name": parent_node_name, **site}
                 break
         return response
 
     def get_site_from_names(self, node_name, node_version, site_name):
-        """ Get site at a given node and version. """
+        """Get site at a given node and version."""
         node = self.get_node(node_name=node_name, node_version=node_version)
         if not node:
             return None
@@ -227,11 +218,7 @@ class MongoBackend(Backend):
             parent_node_name = storage.get("parent_node_name")
             parent_site_name = storage.get("parent_site_name")
             if storage.get("id") == storage_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    **storage
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, **storage}
                 break
         return response
 
@@ -246,7 +233,7 @@ class MongoBackend(Backend):
                     "parent_node_name": parent_node_name,
                     "parent_site_name": parent_site_name,
                     "parent_storage_id": parent_storage_id,
-                    **storage_area
+                    **storage_area,
                 }
                 break
         return response
@@ -257,11 +244,7 @@ class MongoBackend(Backend):
             for compute in site.get("compute", []):
                 # add parent information
                 response.append(
-                    {
-                        "parent_node_name": site.get("parent_node_name"),
-                        "parent_site_name": site.get("name"),
-                        **compute
-                    }
+                    {"parent_node_name": site.get("parent_node_name"), "parent_site_name": site.get("name"), **compute}
                 )
         return response
 
@@ -270,13 +253,13 @@ class MongoBackend(Backend):
         with MongoClient(self.connection_string) as client:
             db = client[self.mongo_database]
 
-            nodes = list(db.nodes.find({}))                         # query for active nodes
+            nodes = list(db.nodes.find({}))  # query for active nodes
 
             if include_archived:
-                nodes.extend(db.nodes_archived.find({}))            # include archived nodes
+                nodes.extend(db.nodes_archived.find({}))  # include archived nodes
 
             if not include_inactive:
-                nodes = self._remove_inactive_elements(nodes)       # filter out inactive nodes
+                nodes = self._remove_inactive_elements(nodes)  # filter out inactive nodes
 
             for node in nodes:
                 node.pop("_id", None)
@@ -288,7 +271,7 @@ class MongoBackend(Backend):
         for compute in self.list_compute(include_inactive=include_inactive):
             node_name = compute.get("parent_node_name")
             site_name = compute.get("parent_site_name")
-            if service_scope in ['all', 'local']:
+            if service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
                     # add parent information
                     response.append(
@@ -300,7 +283,7 @@ class MongoBackend(Backend):
                             **service,
                         }
                     )
-            if service_scope in ['all', 'global']:
+            if service_scope in ["all", "global"]:
                 for service in compute.get("associated_global_services", []):
                     # add parent information
                     response.append(
@@ -319,16 +302,11 @@ class MongoBackend(Backend):
         return response
 
     def list_sites(self, include_inactive=False):
-        """ List versions of all sites. """
+        """List versions of all sites."""
         response = []
         for node in self.list_nodes(include_inactive=include_inactive):
             for site in node.get("sites", []):
-                response.append(
-                    {
-                        "parent_node_name": node.get("name"),
-                        **site
-                    }
-                )
+                response.append({"parent_node_name": node.get("name"), **site})
         return response
 
     def list_storages(self, topojson=False, for_grafana=False, include_inactive=False):
@@ -367,7 +345,7 @@ class MongoBackend(Backend):
                         {
                             "parent_node_name": site.get("parent_node_name"),
                             "parent_site_name": site.get("name"),
-                            **storage
+                            **storage,
                         }
                     )
         return response
