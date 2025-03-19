@@ -39,4 +39,4 @@ class Compute(BaseModel):
     associated_global_services: List[GlobalService]
     associated_local_services: List[LocalService]
     downtime: List[Downtime]
-    disabled: bool = Field(examples=[True, False])
+    is_force_disabled: bool = Field(examples=[True, False])
