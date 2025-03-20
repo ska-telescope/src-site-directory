@@ -1,0 +1,212 @@
+[
+  {
+    "name": "SKAOSRC",
+    "comments": "",
+    "sites": [
+      {
+        "id": "8b008348-0d8d-4505-a625-1e6e8df56e8a",
+        "name": "SKAOSRC_A",
+        "description": "Magenta prototype site deployment",
+        "country": "GB",
+        "primary_contact_email": "rob.barnsley@skao.int",
+        "secondary_contact_email": "j.collinson@skao.int",
+        "storages": [
+          {
+            "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
+            "host": "srcdev.skatelescope.org",
+            "base_path": "/storm/sa",
+            "latitude": 51.4964,
+            "longitude": -0.1224,
+            "srm": "storm",
+            "device_type": "",
+            "size_in_terabytes": 11,
+            "identifier": "SKAOSRC",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 443
+              }
+            ],
+            "areas": [
+              {
+                "id": "f62199c3-62ad-44ee-a6e0-dd34e891d423",
+                "type": "rse",
+                "relative_path": "/nondeterministic",
+                "identifier": "STFC_STORM_ND",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "f605dd74-7a43-40e5-9229-48845416e30a",
+                "type": "ingest",
+                "relative_path": "/ingest/staging",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          }
+        ],
+        "compute": [
+          {
+            "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
+            "latitude": 51.4964,
+            "longitude": -0.1224,
+            "middleware_version": "1",
+            "associated_local_services": [
+              {
+                "id": "cd200c23-60f4-49c0-a987-3e11f06a4c8c",
+                "type": "ingest",
+                "version": "1.0.0",
+                "associated_storage_area_id": "f605dd74-7a43-40e5-9229-48845416e30a",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              }
+            ],
+            "hardware_capabilities": [],
+            "is_force_disabled": false
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": false
+      },
+      {
+        "id": "e86fe7a5-980e-466b-95ec-bb5c0b8120a4",
+        "name": "SKAOSRC_B",
+        "description": "Magenta prototype site deployment",
+        "country": "GB",
+        "primary_contact_email": "rob.barnsley@skao.int",
+        "secondary_contact_email": "j.collinson@skao.int",
+        "storages": [
+          {
+            "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
+            "host": "srcdev.skatelescope.org",
+            "base_path": "/storm/sa",
+            "latitude": 51.4964,
+            "longitude": -0.1224,
+            "srm": "storm",
+            "device_type": "",
+            "size_in_terabytes": 11,
+            "identifier": "SKAOSRC",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 443
+              }
+            ],
+            "areas": [
+              {
+                "id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                "type": "rse",
+                "relative_path": "/deterministic",
+                "identifier": "STFC_STORM",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          }
+        ],
+        "compute": [
+          {
+            "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
+            "latitude": 51.4964,
+            "longitude": -0.1224,
+            "middleware_version": "1",
+            "associated_local_services": [
+              {
+                "id": "4f57724b-aa73-4c6c-bf0c-3fb95677cc91",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.srcdev.skao.int",
+                "port": 443,
+                "path": "/",
+                "identifier": "SKAO Jupyter hub",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "fb508c67-4339-4727-b873-b1ac617d72d5",
+                "type": "jupyterhub",
+                "prefix": "http",
+                "host": "localhost",
+                "port": 8000,
+                "identifier": "Tangerine local test JupyterHub",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "05e18fb5-5f32-4c24-a399-0c50c77fb6d7",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.srcdev.skao.int",
+                "port": 443,
+                "path": "/soda",
+                "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                "other_attributes": {
+                  "resourceIdentifier": {
+                    "value": "ivo://skao.src/skaosrc-soda/"
+                  },
+                  "ivoid_to_namespace_regex": "\\?([^\\/]+)",
+                  "ivoid_to_name_regex": ".*\\/(.*)"
+                },
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "85563c81-d7b3-47af-b6bb-390f54ae48f2",
+                "type": "soda_async",
+                "prefix": "https",
+                "host": "gatekeeper.srcdev.skao.int",
+                "port": 443,
+                "path": "/soda/async",
+                "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+                "other_attributes": {
+                  "resourceIdentifier": {
+                    "value": "ivo://skao.src/skaosrc-soda/"
+                  },
+                  "ivoid_to_namespace_regex": "\\?([^\\/]+)",
+                  "ivoid_to_name_regex": ".*\\/(.*)"
+                },
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "37ff3e9e-ed8e-4432-8a10-51bc345c3eb8",
+                "type": "echo",
+                "version": "1",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "076f2185-f7e5-4a19-9365-523085ff64ec",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "gateway-test.srcdev.skao.int",
+                "path": "/jupyterhub/",
+                "identifier": "Tangerine (gateway-test) JupyterHUB",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              }
+            ],
+            "hardware_capabilities": [],
+            "is_force_disabled": false
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": false
+      }
+    ],
+    "last_updated_at": "2025-03-18T15:31:18.850288",
+    "last_updated_by_username": "robbarnsley",
+    "version": 2
+  }
+]

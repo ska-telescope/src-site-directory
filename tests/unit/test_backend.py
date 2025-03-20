@@ -10,14 +10,14 @@ from ska_src_site_capabilities_api.db.backend import MongoBackend
 @pytest.fixture(scope="module")
 def dummy_nodes():
     """Fixture to return nodes json."""
-    with Path("etc/init/nodes.json").open("r") as nodes_file:
+    with Path("tests/unit/assets/nodes.json").open("r") as nodes_file:
         return json.load(nodes_file)
 
 
 @pytest.fixture(scope="module")
 def dummy_nodes_archived():
     """Fixture to return nodes_archived json."""
-    with Path("etc/init/nodes.json").open("r") as nodes_file:
+    with Path("tests/unit/assets/nodes.json").open("r") as nodes_file:
         return json.load(nodes_file)
 
 
