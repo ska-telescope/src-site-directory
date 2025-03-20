@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
+from functools import wraps
 
 import dateutil.parser
 from pymongo import MongoClient
@@ -78,15 +79,23 @@ class Backend(ABC):
 class MongoBackend(Backend):
     """Backend API for mongodb."""
 
-    def __init__(self, mongo_username, mongo_password, mongo_host, mongo_port, mongo_database):
+    def __init__(
+        self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None
+    ):
         super().__init__()
-        self.connection_string = "mongodb://{}:{}@{}:{}/".format(
-            mongo_username,
-            mongo_password,
-            mongo_host,
-            int(mongo_port),
-        )
+        if mongo_database and mongo_username and mongo_password and mongo_host:
+            self.connection_string = "mongodb://{}:{}@{}:{}/".format(
+                mongo_username, mongo_password, mongo_host, int(mongo_port)
+            )
         self.mongo_database = mongo_database
+
+        self.client = client  # used for mocking
+
+    def _get_mongo_client(self):
+        if self.client:
+            return self.client
+        else:
+            return MongoClient(self.connection_string)
 
     def _is_element_in_downtime(self, downtime):
         """Checks if an element is in downtime."""
@@ -123,30 +132,30 @@ class MongoBackend(Backend):
         return element
 
     def add_edit_node(self, node_values, node_name=None):
-        with MongoClient(self.connection_string) as client:
-            db = client[self.mongo_database]
-            nodes = db.nodes
-            nodes_archived = db.nodes_archived
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+        nodes = db.nodes
+        nodes_archived = db.nodes_archived
 
-            # get latest version of this node
-            latest_node = self.get_node(node_name=node_name, node_version="latest")
-            if not latest_node:  # adding new node
-                node_values["version"] = 1
-            else:  # updating existing node
-                node_values["version"] = latest_node.get("version") + 1
+        # get latest version of this node
+        latest_node = self.get_node(node_name=node_name, node_version="latest")
+        if not latest_node:  # adding new node
+            node_values["version"] = 1
+        else:  # updating existing node
+            node_values["version"] = latest_node.get("version") + 1
 
-            # insert this new version of node into the nodes collection
-            inserted_node = nodes.insert_one(node_values)
+        # insert this new version of node into the nodes collection
+        inserted_node = nodes.insert_one(node_values)
 
-            # move the previous version of the node to nodes_archived collection only if a previous
-            # version existed & insertion into nodes was successful
-            if latest_node and inserted_node.inserted_id:
-                # only delete it from nodes if we successfully added the previous version to
-                # nodes_archived
-                if nodes_archived.insert_one(latest_node).inserted_id:
-                    nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
+        # move the previous version of the node to nodes_archived collection only if a previous
+        # version existed & insertion into nodes was successful
+        if latest_node and inserted_node.inserted_id:
+            # only delete it from nodes if we successfully added the previous version to
+            # nodes_archived
+            if nodes_archived.insert_one(latest_node).inserted_id:
+                nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
 
-            return inserted_node.inserted_id
+        return inserted_node.inserted_id
 
     def get_compute(self, compute_id):
         response = {}
@@ -160,21 +169,21 @@ class MongoBackend(Backend):
 
     def get_node(self, node_name, node_version="latest"):
         """Get a version of a node."""
-        with MongoClient(self.connection_string) as client:
-            db = client[self.mongo_database]
+        # If node_version is latest, only search the latest collection, otherwise search both latest
+        # and archived.
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
 
-            # If node_version is latest, only search the latest collection, otherwise search both latest
-            # and archived.
-            if node_version == "latest":
-                this_node = db.nodes.find_one({"name": node_name})
-            else:
-                this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
-                if not this_node:
-                    this_node = db.nodes_archived.find_one({"name": node_name, "version": int(node_version)})
+        if node_version == "latest":
+            this_node = db.nodes.find_one({"name": node_name})
+        else:
+            this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
+            if not this_node:
+                this_node = db.nodes_archived.find_one({"name": node_name, "version": int(node_version)})
 
-            if this_node:
-                this_node.pop("_id")
-            return this_node if this_node else {}
+        if this_node:
+            this_node.pop("_id")
+        return this_node if this_node else {}
 
     def get_service(self, service_id):
         response = {}
@@ -209,7 +218,7 @@ class MongoBackend(Backend):
 
         for site in node.get("sites", []):
             if site.get("name") == site_name:
-                return site
+                return {"parent_node_name": node.get("name"), **site}
         return None
 
     def get_storage(self, storage_id):
@@ -254,21 +263,21 @@ class MongoBackend(Backend):
 
     def list_nodes(self, include_archived=False, include_inactive=True):
         """Retrieve versions of all nodes."""
-        with MongoClient(self.connection_string) as client:
-            db = client[self.mongo_database]
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
 
-            nodes = list(db.nodes.find({}))  # query for active nodes
+        nodes = list(db.nodes.find({}))  # query for active nodes
 
-            if include_archived:
-                nodes.extend(db.nodes_archived.find({}))  # include archived nodes
+        if include_archived:
+            nodes.extend(db.nodes_archived.find({}))  # include archived nodes
 
-            if not include_inactive:
-                nodes = self._remove_inactive_elements(nodes)  # filter out inactive nodes
+        if not include_inactive:
+            nodes = self._remove_inactive_elements(nodes)  # filter out inactive nodes
 
-            for node in nodes:
-                node.pop("_id", None)
+        for node in nodes:
+            node.pop("_id", None)
 
-            return nodes or []
+        return nodes or []
 
     def list_services(
         self,

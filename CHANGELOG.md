@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Unit tests for backend.
+
+## [0.3.56]
+
+### Added
+
 - New add node landing page at www/nodes.
 - New edit node landing page at www/nodes/<node_name>.
 - Filtering for service types on list services endpoint.

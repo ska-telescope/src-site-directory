@@ -1201,6 +1201,31 @@ url = "https://pypi.org/simple"
 reference = "PyPI-public"
 
 [[package]]
+name = "mongomock"
+version = "4.3.0"
+description = "Fake pymongo stub for testing simple MongoDB-dependent code"
+optional = false
+python-versions = "*"
+files = [
+    {file = "mongomock-4.3.0-py2.py3-none-any.whl", hash = "sha256:5ef86bd12fc8806c6e7af32f21266c61b6c4ba96096f85129852d1c4fec1327e"},
+    {file = "mongomock-4.3.0.tar.gz", hash = "sha256:32667b79066fabc12d4f17f16a8fd7361b5f4435208b3ba32c226e52212a8c30"},
+]
+
+[package.dependencies]
+packaging = "*"
+pytz = "*"
+sentinels = "*"
+
+[package.extras]
+pyexecjs = ["pyexecjs"]
+pymongo = ["pymongo"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.org/simple"
+reference = "PyPI-public"
+
+[[package]]
 name = "mypy-extensions"
 version = "1.0.0"
 description = "Type system extensions for programs checked with the mypy type checker."
@@ -2164,6 +2189,21 @@ url = "https://pypi.org/simple"
 reference = "PyPI-public"
 
 [[package]]
+name = "sentinels"
+version = "1.0.0"
+description = "Various objects to denote special meanings in python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "sentinels-1.0.0.tar.gz", hash = "sha256:7be0704d7fe1925e397e92d18669ace2f619c92b5d4eb21a89f31e026f9ff4b1"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.org/simple"
+reference = "PyPI-public"
+
+[[package]]
 name = "setuptools"
 version = "75.3.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -3057,4 +3097,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0.0"
-content-hash = "1423f34ced8c8c910c197c7e61bdcd063af22ea11ca430c94ffed9ff236b8184"
+content-hash = "c02d464e36b2d8d99926653cfd3532df93d6af1149bb679264c6df464e7bce3f"
