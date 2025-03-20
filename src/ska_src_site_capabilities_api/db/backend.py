@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from functools import wraps
 from datetime import datetime, timezone
+from functools import wraps
 
 import dateutil.parser
 from pymongo import MongoClient
@@ -79,8 +79,9 @@ class Backend(ABC):
 class MongoBackend(Backend):
     """Backend API for mongodb."""
 
-    def __init__(self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None,
-                 mongo_port=None, client=None):
+    def __init__(
+        self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None
+    ):
         super().__init__()
         if mongo_database and mongo_username and mongo_password and mongo_host:
             self.connection_string = "mongodb://{}:{}@{}:{}/".format(
@@ -88,7 +89,7 @@ class MongoBackend(Backend):
             )
         self.mongo_database = mongo_database
 
-        self.client = client    # used for mocking
+        self.client = client  # used for mocking
 
     def _get_mongo_client(self):
         if self.client:
@@ -217,10 +218,7 @@ class MongoBackend(Backend):
 
         for site in node.get("sites", []):
             if site.get("name") == site_name:
-                return {
-                    "parent_node_name": node.get("name"),
-                    **site
-                }
+                return {"parent_node_name": node.get("name"), **site}
         return None
 
     def get_storage(self, storage_id):
