@@ -1,196 +1,192 @@
+import json
+from pathlib import Path
+
+import mongomock
 import pytest
 
 from ska_src_site_capabilities_api.db.backend import MongoBackend
 
 
-@pytest.fixture
-def backend(mocker):
-    # Setup a mock MongoBackend instance
-    backend = MongoBackend(
-        mongo_username="user",
-        mongo_password="pass",
-        mongo_host="localhost",
-        mongo_port=27017,
-        mongo_database="test_db",
-    )
-    mocker.patch.object(backend, "list_site_names_unique", return_value=["CNSRC", "UKSRC"])
-    mocker.patch.object(
-        backend,
-        "get_site_version_latest",
-        side_effect=lambda site_name: {
-            "CNSRC": {
-                "name": "CNSRC",
-                "global_services": [],
-                "compute": [
-                    {
-                        "id": "dd875a28-2df8-4f9f-838c-aa4110b4c4b9",
-                        "associated_local_services": [
-                            {
-                                "id": "1f73c95e-301b-4f5e-a2cf-aeb461da2d70",
-                                "type": "jupyterhub",
-                                "prefix": "https",
-                                "host": "canfar.shao.ac.cn",
-                                "path": "/hub",
-                                "identifier": "CNSRC JupyterHUB service",
-                                "enabled": True,
-                                "is_proxy": False,
-                            },
-                            {
-                                "id": "52acaf90-2701-4f79-b696-fcc1c559e4ec",
-                                "type": "jupyterhub",
-                                "prefix": "https",
-                                "host": "canfar.shao.ac.cn",
-                                "path": "/science-portal",
-                                "identifier": "CNSRC CANFAR Science Portal",
-                                "enabled": True,
-                                "is_proxy": False,
-                            },
-                        ],
-                    }
-                ],
-            },
-            "UKSRC": {
-                "name": "UKSRC",
-                "global_services": [],
-                "compute": [
-                    {
-                        "id": "e24a1a87-01f2-4a4a-8e3e-4234951c45d0",
-                        "associated_local_services": [
-                            {
-                                "id": "21990532-7231-4ab9-9fa7-3dfe587332ec",
-                                "type": "jupyterhub",
-                                "prefix": "https",
-                                "host": "portal.apps.hpc.cam.ac.uk",
-                                "path": "/auth/federated/start/?option=ska-iam_openid",
-                                "identifier": "Cambridge HPC Azimuth Instance",
-                                "enabled": True,
-                                "is_proxy": False,
-                            }
-                        ],
-                    }
-                ],
-            },
-        }[site_name],
-    )
-    return backend
+@pytest.fixture(scope="module")
+def dummy_nodes():
+    """Fixture to return nodes json. """
+    with Path("etc/init/nodes.json").open("r") as nodes_file:
+        return json.load(nodes_file)
 
 
-def test_list_services_with_site_name_filter(backend):
-    # Test the list_services function with site_name filter
-    services = backend.list_services(site_names="CNSRC")
-    assert len(services) == 1
-    assert services[0]["site_name"] == "CNSRC"
-    assert len(services[0]["services"]) == 2
+@pytest.fixture(scope="module")
+def dummy_nodes_archived():
+    """Fixture to return nodes_archived json. """
+    with Path("etc/init/nodes.json").open("r") as nodes_file:
+        return json.load(nodes_file)
 
 
-def test_list_services_with_service_type_filter(backend):
-    # Test the list_services function with service_type filter
-    services = backend.list_services(service_type="jupyterhub")
-    assert len(services) == 2  # Expecting services from both CNSRC and UKSRC
-    for service in services:
-        assert service["site_name"] in ["CNSRC", "UKSRC"]
-        assert all(s["type"] == "jupyterhub" for s in service["services"])
+@pytest.fixture(scope="module")
+def mock_backend(mock_client, mock_db, dummy_nodes, dummy_nodes_archived):
+    """Fixture that returns a mocked backend with prepopulated data."""
+    if mock_db["nodes"].count_documents({}) == 0:
+        mock_db["nodes"].insert_many(dummy_nodes)
+    if mock_db["nodes_archived"].count_documents({}) == 0:
+        mock_db["nodes_archived"].insert_many(dummy_nodes_archived)
+    return MongoBackend(client=mock_client, mongo_database="test")
 
 
-def test_list_services_with_compute_id_filter(backend):
-    # Test the list_services function with compute_id filter
-    services = backend.list_services(compute_id="dd875a28-2df8-4f9f-838c-aa4110b4c4b9")
-    assert len(services) == 1
-    assert services[0]["site_name"] == "CNSRC"
-    assert len(services[0]["services"]) == 2
-    assert all(s["associated_compute_id"] == "dd875a28-2df8-4f9f-838c-aa4110b4c4b9" for s in services[0]["services"])
+@pytest.fixture(scope="module")
+def mock_client():
+    return mongomock.MongoClient()
 
 
-def test_add_site(backend, mocker):
-    # Setup test data
-    site_values = {"name": "TestSite", "description": "A test site"}
-
-    # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
-    mock_db = mock_client.return_value.__getitem__.return_value
-    mock_db.sites.insert_one.return_value.inserted_id = "mock_id"
-    mock_db.sites.find.return_value = []  # Simulate no existing versions
-
-    # Call the add_site function
-    inserted_id = backend.add_site(site_values)
-
-    # Assertions
-    assert inserted_id == "mock_id"
-    mock_db.sites.insert_one.assert_called_once_with({"name": "TestSite", "description": "A test site", "version": 1})
+@pytest.fixture(scope="module")
+def mock_db(mock_client):
+    return mock_client["test"]
 
 
-def test_delete_site_version(backend, mocker):
-    # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
-    mock_db = mock_client.return_value.__getitem__.return_value
-    mock_db.sites.delete_one.return_value.deleted_count = 1
-
-    # Call the delete_site_version function
-    result = backend.delete_site_version("TestSite", 1)
-
-    # Assertions
-    assert result.deleted_count == 1
-    mock_db.sites.delete_one.assert_called_once_with({"name": "TestSite", "version": 1})
-
-
-def test_dump_sites(backend, mocker):
-    # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
-    mock_db = mock_client.return_value.__getitem__.return_value
-    mock_db.sites.find.return_value = [{"name": "TestSite", "_id": "mock_id"}]
-
-    # Call the dump_sites function
-    result = backend.dump_sites()
-
-    # Assertions
-    assert result == [{"name": "TestSite"}]
-    mock_db.sites.find.assert_called_once_with({})
-
-
-def test_get_compute(backend, mocker):
-    # Mock the list_sites_version_latest method
-    mocker.patch.object(
-        backend,
-        "list_sites_version_latest",
-        return_value=[{"compute": [{"id": "compute_1", "name": "Compute1"}]}],
-    )
-
+@pytest.mark.parametrize(
+    "id,expected_exists", [("db1d3ee3-74e4-48aa-afaf-8d7709a2f57c", True), ("0", False)])
+def test_get_compute(id, expected_exists, mock_backend):
     # Call the get_compute function
-    result = backend.get_compute("compute_1")
+    result = mock_backend.get_compute(compute_id=id)
+    if expected_exists:
+        assert result.get("id") == id
+    else:
+        assert not result
 
-    # Assertions
-    assert result == {"id": "compute_1", "name": "Compute1"}
+
+@pytest.mark.parametrize("name,expected_exists", [("SKAOSRC", True), ("A", False)])
+def test_get_node(name, expected_exists, mock_backend):
+    # Call the get_node function
+    result = mock_backend.get_node(node_name=name, node_version="latest")
+    if expected_exists:
+        assert result.get("name") == name
+    else:
+        assert not result
 
 
-def test_get_service(backend, mocker):
-    # Mock the list_services method
-    mocker.patch.object(
-        backend,
-        "list_services",
-        return_value=[
-            {
-                "site_name": "TestSite",
-                "services": [{"id": "service_1", "name": "Service1"}],
-            }
-        ],
-    )
-
+@pytest.mark.parametrize(
+    "id,expected_exists", [("cd200c23-60f4-49c0-a987-3e11f06a4c8c", True), ("0", False)])
+def test_get_service(id, expected_exists, mock_backend):
     # Call the get_service function
-    result = backend.get_service("service_1")
+    result = mock_backend.get_service(service_id=id)
+    if expected_exists:
+        assert result.get("id") == id
+    else:
+        assert not result
 
-    # Assertions
-    assert result == {"site_name": "TestSite", "id": "service_1", "name": "Service1"}
 
-
-def test_get_site(backend, mocker):
-    # Mock the MongoClient to avoid actual database operations
-    mock_client = mocker.patch("ska_src_site_capabilities_api.db.backend.MongoClient")
-    mock_db = mock_client.return_value.__getitem__.return_value
-    mock_db.sites.find.return_value = [{"name": "TestSite", "version": 1, "_id": "mock_id"}]
-
+@pytest.mark.parametrize(
+    "id,expected_exists", [("8b008348-0d8d-4505-a625-1e6e8df56e8a", True), ("0", False)])
+def test_get_site(id, expected_exists, mock_backend):
     # Call the get_site function
-    result = backend.get_site("TestSite")
+    result = mock_backend.get_site(site_id=id)
+    if expected_exists:
+        assert result.get("id") == id
+    else:
+        assert not result
 
-    # Assertions
-    assert result == [{"name": "TestSite", "version": 1, "_id": "mock_id"}]
-    mock_db.sites.find.assert_called_once_with({"name": "TestSite"})
+
+@pytest.mark.parametrize(
+    "node_name,site_name,expected_exists",
+    [("SKAOSRC", "SKAOSRC_A", True), ("SKAOSRC", "SKAOSRC_C", False)])
+def test_get_site_by_names(node_name, site_name, expected_exists, mock_backend):
+    # Call the get_site_by_names function
+    result = mock_backend.get_site_from_names(node_name=node_name, site_name=site_name,
+                                              node_version="latest")
+    if expected_exists:
+        assert result.get("parent_node_name") == node_name
+        assert result.get("name") == site_name
+    else:
+        assert not result
+
+
+@pytest.mark.parametrize(
+    "id,expected_exists", [("180f2f39-4548-4f11-80b1-7471564e5c05", True), ("0", False)])
+def test_get_storage(id, expected_exists, mock_backend):
+    # Call the get_storage function
+    result = mock_backend.get_storage(storage_id=id)
+    if expected_exists:
+        assert result.get("id") == id
+    else:
+        assert not result
+
+
+@pytest.mark.parametrize(
+    "id,expected_exists", [("f62199c3-62ad-44ee-a6e0-dd34e891d423", True), ("0", False)])
+def test_get_storage_area(id, expected_exists, mock_backend):
+    # Call the get_storage_area function
+    result = mock_backend.get_storage_area(storage_area_id=id)
+    if expected_exists:
+        assert result.get("id") == id
+    else:
+        assert not result
+
+
+def test_list_compute_with_node_name_filter(mock_backend):
+    # Test the list_compute function with node_name filter
+    compute = mock_backend.list_compute(only_node_names="SKAOSRC")
+    assert len(compute) == 2
+
+
+@pytest.mark.unit_test
+def test_list_compute_with_site_name_filter(mock_backend):
+    # Test the list_compute function with site_name filter
+    compute = mock_backend.list_compute(only_site_names="SKAOSRC_B")
+    assert len(compute) == 1
+
+
+def test_list_nodes(mock_backend):
+    # Test the list_nodes function
+    sites = mock_backend.list_nodes()
+    assert len(sites) == 1
+
+
+def test_list_services_with_node_name_filter(mock_backend):
+    # Test the list_services function with node_name filter
+    services = mock_backend.list_services(only_node_names="SKAOSRC")
+    assert len(services) == 7
+
+
+@pytest.mark.unit_test
+def test_list_services_with_site_name_filter(mock_backend):
+    # Test the list_services function with site_name filter
+    services = mock_backend.list_services(only_site_names="SKAOSRC_B")
+    assert len(services) == 6
+
+
+def test_list_services_with_service_types_filter(mock_backend):
+    # Test the list_services function with service_types filter
+    services = mock_backend.list_services(only_service_types="jupyterhub")
+    assert len(services) == 3
+    assert all(s.get("type") == "jupyterhub" for s in services)
+
+
+def test_list_sites(mock_backend):
+    # Test the list_sites function
+    sites = mock_backend.list_sites()
+    assert len(sites) == 2
+
+
+def test_list_storages_with_node_name_filter(mock_backend):
+    # Test the list_storages function with node_name filter
+    storages = mock_backend.list_storages(only_node_names="SKAOSRC")
+    assert len(storages) == 2
+
+
+def test_list_storages_with_site_name_filter(mock_backend):
+    # Test the list_storages function with site_name filter
+    storages = mock_backend.list_storages(only_site_names="SKAOSRC_B")
+    assert len(storages) == 1
+
+
+def test_list_storage_areas_with_node_name_filter(mock_backend):
+    # Test the list_storage_areas function with node_name filter
+    storage_areas = mock_backend.list_storage_areas(only_node_names="SKAOSRC")
+    assert len(storage_areas) == 3
+
+
+def test_list_storage_areas_with_site_name_filter(mock_backend):
+    # Test the list_storage_areas function with site_name filter
+    storage_areas = mock_backend.list_storage_areas(only_site_names="SKAOSRC_B")
+    assert len(storage_areas) == 1
+
+
+
