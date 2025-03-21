@@ -177,21 +177,21 @@ class MongoBackend(Backend):
         nodes = db.nodes
         nodes_archived = db.nodes_archived
 
-        # get latest version of this node
+        # Get the latest version of this node
         latest_node = self.get_node(node_name=node_name, node_version="latest")
-        if not latest_node:  # adding new node
+        if not latest_node:  # Adding a new node
             node_values["version"] = 1
-        else:  # updating existing node
+        else:  # Updating an existing node
             node_values["version"] = latest_node.get("version") + 1
 
-        # insert this new version of node into the nodes collection
+        # Insert this new version of the node into the nodes collection
         inserted_node = nodes.insert_one(node_values)
 
-        # move the previous version of the node to nodes_archived collection only if a previous
-        # version existed & insertion into nodes was successful
+        # Move the previous version of the node to the nodes_archived collection
+        # only if a previous version existed and insertion into nodes was successful
         if latest_node and inserted_node.inserted_id:
-            # only delete it from nodes if we successfully added the previous version to
-            # nodes_archived
+            # Only delete it from nodes if we successfully added the previous version
+            # to nodes_archived
             if nodes_archived.insert_one(latest_node).inserted_id:
                 nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
 
@@ -523,7 +523,8 @@ class MongoBackend(Backend):
             include_inactive: Boolean to include inactive storages.
 
         Returns:
-            A list of storage dictionaries, each containing parent information, or a TopoJSON object if `topojson` is True.
+            A list of storage dictionaries, each containing parent information, 
+            or a TopoJSON object if `topojson` is True.
         """
         only_node_names = only_node_names or []
         only_site_names = only_site_names or []
@@ -585,7 +586,8 @@ class MongoBackend(Backend):
             include_inactive: Boolean to include inactive storage areas.
 
         Returns:
-            A list of storage area dictionaries, each containing parent information, or a TopoJSON object if `topojson` is True.
+            A list of storage area dictionaries, each containing parent information,
+            or a TopoJSON object if `topojson` is True.
         """
         only_node_names = only_node_names or []
         only_site_names = only_site_names or []
