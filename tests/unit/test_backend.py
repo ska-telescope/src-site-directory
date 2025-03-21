@@ -157,10 +157,7 @@ def test_list_services_with_associated_storage_area_filter(mock_backend):
     # Test the list_services function with associated_storage_area_id filter
     services = mock_backend.list_services(associated_storage_area_id="f605dd74-7a43-40e5-9229-48845416e30a")
     assert len(services) == 1
-    assert all(
-        s.get("associated_storage_area_id") == "f605dd74-7a43-40e5-9229-48845416e30a"
-        for s in services
-    )
+    assert all(s.get("associated_storage_area_id") == "f605dd74-7a43-40e5-9229-48845416e30a" for s in services)
 
 
 def test_list_sites(mock_backend):
