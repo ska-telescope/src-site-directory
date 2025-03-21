@@ -523,7 +523,7 @@ class MongoBackend(Backend):
             include_inactive: Boolean to include inactive storages.
 
         Returns:
-            A list of storage dictionaries, each containing parent information, 
+            A list of storage dictionaries, each containing parent information,
             or a TopoJSON object if `topojson` is True.
         """
         only_node_names = only_node_names or []
