@@ -435,7 +435,10 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if only_service_types and service.get("type") not in only_service_types:
                         continue
-                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id") != associated_storage_area_id
+                    ):
                         continue
                     # Add parent information
                     response.append(
@@ -453,7 +456,10 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if only_service_types and service.get("type") not in only_service_types:
                         continue
-                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id") != associated_storage_area_id
+                    ):
                         continue
                     # Add parent information
                     response.append(

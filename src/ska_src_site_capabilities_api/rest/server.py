@@ -244,12 +244,14 @@ async def list_nodes(
     "/nodes",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Add a node",
 )
@@ -288,12 +290,14 @@ async def add_node(
     "/nodes/{node_name}",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Edit a node",
 )
@@ -331,12 +335,14 @@ async def edit_node(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Dump all versions of all nodes",
 )
@@ -356,12 +362,14 @@ async def dump_nodes(request: Request) -> Union[HTMLResponse, HTTPException]:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Get node from name",
 )
@@ -389,12 +397,14 @@ async def get_node_version(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="Get site from node and site names",
 )
