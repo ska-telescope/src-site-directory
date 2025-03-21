@@ -136,14 +136,14 @@ def test_list_nodes(mock_backend):
 def test_list_services_with_node_name_filter(mock_backend):
     # Test the list_services function with node_name filter
     services = mock_backend.list_services(only_node_names="SKAOSRC")
-    assert len(services) == 7
+    assert len(services) == 9  # Updated from 7 to 9
 
 
 @pytest.mark.unit_test
 def test_list_services_with_site_name_filter(mock_backend):
     # Test the list_services function with site_name filter
     services = mock_backend.list_services(only_site_names="SKAOSRC_B")
-    assert len(services) == 6
+    assert len(services) == 7  # Updated from 6 to 7
 
 
 def test_list_services_with_service_types_filter(mock_backend):
@@ -151,6 +151,16 @@ def test_list_services_with_service_types_filter(mock_backend):
     services = mock_backend.list_services(only_service_types="jupyterhub")
     assert len(services) == 3
     assert all(s.get("type") == "jupyterhub" for s in services)
+
+
+def test_list_services_with_associated_storage_area_filter(mock_backend):
+    # Test the list_services function with associated_storage_area_id filter
+    services = mock_backend.list_services(associated_storage_area_id="f605dd74-7a43-40e5-9229-48845416e30a")
+    assert len(services) == 1
+    assert all(
+        s.get("associated_storage_area_id") == "f605dd74-7a43-40e5-9229-48845416e30a"
+        for s in services
+    )
 
 
 def test_list_sites(mock_backend):
