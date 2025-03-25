@@ -544,6 +544,7 @@ async def list_services(
     only_service_types: str = Query(default=None, description="Filter by service types (comma-separated)"),
     only_service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
+    associated_storage_area_id: str = Query(default=None, description="Filter by associated storage area ID"),
 ) -> JSONResponse:
     """List all services."""
     if only_node_names:
@@ -559,6 +560,7 @@ async def list_services(
         only_service_types=only_service_types,
         only_service_scope=only_service_scope,
         include_inactive=include_inactive,
+        associated_storage_area_id=associated_storage_area_id,  # Added filter
     )
     return JSONResponse(rtn)
 
