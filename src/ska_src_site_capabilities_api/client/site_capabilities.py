@@ -144,7 +144,15 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_services(self, include_associated_with_compute=True, include_disabled=False):
+    def list_services(
+        self,
+        only_node_names=None,
+        only_site_names=None,
+        only_service_types=None,
+        only_service_scope="all",
+        include_inactive=False,
+        associated_storage_area_id=None,
+    ):
         """List services.
 
         :return: A requests response.
@@ -152,8 +160,12 @@ class SiteCapabilitiesClient:
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
         params = {
-            "include_associated_with_compute": include_associated_with_compute,
-            "include_disabled": include_disabled,
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "only_service_types": ",".join(only_service_types) if only_service_types else None,
+            "only_service_scope": only_service_scope,
+            "include_inactive": include_inactive,
+            "associated_storage_area_id": associated_storage_area_id,
         }
         resp = self.session.get(services_endpoint, params=params)
         resp.raise_for_status()
