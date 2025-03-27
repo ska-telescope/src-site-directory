@@ -137,7 +137,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(compute_endpoint)
+        resp = self.session.get(compute_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -220,7 +220,7 @@ class SiteCapabilitiesClient:
             "only_node_names": ",".join(only_node_names) if only_node_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(sites_endpoint)
+        resp = self.session.get(sites_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -242,7 +242,7 @@ class SiteCapabilitiesClient:
         only_node_names: list[str] = None,
         only_site_names: list[str] = None,
         include_inactive: bool = False,
-    ):                  
+    ):
         """List storages.
 
         :return: A requests response.
@@ -254,7 +254,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_endpoint)
+        resp = self.session.get(storages_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -276,7 +276,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_grafana_endpoint)
+        resp = self.session.get(storages_grafana_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -286,7 +286,7 @@ class SiteCapabilitiesClient:
         only_node_names: list[str] = None,
         only_site_names: list[str] = None,
         include_inactive: bool = False,
-    ):        
+    ):
         """List storages (topojson).
 
         :return: A requests response.
@@ -298,7 +298,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_topojson_endpoint)
+        resp = self.session.get(storages_topojson_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -308,7 +308,7 @@ class SiteCapabilitiesClient:
         only_node_names: list[str] = None,
         only_site_names: list[str] = None,
         include_inactive: bool = False,
-    ):         
+    ):
         """List storage areas.
 
         :return: A requests response.
@@ -320,7 +320,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storage_areas_endpoint)
+        resp = self.session.get(storage_areas_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -330,7 +330,7 @@ class SiteCapabilitiesClient:
         only_node_names: list[str] = None,
         only_site_names: list[str] = None,
         include_inactive: bool = False,
-    ):          
+    ):
         """List storage areas (for grafana).
 
         :return: A requests response.
@@ -342,7 +342,7 @@ class SiteCapabilitiesClient:
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storage_areas_grafana_endpoint)
+        resp = self.session.get(storage_areas_grafana_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -352,7 +352,7 @@ class SiteCapabilitiesClient:
         only_node_names: list[str] = None,
         only_site_names: list[str] = None,
         include_inactive: bool = False,
-    ):          
+    ):
         """List storage areas (topojson).
 
         :return: A requests response.
@@ -363,8 +363,8 @@ class SiteCapabilitiesClient:
             "only_node_names": ",".join(only_node_names) if only_node_names else None,
             "only_site_names": ",".join(only_site_names) if only_site_names else None,
             "include_inactive": include_inactive,
-        }        
-        resp = self.session.get(storage_areas_topojson_endpoint)
+        }
+        resp = self.session.get(storage_areas_topojson_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
