@@ -13,9 +13,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 @pytest.mark.post_deployment
 def test_check_ping():
     """Test to check ping API"""
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/ping"
-    )
+    response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/ping")  # noqa: E231
     response_data = response.json()
     assert response_data["status"] == "UP"
 
@@ -23,9 +21,6 @@ def test_check_ping():
 @pytest.mark.post_deployment
 def test_check_health():
     """Test to check health API"""
-    response = httpx.get(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health"
-    )
+    response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health")  # noqa: E231
     response_data = response.json()
     assert response_data["uptime"] > 0
-
