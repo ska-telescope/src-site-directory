@@ -5,7 +5,10 @@ PROJECT=ska-src-site-capabilities-api
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 
 # Bespoke configuration items for pytest (python.mk, k8s.mk)
-PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src        # expected location of package inside CI test runner
+
+# The following sets the expected location of the package inside CI test runner & sets the required variables for
+# component testing.
+PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KUBE_NAMESPACE=$(KUBE_NAMESPACE)
 ifeq ($(MAKECMDGOALS),python-test)					# if running pytest outside of test runner
     PYTHON_VARS_AFTER_PYTEST=-x -m 'not post_deployment' $(FILE)
 endif
@@ -23,7 +26,8 @@ K8S_CHART_PARAMS = \
 	--set secrets.api.sessions.key=$(SESSIONS_KEY) \
 	--set secrets.common.mongo.password=$(MONGO_PASSWORD) \
 	--set persistence.storageClass=bds1 \
-	--set ing.enabled=false
+	--set ing.enabled=false \
+	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
 K8S_TEST_IMAGE_TO_TEST = python:3.8-bullseye
 
 # Override pre for k8s-test: create requirements.txt in required place to be passed in to test runner (/tests)
