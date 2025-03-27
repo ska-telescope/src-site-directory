@@ -40,4 +40,7 @@ include:
   # OCI images build and publish
 - project: 'ska-telescope/templates-repository'
   file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'  # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  # Prevent two pipelines running simultaneously if a commit is made after an MR.
+- project: 'ska-telescope/templates-repository'
+  file: 'gitlab-ci/includes/rules.gitlab-ci.yml'
   # TBD: helm
