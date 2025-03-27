@@ -1,6 +1,3 @@
-# Global configuration variables
-PROJECT=ska-src-site-capabilities-api
-
 # SKAO Makefiles
 -include .make/base.mk
 -include .make/helm.mk

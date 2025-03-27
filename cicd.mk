@@ -1,6 +1,7 @@
 -include testing.mk
 
 # Bespoke configuration items for k8s deployment testing (k8s.mk)
+PROJECT=ska-src-site-capabilities-api
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 
 # Bespoke configuration items for pytest (python.mk, k8s.mk)

@@ -24,6 +24,9 @@ RUN poetry install --only main
 # create symlink at expected location for SKAO CICD Makefile + templates (k8s-test)
 RUN mkdir -p /app && ln -s /opt/ska-src-site-capabilities-api/src /app/src
 
+EXPOSE 8080
+EXPOSE 27017
+
 ENV API_ROOT_PATH ''
 ENV API_SCHEME ''
 ENV IAM_CLIENT_CONF_URL ''
@@ -40,5 +43,6 @@ ENV PERMISSIONS_API_URL ''
 ENV PERMISSIONS_SERVICE_NAME ''
 ENV PERMISSIONS_SERVICE_VERSION ''
 ENV SCHEMAS_RELPATH ''
+ENV DISABLE_AUTHENTICATION ''
 
 ENTRYPOINT ["/bin/bash", "etc/docker/init.sh"]

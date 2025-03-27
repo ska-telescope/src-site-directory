@@ -23,6 +23,7 @@ scripts = [
 name = 'ska-nexus'
 url = 'https://artefact.skao.int/repository/pypi-internal/simple'
 
+
 [[tool.poetry.source]]
 name = "PyPI-public"
 url = 'https://pypi.org/simple'
@@ -37,6 +38,7 @@ url = "https://gitlab.com/api/v4/projects/48060714/packages/pypi/simple"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0.0"
+ska-ser-logging = "*"
 Authlib = "1.2.0"
 fastapi = "0.87.0"
 fastapi-versionizer = "1.2.0"

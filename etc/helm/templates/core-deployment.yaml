@@ -4,6 +4,7 @@ metadata:
   labels:
     io.kompose.service: core
   name: core
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -17,6 +18,8 @@ spec:
     spec:
       containers:
       - env:
+        - name: KUBE_NAMESPACE                                # consumed in integration testing
+          value: {{ .Release.Namespace }}
         - name: API_ROOT_PATH
           value: {{ .Values.svc.api.root_path }}
         - name: API_SCHEME
@@ -64,7 +67,9 @@ spec:
               name: sessions-secret
               key: key
         - name: SCHEMAS_RELPATH
-          value: {{ .Values.svc.api.schemas_relpath}}
+          value: { { .Values.svc.api.schemas_relpath}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote }}
         image: {{ .Values.svc.api.image.registry }}/{{ .Values.svc.api.image.image }}:{{ .Values.svc.api.image.tag }}
         imagePullPolicy: Always
         name: ska-src-site-capabilities-api-core

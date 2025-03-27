@@ -4,6 +4,7 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -18,6 +19,8 @@ spec:
     spec:
       containers:
       - env:
+        - name: KUBE_NAMESPACE
+          value: {{.Release.Namespace}}
         - name: MONGO_INITDB_DATABASE
           value: {{ .Values.svc.common.mongo_database }}
         - name: MONGO_INITDB_ROOT_PASSWORD
@@ -31,6 +34,8 @@ spec:
           value: {{ .Values.svc.api.mongo_host }}
         - name: MONGO_PORT
           value: {{ .Values.svc.api.mongo_port | quote}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote }}
         image: mongo:5.0.15
         imagePullPolicy: ""
         name: ska-src-site-capabilities-api-mongo
