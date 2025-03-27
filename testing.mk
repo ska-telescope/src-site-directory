@@ -1,0 +1,6 @@
+# Configuration items for python linting and formatting targets (python.mk)
+PYTHON_LINE_LENGTH=120
+PYTHON_SWITCHES_FOR_ISORT=
+PYTHON_SWITCHES_FOR_BLACK=
+PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503
+PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503
