@@ -67,7 +67,7 @@ spec:
               name: sessions-secret
               key: key
         - name: SCHEMAS_RELPATH
-          value: { { .Values.svc.api.schemas_relpath}}
+          value: {{ .Values.svc.api.schemas_relpath }}
         - name: DISABLE_AUTHENTICATION
           value: {{ .Values.svc.api.disable_authentication | quote }}
         image: {{ .Values.svc.api.image.registry }}/{{ .Values.svc.api.image.image }}:{{ .Values.svc.api.image.tag }}
