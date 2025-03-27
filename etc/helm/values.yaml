@@ -1,7 +1,10 @@
-image_registry_url: registry.gitlab.com/ska-telescope/src/src-service-apis/ska-src-site-capabilities-api/api
-image_tag: site-capabilities.srcdev.skao.int
 svc:
   api:
+    image:
+      registry: artefact.skao.int
+      image: ska-src-site-capabilities-api
+      tag: 0.3.57
+      pullPolicy: Always
     root_path: /api
     scheme: https
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
@@ -40,12 +43,13 @@ secrets:
       existingSecret: false
 
 ing:
+  enabled: true
   api:
     host: site-capabilities.srcdev.skao.int
 
 persistence:
-  storageClass: csi-manila-cephfs-retain
+  storageClass: bds1
   existingClaim: ""
   enabled: true
   accessMode: ReadWriteOnce
-  size: 10Gi
+  size: 1Gi

@@ -65,7 +65,7 @@ spec:
               key: key
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath}}
-        image: {{ .Values.image_registry_url }}:{{ .Values.image_tag }}
+        image: {{ .Values.svc.api.image.registry }}/{{ .Values.svc.api.image.image }}:{{ .Values.svc.api.image.tag }}
         imagePullPolicy: Always
         name: ska-src-site-capabilities-api-core
         ports:

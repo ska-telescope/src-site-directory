@@ -21,6 +21,9 @@ WORKDIR /opt/ska-src-site-capabilities-api
 # install dependencies via poetry
 RUN poetry install --only main
 
+# create symlink at expected location for SKAO CICD Makefile + templates (k8s-test)
+RUN mkdir -p /app && ln -s /opt/ska-src-site-capabilities-api/src /app/src
+
 ENV API_ROOT_PATH ''
 ENV API_SCHEME ''
 ENV IAM_CLIENT_CONF_URL ''

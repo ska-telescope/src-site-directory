@@ -12,7 +12,7 @@ cache:
 
 stages:
 - lint
-- join-lint-reports
+- lint-post
 - build
 - test
 - publish
@@ -20,7 +20,7 @@ stages:
 - scan
 
 join_lint_reports:
-  stage: join-lint-reports
+  stage: lint-post
   tags:
     - k8srunner
   script:
@@ -30,14 +30,42 @@ join_lint_reports:
       - build/
     when: always
 
+# Standardised SKAO jobs
+# See https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
 include:
   # python formatting, linting and testing
-- project: 'ska-telescope/templates-repository'
-  file: 'gitlab-ci/includes/python.gitlab-ci.yml'     # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/python.gitlab-ci.yml'
   # docs
-- project: 'ska-telescope/templates-repository'
-  file: 'gitlab-ci/includes/docs.gitlab-ci.yml'       # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/docs.gitlab-ci.yml'
   # OCI images build and publish
-- project: 'ska-telescope/templates-repository'
-  file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'  # https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/
-  # TBD: helm
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
+  # helm chart linting
+  - project: 'ska-telescope/templates-repository'
+    file: gitlab-ci/includes/helm-chart-lint.gitlab-ci.yml
+  # helm chart publishing
+  - project: 'ska-telescope/templates-repository'
+    file: gitlab-ci/includes/helm-chart-publish.gitlab-ci.yml
+  # k8s
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
+  # badges
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
+
+# Overrides for SKAO jobs
+# See https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk
+k8s-test:
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+    ADDMARK: ""
+  before_script:
+    - echo "$CI_PROJECT_NAME"
+    - echo "$CI_COMMIT_SHORT_SHA"
+    - make k8s-namespace
+    - make k8s-namespace-credentials SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+    - make k8s-install-chart
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
