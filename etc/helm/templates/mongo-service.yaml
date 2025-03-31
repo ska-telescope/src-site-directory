@@ -4,6 +4,7 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: "27017"
@@ -11,5 +12,4 @@ spec:
     targetPort: 27017
   selector:
     io.kompose.service: mongo
-status:
-  loadBalancer: {}
+  type: LoadBalancer

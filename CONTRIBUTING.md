@@ -12,7 +12,7 @@ the code. Features can either be minor or major developments and can include pot
 1. Clone the repository locally
 
 ```bash
-git clone <site-capabilities-repository-url>
+git clone <ska-src-site-capabilities-api-url>
 ```
 
 2. Add submodules for make targets and variables
@@ -61,19 +61,30 @@ follows:
     ```
 
 8. Create a merge request against upstream main.
-   
-Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
-Package Registry.
+
+## Development tricks
 
 ### Bypassing AuthN/Z
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
+## Component testing
+
+CI component testing is conducted inside a k8s deployment environment. This deployment environment can be installed 
+locally via minikube/helm with:
+
+```bash
+ska-src-data-management-api$ minikube start
+ska-src-data-management-api$ make k8s-install-chart
+ska-src-data-management-api$ make k8s-test
+```
+
+Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
+
 ## Code formatting and linting
 
-Code formatting and linting can be assessed by running the `python-format` and `python-lint` Makefile targets inside a 
-virtual environment (venv). These targets are provided by the `.make` submodule. To use these targets, first initialise 
-and update this submodule:
+Operations for code formatting and linting are provided by the `python-format` and `python-lint` Makefile targets. 
+These targets are provided by the `.make` submodule. To use these targets, first initialise and update this submodule:
 
 ```bash
 ska-src-data-management-api$ git submodule init && git submodule update
