@@ -32,7 +32,7 @@
                         "srm": "storm",
                         "device_type": "",
                         "size_in_terabytes": 11,
-                        "identifier": "SKAOSRC",
+                        "name": "SKAOSRC",
                         "supported_protocols": [
                             {
                                 "prefix": "https",
@@ -44,13 +44,13 @@
                                 "id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                                 "type": "rse",
                                 "relative_path": "/deterministic",
-                                "identifier": "STFC_STORM"
+                                "name": "STFC_STORM"
                             },
                             {
                                 "id": "f62199c3-62ad-44ee-a6e0-dd34e891d423",
                                 "type": "rse",
                                 "relative_path": "/nondeterministic",
-                                "identifier": "STFC_STORM_ND"
+                                "name": "STFC_STORM_ND"
                             },
                             {
                                 "id": "f605dd74-7a43-40e5-9229-48845416e30a",
@@ -86,7 +86,7 @@
                                 "host": "jupyterhub.srcdev.skao.int",
                                 "port": 443,
                                 "path": "/",
-                                "identifier": "SKAO Jupyter hub",
+                                "name": "SKAO Jupyter hub",
                                 "enabled": true,
                                 "is_proxy": false
                             },
@@ -96,7 +96,7 @@
                                 "prefix": "http",
                                 "host": "localhost",
                                 "port": 8000,
-                                "identifier": "Tangerine local test JupyterHub",
+                                "name": "Tangerine local test JupyterHub",
                                 "enabled": true,
                                 "is_proxy": false
                             },
@@ -149,7 +149,7 @@
                                 "prefix": "https",
                                 "host": "gateway-test.srcdev.skao.int",
                                 "path": "/jupyterhub/",
-                                "identifier": "Tangerine (gateway-test) JupyterHUB",
+                                "name": "Tangerine (gateway-test) JupyterHUB",
                                 "enabled": true,
                                 "is_proxy": false
                             }
