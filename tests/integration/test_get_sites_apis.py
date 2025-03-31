@@ -45,9 +45,15 @@ def test_get_all_versions_sites(site_name):
     )
 
     response_data = response.json()
-    assert response_data[0]["version"] is not None
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        assert response_data[0]["version"] is not None
+    else:
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
+# authentication is required
 @pytest.mark.post_deployment
 def test_get_latest_version_sites():
     """Test method to get all versions for sites"""
@@ -56,4 +62,6 @@ def test_get_latest_version_sites():
     )
 
     response_data = response.json()
-    assert len(response_data) > 0
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        assert len(response_data) > 0

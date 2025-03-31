@@ -68,17 +68,66 @@ include:
 
 
 k8s-test:
+  rules:
+  - when: never
+
+
+stop-k8s-test:
+  rules:
+  - when: never
+
+
+k8s-test-api-with-disabled-auth:
+  extends:
+    - k8s-test
   variables:
-    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA'
-    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA"
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
     COUNT: 1
     PYTHON_TEST_COUNT: 1
     ADDMARK: ""
+    DISABLE_AUTH: 'yes'
   before_script:
-    - echo "$CI_PROJECT_NAME"
-    - echo "$CI_COMMIT_SHORT_SHA"
     - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
     - make k8s-install-chart
     - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
     - kubectl -n $KUBE_NAMESPACE get all
-    - kubectl -n $KUBE_NAMESPACE get services
+  rules:
+  - when: always
+
+
+stop-k8s-test-api-with-disabled-auth:
+  extends:
+    - stop-k8s-test
+  rules:
+  - when: manual
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth'
+
+
+k8s-test-api-with-enabled-auth:
+  extends:
+    - k8s-test
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+    COUNT: 1
+    PYTHON_TEST_COUNT: 1
+    ADDMARK: ""
+    DISABLE_AUTH: 'no'
+  before_script:
+    - make cred SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+    - make k8s-install-chart
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+    - kubectl -n $KUBE_NAMESPACE get all
+  rules:
+  - when: always
+
+
+stop-k8s-test-api-with-enabled-auth:
+  extends:
+    - stop-k8s-test
+  rules:
+  - when: manual
+  variables:
+    KUBE_NAMESPACE: 'ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth'

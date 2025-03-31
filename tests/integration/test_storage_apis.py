@@ -21,10 +21,15 @@ def test_get_list(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}"
     )
     response_data = response.json()
-    if api_name == "storage-areas":
-        api_name = api_name.replace("-", "_")
-    for item in response_data:
-        assert item[api_name] is not None
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        if api_name == "storage-areas":
+            api_name = api_name.replace("-", "_")
+        for item in response_data:
+            assert item[api_name] is not None
+    else:
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -35,7 +40,12 @@ def test_get_list_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{id}"
     )
     response_data = response.json()
-    assert response_data["id"] == id
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        assert response_data["id"] == id
+    else:
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.parametrize(
@@ -50,16 +60,23 @@ def test_get_list_failure(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/{id}"
     )
     response_data = response.json()
-    if api_name == "storage-areas":
+    if os.getenv("DISABLE_AUTH") == "yes":
         assert (
-            f"Storage area with identifier '{id}' could not be found"
-            in response_data["detail"]
-        )
+            response.status_code == 404
+        )  # Request not found for wrong storage id
+        if api_name == "storage-areas":
+            assert (
+                f"Storage area with identifier '{id}' could not be found"
+                in response_data["detail"]
+            )
+        else:
+            assert (
+                f"Storage with identifier '{id}' could not be found"
+                in response_data["detail"]
+            )
     else:
-        assert (
-            f"Storage with identifier '{id}' could not be found"
-            in response_data["detail"]
-        )
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.parametrize(
@@ -75,6 +92,7 @@ def test_get_list_in_grafana_format(api_name):
     response_data = response.json()
     for item in response_data:
         storage_format = item.keys()
+        assert response.status_code == 200
         assert list(storage_format) == ["key", "latitude", "longitude", "name"]
 
 
@@ -89,4 +107,5 @@ def test_get_list_in_topojson_format(api_name):
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/{api_name}/topojson"
     )
     response_data = response.json()
+    assert response.status_code == 200
     assert response_data["type"] == "Topology"

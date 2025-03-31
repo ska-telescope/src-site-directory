@@ -18,6 +18,7 @@ def test_list_schemas():
     )
 
     response_data = response.json()
+    assert response.status_code == 200
     assert response_data == [
         "compute",
         "country",
@@ -41,4 +42,5 @@ def test_get_schema(schema_str):
     response_data = response.json()
     schema_str = schema_str.title()
     # scope to increase assertion here
+    assert response.status_code == 200
     assert schema_str in response_data["description"]

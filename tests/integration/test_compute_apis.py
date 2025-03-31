@@ -17,15 +17,20 @@ def test_list_all_computes():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute"
     )
     response_data = response.json()
-    for item in response_data:
-        assert item["site_name"] in [
-            "CNSRC",
-            "UKSRC",
-            "SKAOSRC",
-            "ESPSRC",
-            "CANSRC",
-        ]
-        assert item["compute"][0]["id"] != ""
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        for item in response_data:
+            assert item["site_name"] in [
+                "CNSRC",
+                "UKSRC",
+                "SKAOSRC",
+                "ESPSRC",
+                "CANSRC",
+            ]
+            assert item["compute"][0]["id"] != ""
+    else:
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -36,7 +41,12 @@ def test_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    assert response_data["id"] == compute_id
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert response.status_code == 200
+        assert response_data["id"] == compute_id
+    else:
+        assert response.status_code == 403
+        assert "Not authenticated" in response_data["detail"]
 
 
 @pytest.mark.post_deployment
@@ -47,7 +57,16 @@ def test_fail_to_get_compute_from_id():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}"
     )
     response_data = response.json()
-    assert (
-        f"Compute element with identifier '{compute_id}' could not be found"
-        in response_data["detail"]
-    )
+    if os.getenv("DISABLE_AUTH") == "yes":
+        assert (
+            response.status_code == 404
+        )  # Request not found for wrong compute_id
+        assert (
+            f"Compute element with identifier '{compute_id}' could not be found"
+            in response_data["detail"]
+        )
+    else:
+        assert (
+            response.status_code == 403
+        )  # Request forbidden for unauthorised user
+        assert "Not authenticated" in response_data["detail"]
