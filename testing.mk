@@ -24,7 +24,7 @@ endif
 k8s-pre-test:
 	@poetry export --without-hashes --with dev --format requirements.txt --output tests/requirements.txt
 
-# Bespoke base chart configuration for deployment in any context (k8s.mk)
+# Chart configuration for deployment in any context (k8s.mk)
 K8S_CHART_PARAMS = \
 	--set secrets.api.iam_client.id=$(API_IAM_CLIENT_ID) \
 	--set secrets.api.iam_client.secret=$(API_IAM_CLIENT_SECRET) \
