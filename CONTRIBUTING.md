@@ -7,6 +7,20 @@ Contributions to this API are welcome.
 A contribution can be either be a patch or a minor/major feature. Patches include bugfixes and small changes to 
 the code. Features can either be minor or major developments and can include potentially disruptive changes.
 
+## Development environment
+
+1. Clone the repository locally
+
+```bash
+git clone <site-capabilities-repository-url>
+```
+
+2. Add submodules for make targets and variables
+
+```bash
+ska-src-data-management-api$ git submodule update --recursive --init
+```
+
 ## Development cycle
 
 Makefile targets have been included to facilitate easier and more consistent development. The general recipe is as 
@@ -50,8 +64,6 @@ follows:
    
 Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
 Package Registry.
-
-## Development tips
 
 ### Bypassing AuthN/Z
 
