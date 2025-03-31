@@ -1,13 +1,11 @@
-.PHONY: docs
+CLUSTER_DOMAIN=cluster.local
 
-## Bespoke chart configuration (k8s.mk)
-K8S_CHART_PARAMS = \
+## Chart configuration for deployment in dev context (k8s.mk)
+K8S_CHART_PARAMS += \
+	--set svc.api.image.image=$(PROJECT_NAME) \
+	--set svc.api.image.pullPolicy=Never \
 	--set svc.api.image.tag=$(VERSION) \
-	--set secrets.api.iam_client.id=$(IAM_CLIENT_ID) \
-	--set secrets.api.iam_client.secret=$(IAM_CLIENT_SECRET) \
-	--set secrets.api.sessions.key=$(SESSIONS_KEY) \
-	--set secrets.common.mongo.password=$(MONGO_PASSWORD) \
-K8S_TEST_IMAGE_TO_TEST ?= $(CAR_OCI_REGISTRY_HOST)/$(PROJECT):$(VERSION)
+	--set persistence.storageClass=standard
 
 # Bumps a release according to the branch name (release.mk)
 bump-and-commit:
@@ -34,6 +32,14 @@ code-samples:
 docs:
 	@cd docs && make clean && make html
 
+# Override pre for k8s-install-chart (k8s.mk): load the deployment image into minikube first
+k8s-pre-install-chart: oci-build
+	minikube image load $(CAR_OCI_REGISTRY_HOST)/$(NAME):$(VERSION)
+
+# Override post for k8s-test (k8s.mk): remove the generated requirements file
+k8s-post-test:
+	rm tests/requirements.txt
+
 major-branch:
 	@test -n "$(NAME)"
 	@echo "making major branch \"$(NAME)\""
@@ -45,6 +51,10 @@ minor-branch:
 	@echo "making minor branch \"$(NAME)\""
 	git branch minor-$(NAME)
 	git checkout minor-$(NAME)
+
+# Override pre for oci-build (oci.mk): skip pushing the image to the registry as only used in minikube context
+oci-pre-build:
+	export OCI_SKIP_PUSH=true
 
 patch-branch:
 	@test -n "$(NAME)"
