@@ -6,7 +6,6 @@ import os
 import pathlib
 import tempfile
 import time
-import urllib
 from datetime import datetime
 from typing import Union
 
