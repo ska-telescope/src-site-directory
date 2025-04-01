@@ -67,7 +67,7 @@ stop-k8s-test:
   rules:
   - when: never
 
-# 2) Create templates that extend *k8s-test jobs.
+# 2) Create templates that extend *k8s-test jobs with some common parameters.
 .k8s-test-template:
   extends:
     - k8s-test

@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- SKAO CI/CD component testing framework (credit Shraddha B.)
-- Streamlined image (from debian bullseye to buster + removed MongoDB server installation + removed Dockerfile layers)
-- Added basic component tests
+- SKAO CI/CD component testing framework (credit Shraddha B.).
+- Streamlined image (from debian bullseye to buster + removed MongoDB server installation + removed Dockerfile layers).
+- Added basic component tests with and without auth (credit Shraddha B.).
+- Fixed code-samples target and added new code samples to routes.
 
 ## [0.3.56]
 

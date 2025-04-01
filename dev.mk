@@ -1,7 +1,7 @@
 CLUSTER_DOMAIN=cluster.local
 
-## Chart configuration for deployment in dev context (k8s.mk)
-K8S_CHART_PARAMS += \
+## Bespoke chart configuration for deployment in dev context (k8s.mk)
+K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
 	--set svc.api.image.image=$(PROJECT_NAME) \
 	--set svc.api.image.pullPolicy=Never \
 	--set svc.api.image.tag=$(VERSION) \
@@ -32,6 +32,9 @@ code-samples:
 docs:
 	@cd docs && make clean && make html
 
+fix-style:
+	@poetry shell && poetry install && make python-format && make python-lint
+
 # Override pre for k8s-install-chart (k8s.mk): load the deployment image into minikube first
 k8s-pre-install-chart: oci-build
 	minikube image load $(CAR_OCI_REGISTRY_HOST)/$(NAME):$(VERSION)
@@ -39,6 +42,18 @@ k8s-pre-install-chart: oci-build
 # Override post for k8s-test (k8s.mk): remove the generated requirements file
 k8s-post-test:
 	rm tests/requirements.txt
+
+k8s-test-all:
+	@echo "Running tests with authentication DISABLED..."
+	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=yes"
+	# can't just override PYTHON_VARS_BEFORE_PYTEST as this will already have been evaluated in the assignment of
+    # K8S_TEST_TEST_COMMAND, which is the command ran directly in the test runner, so have to amend command directly.
+	@K8S_TEST_TEST_COMMAND="DISABLE_AUTHENTICATION=yes $${K8S_TEST_TEST_COMMAND}" && make k8s-test
+	@echo "Running tests with authentication ENABLED..."
+	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=no"
+	# can't just override PYTHON_VARS_BEFORE_PYTEST as this will already have been evaluated in the assignment of
+    # K8S_TEST_TEST_COMMAND, which is the command ran directly in the test runner, so have to amend command directly.
+	@K8S_TEST_TEST_COMMAND="DISABLE_AUTHENTICATION=no $${K8S_TEST_TEST_COMMAND}" && make k8s-test
 
 major-branch:
 	@test -n "$(NAME)"

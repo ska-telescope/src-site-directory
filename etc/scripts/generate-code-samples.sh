@@ -12,7 +12,8 @@ mv openapi.json.tmp openapi.json
 touch openapi-with-snippets.json
 docker run -v ${PWD}/openapi.json:/tmp/openapi.json -v ${PWD}/openapi-with-snippets.json:/tmp/openapi-with-snippets.json --network host node:latest sh -c " \
   cd /tmp && npm install snippet-enricher-cli &&
-  ./node_modules/.bin/snippet-enricher-cli --input=openapi.json --targets=\"python_requests,shell_curl,go_native,node_native\" > openapi-with-snippets.json
+  ./node_modules/.bin/snippet-enricher-cli --input=openapi.json --targets=\"python_requests,shell_curl,go_native,node_native\" > enriched.json && \
+  cp enriched.json /tmp/openapi-with-snippets.json
 "
 sed -i 's/Shell + Curl/shell/g' openapi-with-snippets.json
 sed -i 's/Node + Native/js/g' openapi-with-snippets.json
