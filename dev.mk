@@ -43,17 +43,19 @@ k8s-pre-install-chart: oci-build
 k8s-post-test:
 	rm tests/requirements.txt
 
-k8s-test-all:
-	@echo "Running tests with authentication DISABLED..."
-	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=yes"
-	# can't just override PYTHON_VARS_BEFORE_PYTEST as this will already have been evaluated in the assignment of
-    # K8S_TEST_TEST_COMMAND, which is the command ran directly in the test runner, so have to amend command directly.
-	@K8S_TEST_TEST_COMMAND="DISABLE_AUTHENTICATION=yes $${K8S_TEST_TEST_COMMAND}" && make k8s-test
+k8s-test-auth:
 	@echo "Running tests with authentication ENABLED..."
 	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=no"
 	# can't just override PYTHON_VARS_BEFORE_PYTEST as this will already have been evaluated in the assignment of
     # K8S_TEST_TEST_COMMAND, which is the command ran directly in the test runner, so have to amend command directly.
-	@K8S_TEST_TEST_COMMAND="DISABLE_AUTHENTICATION=no $${K8S_TEST_TEST_COMMAND}" && make k8s-test
+	@K8S_TEST_TEST_COMMAND=$$(echo "$$K8S_TEST_TEST_COMMAND" | sed 's/DISABLE_AUTHENTICATION=[^ ]*/DISABLE_AUTHENTICATION=no/') && export K8S_TEST_TEST_COMMAND && make k8s-test
+
+k8s-test-noauth:
+	@echo "Running tests with authentication DISABLED..."
+	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=yes"
+	# can't just override PYTHON_VARS_BEFORE_PYTEST as this will already have been evaluated in the assignment of
+    # K8S_TEST_TEST_COMMAND, which is the command ran directly in the test runner, so have to amend command directly.
+	@K8S_TEST_TEST_COMMAND=$$(echo "$$K8S_TEST_TEST_COMMAND" | sed 's/DISABLE_AUTHENTICATION=[^ ]*/DISABLE_AUTHENTICATION=yes/') && export K8S_TEST_TEST_COMMAND && make k8s-test
 
 major-branch:
 	@test -n "$(NAME)"

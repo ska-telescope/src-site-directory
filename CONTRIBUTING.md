@@ -81,10 +81,11 @@ ska-src-data-management-api$ make k8s-test
 
 Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
 
-To run tests with both authentication enabled and disabled:
+To run these tests locally with both authentication enabled and disabled respectively:
 
 ```bash
-ska-src-data-management-api$ make k8s-test-all
+ska-src-data-management-api$ make k8s-test-auth
+ska-src-data-management-api$ make k8s-test-noauth
 ```
 
 ## Code formatting and linting
