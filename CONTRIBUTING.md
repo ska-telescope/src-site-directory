@@ -15,7 +15,7 @@ the code. Features can either be minor or major developments and can include pot
 git clone <ska-src-site-capabilities-api-url>
 ```
 
-2. Add submodules for make targets and variables
+2. Initialise submodules for standard make targets and variables
 
 ```bash
 ska-src-data-management-api$ git submodule update --recursive --init
@@ -81,38 +81,19 @@ ska-src-data-management-api$ make k8s-test
 
 Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
 
+To run these tests locally with both authentication enabled and disabled respectively:
+
+```bash
+ska-src-data-management-api$ make k8s-test-auth
+ska-src-data-management-api$ make k8s-test-noauth
+```
+
 ## Code formatting and linting
 
-Operations for code formatting and linting are provided by the `python-format` and `python-lint` Makefile targets. 
-These targets are provided by the `.make` submodule. To use these targets, first initialise and update this submodule:
+Operations for code formatting and linting are provided by the `python-format` and `python-lint` Makefile targets 
+provided by the `.make` submodule.
 
-```bash
-ska-src-data-management-api$ git submodule init && git submodule update
-```
-
-then create a virtual environment:
-
-```bash
-ska-src-data-management-api$ poetry shell
-```
-
-and install all the dependencies listed in `pyproject.toml`:
-
-```bash
-(venv)ska-src-data-management-api$ poetry install
-```
-
-To run code formatting checks:
-
-```bash
-ska-src-data-management-api$ make python-format
-```
-
-To run linting:
-
-```bash
-ska-src-data-management-api$ make python-lint
-```
+To run both formatting and linting, run the Makefile target `fix-style`.
 
 ## Documentation
 

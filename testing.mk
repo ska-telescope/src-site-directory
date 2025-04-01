@@ -10,9 +10,9 @@ PROJECT=ska-src-site-capabilities-api
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 K8S_TEST_IMAGE_TO_TEST=python:3.8-slim-buster	# the image used by the test runner inside the deployment environment
 
-# Configuration items for pytest (python.mk, k8s.mk)
+# Common configuration items for pytest (python.mk, k8s.mk)
 # The following sets the expected location of the package inside CI & sets the required variables for component testing.
-PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KUBE_NAMESPACE=$(KUBE_NAMESPACE)
+PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KUBE_NAMESPACE=$(KUBE_NAMESPACE) DISABLE_AUTHENTICATION=$(DISABLE_AUTHENTICATION)
 ifeq ($(MAKECMDGOALS),python-test)					# if running pytest outside of deployment test runner
     PYTHON_VARS_AFTER_PYTEST=-x -m 'not post_deployment' $(FILE)
 endif
@@ -24,8 +24,8 @@ endif
 k8s-pre-test:
 	@poetry export --without-hashes --with dev --format requirements.txt --output tests/requirements.txt
 
-# Chart configuration for deployment in any context (k8s.mk)
-K8S_CHART_PARAMS = \
+# Common chart configuration for deployment in any context (k8s.mk)
+K8S_CHART_COMMON_PARAMS = \
 	--set secrets.api.iam_client.id=$(API_IAM_CLIENT_ID) \
 	--set secrets.api.iam_client.secret=$(API_IAM_CLIENT_SECRET) \
 	--set secrets.api.sessions.key=$(SESSIONS_SECRET_KEY) \

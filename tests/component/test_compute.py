@@ -14,4 +14,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 def test_list_compute():
     """Test to list all compute."""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute")  # noqa: E231
-    assert response.status_code == 403
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+    else:
+        assert response.status_code == 403

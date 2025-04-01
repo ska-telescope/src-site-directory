@@ -1,0 +1,11 @@
+import requests
+
+url = "{{ api_server_url }}/nodes/{node_name}"
+
+querystring = {"node_version":"SOME_STRING_VALUE"}
+
+headers = {"Authorization": "Bearer REPLACE_BEARER_TOKEN"}
+
+response = requests.request("GET", url, headers=headers, params=querystring)
+
+print(response.text)
