@@ -1,5 +1,7 @@
 # Developer guide
 
+[TOC]
+
 ## Getting started
 
 Contributions to this API are welcome. 
@@ -64,14 +66,37 @@ follows:
 
 ## Development tricks
 
+### Using poetry
+
+1. To work inside a poetry shell:
+
+```bash
+ska-src-data-management-api$ poetry shell
+```
+
+2. To install dependencies from `pyproject.toml`:
+
+```bash
+(venv)ska-src-data-management-api$ poetry install
+```
+
 ### Bypassing AuthN/Z
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
-## Component testing
+## Testing
 
-CI component testing is conducted inside a k8s deployment environment. This deployment environment can be installed 
-locally via minikube/helm with:
+Testing is done via the `pytest` module, with code coverage provided by the `pytest-cov` module.
+
+### Component testing
+
+Component testing is conducted inside a k8s deployment environment using mocked responses to external services.
+
+The component tests implemented for this repository are stored under the `/tests/component` directory. These 
+component tests are executed during the ``test`` stage of the CI/CD pipeline under the
+``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth`` jobs.
+
+For local testing, an environment can be installed via minikube/helm with:
 
 ```bash
 ska-src-data-management-api$ minikube start
@@ -81,19 +106,31 @@ ska-src-data-management-api$ make k8s-test
 
 Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
 
-To run these tests locally with both authentication enabled and disabled respectively:
+To run the tests locally with both authentication enabled and disabled, respectively:
 
 ```bash
 ska-src-data-management-api$ make k8s-test-auth
 ska-src-data-management-api$ make k8s-test-noauth
 ```
 
-## Code formatting and linting
+## Code quality
 
-Operations for code formatting and linting are provided by the `python-format` and `python-lint` Makefile targets 
-provided by the `.make` submodule.
+This repository uses the following libraries for code quality:
 
-To run both formatting and linting, run the Makefile target `fix-style`.
+- ``isort`` for sorting imports,
+- ``black`` to enforce a consistent coding style,
+- ``flake8`` to check code base against coding style (PEP8), and
+- ``pylint`` to look for programming errors and code smells
+
+### Linting
+
+Operations for code linting are performed by the `python-lint` Makefile target provided by the `.make` submodule. This 
+should be run inside a poetry shell.
+
+### Formatting
+
+Operations for code formatting are performed by the `python-format` Makefile target provided by the `.make` submodule. This 
+should be run inside a poetry shell.
 
 ## Documentation
 

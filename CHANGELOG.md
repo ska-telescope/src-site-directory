@@ -9,9 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Added
+
 - SKAO CI/CD component testing framework (credit Shraddha B.).
+  - Implementation of secrets for mongodb and iam credentials. 
+  - Updates in templates to utilise secrets as helm variables.
+  - Use of template repository for make targets to install and uninstall chart.
+  - Deployment setup to install site capabilities chart on pipeline in unique namespace. 
+  - Namespace based on each commit.
+  - Jobs to destroy the created namespace manually.
+  - Implementation of component tests.
+  - Test-runner pod setup to execute newly implemented tests.
+  - Implementation of separate jobs with separate namespace w.r.t enabled and disabled authentication.
+  - Documentation for readthedocs for new approach.
+  - Helm configuration changes for gitlab pipeline to release/publish the chart on CAR (Central Artifact Repository).
 - Streamlined image (from debian bullseye to buster + removed MongoDB server installation + removed Dockerfile layers).
-- Added basic component tests with and without auth (credit Shraddha B.).
 - Fixed code-samples target and added new code samples to routes.
 
 ## [0.3.56]
@@ -107,25 +119,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- helm-install target (for now).
 
-## [0.3.52]
 
-### Added
 
-- svc.api.iam_client_id to client-credentials secret.
-- Sessions secret key as secret.
-
-### Changed
-
-- CONTRIBUTING docs to reference how to initialise .make repo.
-- Author in pyproject.toml to Rob B.
-- conf.py now takes version and release from VERSION file.
-- values.yaml to be backwards compatible with existing methodology, allowing secret to be specified in yaml.
-- Single secret for both iam/mongo to be two separate ones (separation of concerns).
-
-### Removed
-
-- Duplication of CONTRIBUTING in docs by making include to base of repo.
-- conf.py duplicate directives, e.g. exclude_patterns.
-- Reference to SRCNet in class SiteCapabilitiesClient docstrings (in case of service being used outside of SRCNet context).
