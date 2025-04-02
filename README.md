@@ -155,5 +155,19 @@ There is also a helm chart for deployment onto a k8s cluster.
 Edit the `.env.template` file accordingly and rename to `.env`, then:
 
 ```bash
-eng@ubuntu:~/SKAO/ska-src-site-capabilities-api$ docker-compose up
+ska-src-site-capabilities-api$ docker-compose up
+```
+
+### Example via Helm
+
+First build the docker image locally:
+
+```bash
+ska-src-site-capabilities-api$ make oci-image-build
+```
+
+Then install the chart (assumes Minikube):
+
+```bash
+ska-src-site-capabilities-api$ make k8s-install-chart
 ```
