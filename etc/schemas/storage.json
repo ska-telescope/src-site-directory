@@ -63,9 +63,9 @@
       "default": null,
       "required": true
     },
-    "identifier": {
+    "name": {
       "type": "string",
-      "title": "Identifier (if applicable)",
+      "title": "name (if applicable)",
       "default": null
     },
     "supported_protocols": {

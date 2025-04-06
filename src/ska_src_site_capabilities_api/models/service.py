@@ -40,7 +40,7 @@ class Service(BaseModel):
     host: str = Field(examples=["rucio.srcdev.skao.int"])
     port: NonNegativeInt = Field(examples=[443])
     path: str = Field(examples=["/path/to/service"])
-    identifier: str = Field(examples=["SKAOSRC"])
+    name: str = Field(examples=["SKAOSRC"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])

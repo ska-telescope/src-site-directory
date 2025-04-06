@@ -51,9 +51,9 @@
       "title": "Description",
       "default": null
     },
-    "identifier": {
+    "name": {
       "type": "string",
-      "title": "Identifier (if applicable)",
+      "title": "name (if applicable)",
       "default": null
     },
     "middleware_version": {

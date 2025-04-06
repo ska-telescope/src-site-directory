@@ -30,9 +30,9 @@
       "default": null,
       "required": false
     },
-    "identifier": {
+    "name": {
       "type": "string",
-      "title": "Identifier (if applicable)",
+      "title": "name (if applicable)",
       "default": null
     },
     "tier": {

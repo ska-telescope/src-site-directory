@@ -58,9 +58,9 @@
       "title": "Associated storage area ID (if applicable)",
       "default": null
     },
-    "identifier": {
+    "name": {
       "type": "string",
-      "title": "Identifier (if applicable)",
+      "title": "name (if applicable)",
       "default": null
     },
     "downtime": {
