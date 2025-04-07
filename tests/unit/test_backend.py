@@ -181,3 +181,70 @@ def test_list_storage_areas_with_site_name_filter(mock_backend):
     # Test the list_storage_areas function with site_name filter
     storage_areas = mock_backend.list_storage_areas(only_site_names="SKAOSRC_B")
     assert len(storage_areas) == 1
+
+
+def test_list_storages_with_name(mock_backend):
+    # Test list_storages has the "name" key
+    assert all("name" in storage for storage in mock_backend.list_storages())
+
+
+def test_list_storage_areas_with_name(mock_backend):
+    # Test the "name" in storages areas
+    storage_areas = mock_backend.list_storage_areas()
+    print("Storage areas contains:", storage_areas)
+    result = [area for area in storage_areas if area.get("name") == "STFC_STORM_ND"]
+    print("Result:", result)
+    assert len(result) == 1
+
+
+@pytest.mark.backend
+def test_list_compute_local_services_with_name(mock_backend):
+    # Test for "name" in computes associated_local_services
+    computes = mock_backend.list_compute()
+    print("Compute storages contain:", computes)
+    result = [
+        service for compute in computes
+        for service in compute.get("associated_local_services", [])
+        if service.get("name") == "SKAO Jupyter hub"
+    ]
+    print("Result:", result)
+    assert len(result) == 1
+
+
+@pytest.mark.backend
+def test_compute_associated_local_services_with_jupyterhub_name(mock_backend):
+    # Test associated_local_services in compute has the "name" "SKAO Jupyter hub"
+    computes = mock_backend.list_compute()
+    result = [
+        service for compute in computes
+        for service in compute.get("associated_local_services", [])
+        if service.get("name") == "SKAO Jupyter hub"
+    ]
+    assert len(result) == 1
+
+
+@pytest.mark.backend
+def test_compute_associated_local_services_with_tangerine_name(mock_backend):
+    # Test associated_local_services in compute has the "dentifier" "Tangerine local test JupyterHub"
+    computes = mock_backend.list_compute()
+    result = [
+        service for compute in computes
+        for service in compute.get("associated_local_services", [])
+        if service.get("name") == "Tangerine local test JupyterHub"
+    ]
+    assert len(result) == 1
+
+
+@pytest.mark.backend
+def test_list_compute_with_name(mock_backend):
+    # Test for 'name' in compute
+    computes = mock_backend.list_compute()
+    print("Computes output:", computes)
+
+    result = [
+        compute for compute in computes
+        if compute.get("name") == "SKAOSRC"
+    ]
+    print("Result:", result)
+    assert len(result) == 1
+
