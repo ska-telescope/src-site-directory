@@ -203,7 +203,8 @@ def test_list_compute_local_services_with_name(mock_backend):
     computes = mock_backend.list_compute()
     print("Compute storages contain:", computes)
     result = [
-        service for compute in computes
+        service
+        for compute in computes
         for service in compute.get("associated_local_services", [])
         if service.get("name") == "SKAO Jupyter hub"
     ]
@@ -216,7 +217,8 @@ def test_compute_associated_local_services_with_jupyterhub_name(mock_backend):
     # Test associated_local_services in compute has the "name" "SKAO Jupyter hub"
     computes = mock_backend.list_compute()
     result = [
-        service for compute in computes
+        service
+        for compute in computes
         for service in compute.get("associated_local_services", [])
         if service.get("name") == "SKAO Jupyter hub"
     ]
@@ -228,7 +230,8 @@ def test_compute_associated_local_services_with_tangerine_name(mock_backend):
     # Test associated_local_services in compute has the "dentifier" "Tangerine local test JupyterHub"
     computes = mock_backend.list_compute()
     result = [
-        service for compute in computes
+        service
+        for compute in computes
         for service in compute.get("associated_local_services", [])
         if service.get("name") == "Tangerine local test JupyterHub"
     ]
@@ -241,10 +244,6 @@ def test_list_compute_with_name(mock_backend):
     computes = mock_backend.list_compute()
     print("Computes output:", computes)
 
-    result = [
-        compute for compute in computes
-        if compute.get("name") == "SKAOSRC"
-    ]
+    result = [compute for compute in computes if compute.get("name") == "SKAOSRC"]
     print("Result:", result)
     assert len(result) == 1
-
