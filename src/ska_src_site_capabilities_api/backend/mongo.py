@@ -1,79 +1,9 @@
-from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from functools import wraps
 
 import dateutil.parser
 from pymongo import MongoClient
 
-
-class Backend(ABC):
-    """Backend API abstract base class."""
-
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def add_edit_node(self, node_values):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_compute(self, compute_id):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_node(self, node_name, node_version):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_service(self, service_id):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_site(self, site_id):
-        raise NotImplementedError
-
-    def get_site_from_names(self, node_name, node_version, site_name):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_storage(self, storage_id):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_storage_area(self, storage_area_id):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_compute(self, only_node_names, only_site_names, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_nodes(self, include_archived, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_services(self, only_node_names, only_site_names, only_service_types, only_service_scope, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_service_types_from_schema(self, schema):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_sites(self, only_node_names, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_storages(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_storage_areas(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
-        raise NotImplementedError
-
-    @abstractmethod
-    def list_storage_area_types_from_schema(self, schema):
-        raise NotImplementedError
+from ska_src_site_capabilities_api.backend.backend import Backend
 
 
 class MongoBackend(Backend):
@@ -360,8 +290,8 @@ class MongoBackend(Backend):
                         {
                             "type": "Point",
                             "coordinates": [
-                                storage.get("longitude"),
-                                storage.get("latitude"),
+                                site.get("longitude"),
+                                site.get("latitude"),
                             ],
                             "properties": {"name": storage.get("identifier")},
                         }
@@ -370,8 +300,8 @@ class MongoBackend(Backend):
                     response.append(
                         {
                             "key": storage.get("identifier"),
-                            "latitude": storage["latitude"],
-                            "longitude": storage["longitude"],
+                            "latitude": site["latitude"],
+                            "longitude": site["longitude"],
                             "name": storage.get("identifier"),
                         }
                     )
@@ -399,15 +329,20 @@ class MongoBackend(Backend):
         for storage in self.list_storages(
             only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
         ):
+            parent_storage = self.get_site_from_names(
+                node_name=storage.get("parent_node_name"),
+                node_version="latest",
+                site_name=storage.get("parent_site_name"),
+            )
+            site_latitude = parent_storage.get("latitude")
+            site_longitude = parent_storage.get("longitude")
             for storage_area in storage.get("areas", []):
                 if topojson:
+                    print()
                     response["objects"]["sites"]["geometries"].append(
                         {
                             "type": "Point",
-                            "coordinates": [
-                                storage.get("longitude"),
-                                storage.get("latitude"),
-                            ],
+                            "coordinates": [site_longitude, site_latitude],
                             "properties": {"name": storage_area.get("identifier")},
                         }
                     )
@@ -415,8 +350,8 @@ class MongoBackend(Backend):
                     response.append(
                         {
                             "key": storage_area.get("identifier"),
-                            "latitude": storage["latitude"],
-                            "longitude": storage["longitude"],
+                            "latitude": site_latitude,
+                            "longitude": site_longitude,
                             "name": storage_area.get("identifier"),
                         }
                     )

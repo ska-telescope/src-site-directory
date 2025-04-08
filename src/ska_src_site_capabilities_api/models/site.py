@@ -21,6 +21,8 @@ class Site(BaseModel):
     comments: str = Field(examples=["Some version comments"])
     description: str = Field(examples=["Some description"])
     country: str = Field(examples=["GB"])
+    latitude: float = Field(examples=[51.4964])
+    longitude: float = Field(examples=[-0.1224])
     primary_contact_email: str = Field(Examples=["someone1@email.com"])
     secondary_contact_email: str = Field(Examples=["someone2@email.com"])
     compute: List[Compute]
