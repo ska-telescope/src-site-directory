@@ -21,18 +21,6 @@
       "default": null,
       "required": true
     },
-    "latitude": {
-      "type": "number",
-      "title": "Latitude",
-      "default": null,
-      "required": true
-    },
-    "longitude": {
-      "type": "number",
-      "title": "Longitude",
-      "default": null,
-      "required": true
-    },
     "srm": {
       "type": "radios",
       "title": "SRM",

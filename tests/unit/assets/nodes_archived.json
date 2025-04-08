@@ -27,8 +27,6 @@
                         "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
                         "host": "srcdev.skatelescope.org",
                         "base_path": "/storm/sa",
-                        "latitude": 51.4964,
-                        "longitude": -0.1224,
                         "srm": "storm",
                         "device_type": "",
                         "size_in_terabytes": 11,
@@ -63,8 +61,6 @@
                 "compute": [
                     {
                         "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
-                        "latitude": 51.4964,
-                        "longitude": -0.1224,
                         "hardware_type": [
                             "container",
                             "VM"
