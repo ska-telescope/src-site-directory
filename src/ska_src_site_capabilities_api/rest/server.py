@@ -58,7 +58,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True  # if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
+DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #

@@ -27,7 +27,7 @@ bump-and-commit:
 	'
 
 code-samples:
-	@cd etc/scripts && bash generate-code-samples.sh
+	@cd tools && bash generate-code-samples.sh
 
 docs:
 	@cd docs && make clean && make html
