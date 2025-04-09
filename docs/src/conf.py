@@ -15,8 +15,8 @@ sys.path.insert(2, os.path.abspath("../../tests"))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'ska-src-site-capabilities-api'
-copyright = '2024, Rob Barnsley'
-author = 'Rob Barnsley'
+copyright = '2024, SKAO'
+author = 'Rob Barnsley, Shraddha Bajare'
 
 # The short X.Y version
 pyproject = toml.load('../../pyproject.toml')
@@ -45,16 +45,16 @@ autodoc_typehints = "none"
 # The master toctree document.
 master_doc = "index"
 
-
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = 'ska_ser_sphinx_theme'
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "SKASRCSiteCapabilitiesAPIdoc"
+
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -71,9 +71,10 @@ latex_documents = [
 source_suffix = ['.rst']
 
 # -- Options for apidoc ------------------------------------------------------
+
 autoapi_dirs = ['../../src/ska_src_site_capabilities_api']
 autoapi_member_order = 'alphabetical'
-autoapi_options = ['members', 'undoc-members', 'private-members', 'show-inheritance', 
+autoapi_options = ['members', 'undoc-members', 'private-members', 'show-inheritance',
         'show-inheritance-diagram', 'show-module-summary', 'special-members', 'imported-members']
 
 # -- Options for plantuml ----------------------------------------------------

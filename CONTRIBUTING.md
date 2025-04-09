@@ -1,5 +1,7 @@
 # Developer guide
 
+[TOC]
+
 ## Getting started
 
 Contributions to this API are welcome. 
@@ -12,10 +14,10 @@ the code. Features can either be minor or major developments and can include pot
 1. Clone the repository locally
 
 ```bash
-git clone <site-capabilities-repository-url>
+git clone <ska-src-site-capabilities-api-url>
 ```
 
-2. Add submodules for make targets and variables
+2. Initialise submodules for standard make targets and variables
 
 ```bash
 ska-src-data-management-api$ git submodule update --recursive --init
@@ -61,47 +63,74 @@ follows:
     ```
 
 8. Create a merge request against upstream main.
-   
-Note that the CI pipeline will fail if python packages with the same semantic version are committed to the GitLab 
-Package Registry.
 
-### Bypassing AuthN/Z
+## Development tricks
 
-AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
+### Using poetry
 
-## Code formatting and linting
-
-Code formatting and linting can be assessed by running the `python-format` and `python-lint` Makefile targets inside a 
-virtual environment (venv). These targets are provided by the `.make` submodule. To use these targets, first initialise 
-and update this submodule:
-
-```bash
-ska-src-data-management-api$ git submodule init && git submodule update
-```
-
-then create a virtual environment:
+1. To work inside a poetry shell:
 
 ```bash
 ska-src-data-management-api$ poetry shell
 ```
 
-and install all the dependencies listed in `pyproject.toml`:
+2. To install dependencies from `pyproject.toml`:
 
 ```bash
 (venv)ska-src-data-management-api$ poetry install
 ```
 
-To run code formatting checks:
+### Bypassing AuthN/Z
+
+AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
+
+## Testing
+
+Testing is done via the `pytest` module, with code coverage provided by the `pytest-cov` module.
+
+### Component testing
+
+Component testing is conducted inside a k8s deployment environment using mocked responses to external services.
+
+The component tests implemented for this repository are stored under the `/tests/component` directory. These 
+component tests are executed during the ``test`` stage of the CI/CD pipeline under the
+``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth`` jobs.
+
+For local testing, an environment can be installed via minikube/helm with:
 
 ```bash
-ska-src-data-management-api$ make python-format
+ska-src-data-management-api$ minikube start
+ska-src-data-management-api$ make k8s-install-chart
+ska-src-data-management-api$ make k8s-test
 ```
 
-To run linting:
+Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
+
+To run the tests locally with both authentication enabled and disabled, respectively:
 
 ```bash
-ska-src-data-management-api$ make python-lint
+ska-src-data-management-api$ make k8s-test-auth
+ska-src-data-management-api$ make k8s-test-noauth
 ```
+
+## Code quality
+
+This repository uses the following libraries for code quality:
+
+- ``isort`` for sorting imports,
+- ``black`` to enforce a consistent coding style,
+- ``flake8`` to check code base against coding style (PEP8), and
+- ``pylint`` to look for programming errors and code smells
+
+### Linting
+
+Operations for code linting are performed by the `python-lint` Makefile target provided by the `.make` submodule. This 
+should be run inside a poetry shell.
+
+### Formatting
+
+Operations for code formatting are performed by the `python-format` Makefile target provided by the `.make` submodule. This 
+should be run inside a poetry shell.
 
 ## Documentation
 

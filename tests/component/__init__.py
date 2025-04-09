@@ -1,0 +1,4 @@
+import os
+
+KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
+CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")

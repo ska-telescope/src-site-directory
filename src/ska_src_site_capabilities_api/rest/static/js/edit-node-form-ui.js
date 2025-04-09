@@ -287,6 +287,14 @@
               }
             },
             {
+              "key": "sites[].latitude",
+              "placeholder": "Latitude of site"
+            },
+            {
+              "key": "sites[].longitude",
+              "placeholder": "Longitude of site"
+            },
+            {
               "key": "sites[].primary_contact_email",
               "placeholder": "Primary contact email"
             },
@@ -341,14 +349,6 @@
                         {
                           "key": "sites[].storages[].base_path",
                           "placeholder": "The base path for access to this storage element"
-                        },
-                        {
-                          "key": "sites[].storages[].latitude",
-                          "placeholder": "Latitude of storage element"
-                        },
-                        {
-                          "key": "sites[].storages[].longitude",
-                          "placeholder": "Longitude of storage element"
                         },
                         {
                           "key": "sites[].storages[].srm"
@@ -508,14 +508,6 @@
                         {
                           "key": "sites[].compute[].id",
                           "readOnly": true
-                        },
-                        {
-                          "key": "sites[].compute[].latitude",
-                          "placeholder": "Latitude of this compute element"
-                        },
-                        {
-                          "key": "sites[].compute[].longitude",
-                          "placeholder": "Longitude of this compute element"
                         },
                         {
                           "key": "sites[].compute[].hardware_capabilities",

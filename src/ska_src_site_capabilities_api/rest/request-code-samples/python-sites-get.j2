@@ -2,6 +2,8 @@ import requests
 
 url = "{{ api_server_url }}/sites"
 
-response = requests.request("GET", url)
+querystring = {"only_node_names":"SOME_STRING_VALUE","include_inactive":"SOME_BOOLEAN_VALUE"}
+
+response = requests.request("GET", url, params=querystring)
 
 print(response.text)

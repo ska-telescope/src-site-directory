@@ -4,6 +4,7 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -31,6 +32,8 @@ spec:
           value: {{ .Values.svc.api.mongo_host }}
         - name: MONGO_PORT
           value: {{ .Values.svc.api.mongo_port | quote}}
+        - name: DISABLE_AUTHENTICATION
+          value: {{ .Values.svc.api.disable_authentication | quote }}
         image: mongo:5.0.15
         imagePullPolicy: ""
         name: ska-src-site-capabilities-api-mongo

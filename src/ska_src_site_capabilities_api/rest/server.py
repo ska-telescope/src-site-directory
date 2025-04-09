@@ -6,7 +6,6 @@ import os
 import pathlib
 import tempfile
 import time
-import urllib
 from datetime import datetime
 from typing import Union
 
@@ -27,6 +26,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
+from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.common.exceptions import (
     ComputeNotFound,
@@ -52,7 +52,6 @@ from ska_src_site_capabilities_api.common.utility import (
     recursive_autogen_id,
     recursive_stringify,
 )
-from ska_src_site_capabilities_api.db.backend import MongoBackend
 from ska_src_site_capabilities_api.rest import dependencies
 
 config = Config(".env")
@@ -146,14 +145,12 @@ async def increment_request_counter(
         401: {},
         403: {},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Compute"],
     summary="List all compute",
 )
@@ -187,14 +184,12 @@ async def list_compute(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Compute"],
     summary="Get compute from id",
 )
@@ -218,7 +213,12 @@ async def get_compute_from_id(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Nodes"],
     summary="List all nodes",
 )
@@ -525,14 +525,12 @@ async def render_schema(
         401: {},
         403: {},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Services"],
     summary="List all services",
 )
@@ -617,14 +615,12 @@ async def list_service_types(request: Request) -> JSONResponse:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Services"],
     summary="Get service from id",
 )
@@ -648,7 +644,12 @@ async def get_service_from_id(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Sites"],
     summary="List all sites",
 )
@@ -677,14 +678,12 @@ async def list_sites(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Sites"],
     summary="Get site from id",
 )
@@ -708,14 +707,12 @@ async def get_site_from_id(
         401: {},
         403: {},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Storages"],
     summary="List all storages",
 )
@@ -821,14 +818,12 @@ async def list_storages_in_topojson_format(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Storages"],
     summary="Get storage from id",
 )
@@ -852,14 +847,12 @@ async def get_storage_from_id(
         401: {},
         403: {},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Storage Areas"],
     summary="List all storage areas",
 )
@@ -992,14 +985,12 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=(
-        [Depends(increment_request_counter)]
-        if DEBUG
-        else [
-            Depends(increment_request_counter),
-            Depends(permission_dependencies.verify_permission_for_service_route),
-        ]
-    ),
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
     tags=["Storage Areas"],
     summary="Get storage area from id",
 )
@@ -1315,6 +1306,110 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
 
 @api_version(1)
 @app.get(
+    "/www/report/services",
+    responses={200: {}, 401: {}, 403: {}, 409: {}},
+    include_in_schema=False,
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    tags=["Reports"],
+    summary="Services report",
+)
+@handle_exceptions
+async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
+    """Services report."""
+    if request.session.get("access_token"):
+        # Check access permissions.
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
+        print(BACKEND.list_nodes(include_archived=False, include_inactive=True))
+        return TEMPLATES.TemplateResponse(
+            "services-report.html",
+            {
+                "request": request,
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "title": "Services Report for SRCNet nodes",
+                "data": BACKEND.list_nodes(include_archived=False, include_inactive=True),
+                "sign_out_url": get_url_for_app_from_request(
+                    "www_logout",
+                    request,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
+                "access_token": request.session.get("access_token"),
+            },
+        )
+    else:
+        return HTMLResponse(
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
+        )
+
+
+@api_version(1)
+@app.get(
+    "/www/report/nodes/{node_name}",
+    responses={200: {}, 401: {}, 403: {}, 409: {}},
+    include_in_schema=False,
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    tags=["Reports"],
+    summary="Overview report",
+)
+@handle_exceptions
+async def report_overview(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
+    """Node report."""
+    if request.session.get("access_token"):
+        # Check access permissions.
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
+
+        return TEMPLATES.TemplateResponse(
+            "node-report.html",
+            {
+                "request": request,
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "title": "Report for SRCNet Node ({})".format(node_name),
+                "data": BACKEND.get_node(node_name=node_name, node_version="latest"),
+                "sign_out_url": get_url_for_app_from_request(
+                    "www_logout",
+                    request,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
+                "access_token": request.session.get("access_token"),
+            },
+        )
+    else:
+        return HTMLResponse(
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
+        )
+
+
+@api_version(1)
+@app.get(
     "/ping",
     responses={200: {"model": models.response.PingResponse}},
     tags=["Status"],
@@ -1403,6 +1498,11 @@ for route in app.routes:
             {
                 "name": "Compute",
                 "description": "Operations on site compute.",
+                "x-tag-expanded": False,
+            },
+            {
+                "name": "Reports",
+                "description": "Reports",
                 "x-tag-expanded": False,
             },
             {

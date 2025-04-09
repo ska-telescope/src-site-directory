@@ -8,6 +8,8 @@
         "name": "SKAOSRC_A",
         "description": "Magenta prototype site deployment",
         "country": "GB",
+        "latitude": 51.4964,
+        "longitude": -0.1224,
         "primary_contact_email": "rob.barnsley@skao.int",
         "secondary_contact_email": "j.collinson@skao.int",
         "storages": [
@@ -15,8 +17,7 @@
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
             "host": "srcdev.skatelescope.org",
             "base_path": "/storm/sa",
-            "latitude": 51.4964,
-            "longitude": -0.1224,
+
             "srm": "storm",
             "device_type": "",
             "size_in_terabytes": 11,
@@ -52,8 +53,6 @@
         "compute": [
           {
             "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
-            "latitude": 51.4964,
-            "longitude": -0.1224,
             "middleware_version": "1",
             "associated_local_services": [
               {
@@ -87,6 +86,8 @@
         "name": "SKAOSRC_B",
         "description": "Magenta prototype site deployment",
         "country": "GB",
+        "latitude": 53.4808,
+        "longitude": -2.2426,
         "primary_contact_email": "rob.barnsley@skao.int",
         "secondary_contact_email": "j.collinson@skao.int",
         "storages": [
@@ -94,8 +95,6 @@
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
             "host": "srcdev.skatelescope.org",
             "base_path": "/storm/sa",
-            "latitude": 51.4964,
-            "longitude": -0.1224,
             "srm": "storm",
             "device_type": "",
             "size_in_terabytes": 11,

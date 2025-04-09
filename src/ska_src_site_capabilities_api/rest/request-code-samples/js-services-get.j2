@@ -4,8 +4,10 @@ const options = {
   "method": "GET",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1/services?include_associated_with_compute=SOME_BOOLEAN_VALUE&include_disabled=SOME_BOOLEAN_VALUE",
-  "headers": {}
+  "path": "/v1/services?only_node_names=SOME_STRING_VALUE&only_site_names=SOME_STRING_VALUE&only_service_types=SOME_STRING_VALUE&only_service_scope=SOME_STRING_VALUE&include_inactive=SOME_BOOLEAN_VALUE",
+  "headers": {
+    "Authorization": "Bearer REPLACE_BEARER_TOKEN"
+  }
 };
 
 const req = http.request(options, function (res) {

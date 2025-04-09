@@ -1,2 +1,3 @@
 curl --request GET \
-  --url {{ api_server_url }}/services/{service_id}
+  --url {{ api_server_url }}/services/{service_id} \
+  --header 'Authorization: Bearer REPLACE_BEARER_TOKEN'

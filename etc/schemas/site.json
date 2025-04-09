@@ -23,6 +23,18 @@
       "type": "string",
       "$ref": "country.json"
     },
+    "latitude": {
+      "type": "number",
+      "title": "Latitude",
+      "default": null,
+      "required": true
+    },
+    "longitude": {
+      "type": "number",
+      "title": "Longitude",
+      "default": null,
+      "required": true
+    },
     "primary_contact_email": {
       "type": "email",
       "title": "Primary contact email",
