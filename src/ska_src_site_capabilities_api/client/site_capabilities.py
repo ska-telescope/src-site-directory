@@ -12,22 +12,22 @@ class SiteCapabilitiesClient:
             self.session = requests.Session()
 
     @handle_client_exceptions
-    def get_add_site_www_url(self):
-        """Get the url to add a site.
+    def get_add_node_www_url(self):
+        """Get the url to add a node.
 
         :return: The url.
         """
-        add_site_www_url = "{api_url}/www/sites/add".format(api_url=self.api_url)
-        return add_site_www_url
+        add_node_www_url = "{api_url}/www/nodes".format(api_url=self.api_url)
+        return add_node_www_url
 
     @handle_client_exceptions
-    def get_edit_site_www_url(self, site_name):
-        """Get the url to edit a site.
+    def get_edit_node_www_url(self, node_name):
+        """Get the url to edit a node.
 
         :return: The url.
         """
-        edit_site_www_url = "{api_url}/www/sites/add/{site_name}".format(api_url=self.api_url, site_name=site_name)
-        return edit_site_www_url
+        edit_node_www_url = "{api_url}/www/nodes/{node_name}".format(api_url=self.api_url, node_name=node_name)
+        return edit_node_www_url
 
     @handle_client_exceptions
     def get_compute(self, compute_id: str):
@@ -272,17 +272,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    def list_service_types_core(self):
-        """List core service types.
-
-        :return: A requests response.
-        :rtype: requests.models.Response
-        """
-        service_types_core_endpoint = "{api_url}/services/types/core".format(api_url=self.api_url)
-        resp = self.session.get(service_types_core_endpoint)
-        resp.raise_for_status()
-        return resp
-
     @handle_client_exceptions
     def list_sites(
         self,
@@ -300,18 +289,6 @@ class SiteCapabilitiesClient:
             "include_inactive": include_inactive,
         }
         resp = self.session.get(sites_endpoint, params=params)
-        resp.raise_for_status()
-        return resp
-
-    @handle_client_exceptions
-    def list_sites_latest(self):
-        """List the latest versions of all sites.
-
-        :return: A requests response.
-        :rtype: requests.models.Response
-        """
-        sites_latest_endpoint = "{api_url}/sites/latest".format(api_url=self.api_url)
-        resp = self.session.get(sites_latest_endpoint)
         resp.raise_for_status()
         return resp
 

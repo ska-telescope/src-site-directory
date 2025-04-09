@@ -13,7 +13,7 @@ class MongoBackend(Backend):
         self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None
     ):
         """
-        Initializes the MongoBackend instance.
+        Initialises a MongoBackend instance.
 
         Args:
             mongo_database: Name of the MongoDB database.
