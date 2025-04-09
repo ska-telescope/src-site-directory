@@ -30,8 +30,6 @@ class Downtime(BaseModel):
 class Compute(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     url: str = Field(examples=["service.srcdev.skao.int"])
-    latitude: float = Field(examples=[51.4964])
-    longitude: float = Field(examples=[-0.1224])
     hardware_capabilities: HardwareCapabilities = Field(examples=[*hardware_capabilities])
     hardware_type: HardwareType = Field(examples=[*hardware_type])
     description: str = Field(examples=["some description"])

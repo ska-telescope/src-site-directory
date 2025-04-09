@@ -44,8 +44,6 @@ class Storage(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     host: str = Field(examples=["storm.srcdev.skao.int"])
     base_path: str = Field(examples=["/path/to/storage"])
-    latitude: float = Field(examples=[51.4964])
-    longitude: float = Field(examples=[-0.1224])
     srm: str = Field(examples=["srm"])
     device_type: str = Field(examples=["hdd"])
     size_in_terabytes: float = Field(examples=[10])
