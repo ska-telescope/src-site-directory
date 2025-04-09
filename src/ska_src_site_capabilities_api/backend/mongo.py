@@ -7,28 +7,52 @@ from ska_src_site_capabilities_api.backend.backend import Backend
 
 
 class MongoBackend(Backend):
-    """Backend API for mongodb."""
+    """Backend API for MongoDB."""
 
     def __init__(
         self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None
     ):
+        """
+        Initializes the MongoBackend instance.
+
+        Args:
+            mongo_database: Name of the MongoDB database.
+            mongo_username: Username for MongoDB authentication.
+            mongo_password: Password for MongoDB authentication.
+            mongo_host: Hostname of the MongoDB server.
+            mongo_port: Port of the MongoDB server.
+            client: Optional MongoDB client for mocking/testing.
+        """
         super().__init__()
         if mongo_database and mongo_username and mongo_password and mongo_host:
             self.connection_string = "mongodb://{}:{}@{}:{}/".format(
                 mongo_username, mongo_password, mongo_host, int(mongo_port)
             )
         self.mongo_database = mongo_database
-
         self.client = client  # used for mocking
 
     def _get_mongo_client(self):
+        """
+        Retrieves the MongoDB client.
+
+        Returns:
+            A MongoDB client instance.
+        """
         if self.client:
             return self.client
         else:
             return MongoClient(self.connection_string)
 
     def _is_element_in_downtime(self, downtime):
-        """Checks if an element is in downtime."""
+        """
+        Checks if an element is in downtime.
+
+        Args:
+            downtime: A list of downtime entries, each containing a date range.
+
+        Returns:
+            Boolean indicating whether the element is in downtime.
+        """
         for entry in downtime:
             if entry.get("date_range"):
                 start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
@@ -43,6 +67,12 @@ class MongoBackend(Backend):
     def _remove_inactive_elements(self, element):
         """
         Recursively removes elements from a nested structure if they are in downtime or disabled.
+
+        Args:
+            element: A dictionary or list representing the structure to filter.
+
+        Returns:
+            The filtered structure with inactive elements removed.
         """
         if isinstance(element, dict):
             if self._is_element_in_downtime(element.get("downtime", [])) or element.get("is_force_disabled", False):
@@ -62,32 +92,51 @@ class MongoBackend(Backend):
         return element
 
     def add_edit_node(self, node_values, node_name=None):
+        """
+        Adds or edits a node in the database.
+
+        Args:
+            node_values: Dictionary containing the node's attributes.
+            node_name: Name of the node to edit. If None, a new node is added.
+
+        Returns:
+            The ID of the inserted or updated node.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
         nodes_archived = db.nodes_archived
 
-        # get latest version of this node
+        # Get the latest version of this node
         latest_node = self.get_node(node_name=node_name, node_version="latest")
-        if not latest_node:  # adding new node
+        if not latest_node:  # Adding a new node
             node_values["version"] = 1
-        else:  # updating existing node
+        else:  # Updating an existing node
             node_values["version"] = latest_node.get("version") + 1
 
-        # insert this new version of node into the nodes collection
+        # Insert this new version of the node into the nodes collection
         inserted_node = nodes.insert_one(node_values)
 
-        # move the previous version of the node to nodes_archived collection only if a previous
-        # version existed & insertion into nodes was successful
+        # Move the previous version of the node to the nodes_archived collection
+        # only if a previous version existed and insertion into nodes was successful
         if latest_node and inserted_node.inserted_id:
-            # only delete it from nodes if we successfully added the previous version to
-            # nodes_archived
+            # Only delete it from nodes if we successfully added the previous version
+            # to nodes_archived
             if nodes_archived.insert_one(latest_node).inserted_id:
                 nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
 
         return inserted_node.inserted_id
 
     def get_compute(self, compute_id):
+        """
+        Retrieves a compute resource by its ID.
+
+        Args:
+            compute_id: The ID of the compute resource.
+
+        Returns:
+            A dictionary containing the compute resource and its parent information.
+        """
         response = {}
         for compute in self.list_compute(include_inactive=True):
             parent_node_name = compute.get("parent_node_name")
@@ -98,9 +147,16 @@ class MongoBackend(Backend):
         return response
 
     def get_node(self, node_name, node_version="latest"):
-        """Get a version of a node."""
-        # If node_version is latest, only search the latest collection, otherwise search both latest
-        # and archived.
+        """
+        Retrieves a version of a node.
+
+        Args:
+            node_name: The name of the node.
+            node_version: The version of the node to retrieve. Defaults to "latest".
+
+        Returns:
+            A dictionary containing the node's attributes.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
 
@@ -116,6 +172,15 @@ class MongoBackend(Backend):
         return this_node if this_node else {}
 
     def get_service(self, service_id):
+        """
+        Retrieves a service by its ID.
+
+        Args:
+            service_id: The ID of the service.
+
+        Returns:
+            A dictionary containing the service and its parent information.
+        """
         response = {}
         for service in self.list_services(include_inactive=True):
             parent_node_name = service.get("parent_node_name")
@@ -132,6 +197,15 @@ class MongoBackend(Backend):
         return response
 
     def get_site(self, site_id):
+        """
+        Retrieves a site by its ID.
+
+        Args:
+            site_id: The ID of the site.
+
+        Returns:
+            A dictionary containing the site and its parent information.
+        """
         response = {}
         for site in self.list_sites(include_inactive=True):
             parent_node_name = site.get("parent_node_name")
@@ -141,7 +215,17 @@ class MongoBackend(Backend):
         return response
 
     def get_site_from_names(self, node_name, node_version, site_name):
-        """Get site at a given node and version."""
+        """
+        Retrieves a site by its name, node, and version.
+
+        Args:
+            node_name: The name of the node.
+            node_version: The version of the node.
+            site_name: The name of the site.
+
+        Returns:
+            A dictionary containing the site and its parent information, or None if not found.
+        """
         node = self.get_node(node_name=node_name, node_version=node_version)
         if not node:
             return None
@@ -152,6 +236,15 @@ class MongoBackend(Backend):
         return None
 
     def get_storage(self, storage_id):
+        """
+        Retrieves a storage resource by its ID.
+
+        Args:
+            storage_id: The ID of the storage resource.
+
+        Returns:
+            A dictionary containing the storage resource and its parent information.
+        """
         response = {}
         for storage in self.list_storages(include_inactive=True):
             parent_node_name = storage.get("parent_node_name")
@@ -162,6 +255,15 @@ class MongoBackend(Backend):
         return response
 
     def get_storage_area(self, storage_area_id):
+        """
+        Retrieves a storage area by its ID.
+
+        Args:
+            storage_area_id: The ID of the storage area.
+
+        Returns:
+            A dictionary containing the storage area and its parent information.
+        """
         response = {}
         for storage_area in self.list_storage_areas(include_inactive=True):
             parent_node_name = storage_area.get("parent_node_name")
@@ -177,18 +279,32 @@ class MongoBackend(Backend):
                 break
         return response
 
-    def list_compute(self, only_node_names=[], only_site_names=[], include_inactive=False):
+    def list_compute(self, only_node_names=None, only_site_names=None, include_inactive=False):
+        """
+        Lists compute resources based on specified filters.
+
+        Args:
+            only_node_names: List of node names to filter compute resources by. If None, no node filtering is applied.
+            only_site_names: List of site names to filter compute resources by. If None, no site filtering is applied.
+            include_inactive: Boolean to include inactive compute resources.
+
+        Returns:
+            A list of compute dictionaries, each containing parent information.
+        """
+        only_node_names = only_node_names or []
+        only_site_names = only_site_names or []
         response = []
         for site in self.list_sites(only_node_names=only_node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             for compute in site.get("compute", []):
-                if only_site_names:
-                    if parent_site_name not in only_site_names:
-                        continue
-                # add parent information
-                response.append(
-                    {"parent_node_name": site.get("parent_node_name"), "parent_site_name": parent_site_name, **compute}
-                )
+                if only_site_names and parent_site_name not in only_site_names:
+                    continue
+                compute_with_parent = {
+                    "parent_node_name": site.get("parent_node_name"),
+                    "parent_site_name": parent_site_name,
+                    **compute,
+                }
+                response.append(compute_with_parent)
         return response
 
     def list_nodes(self, include_archived=False, include_inactive=True):
@@ -211,22 +327,50 @@ class MongoBackend(Backend):
 
     def list_services(
         self,
-        only_node_names=[],
-        only_site_names=[],
-        only_service_types=[],
+        only_node_names=None,
+        only_site_names=None,
+        only_service_types=None,
         only_service_scope="all",
         include_inactive=False,
+        associated_storage_area_id=None,
     ):
+        """
+        Lists services based on specified filters.
+
+        Args:
+            only_node_names: List of node names to filter services by. If None, no node filtering is applied.
+            only_site_names: List of site names to filter services by. If None, no site filtering is applied.
+            only_service_types: List of service types to filter services by. If None, no type filtering is applied.
+            only_service_scope: String ("all", "local", "global") to filter by service scope.
+            include_inactive: Boolean to include inactive compute resources.
+            associated_storage_area_id: String to filter services by associated storage area ID.
+
+        Returns:
+            A list of service dictionaries, each containing scope and parent information.
+        """
         response = []
+
+        # Handle None cases for input lists
+        only_node_names = only_node_names or []
+        only_site_names = only_site_names or []
+        only_service_types = only_service_types or []
+
         for compute in self.list_compute(
-            only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
+            only_node_names=only_node_names,
+            only_site_names=only_site_names,
+            include_inactive=include_inactive,
         ):
             if only_service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
-                    if only_service_types:
-                        if service.get("type") not in only_service_types:
-                            continue
-                    # add parent information
+                    # Apply filters for service type and associated storage area ID
+                    if only_service_types and service.get("type") not in only_service_types:
+                        continue
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id") != associated_storage_area_id
+                    ):
+                        continue
+                    # Add parent information
                     response.append(
                         {
                             "scope": "local",
@@ -236,29 +380,55 @@ class MongoBackend(Backend):
                             **service,
                         }
                     )
+
             if only_service_scope in ["all", "global"]:
                 for service in compute.get("associated_global_services", []):
-                    if only_service_types:
-                        if service.get("type") not in only_service_types:
-                            continue
-                    # add parent information
+                    # Apply filters for service type and associated storage area ID
+                    if only_service_types and service.get("type") not in only_service_types:
+                        continue
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id") != associated_storage_area_id
+                    ):
+                        continue
+                    # Add parent information
                     response.append(
                         {
                             "scope": "global",
                             "parent_node_name": compute.get("parent_node_name"),
-                            "parent_site_name": compute.get("parent_node_name"),
+                            "parent_site_name": compute.get("parent_site_name"),
                             "parent_compute_id": compute.get("id"),
                             **service,
                         }
                     )
+
         return response
 
     def list_service_types_from_schema(self, schema):
+        """
+        Retrieves a list of service types from a schema.
+
+        Args:
+            schema: A dictionary representing the schema.
+
+        Returns:
+            A list of service types defined in the schema.
+        """
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def list_sites(self, only_node_names=[], include_inactive=False):
-        """List versions of all sites."""
+    def list_sites(self, only_node_names=None, include_inactive=False):
+        """
+        Lists sites based on specified filters.
+
+        Args:
+            only_node_names: List of node names to filter sites by. If None, no node filtering is applied.
+            include_inactive: Boolean to include inactive sites.
+
+        Returns:
+            A list of site dictionaries, each containing parent information.
+        """
+        only_node_names = only_node_names or []
         response = []
         for node in self.list_nodes(include_inactive=include_inactive):
             parent_node_name = node.get("name")
@@ -270,8 +440,24 @@ class MongoBackend(Backend):
         return response
 
     def list_storages(
-        self, only_node_names=[], only_site_names=[], topojson=False, for_grafana=False, include_inactive=False
+        self, only_node_names=None, only_site_names=None, topojson=False, for_grafana=False, include_inactive=False
     ):
+        """
+        Lists storage resources based on specified filters.
+
+        Args:
+            only_node_names: List of node names to filter storages by. If None, no node filtering is applied.
+            only_site_names: List of site names to filter storages by. If None, no site filtering is applied.
+            topojson: Boolean to return data in TopoJSON format.
+            for_grafana: Boolean to return data formatted for Grafana.
+            include_inactive: Boolean to include inactive storages.
+
+        Returns:
+            A list of storage dictionaries, each containing parent information,
+            or a TopoJSON object if `topojson` is True.
+        """
+        only_node_names = only_node_names or []
+        only_site_names = only_site_names or []
         if topojson:
             response = {
                 "type": "Topology",
@@ -306,7 +492,7 @@ class MongoBackend(Backend):
                         }
                     )
                 else:
-                    # add parent information
+                    # Add parent information
                     response.append(
                         {
                             "parent_node_name": site.get("parent_node_name"),
@@ -317,8 +503,24 @@ class MongoBackend(Backend):
         return response
 
     def list_storage_areas(
-        self, only_node_names=[], only_site_names=[], topojson=False, for_grafana=False, include_inactive=False
+        self, only_node_names=None, only_site_names=None, topojson=False, for_grafana=False, include_inactive=False
     ):
+        """
+        Lists storage areas based on specified filters.
+
+        Args:
+            only_node_names: List of node names to filter storage areas by. If None, no node filtering is applied.
+            only_site_names: List of site names to filter storage areas by. If None, no site filtering is applied.
+            topojson: Boolean to return data in TopoJSON format.
+            for_grafana: Boolean to return data formatted for Grafana.
+            include_inactive: Boolean to include inactive storage areas.
+
+        Returns:
+            A list of storage area dictionaries, each containing parent information,
+            or a TopoJSON object if `topojson` is True.
+        """
+        only_node_names = only_node_names or []
+        only_site_names = only_site_names or []
         if topojson:
             response = {
                 "type": "Topology",
@@ -356,7 +558,7 @@ class MongoBackend(Backend):
                         }
                     )
                 else:
-                    # add parent information
+                    # Add parent information
                     response.append(
                         {
                             "parent_node_name": storage.get("parent_node_name"),
