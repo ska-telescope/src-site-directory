@@ -35,12 +35,12 @@ class Downtime(BaseModel):
 
 class Service(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    name: str = Field(examples=["SKAOSRC"])
     version: str = Field(examples=["1.0.0"])
     prefix: str = Field(examples=["https"])
     host: str = Field(examples=["rucio.srcdev.skao.int"])
     port: NonNegativeInt = Field(examples=[443])
     path: str = Field(examples=["/path/to/service"])
-    name: str = Field(examples=["SKAOSRC"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])

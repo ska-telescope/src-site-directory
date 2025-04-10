@@ -32,7 +32,7 @@
     },
     "name": {
       "type": "string",
-      "title": "name (if applicable)",
+      "title": "Name (if applicable)",
       "default": null
     },
     "tier": {
