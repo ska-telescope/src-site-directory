@@ -3,6 +3,7 @@
     "name": "SWESRC",
     "description": "Swedish SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "SWESRC",
@@ -150,7 +151,6 @@
         "other_attributes": {},
         "created_at": "2025-03-20T15:21:05.482185",
         "created_by_username": "fkirsten",
-        "version": 20,
         "latitude": 57.6901921,
         "longitude": 11.9755092,
         "id": "ae4f721f-9769-4cf8-aabd-4eeaf7aa56f6",
@@ -163,6 +163,7 @@
     "name": "CHSRC",
     "description": "Swiss SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "CHSRC",
@@ -433,7 +434,6 @@
         "other_attributes": {},
         "created_at": "2025-03-17T09:08:56.056434",
         "created_by_username": "pllopis",
-        "version": 55,
         "latitude": 46.024498567725466,
         "longitude": 8.960111183239013,
         "id": "2e29cfea-7ebd-4257-875d-c307e1d74238",
@@ -446,6 +446,7 @@
     "name": "CNSRC",
     "description": "China SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "CNSRC",
@@ -540,7 +541,6 @@
               {
                 "id": "34838cc5-f7e4-4dd9-91e1-5e152ab6e8d0",
                 "type": "prepare_data",
-                "version": "1",
                 "prefix": "https",
                 "host": "gatekeeper.ska.zverse.space",
                 "port": 443,
@@ -598,7 +598,6 @@
         "other_attributes": {},
         "created_at": "2025-03-25T03:20:31.347191",
         "created_by_username": "zxu",
-        "version": 30,
         "latitude": 39.9075,
         "longitude": 116.3971,
         "id": "3b61f3e0-7e2b-4b00-830a-7ae4d3ba8903",
@@ -611,6 +610,7 @@
     "name": "AUSSRC",
     "description": "Australian SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "AUSSRC",
@@ -651,7 +651,6 @@
         ],
         "created_at": "2024-08-21T11:50:43.799085",
         "created_by_username": "robbarnsley",
-        "version": 1,
         "latitude": -31.9529,
         "longitude": 115.8613,
         "id": "27aefd16-3c8d-4403-8f05-9ad42200701c",
@@ -665,6 +664,7 @@
     "name": "UKSRC",
     "description": "UKSRC Site",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "UKSRC",
@@ -1245,7 +1245,6 @@
         "other_attributes": {},
         "created_at": "2025-04-02T10:21:52.520480",
         "created_by_username": "sm2921",
-        "version": 88,
         "latitude": 51.574,
         "longitude": -1.315,
         "id": "693def71-bcdb-464e-9290-0db7013f453f",
@@ -1258,6 +1257,7 @@
     "name": "KRSRC",
     "description": "Korean SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "KRSRC",
@@ -1298,7 +1298,6 @@
         ],
         "created_at": "2024-08-21T11:48:39.603756",
         "created_by_username": "robbarnsley",
-        "version": 1,
         "latitude": 36.321329,
         "longitude": 127.42001,
         "id": "263673b9-4e48-46c3-b2dd-d4740588408f",
@@ -1312,6 +1311,7 @@
     "name": "SKAOSRC",
     "description": "Magenta prototype site deployment",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "SKAOSRC",
@@ -1532,7 +1532,6 @@
         "other_attributes": {},
         "created_at": "2025-03-11T15:10:29.893558",
         "created_by_username": "jcollinson",
-        "version": 25,
         "latitude": 51.4964,
         "longitude": -0.1224,
         "id": "76ce15aa-1b0b-4210-ac4b-370ee5c93066",
@@ -1545,6 +1544,7 @@
     "name": "JPSRC",
     "description": "Japanese SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "JPSRC",
@@ -1663,7 +1663,6 @@
         "other_attributes": {},
         "created_at": "2025-03-30T12:17:28.576924",
         "created_by_username": "syoshiura",
-        "version": 15,
         "latitude": 35.6754,
         "longitude": 139.5369,
         "id": "5b8251b6-12ea-499e-8699-edcd8a55d9b8",
@@ -1676,6 +1675,7 @@
     "name": "CANSRC",
     "description": "Canadian SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "CANSRC",
@@ -1798,7 +1798,6 @@
         "other_attributes": {},
         "created_at": "2025-04-04T17:34:51.447388",
         "created_by_username": "jenkinsd",
-        "version": 26,
         "id": "be13724c-3623-46b3-bc12-a7dd537a27cd",
         "downtime": [],
         "is_force_disabled": false
@@ -1809,6 +1808,7 @@
     "name": "ESPSRC",
     "description": "Spanish SRC",
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "ESPSRC",
@@ -2032,7 +2032,6 @@
         "other_attributes": {},
         "created_at": "2025-03-20T09:39:11.786686",
         "created_by_username": "mparra",
-        "version": 32,
         "latitude": 37.1342,
         "longitude": -3.613,
         "id": "74b0fdd8-9ab3-4ece-b6ea-48af026bbdf5",
@@ -2045,6 +2044,7 @@
     "name": "ITSRC",
     "description": null,
     "comments": "",
+    "version": 1,
     "sites": [
       {
         "name": "ITSRC",
@@ -2134,7 +2134,6 @@
         "other_attributes": {},
         "created_at": "2025-04-05T15:02:26.547391",
         "created_by_username": "gtudisco",
-        "version": 12,
         "latitude": 37.52,
         "longitude": 15.07,
         "id": "86660409-92c6-4d7b-bd56-fc0115fa61a6",
