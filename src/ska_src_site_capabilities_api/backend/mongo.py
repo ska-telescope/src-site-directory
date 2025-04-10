@@ -279,25 +279,25 @@ class MongoBackend(Backend):
                 break
         return response
 
-    def list_compute(self, only_node_names=None, only_site_names=None, include_inactive=False):
+    def list_compute(self, node_names=None, site_names=None, include_inactive=False):
         """
         Lists compute resources based on specified filters.
 
         Args:
-            only_node_names: List of node names to filter compute resources by. If None, no node filtering is applied.
-            only_site_names: List of site names to filter compute resources by. If None, no site filtering is applied.
+            node_names: List of node names to filter compute resources by. If None, no node filtering is applied.
+            site_names: List of site names to filter compute resources by. If None, no site filtering is applied.
             include_inactive: Boolean to include inactive compute resources.
 
         Returns:
             A list of compute dictionaries, each containing parent information.
         """
-        only_node_names = only_node_names or []
-        only_site_names = only_site_names or []
+        node_names = node_names or []
+        site_names = site_names or []
         response = []
-        for site in self.list_sites(only_node_names=only_node_names, include_inactive=include_inactive):
+        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             for compute in site.get("compute", []):
-                if only_site_names and parent_site_name not in only_site_names:
+                if site_names and parent_site_name not in site_names:
                     continue
                 compute_with_parent = {
                     "parent_node_name": site.get("parent_node_name"),
@@ -327,10 +327,10 @@ class MongoBackend(Backend):
 
     def list_services(
         self,
-        only_node_names=None,
-        only_site_names=None,
-        only_service_types=None,
-        only_service_scope="all",
+        node_names=None,
+        site_names=None,
+        service_types=None,
+        service_scope="all",
         include_inactive=False,
         associated_storage_area_id=None,
     ):
@@ -338,10 +338,10 @@ class MongoBackend(Backend):
         Lists services based on specified filters.
 
         Args:
-            only_node_names: List of node names to filter services by. If None, no node filtering is applied.
-            only_site_names: List of site names to filter services by. If None, no site filtering is applied.
-            only_service_types: List of service types to filter services by. If None, no type filtering is applied.
-            only_service_scope: String ("all", "local", "global") to filter by service scope.
+            node_names: List of node names to filter services by. If None, no node filtering is applied.
+            site_names: List of site names to filter services by. If None, no site filtering is applied.
+            service_types: List of service types to filter services by. If None, no type filtering is applied.
+            service_scope: String ("all", "local", "global") to filter by service scope.
             include_inactive: Boolean to include inactive compute resources.
             associated_storage_area_id: String to filter services by associated storage area ID.
 
@@ -351,19 +351,19 @@ class MongoBackend(Backend):
         response = []
 
         # Handle None cases for input lists
-        only_node_names = only_node_names or []
-        only_site_names = only_site_names or []
-        only_service_types = only_service_types or []
+        node_names = node_names or []
+        site_names = site_names or []
+        service_types = service_types or []
 
         for compute in self.list_compute(
-            only_node_names=only_node_names,
-            only_site_names=only_site_names,
+            node_names=node_names,
+            site_names=site_names,
             include_inactive=include_inactive,
         ):
-            if only_service_scope in ["all", "local"]:
+            if service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
                     # Apply filters for service type and associated storage area ID
-                    if only_service_types and service.get("type") not in only_service_types:
+                    if service_types and service.get("type") not in service_types:
                         continue
                     if (
                         associated_storage_area_id
@@ -381,10 +381,10 @@ class MongoBackend(Backend):
                         }
                     )
 
-            if only_service_scope in ["all", "global"]:
+            if service_scope in ["all", "global"]:
                 for service in compute.get("associated_global_services", []):
                     # Apply filters for service type and associated storage area ID
-                    if only_service_types and service.get("type") not in only_service_types:
+                    if service_types and service.get("type") not in service_types:
                         continue
                     if (
                         associated_storage_area_id
@@ -417,37 +417,37 @@ class MongoBackend(Backend):
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def list_sites(self, only_node_names=None, include_inactive=False):
+    def list_sites(self, node_names=None, include_inactive=False):
         """
         Lists sites based on specified filters.
 
         Args:
-            only_node_names: List of node names to filter sites by. If None, no node filtering is applied.
+            node_names: List of node names to filter sites by. If None, no node filtering is applied.
             include_inactive: Boolean to include inactive sites.
 
         Returns:
             A list of site dictionaries, each containing parent information.
         """
-        only_node_names = only_node_names or []
+        node_names = node_names or []
         response = []
         for node in self.list_nodes(include_inactive=include_inactive):
             parent_node_name = node.get("name")
             for site in node.get("sites", []):
-                if only_node_names:
-                    if parent_node_name not in only_node_names:
+                if node_names:
+                    if parent_node_name not in node_names:
                         continue
                 response.append({"parent_node_name": parent_node_name, **site})
         return response
 
     def list_storages(
-        self, only_node_names=None, only_site_names=None, topojson=False, for_grafana=False, include_inactive=False
+        self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False
     ):
         """
         Lists storage resources based on specified filters.
 
         Args:
-            only_node_names: List of node names to filter storages by. If None, no node filtering is applied.
-            only_site_names: List of site names to filter storages by. If None, no site filtering is applied.
+            node_names: List of node names to filter storages by. If None, no node filtering is applied.
+            site_names: List of site names to filter storages by. If None, no site filtering is applied.
             topojson: Boolean to return data in TopoJSON format.
             for_grafana: Boolean to return data formatted for Grafana.
             include_inactive: Boolean to include inactive storages.
@@ -456,8 +456,8 @@ class MongoBackend(Backend):
             A list of storage dictionaries, each containing parent information,
             or a TopoJSON object if `topojson` is True.
         """
-        only_node_names = only_node_names or []
-        only_site_names = only_site_names or []
+        node_names = node_names or []
+        site_names = site_names or []
         if topojson:
             response = {
                 "type": "Topology",
@@ -465,11 +465,11 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites(only_node_names=only_node_names, include_inactive=include_inactive):
+        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             for storage in site.get("storages", []):
-                if only_site_names:
-                    if parent_site_name not in only_site_names:
+                if site_names:
+                    if parent_site_name not in site_names:
                         continue
                 if topojson:
                     response["objects"]["sites"]["geometries"].append(
@@ -503,14 +503,14 @@ class MongoBackend(Backend):
         return response
 
     def list_storage_areas(
-        self, only_node_names=None, only_site_names=None, topojson=False, for_grafana=False, include_inactive=False
+        self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False
     ):
         """
         Lists storage areas based on specified filters.
 
         Args:
-            only_node_names: List of node names to filter storage areas by. If None, no node filtering is applied.
-            only_site_names: List of site names to filter storage areas by. If None, no site filtering is applied.
+            node_names: List of node names to filter storage areas by. If None, no node filtering is applied.
+            site_names: List of site names to filter storage areas by. If None, no site filtering is applied.
             topojson: Boolean to return data in TopoJSON format.
             for_grafana: Boolean to return data formatted for Grafana.
             include_inactive: Boolean to include inactive storage areas.
@@ -519,8 +519,8 @@ class MongoBackend(Backend):
             A list of storage area dictionaries, each containing parent information,
             or a TopoJSON object if `topojson` is True.
         """
-        only_node_names = only_node_names or []
-        only_site_names = only_site_names or []
+        node_names = node_names or []
+        site_names = site_names or []
         if topojson:
             response = {
                 "type": "Topology",
@@ -529,7 +529,7 @@ class MongoBackend(Backend):
         else:
             response = []
         for storage in self.list_storages(
-            only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
+            node_names=node_names, site_names=site_names, include_inactive=include_inactive
         ):
             parent_storage = self.get_site_from_names(
                 node_name=storage.get("parent_node_name"),

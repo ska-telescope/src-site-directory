@@ -108,12 +108,12 @@ def test_get_storage_area(id, expected_exists, mock_backend):
 
 
 def test_list_compute_with_node_name_filter(mock_backend):
-    compute = mock_backend.list_compute(only_node_names="SKAOSRC")
+    compute = mock_backend.list_compute(node_names="SKAOSRC")
     assert len(compute) == 2
 
 
 def test_list_compute_with_site_name_filter(mock_backend):
-    compute = mock_backend.list_compute(only_site_names="SKAOSRC_B")
+    compute = mock_backend.list_compute(site_names="SKAOSRC_B")
     assert len(compute) == 1
 
 
@@ -123,18 +123,18 @@ def test_list_nodes(mock_backend):
 
 
 def test_list_services_with_node_name_filter(mock_backend):
-    services = mock_backend.list_services(only_node_names="SKAOSRC")
+    services = mock_backend.list_services(node_names="SKAOSRC")
     assert len(services) == 9
 
 
 def test_list_services_with_service_types_filter(mock_backend):
-    services = mock_backend.list_services(only_service_types="jupyterhub")
+    services = mock_backend.list_services(service_types="jupyterhub")
     assert len(services) == 3
     assert all(s.get("type") == "jupyterhub" for s in services)
 
 
 def test_list_services_with_site_name_filter(mock_backend):
-    services = mock_backend.list_services(only_site_names="SKAOSRC_B")
+    services = mock_backend.list_services(site_names="SKAOSRC_B")
     assert len(services) == 7
 
 
@@ -144,20 +144,20 @@ def test_list_sites(mock_backend):
 
 
 def test_list_storages_with_node_name_filter(mock_backend):
-    storages = mock_backend.list_storages(only_node_names="SKAOSRC")
+    storages = mock_backend.list_storages(node_names="SKAOSRC")
     assert len(storages) == 2
 
 
 def test_list_storages_with_site_name_filter(mock_backend):
-    storages = mock_backend.list_storages(only_site_names="SKAOSRC_B")
+    storages = mock_backend.list_storages(site_names="SKAOSRC_B")
     assert len(storages) == 1
 
 
 def test_list_storage_areas_with_node_name_filter(mock_backend):
-    storage_areas = mock_backend.list_storage_areas(only_node_names="SKAOSRC")
+    storage_areas = mock_backend.list_storage_areas(node_names="SKAOSRC")
     assert len(storage_areas) == 3
 
 
 def test_list_storage_areas_with_site_name_filter(mock_backend):
-    storage_areas = mock_backend.list_storage_areas(only_site_names="SKAOSRC_B")
+    storage_areas = mock_backend.list_storage_areas(site_names="SKAOSRC_B")
     assert len(storage_areas) == 1
