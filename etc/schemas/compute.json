@@ -9,18 +9,6 @@
       "format": "uuid",
       "default": "to be assigned"
     },
-    "latitude": {
-      "type": "number",
-      "title": "Latitude",
-      "default": null,
-      "required": true
-    },
-    "longitude": {
-      "type": "number",
-      "title": "Longitude",
-      "default": null,
-      "required": true
-    },
     "hardware_capabilities": {
       "type": "array",
       "title": "Hardware capabilities",

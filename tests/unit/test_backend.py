@@ -4,7 +4,7 @@ from pathlib import Path
 import mongomock
 import pytest
 
-from ska_src_site_capabilities_api.db.backend import MongoBackend
+from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 
 
 @pytest.fixture(scope="module")
