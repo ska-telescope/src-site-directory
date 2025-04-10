@@ -688,7 +688,7 @@
                                   "placeholder": "Associated storage area ID (if applicable)"
                                 },
                                 {
-                                  "key": "sites[].compute[].associated_global_services[].identifier",
+                                  "key": "sites[].compute[].associated_global_services[].name",
                                   "placeholder": "A name used to identify this service"
                                 },
                                 {
