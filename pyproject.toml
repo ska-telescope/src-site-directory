@@ -23,7 +23,6 @@ scripts = [
 name = 'ska-nexus'
 url = 'https://artefact.skao.int/repository/pypi-internal/simple'
 
-
 [[tool.poetry.source]]
 name = "PyPI-public"
 url = 'https://pypi.org/simple'
@@ -48,7 +47,7 @@ jsonref = "1.1.0"
 jsonschema = "3.2.0"
 plantuml = "0.3.0"
 Markdown = "3.4.4"
-pydantic = "1.10.16"
+pydantic = "^1.10.12"
 pymongo = "4.3.3"
 Pygments = "2.16.1"
 PyJWT = "2.8.0"
