@@ -28,7 +28,7 @@ class StorageArea(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     type: StorageAreaType = Field(examples=["rse"])
     relative_path: str = Field(examples=["/rel/path/to/storage/area"])
-    identifier: str = Field(examples=["STFC_STORM"])
+    name: str = Field(examples=["STFC_STORM"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     tier: int = Field(examples=[0, 1])
     downtime: List[Downtime]
@@ -42,12 +42,12 @@ class StorageProtocol(BaseModel):
 
 class Storage(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    name: str = Field(examples=["SKAOSRC"])
     host: str = Field(examples=["storm.srcdev.skao.int"])
     base_path: str = Field(examples=["/path/to/storage"])
     srm: str = Field(examples=["srm"])
     device_type: str = Field(examples=["hdd"])
     size_in_terabytes: float = Field(examples=[10])
-    identifier: str = Field(examples=["SKAOSRC"])
     supported_protocols: List[StorageProtocol]
     areas: List[StorageArea]
     downtime: List[Downtime]
