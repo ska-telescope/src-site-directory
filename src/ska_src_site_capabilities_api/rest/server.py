@@ -223,18 +223,18 @@ async def get_compute_from_id(
 @handle_exceptions
 async def list_nodes(
     request: Request,
-    names: bool = Query(default=False, description="Return only node names"),
+    only_names: bool = Query(default=False, description="Return only node names"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List nodes with an option to return only node names."""
-    nodes = BACKEND.list_nodes(include_archived=False, include_inactive=include_inactive)
-    if names:
-        names_only = [node["name"] for node in nodes if "name" in node]
-        return JSONResponse(names_only)
+    rtn = BACKEND.list_nodes(include_archived=False, include_inactive=include_inactive)
+    if only_names:
+        names = [node["name"] for node in rtn if "name" in node]
+        return JSONResponse(names)
 
-    return JSONResponse(nodes)
+    return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -644,6 +644,7 @@ async def get_service_from_id(
 @handle_exceptions
 async def list_sites(
     request: Request,
+    only_names: bool = Query(default=False, description="Return only site names"),
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
@@ -654,6 +655,10 @@ async def list_sites(
         node_names = [name.strip() for name in node_names.split(",")]
 
     rtn = BACKEND.list_sites(node_names=node_names, include_inactive=include_inactive)
+    if only_names:
+        names = [site["name"] for site in rtn if "name" in site]
+        return JSONResponse(names)
+
     return JSONResponse(rtn)
 
 
@@ -1100,7 +1105,6 @@ async def www_login(
         # get token from authorization code
         code = request.query_params.get("code")
         original_request_url = request.url.remove_query_params(keys=["code", "state"])
-        print(original_request_url)
         response = AUTH.token(code=code, redirect_uri=original_request_url)
 
         # exchange token for site-capabilities-api
@@ -1316,7 +1320,6 @@ async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse,
                 raise err
             if not rtn.get("is_authorised", False):
                 raise PermissionDenied
-        print(BACKEND.list_nodes(include_archived=False, include_inactive=True))
         return TEMPLATES.TemplateResponse(
             "services-report.html",
             {

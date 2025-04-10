@@ -203,7 +203,7 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_nodes(
         self,
-        names: bool = False,
+        only_names: bool = False,
         include_inactive: bool = False,
     ):
         """List nodes with an option to return only node names.
@@ -213,7 +213,7 @@ class SiteCapabilitiesClient:
         """
         nodes_endpoint = "{api_url}/nodes".format(api_url=self.api_url)
         params = {
-            "names": names,
+            "only_names": only_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(nodes_endpoint, params=params)
@@ -275,6 +275,7 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_sites(
         self,
+        only_names: bool = False,
         node_names: list[str] = None,
         include_inactive: bool = False,
     ):
@@ -285,6 +286,7 @@ class SiteCapabilitiesClient:
         """
         sites_endpoint = "{api_url}/sites".format(api_url=self.api_url)
         params = {
+            "only_names": only_names,
             "node_names": ",".join(node_names) if node_names else None,
             "include_inactive": include_inactive,
         }
