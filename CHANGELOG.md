@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Streamlined image (from debian bullseye to buster + removed MongoDB server installation + removed Dockerfile layers).
 - Fixed code-samples target and added new code samples to routes.
 - Tool to migrate schema (0.3.56->0.3.57) in tools/
+- Dropped "only_" in query parameters where sensible
+- Renamed "identifier" to "name" to avoid conflict with "id" attribute
 
 ## [0.3.56]
 
