@@ -57,8 +57,8 @@ attrs = "^23.2.0"
 python-multipart = "0.0.6"
 requests = "2.26.0"
 uvicorn = "0.20.0"
-ska-src-permissions-api = "*"
-ska-src-authn-api = "*"
+ska-src-permissions-api = "0.1.73"
+ska-src-authn-api = "0.4.22"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
