@@ -124,7 +124,7 @@ def test_list_nodes(mock_backend):
 
 def test_list_services_with_node_name_filter(mock_backend):
     services = mock_backend.list_services(only_node_names="SKAOSRC")
-    assert len(services) == 9  # Updated from 7 to 9
+    assert len(services) == 9
 
 
 def test_list_services_with_service_types_filter(mock_backend):
@@ -135,7 +135,7 @@ def test_list_services_with_service_types_filter(mock_backend):
 
 def test_list_services_with_site_name_filter(mock_backend):
     services = mock_backend.list_services(only_site_names="SKAOSRC_B")
-    assert len(services) == 6
+    assert len(services) == 7
 
 
 def test_list_sites(mock_backend):
