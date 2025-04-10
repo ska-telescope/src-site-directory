@@ -157,21 +157,19 @@ async def increment_request_counter(
 @handle_exceptions
 async def list_compute(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all compute."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = BACKEND.list_compute(
-        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
-    )
+    rtn = BACKEND.list_compute(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -225,14 +223,14 @@ async def get_compute_from_id(
 @handle_exceptions
 async def list_nodes(
     request: Request,
-    only_names: bool = Query(default=False, description="Return only node names"),
+    names: bool = Query(default=False, description="Return only node names"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List nodes with an option to return only node names."""
     nodes = BACKEND.list_nodes(include_archived=False, include_inactive=include_inactive)
-    if only_names:
+    if names:
         names_only = [node["name"] for node in nodes if "name" in node]
         return JSONResponse(names_only)
 
@@ -527,26 +525,26 @@ async def render_schema(
 @handle_exceptions
 async def list_services(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    only_service_types: str = Query(default=None, description="Filter by service types (comma-separated)"),
-    only_service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    service_types: str = Query(default=None, description="Filter by service types (comma-separated)"),
+    service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
     associated_storage_area_id: str = Query(default=None, description="Filter by associated storage area ID"),
 ) -> JSONResponse:
     """List all services."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
-    if only_service_types:
-        only_service_types = [name.strip() for name in only_service_types.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
+    if service_types:
+        service_types = [name.strip() for name in service_types.split(",")]
 
     rtn = BACKEND.list_services(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
-        only_service_types=only_service_types,
-        only_service_scope=only_service_scope,
+        node_names=node_names,
+        site_names=site_names,
+        service_types=service_types,
+        service_scope=service_scope,
         include_inactive=include_inactive,
         associated_storage_area_id=associated_storage_area_id,  # Added filter
     )
@@ -646,16 +644,16 @@ async def get_service_from_id(
 @handle_exceptions
 async def list_sites(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List versions of all sites."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
 
-    rtn = BACKEND.list_sites(only_node_names=only_node_names, include_inactive=include_inactive)
+    rtn = BACKEND.list_sites(node_names=node_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -709,21 +707,19 @@ async def get_site_from_id(
 @handle_exceptions
 async def list_storages(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storages."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = BACKEND.list_storages(
-        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
-    )
+    rtn = BACKEND.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -742,21 +738,21 @@ async def list_storages(
 @handle_exceptions
 async def list_storages_for_grafana(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
     rtn = BACKEND.list_storages(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
+        node_names=node_names,
+        site_names=site_names,
         for_grafana=True,
         include_inactive=include_inactive,
     )
@@ -778,21 +774,21 @@ async def list_storages_for_grafana(
 @handle_exceptions
 async def list_storages_in_topojson_format(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storages in topojson format."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
     rtn = BACKEND.list_storages(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
+        node_names=node_names,
+        site_names=site_names,
         topojson=True,
         include_inactive=include_inactive,
     )
@@ -849,21 +845,19 @@ async def get_storage_from_id(
 @handle_exceptions
 async def list_storage_areas(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storage areas."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = BACKEND.list_storage_areas(
-        only_node_names=only_node_names, only_site_names=only_site_names, include_inactive=include_inactive
-    )
+    rtn = BACKEND.list_storage_areas(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -882,21 +876,21 @@ async def list_storage_areas(
 @handle_exceptions
 async def list_storage_areas_for_grafana(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
+        node_names=node_names,
+        site_names=site_names,
         for_grafana=True,
         include_inactive=include_inactive,
     )
@@ -918,21 +912,21 @@ async def list_storage_areas_for_grafana(
 @handle_exceptions
 async def list_storage_areas_in_topojson_format(
     request: Request,
-    only_node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    only_site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False, description="Include inactive resources? e.g. in downtime, force disabled"
     ),
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
-    if only_node_names:
-        only_node_names = [name.strip() for name in only_node_names.split(",")]
-    if only_site_names:
-        only_site_names = [name.strip() for name in only_site_names.split(",")]
+    if node_names:
+        node_names = [name.strip() for name in node_names.split(",")]
+    if site_names:
+        site_names = [name.strip() for name in site_names.split(",")]
 
     rtn = BACKEND.list_storage_areas(
-        only_node_names=only_node_names,
-        only_site_names=only_site_names,
+        node_names=node_names,
+        site_names=site_names,
         topojson=True,
         include_inactive=include_inactive,
     )

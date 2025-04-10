@@ -39,7 +39,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_compute(self, only_node_names, only_site_names, include_inactive):
+    def list_compute(self, node_names, site_names, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -47,7 +47,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self, only_node_names, only_site_names, only_service_types, only_service_scope, include_inactive):
+    def list_services(self, node_names, site_names, service_types, service_scope, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
@@ -55,15 +55,15 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_sites(self, only_node_names, include_inactive):
+    def list_sites(self, node_names, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storages(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
+    def list_storages(self, node_names, site_names, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
-    def list_storage_areas(self, only_node_names, only_site_names, topojson, for_grafana, include_inactive):
+    def list_storage_areas(self, node_names, site_names, topojson, for_grafana, include_inactive):
         raise NotImplementedError
 
     @abstractmethod
