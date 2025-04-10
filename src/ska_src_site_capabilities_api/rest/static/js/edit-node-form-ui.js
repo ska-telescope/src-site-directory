@@ -18,7 +18,7 @@
       "type": "tabarray",
       "items": {
         "type": "section",
-        "legend": "{{value}} ({{idx-1}})"s
+        "legend": "{{value}} ({{idx-1}})",
         "items": [
             {
               "key": "sites[].id",
