@@ -12,22 +12,22 @@ class SiteCapabilitiesClient:
             self.session = requests.Session()
 
     @handle_client_exceptions
-    def get_add_site_www_url(self):
-        """Get the url to add a site.
+    def get_add_node_www_url(self):
+        """Get the url to add a node.
 
         :return: The url.
         """
-        add_site_www_url = "{api_url}/www/sites/add".format(api_url=self.api_url)
-        return add_site_www_url
+        add_node_www_url = "{api_url}/www/nodes".format(api_url=self.api_url)
+        return add_node_www_url
 
     @handle_client_exceptions
-    def get_edit_site_www_url(self, site_name):
-        """Get the url to edit a site.
+    def get_edit_node_www_url(self, node_name):
+        """Get the url to edit a node.
 
         :return: The url.
         """
-        edit_site_www_url = "{api_url}/www/sites/add/{site_name}".format(api_url=self.api_url, site_name=site_name)
-        return edit_site_www_url
+        edit_node_www_url = "{api_url}/www/nodes/{node_name}".format(api_url=self.api_url, node_name=node_name)
+        return edit_node_www_url
 
     @handle_client_exceptions
     def get_compute(self, compute_id: str):
@@ -108,6 +108,65 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
+    def get_node_version(self, node_name: str, node_version: str = "latest"):
+        """Get description of a node version.
+
+        :param str node_name: The unique name of the node.
+        :param str node_version: The version of the node (default to "latest").
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/nodes/{node_name}"
+        params = {"node_version": node_version}
+        resp = self.session.get(endpoint, params=params)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_site_from_node_version(self, node_name: str, site_name: str, node_version: str = "latest"):
+        """Get description of a site from a specific node version.
+
+        :param str node_name: The name of the node.
+        :param str site_name: The name of the site associated with the node.
+        :param str node_version: The version of the node (default to "latest").
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/nodes/{node_name}/sites/{site_name}"
+        params = {"node_version": node_version}
+        resp = self.session.get(endpoint, params=params)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_site_from_id(self, site_id: str):
+        """Get description of a site from an identifier.
+
+        :param str site_id: The unique identifier of the site.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/sites/{site_id}"
+        resp = self.session.get(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def dump_nodes(self):
+        """Dump all information about all available nodes.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/nodes/dump"
+        resp = self.session.get(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def health(self):
         """Get API health.
 
@@ -120,14 +179,44 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_compute(self):
+    def list_compute(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List compute elements.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         compute_endpoint = "{api_url}/compute".format(api_url=self.api_url)
-        resp = self.session.get(compute_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(compute_endpoint, params=params)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def list_nodes(
+        self,
+        only_names: bool = False,
+        include_inactive: bool = False,
+    ):
+        """List nodes with an option to return only node names.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        nodes_endpoint = "{api_url}/nodes".format(api_url=self.api_url)
+        params = {
+            "only_names": only_names,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(nodes_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
@@ -144,7 +233,15 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_services(self, include_associated_with_compute=True, include_disabled=False):
+    def list_services(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        only_service_types: list[str] = None,
+        only_service_scope: str = "all",
+        include_inactive: bool = False,
+        associated_storage_area_id: str = None,
+    ):
         """List services.
 
         :return: A requests response.
@@ -152,8 +249,12 @@ class SiteCapabilitiesClient:
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
         params = {
-            "include_associated_with_compute": include_associated_with_compute,
-            "include_disabled": include_disabled,
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "only_service_types": ",".join(only_service_types) if only_service_types else None,
+            "only_service_scope": only_service_scope,
+            "include_inactive": include_inactive,
+            "associated_storage_area_id": associated_storage_area_id,
         }
         resp = self.session.get(services_endpoint, params=params)
         resp.raise_for_status()
@@ -171,110 +272,166 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    def list_service_types_core(self):
-        """List core service types.
-
-        :return: A requests response.
-        :rtype: requests.models.Response
-        """
-        service_types_core_endpoint = "{api_url}/services/types/core".format(api_url=self.api_url)
-        resp = self.session.get(service_types_core_endpoint)
-        resp.raise_for_status()
-        return resp
-
     @handle_client_exceptions
-    def list_sites(self):
+    def list_sites(
+        self,
+        only_node_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List sites.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         sites_endpoint = "{api_url}/sites".format(api_url=self.api_url)
-        resp = self.session.get(sites_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(sites_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_sites_latest(self):
-        """List the latest versions of all sites.
-
-        :return: A requests response.
-        :rtype: requests.models.Response
-        """
-        sites_latest_endpoint = "{api_url}/sites/latest".format(api_url=self.api_url)
-        resp = self.session.get(sites_latest_endpoint)
-        resp.raise_for_status()
-        return resp
-
-    @handle_client_exceptions
-    def list_storages(self):
+    def list_storages(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storages.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storages_endpoint = "{api_url}/storages".format(api_url=self.api_url)
-        resp = self.session.get(storages_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storages_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_storages_grafana(self):
+    def list_storages_grafana(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storages (for grafana).
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
-        resp = self.session.get(storages_grafana_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storages_grafana_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_storages_topojson(self):
+    def list_storages_topojson(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storages (topojson).
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storages_topojson_endpoint = "{api_url}/storages/topojson".format(api_url=self.api_url)
-        resp = self.session.get(storages_topojson_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storages_topojson_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_storage_areas(self):
+    def list_storage_areas(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storage areas.
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storage_areas_endpoint = "{api_url}/storage-areas".format(api_url=self.api_url)
-        resp = self.session.get(storage_areas_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storage_areas_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_storage_areas_grafana(self):
+    def list_storage_areas_grafana(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storage areas (for grafana).
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storage_areas_grafana_endpoint = "{api_url}/storage-areas/grafana".format(api_url=self.api_url)
-        resp = self.session.get(storage_areas_grafana_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storage_areas_grafana_endpoint, params=params)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def list_storage_areas_topojson(self):
+    def list_storage_areas_topojson(
+        self,
+        only_node_names: list[str] = None,
+        only_site_names: list[str] = None,
+        include_inactive: bool = False,
+    ):
         """List storage areas (topojson).
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         storage_areas_topojson_endpoint = "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
-        resp = self.session.get(storage_areas_topojson_endpoint)
+        params = {
+            "only_node_names": ",".join(only_node_names) if only_node_names else None,
+            "only_site_names": ",".join(only_site_names) if only_site_names else None,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(storage_areas_topojson_endpoint, params=params)
+        resp.raise_for_status()
+        return resp
+
+    def list_storage_area_types(self):
+        """List storage area types.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/storage-areas/types"
+        resp = self.session.get(endpoint)
         resp.raise_for_status()
         return resp
 
