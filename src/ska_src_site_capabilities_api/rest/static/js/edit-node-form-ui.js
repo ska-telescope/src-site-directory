@@ -18,7 +18,7 @@
       "type": "tabarray",
       "items": {
         "type": "section",
-        "legend": "{{value}} ({{idx-1}})",
+        "legend": "{{value}} ({{idx-1}})"s
         "items": [
             {
               "key": "sites[].id",
@@ -361,7 +361,7 @@
                           "placeholder": "Storage capacity of this storage element in TB"
                         },
                         {
-                          "key": "sites[].storages[].identifier",
+                          "key": "sites[].storages[].name",
                           "placeholder": "A name used to identify this storage element",
                           "valueInLegend": true
                         },
@@ -432,7 +432,7 @@
                                   "placeholder": "The path for this area relative to the storage base path"
                                 },
                                 {
-                                  "key": "sites[].storages[].areas[].identifier",
+                                  "key": "sites[].storages[].areas[].name",
                                   "placeholder": "A name used to identify this storage area",
                                   "valueInLegend": true
                                 },
@@ -524,7 +524,7 @@
                           "placeholder": "Description of this compute element"
                         },
                         {
-                          "key": "sites[].compute[].identifier",
+                          "key": "sites[].compute[].name",
                           "placeholder": "A name used to identify this compute element",
                           "valueInLegend": true
                         },
@@ -598,7 +598,7 @@
                                   "placeholder": "Associated storage area ID (if applicable)"
                                 },
                                 {
-                                  "key": "sites[].compute[].associated_local_services[].identifier",
+                                  "key": "sites[].compute[].associated_local_services[].name",
                                   "placeholder": "A name used to identify this service"
                                 },
                                 {
