@@ -1,7 +1,7 @@
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
-
+from typing import List, Optional
 
 class SiteCapabilitiesClient:
     def __init__(self, api_url, session=None):
@@ -181,8 +181,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_compute(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List compute elements.
@@ -235,9 +235,9 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_services(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
-        service_types: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
+        service_types: Optional[List[str]] = None,
         service_scope: str = "all",
         include_inactive: bool = False,
         associated_storage_area_id: str = None,
@@ -276,7 +276,7 @@ class SiteCapabilitiesClient:
     def list_sites(
         self,
         only_names: bool = False,
-        node_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List sites.
@@ -297,8 +297,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storages.
@@ -319,8 +319,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages_grafana(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storages (for grafana).
@@ -341,8 +341,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages_topojson(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storages (topojson).
@@ -363,8 +363,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storage areas.
@@ -385,8 +385,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas_grafana(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storage areas (for grafana).
@@ -407,8 +407,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas_topojson(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: Optional[List[str]] = None,
+        site_names: Optional[List[str]] = None,
         include_inactive: bool = False,
     ):
         """List storage areas (topojson).
