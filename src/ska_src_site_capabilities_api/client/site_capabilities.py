@@ -1,5 +1,6 @@
-import requests
 from typing import List
+
+import requests
 
 from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
 
