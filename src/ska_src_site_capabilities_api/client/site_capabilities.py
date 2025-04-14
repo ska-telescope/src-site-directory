@@ -233,7 +233,7 @@ class SiteCapabilitiesClient:
         resp = self.session.get(schemas_endpoint)
         resp.raise_for_status()
         return resp
-        
+
     @handle_client_exceptions
     def list_services(
         self,
