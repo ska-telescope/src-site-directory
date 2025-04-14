@@ -172,15 +172,6 @@
         "country": "CH",
         "primary_contact_email": "pablo.llopis@epfl.ch",
         "secondary_contact_email": "",
-        "global_services": [
-          {
-            "id": "40f4570d-459b-4e4b-a4cb-0cf615d555f7",
-            "type": "rucio",
-            "other_attributes": {},
-            "downtime": [],
-            "is_force_disabled": false
-          }
-        ],
         "storages": [
           {
             "id": "12a3ff8c-ee53-477f-949d-a6193ee51dfc",
@@ -1320,20 +1311,6 @@
         "country": "GB",
         "primary_contact_email": "rob.barnsley@skao.int",
         "secondary_contact_email": "j.collinson@skao.int",
-        "global_services": [
-          {
-            "id": "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f",
-            "type": "rucio",
-            "version": "1.29.0",
-            "prefix": "https",
-            "host": "rucio.srcdev.skao.int",
-            "port": 443,
-            "path": "/",
-            "other_attributes": {},
-            "downtime": [],
-            "is_force_disabled": false
-          }
-        ],
         "storages": [
           {
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
@@ -1386,6 +1363,20 @@
             "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
             "hardware_type": "container",
             "middleware_version": "1",
+            "associated_global_services": [
+              {
+                "id": "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f",
+                "type": "rucio",
+                "version": "1.29.0",
+                "prefix": "https",
+                "host": "rucio.srcdev.skao.int",
+                "port": 443,
+                "path": "/",
+                "other_attributes": {},
+                "downtime": [],
+                "is_force_disabled": false
+              }
+            ],
             "associated_local_services": [
               {
                 "id": "cd200c23-60f4-49c0-a987-3e11f06a4c8c",
