@@ -1,4 +1,5 @@
 import requests
+from typing import List
 
 from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
 
@@ -181,8 +182,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_compute(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List compute elements.
@@ -231,31 +232,41 @@ class SiteCapabilitiesClient:
         resp = self.session.get(schemas_endpoint)
         resp.raise_for_status()
         return resp
-
+        
     @handle_client_exceptions
     def list_services(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
-        service_types: list[str] = None,
-        service_scope: str = "all",
-        include_inactive: bool = False,
-        associated_storage_area_id: str = None,
+        include_associated_with_compute=True,
+        include_disabled=False,
+        site_names=None,
+        node_names=None,
+        service_types=None,
+        service_scope="all",
     ):
         """List services.
+
+        :param include_associated_with_compute: Include services associated with compute.
+        :param include_disabled: Include disabled services.
+        :param site_names: Filter by site names (comma-separated string).
+        :param node_names: Filter by node names (comma-separated string).
+        :param service_types: Filter by service types (comma-separated string).
+        :param service_scope: Filter by scope of service (all||local||global).
 
         :return: A requests response.
         :rtype: requests.models.Response
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
-            "service_types": ",".join(service_types) if service_types else None,
+            "include_associated_with_compute": include_associated_with_compute,
+            "include_disabled": include_disabled,
+            "site_names": site_names,
+            "node_names": node_names,
+            "service_types": service_types,
             "service_scope": service_scope,
-            "include_inactive": include_inactive,
-            "associated_storage_area_id": associated_storage_area_id,
         }
+        # Remove None values from params - it can mess with APIs
+        params = {k: v for k, v in params.items() if v is not None}
+
         resp = self.session.get(services_endpoint, params=params)
         resp.raise_for_status()
         return resp
@@ -276,7 +287,7 @@ class SiteCapabilitiesClient:
     def list_sites(
         self,
         only_names: bool = False,
-        node_names: list[str] = None,
+        node_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List sites.
@@ -297,8 +308,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storages.
@@ -319,8 +330,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages_grafana(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storages (for grafana).
@@ -341,8 +352,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages_topojson(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storages (topojson).
@@ -363,8 +374,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storage areas.
@@ -385,8 +396,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas_grafana(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storage areas (for grafana).
@@ -407,8 +418,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storage_areas_topojson(
         self,
-        node_names: list[str] = None,
-        site_names: list[str] = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storage areas (topojson).
