@@ -239,9 +239,9 @@ class SiteCapabilitiesClient:
         self,
         include_associated_with_compute=True,
         include_disabled=False,
-        site_names=None,
-        node_names=None,
-        service_types=None,
+        site_names: List[str] = None,
+        node_names: List[str] = None,
+        service_types: List[str] = None,
         service_scope="all",
     ):
         """List services.
@@ -265,8 +265,6 @@ class SiteCapabilitiesClient:
             "service_types": service_types,
             "service_scope": service_scope,
         }
-        # Remove None values from params - it can mess with APIs
-        params = {k: v for k, v in params.items() if v is not None}
 
         resp = self.session.get(services_endpoint, params=params)
         resp.raise_for_status()
