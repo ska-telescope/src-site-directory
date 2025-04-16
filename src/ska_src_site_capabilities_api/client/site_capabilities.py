@@ -258,7 +258,7 @@ class SiteCapabilitiesClient:
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
         params = {
-            "include_associated_with_compute": include_associated_with_compute,
+            "associated_storage_area_id": associated_storage_area_id,
             "include_disabled": include_disabled,
             "site_names": site_names,
             "node_names": node_names,
