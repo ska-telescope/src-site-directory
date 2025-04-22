@@ -546,7 +546,7 @@ async def list_services(
         service_types=service_types,
         service_scope=service_scope,
         include_inactive=include_inactive,
-        associated_storage_area_id=associated_storage_area_id,  # Added filter
+        associated_storage_area_id=associated_storage_area_id,
     )
     return JSONResponse(rtn)
 
