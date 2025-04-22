@@ -194,8 +194,8 @@ class SiteCapabilitiesClient:
         """
         compute_endpoint = "{api_url}/compute".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(compute_endpoint, params=params)
@@ -297,7 +297,7 @@ class SiteCapabilitiesClient:
         sites_endpoint = "{api_url}/sites".format(api_url=self.api_url)
         params = {
             "only_names": only_names,
-            "node_names": ",".join(node_names) if node_names else None,
+            "node_names": node_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(sites_endpoint, params=params)
@@ -307,8 +307,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages(
         self,
-        node_names: None,
-        site_names: None,
+        node_names: List(str) = None,
+        site_names: List(str) = None,
         include_inactive: bool = False,
     ):
         """List storages.
@@ -318,8 +318,8 @@ class SiteCapabilitiesClient:
         """
         storages_endpoint = "{api_url}/storages".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storages_endpoint, params=params)
@@ -340,8 +340,8 @@ class SiteCapabilitiesClient:
         """
         storages_grafana_endpoint = "{api_url}/storages/grafana".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storages_grafana_endpoint, params=params)
@@ -362,8 +362,8 @@ class SiteCapabilitiesClient:
         """
         storages_topojson_endpoint = "{api_url}/storages/topojson".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storages_topojson_endpoint, params=params)
@@ -384,8 +384,8 @@ class SiteCapabilitiesClient:
         """
         storage_areas_endpoint = "{api_url}/storage-areas".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storage_areas_endpoint, params=params)
@@ -406,8 +406,8 @@ class SiteCapabilitiesClient:
         """
         storage_areas_grafana_endpoint = "{api_url}/storage-areas/grafana".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storage_areas_grafana_endpoint, params=params)
@@ -428,8 +428,8 @@ class SiteCapabilitiesClient:
         """
         storage_areas_topojson_endpoint = "{api_url}/storage-areas/topojson".format(api_url=self.api_url)
         params = {
-            "node_names": ",".join(node_names) if node_names else None,
-            "site_names": ",".join(site_names) if site_names else None,
+            "node_names": node_names,
+            "site_names": site_names,
             "include_inactive": include_inactive,
         }
         resp = self.session.get(storage_areas_topojson_endpoint, params=params)
