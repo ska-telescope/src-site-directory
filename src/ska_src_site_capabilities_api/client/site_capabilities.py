@@ -238,16 +238,12 @@ class SiteCapabilitiesClient:
     def list_services(
         self,
         include_inactive: bool = False,
-        associated_storage_area_id: List[str] = None,
+        associated_storage_area_id: str = None,
         site_names: List[str] = None,
         node_names: List[str] = None,
         service_types: List[str] = None,
         service_scope: str = "all",
     ):
-    self,
-        
-        associated_storage_area_id: str = None,
-
         """List services.
 
         :param include_inactive: Include inactive services.
