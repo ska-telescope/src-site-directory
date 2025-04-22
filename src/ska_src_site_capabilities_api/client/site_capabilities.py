@@ -237,17 +237,21 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_services(
         self,
-        include_associated_with_compute=True,
-        include_disabled=False,
+        include_inactive: bool = False,
+        associated_storage_area_id: List[str] = None,
         site_names: List[str] = None,
         node_names: List[str] = None,
         service_types: List[str] = None,
-        service_scope="all",
+        service_scope: str = "all",
     ):
+    self,
+        
+        associated_storage_area_id: str = None,
+
         """List services.
 
-        :param include_associated_with_compute: Include services associated with compute.
-        :param include_disabled: Include disabled services.
+        :param include_inactive: Include inactive services.
+        :param associated_storage_area_id: Include services associated with storage.
         :param site_names: Filter by site names (comma-separated string).
         :param node_names: Filter by node names (comma-separated string).
         :param service_types: Filter by service types (comma-separated string).
@@ -258,8 +262,8 @@ class SiteCapabilitiesClient:
         """
         services_endpoint = "{api_url}/services".format(api_url=self.api_url)
         params = {
+            "include_inactive": include_inactive,
             "associated_storage_area_id": associated_storage_area_id,
-            "include_disabled": include_disabled,
             "site_names": site_names,
             "node_names": node_names,
             "service_types": service_types,
