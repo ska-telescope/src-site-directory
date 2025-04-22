@@ -325,7 +325,7 @@ class SiteCapabilitiesClient:
         resp = self.session.get(storages_endpoint, params=params)
         resp.raise_for_status()
         return resp
- 
+
     @handle_client_exceptions
     def list_storages_grafana(
         self,
