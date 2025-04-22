@@ -23,7 +23,6 @@ scripts = [
 name = 'ska-nexus'
 url = 'https://artefact.skao.int/repository/pypi-internal/simple'
 
-
 [[tool.poetry.source]]
 name = "PyPI-public"
 url = 'https://pypi.org/simple'
@@ -48,7 +47,7 @@ jsonref = "1.1.0"
 jsonschema = "3.2.0"
 plantuml = "0.3.0"
 Markdown = "3.4.4"
-pydantic = "1.10.12"
+pydantic = "^1.10.12"
 pymongo = "4.3.3"
 Pygments = "2.16.1"
 PyJWT = "2.8.0"
@@ -57,8 +56,8 @@ attrs = "^23.2.0"
 python-multipart = "0.0.6"
 requests = "2.26.0"
 uvicorn = "0.20.0"
-ska-src-permissions-api = { version = "*", source = "permissions_api" }
-ska-src-authn-api = { version = "*", source = "authn_api" }
+ska-src-permissions-api = "0.1.73"
+ska-src-authn-api = "0.4.22"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
