@@ -307,8 +307,8 @@ class SiteCapabilitiesClient:
     @handle_client_exceptions
     def list_storages(
         self,
-        node_names: List(str) = None,
-        site_names: List(str) = None,
+        node_names: List[str] = None,
+        site_names: List[str] = None,
         include_inactive: bool = False,
     ):
         """List storages.
