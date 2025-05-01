@@ -28,7 +28,6 @@ def test_set_storages_enabled():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages/{storage_id}/enabled"  # noqa: E231
     )
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["storageID"] == storage_id
@@ -45,7 +44,6 @@ def test_set_storages_disabled():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages/{storage_id}/disabled"  # noqa: E231
     )
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["storageID"] == storage_id
