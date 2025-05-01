@@ -24,7 +24,7 @@ def test_list_compute():
 def test_set_compute_enabled():
     """Test to set compute as enabled/disabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-    response = httpx.get(
+    response = httpx.put(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled"  # noqa: E231
     )
     response_data = response.json()

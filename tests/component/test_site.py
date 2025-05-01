@@ -1,0 +1,26 @@
+"""
+A module for  component tests related to compute.
+"""
+import os
+
+import httpx
+import pytest
+
+KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
+CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
+
+
+@pytest.mark.post_deployment
+def test_set_site_enabled():
+    """Test to set site as enabled/disabled"""
+    site_id = "8b008348-0d8d-4505-a625-1e6e8df56e8a"
+    response = httpx.put(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/enabled"  # noqa: E231
+    )
+    response_data = response.json()
+    print(response_data)
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        assert response_data["siteID"] == site_id
+    else:
+        assert response.status_code == 403
