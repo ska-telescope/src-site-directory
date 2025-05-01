@@ -1468,7 +1468,7 @@ async def health(request: Request):
     summary="Set is_forced_disabled flag to false",
 )
 @handle_exceptions
-async def site_enabled(
+async def set_site_enabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1492,7 +1492,7 @@ async def site_enabled(
     summary="Set is_forced_disabled flag to true",
 )
 @handle_exceptions
-async def site_disabled(
+async def set_site_disabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1516,7 +1516,7 @@ async def site_disabled(
     summary="Set is_forced_disabled flag to false",
 )
 @handle_exceptions
-async def compute_enabled(
+async def set_compute_enabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1540,7 +1540,7 @@ async def compute_enabled(
     summary="Set is_forced_disabled flag to true",
 )
 @handle_exceptions
-async def compute_disabled(
+async def set_compute_disabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1564,7 +1564,7 @@ async def compute_disabled(
     summary="Set is_forced_disabled flag to false",
 )
 @handle_exceptions
-async def storages_enabled(
+async def set_storages_enabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1588,7 +1588,7 @@ async def storages_enabled(
     summary="Set is_forced_disabled flag to true",
 )
 @handle_exceptions
-async def storage_disabled(
+async def set_storages_disabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
