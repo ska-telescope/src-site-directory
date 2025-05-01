@@ -528,7 +528,7 @@ class SiteCapabilitiesClient:
     def set_site_disabled(self, storage_id: str):
         """Set storages disabled
 
-        :param str storage_id: The unique identifier of the site.
+        :param str storage_id: The unique identifier of the storage.
         :return: A requests response.
         :rtype: requests.models.Response
         """
