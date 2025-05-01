@@ -572,3 +572,31 @@ class MongoBackend(Backend):
     def list_storage_area_types_from_schema(self, schema):
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
+
+    def set_site_forced_flag(self, site_id: str):
+        """Set forced flag for sites"""
+        response = self.get_site(site_id)
+        print(response)
+        if response["is_force_disabled"] is not False:
+            response["is_force_disabled"] = False
+        else:
+            response["is_force_disabled"] = True
+        return {"siteID": site_id, "disabled": response["is_force_disabled"]}
+
+    def set_compute_forced_flag(self, compute_id: str):
+        """Set forced flag for compute"""
+        response = self.get_compute(compute_id)
+        if response["is_force_disabled"] is not False:
+            response["is_force_disabled"] = False
+        else:
+            response["is_force_disabled"] = True
+        return {"computeID": compute_id, "disabled": response["is_force_disabled"]}
+
+    def set_storages_forced_flag(self, storage_id: str):
+        """Set forced flag for storages"""
+        response = self.get_storage(storage_id)
+        if response["is_force_disabled"] is not False:
+            response["is_force_disabled"] = False
+        else:
+            response["is_force_disabled"] = True
+        return {"storageID": storage_id, "disabled": response["is_force_disabled"]}

@@ -44,6 +44,7 @@ def mock_db(mock_client):
 @pytest.mark.parametrize("id,expected_exists", [("db1d3ee3-74e4-48aa-afaf-8d7709a2f57c", True), ("0", False)])
 def test_get_compute(id, expected_exists, mock_backend):
     result = mock_backend.get_compute(compute_id=id)
+    print(result)
     if expected_exists:
         assert result.get("id") == id
     else:
@@ -71,6 +72,7 @@ def test_get_service(id, expected_exists, mock_backend):
 @pytest.mark.parametrize("id,expected_exists", [("8b008348-0d8d-4505-a625-1e6e8df56e8a", True), ("0", False)])
 def test_get_site(id, expected_exists, mock_backend):
     result = mock_backend.get_site(site_id=id)
+    print(result)
     if expected_exists:
         assert result.get("id") == id
     else:
@@ -161,3 +163,21 @@ def test_list_storage_areas_with_node_name_filter(mock_backend):
 def test_list_storage_areas_with_site_name_filter(mock_backend):
     storage_areas = mock_backend.list_storage_areas(site_names="SKAOSRC_B")
     assert len(storage_areas) == 1
+
+
+def test_set_site_disabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
+    result = mock_backend.set_site_forced_flag(site_id=id)
+    assert result.get("siteID") == id
+    assert result.get("disabled") is True
+
+
+def test_set_compute_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+    result = mock_backend.set_compute_forced_flag(compute_id=id)
+    assert result.get("computeID") == id
+    assert result.get("disabled") is True
+
+
+def test_set_stoarges_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+    result = mock_backend.set_storages_forced_flag(storage_id=id)
+    assert result.get("storageID") == id
+    assert result.get("disabled") is True

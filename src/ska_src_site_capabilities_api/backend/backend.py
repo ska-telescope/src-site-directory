@@ -69,3 +69,15 @@ class Backend(ABC):
     @abstractmethod
     def list_storage_area_types_from_schema(self, schema):
         raise NotImplementedError
+
+    @abstractmethod
+    def set_site_forced_flag(self, site_id: str):
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_compute_forced_flag(self, compute_id: str):
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_storages_forced_flag(self, storage_id: str):
+        raise NotImplementedError
