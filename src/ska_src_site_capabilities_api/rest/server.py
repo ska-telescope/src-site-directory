@@ -1472,9 +1472,9 @@ async def site_enabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_site_forced_flag(site_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -1496,15 +1496,15 @@ async def site_disabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_site_forced_flag(site_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 @api_version(1)
 @app.put(
     "/compute/{compute_id}/enabled",
-    include_in_schema=False,  # what is this ?
+    include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
@@ -1520,9 +1520,9 @@ async def compute_enabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_compute_forced_flag(compute_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -1544,9 +1544,9 @@ async def compute_disabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_compute_forced_flag(compute_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -1568,9 +1568,9 @@ async def storages_enabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_storages_forced_flag(storage_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -1592,9 +1592,9 @@ async def storage_disabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[HTMLResponse, HTTPException]:
+) -> Union[JSONResponse, HTTPException]:
     response = BACKEND.set_storages_forced_flag(storage_id)
-    return HTMLResponse(response)
+    return JSONResponse(response)
 
 
 # Versionise the API.
