@@ -1473,7 +1473,7 @@ async def site_enabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_forced_flag(site_id)
+    response = BACKEND.set_site_forced_flag(site_id, False)
     return JSONResponse(response)
 
 
@@ -1497,7 +1497,7 @@ async def site_disabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_forced_flag(site_id)
+    response = BACKEND.set_site_forced_flag(site_id, True)
     return JSONResponse(response)
 
 
@@ -1521,7 +1521,7 @@ async def compute_enabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_forced_flag(compute_id)
+    response = BACKEND.set_compute_forced_flag(compute_id, False)
     return JSONResponse(response)
 
 
@@ -1545,7 +1545,7 @@ async def compute_disabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_forced_flag(compute_id)
+    response = BACKEND.set_compute_forced_flag(compute_id, True)
     return JSONResponse(response)
 
 
@@ -1569,7 +1569,7 @@ async def storages_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_forced_flag(storage_id)
+    response = BACKEND.set_storages_forced_flag(storage_id, False)
     return JSONResponse(response)
 
 
@@ -1593,7 +1593,7 @@ async def storage_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_forced_flag(storage_id)
+    response = BACKEND.set_storages_forced_flag(storage_id, True)
     return JSONResponse(response)
 
 

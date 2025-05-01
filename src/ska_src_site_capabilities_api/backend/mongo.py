@@ -573,30 +573,31 @@ class MongoBackend(Backend):
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def set_site_forced_flag(self, site_id: str):
+    def set_site_forced_flag(self, site_id: str, flag: bool):
         """Set forced flag for sites"""
         response = self.get_site(site_id)
+        response["is_force_disabled"] = flag
         print(response)
-        if response["is_force_disabled"] is not False:
-            response["is_force_disabled"] = False
+        if response["is_force_disabled"] is False:
+            return {"siteID": site_id, "enabled": True}
         else:
-            response["is_force_disabled"] = True
-        return {"siteID": site_id, "disabled": response["is_force_disabled"]}
+            return {"siteID": site_id, "enabled": False}
 
-    def set_compute_forced_flag(self, compute_id: str):
+    def set_compute_forced_flag(self, compute_id: str, flag: bool):
         """Set forced flag for compute"""
         response = self.get_compute(compute_id)
-        if response["is_force_disabled"] is not False:
-            response["is_force_disabled"] = False
+        response["is_force_disabled"] = flag
+        print(response)
+        if response["is_force_disabled"] is False:
+            return {"computeID": compute_id, "enabled": True}
         else:
-            response["is_force_disabled"] = True
-        return {"computeID": compute_id, "disabled": response["is_force_disabled"]}
+            return {"computeID": compute_id, "enabled": False}
 
-    def set_storages_forced_flag(self, storage_id: str):
+    def set_storages_forced_flag(self, storage_id: str, flag: bool):
         """Set forced flag for storages"""
         response = self.get_storage(storage_id)
-        if response["is_force_disabled"] is not False:
-            response["is_force_disabled"] = False
+        response["is_force_disabled"] = flag
+        if response["is_force_disabled"] is False:
+            return {"storageID": storage_id, "enabled": True}
         else:
-            response["is_force_disabled"] = True
-        return {"storageID": storage_id, "disabled": response["is_force_disabled"]}
+            return {"storageID": storage_id, "enabled": False}

@@ -71,13 +71,13 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_site_forced_flag(self, site_id: str):
+    def set_site_forced_flag(self, site_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_compute_forced_flag(self, compute_id: str):
+    def set_compute_forced_flag(self, compute_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_storages_forced_flag(self, storage_id: str):
+    def set_storages_forced_flag(self, storage_id: str, flag: bool):
         raise NotImplementedError

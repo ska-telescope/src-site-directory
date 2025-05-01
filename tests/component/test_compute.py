@@ -32,7 +32,7 @@ def test_set_compute_enabled():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["computeID"] == compute_id
-        assert response_data["disabled"] is False
+        assert response_data["enabled"] is True
     else:
         assert response.status_code == 403
 
@@ -49,6 +49,6 @@ def test_set_compute_disabled():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["computeID"] == compute_id
-        assert response_data["disabled"] is True
+        assert response_data["enabled"] is False
     else:
         assert response.status_code == 403
