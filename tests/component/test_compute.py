@@ -22,7 +22,7 @@ def test_list_compute():
 
 @pytest.mark.post_deployment
 def test_set_compute_enabled():
-    """Test to set compute as enabled/disabled"""
+    """Test to set compute as enabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
     response = httpx.put(
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled"  # noqa: E231
@@ -32,5 +32,23 @@ def test_set_compute_enabled():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["computeID"] == compute_id
+        assert response_data["disabled"] is False
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.post_deployment
+def test_set_compute_disabled():
+    """Test to set compute as disabled"""
+    compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
+    response = httpx.put(
+        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disabled"  # noqa: E231
+    )
+    response_data = response.json()
+    print(response_data)
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        assert response_data["computeID"] == compute_id
+        assert response_data["disabled"] is True
     else:
         assert response.status_code == 403
