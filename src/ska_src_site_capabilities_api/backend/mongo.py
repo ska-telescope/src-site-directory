@@ -584,18 +584,12 @@ class MongoBackend(Backend):
             return {}
 
         # Update the is_force_disabled flag for the requested site
-        nodes.update_one(
-            {"sites.id": site_id},
-            {"$set": {"sites.$.is_force_disabled": flag}}
-        )
+        nodes.update_one({"sites.id": site_id}, {"$set": {"sites.$.is_force_disabled": flag}})
 
         updated_node = nodes.find_one({"sites.id": site_id})
         updated_site = next(site for site in updated_node["sites"] if site["id"] == site_id)
 
-        return {
-            "site_id": site_id,
-            "is_force_disabled": updated_site.get("is_force_disabled")
-        }
+        return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
 
     def set_compute_forced_flag(self, compute_id: str, flag: bool):
         """Set forced flag for compute"""

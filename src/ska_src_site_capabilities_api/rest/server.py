@@ -1477,6 +1477,7 @@ async def set_site_enabled(
         raise SiteNotFound(site_id)
     return JSONResponse(response)
 
+
 @api_version(1)
 @app.put(
     "/sites/{site_id}/disabled",
