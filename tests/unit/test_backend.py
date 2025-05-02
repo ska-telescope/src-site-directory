@@ -166,15 +166,15 @@ def test_list_storage_areas_with_site_name_filter(mock_backend):
 
 
 def test_set_site_enabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
-    result = mock_backend.set_site_forced_flag(id, False)
-    assert result.get("siteID") == id
-    assert result.get("enabled") is True
+    result = mock_backend.set_site_disabled_flag(id, False)
+    assert result.get("site_id") == id
+    assert result.get("is_force_disabled") is False
 
 
 def test_set_site_disabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
-    result = mock_backend.set_site_forced_flag(id, True)
-    assert result.get("siteID") == id
-    assert result.get("enabled") is False
+    result = mock_backend.set_site_disabled_flag(id, True)
+    assert result.get("site_id") == id
+    assert result.get("is_force_disabled") is True
 
 
 def test_set_compute_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
