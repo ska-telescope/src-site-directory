@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added corresponding client methods for newly added endpoints
 - Added unit tests to verify backend method added
 - Added component tests for newly added endpoint to verify flow starting with API call on pipeline namespace
+- Included release automation for pipeline configuration
 
 
 ## [0.3.57]
