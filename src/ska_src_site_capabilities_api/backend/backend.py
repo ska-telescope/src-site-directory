@@ -71,7 +71,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_site_forced_flag(self, site_id: str, flag: bool):
+    def set_site_disabled_flag(self, site_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod

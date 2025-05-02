@@ -1456,8 +1456,7 @@ async def health(request: Request):
 @api_version(1)
 @app.put(
     "/sites/{site_id}/enabled",
-    include_in_schema=False,  # what is this ?
-    responses={200: {}, 401: {}, 403: {}},
+    responses={200: {}, 401: {}, 403: {}, 404: {}},
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -1473,9 +1472,10 @@ async def set_site_enabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_forced_flag(site_id, False)
+    response = BACKEND.set_site_disabled_flag(site_id, False)
+    if not response:
+        raise SiteNotFound(site_id)
     return JSONResponse(response)
-
 
 @api_version(1)
 @app.put(
@@ -1497,7 +1497,9 @@ async def set_site_disabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_forced_flag(site_id, True)
+    response = BACKEND.set_site_disabled_flag(site_id, True)
+    if not response:
+        raise SiteNotFound(site_id)
     return JSONResponse(response)
 
 
