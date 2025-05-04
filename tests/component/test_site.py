@@ -18,6 +18,7 @@ def test_set_site_enabled():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/enabled"  # noqa: E231
     )
     response_data = response.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["site_id"] == site_id
@@ -34,6 +35,7 @@ def test_set_site_disabled():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/disabled"  # noqa: E231
     )
     response_data = response.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["site_id"] == site_id
