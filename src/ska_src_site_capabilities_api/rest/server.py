@@ -1524,7 +1524,7 @@ async def set_compute_enabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_forced_flag(compute_id, False)
+    response = BACKEND.set_compute_disabled_flag(compute_id, False)
     return JSONResponse(response)
 
 
@@ -1548,7 +1548,7 @@ async def set_compute_disabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_forced_flag(compute_id, True)
+    response = BACKEND.set_compute_disabled_flag(compute_id, True)
     return JSONResponse(response)
 
 
