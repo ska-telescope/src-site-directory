@@ -30,8 +30,8 @@ def test_set_storages_enabled():
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
-        assert response_data["storageID"] == storage_id
-        assert response_data["enabled"] is True
+        assert response_data["storage_id"] == storage_id
+        assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
 
@@ -46,7 +46,7 @@ def test_set_storages_disabled():
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
-        assert response_data["storageID"] == storage_id
-        assert response_data["enabled"] is False
+        assert response_data["storage_id"] == storage_id
+        assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403

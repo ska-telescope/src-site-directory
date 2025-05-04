@@ -584,7 +584,6 @@ class MongoBackend(Backend):
 
         # Update the is_force_disabled flag for the requested site
         nodes.update_one({"sites.id": site_id}, {"$set": {"sites.$.is_force_disabled": flag}})
-
         updated_node = nodes.find_one({"sites.id": site_id})
         updated_site = next(site for site in updated_node["sites"] if site["id"] == site_id)
         return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
@@ -595,25 +594,33 @@ class MongoBackend(Backend):
         db = client[self.mongo_database]
         nodes = db.nodes
         node = nodes.find_one({"sites.compute.id": compute_id})
-        print("node", node)
+
         if not node:
             return {}
 
-        # Update the is_force_disabled flag for the requested compute
-        nodes.update_one({"sites.compute.id": compute_id}, {"$set": {"sites.compute.$.is_force_disabled": flag}})
-        print("nodes:::", nodes)
+        for site in node["sites"]:
+            for compute in site.get("compute", []):
+                if compute["id"] == compute_id:
+                    compute["is_force_disabled"] = flag
 
-        updated_node = nodes.find_one({"sites.compute.id": compute_id})
-        print("updated_node:::", updated_node)
-        updated_site = next(compute for compute in updated_node["compute"] if compute["id"] == compute_id)
-        print("updated_node:::", updated_node)
-        return {"compute_id": compute_id, "is_force_disabled": updated_site.get("is_force_disabled")}
+        nodes.replace_one({"_id": node["_id"]}, node)
 
-    def set_storages_forced_flag(self, storage_id: str, flag: bool):
-        """Set forced flag for storages"""
-        response = self.get_storage(storage_id)
-        response["is_force_disabled"] = flag
-        if response["is_force_disabled"] is False:
-            return {"storageID": storage_id, "enabled": True}
-        else:
-            return {"storageID": storage_id, "enabled": False}
+        return {"compute_id": compute_id, "is_force_disabled": flag}
+
+    def set_storages_disabled_flag(self, storage_id: str, flag: bool):
+        """Set is_force_disabled flag for storages"""
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+        nodes = db.nodes
+        node = nodes.find_one({"sites.storages.id": storage_id})
+        if not node:
+            return {}
+
+        for site in node["sites"]:
+            for storages in site.get("storages", []):
+                if storages["id"] == storage_id:
+                    storages["is_force_disabled"] = flag
+
+        nodes.replace_one({"_id": node["_id"]}, node)
+
+        return {"storage_id": storage_id, "is_force_disabled": flag}

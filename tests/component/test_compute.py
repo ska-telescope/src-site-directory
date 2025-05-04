@@ -33,7 +33,7 @@ def test_set_compute_enabled():
         assert response.status_code == 200
         print(response)
         assert response_data["compute_id"] == compute_id
-        assert response_data["is_force_disabled"] is True
+        assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
 
@@ -50,6 +50,6 @@ def test_set_compute_disabled():
         print(response)
         assert response.status_code == 200
         assert response_data["compute_id"] == compute_id
-        assert response_data["is_force_disabled"] is False
+        assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403

@@ -1572,7 +1572,7 @@ async def set_storages_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_forced_flag(storage_id, False)
+    response = BACKEND.set_storages_disabled_flag(storage_id, False)
     return JSONResponse(response)
 
 
@@ -1596,7 +1596,7 @@ async def set_storages_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_forced_flag(storage_id, True)
+    response = BACKEND.set_storages_disabled_flag(storage_id, True)
     return JSONResponse(response)
 
 

@@ -177,26 +177,25 @@ def test_set_site_disabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8
     assert result.get("is_force_disabled") is True
 
 
-# def test_set_compute_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
-#     result = mock_backend.set_compute_disabled_flag(id, False)
-#     assert result.get("compute_id") == id
-#     assert result.get("is_force_disabled") is True
-#     assert 0
+def test_set_compute_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+    result = mock_backend.set_compute_disabled_flag(id, False)
+    assert result.get("compute_id") == id
+    assert result.get("is_force_disabled") is False
 
 
-# def test_set_compute_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
-#     result = mock_backend.set_compute_disabled_flag(id, True)
-#     assert result.get("compute_id") == id
-#     assert result.get("is_force_disabled") is False
+def test_set_compute_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+    result = mock_backend.set_compute_disabled_flag(id, True)
+    assert result.get("compute_id") == id
+    assert result.get("is_force_disabled") is True
 
 
-# def test_set_stoarges_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
-#     result = mock_backend.set_storages_forced_flag(id, False)
-#     assert result.get("storageID") == id
-#     assert result.get("enabled") is True
+def test_set_storages_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+    result = mock_backend.set_storages_disabled_flag(id, False)
+    assert result.get("storage_id") == id
+    assert result.get("is_force_disabled") is False
 
 
-# def test_set_stoarges_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
-#     result = mock_backend.set_storages_forced_flag(id, True)
-#     assert result.get("storageID") == id
-#     assert result.get("enabled") is False
+def test_set_storages_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+    result = mock_backend.set_storages_disabled_flag(id, True)
+    assert result.get("storage_id") == id
+    assert result.get("is_force_disabled") is True

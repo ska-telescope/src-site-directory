@@ -79,5 +79,5 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_storages_forced_flag(self, storage_id: str, flag: bool):
+    def set_storages_disabled_flag(self, storage_id: str, flag: bool):
         raise NotImplementedError
