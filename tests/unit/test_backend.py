@@ -44,7 +44,6 @@ def mock_db(mock_client):
 @pytest.mark.parametrize("id,expected_exists", [("db1d3ee3-74e4-48aa-afaf-8d7709a2f57c", True), ("0", False)])
 def test_get_compute(id, expected_exists, mock_backend):
     result = mock_backend.get_compute(compute_id=id)
-    print(result)
     if expected_exists:
         assert result.get("id") == id
     else:
@@ -72,7 +71,6 @@ def test_get_service(id, expected_exists, mock_backend):
 @pytest.mark.parametrize("id,expected_exists", [("8b008348-0d8d-4505-a625-1e6e8df56e8a", True), ("0", False)])
 def test_get_site(id, expected_exists, mock_backend):
     result = mock_backend.get_site(site_id=id)
-    print(result)
     if expected_exists:
         assert result.get("id") == id
     else:

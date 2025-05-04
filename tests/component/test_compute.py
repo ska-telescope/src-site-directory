@@ -28,10 +28,8 @@ def test_set_compute_enabled():
         f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled"  # noqa: E231
     )
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
-        print(response)
         assert response_data["compute_id"] == compute_id
         assert response_data["is_force_disabled"] is False
     else:
@@ -47,7 +45,6 @@ def test_set_compute_disabled():
     )
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-        print(response)
         assert response.status_code == 200
         assert response_data["compute_id"] == compute_id
         assert response_data["is_force_disabled"] is True
