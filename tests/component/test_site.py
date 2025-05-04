@@ -20,8 +20,8 @@ def test_set_site_enabled():
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
-        assert response_data["siteID"] == site_id
-        assert response_data["enabled"] is True
+        assert response_data["site_id"] == site_id
+        assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
 
@@ -36,7 +36,7 @@ def test_set_site_disabled():
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
-        assert response_data["siteID"] == site_id
-        assert response_data["enabled"] is False
+        assert response_data["site_id"] == site_id
+        assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403

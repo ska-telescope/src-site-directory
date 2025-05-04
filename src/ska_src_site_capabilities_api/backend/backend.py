@@ -75,7 +75,7 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_compute_forced_flag(self, compute_id: str, flag: bool):
+    def set_compute_disabled_flag(self, compute_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod

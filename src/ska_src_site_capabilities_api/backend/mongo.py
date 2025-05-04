@@ -578,7 +578,6 @@ class MongoBackend(Backend):
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
-
         node = nodes.find_one({"sites.id": site_id})
         if not node:
             return {}
@@ -588,18 +587,27 @@ class MongoBackend(Backend):
 
         updated_node = nodes.find_one({"sites.id": site_id})
         updated_site = next(site for site in updated_node["sites"] if site["id"] == site_id)
-
         return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
 
-    def set_compute_forced_flag(self, compute_id: str, flag: bool):
-        """Set forced flag for compute"""
-        response = self.get_compute(compute_id)
-        response["is_force_disabled"] = flag
-        print(response)
-        if response["is_force_disabled"] is False:
-            return {"computeID": compute_id, "enabled": True}
-        else:
-            return {"computeID": compute_id, "enabled": False}
+    def set_compute_disabled_flag(self, compute_id: str, flag: bool):
+        """Set is_force_disabled flag for compute"""
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+        nodes = db.nodes
+        node = nodes.find_one({"sites.compute.id": compute_id})
+        print("node", node)
+        if not node:
+            return {}
+
+        # Update the is_force_disabled flag for the requested compute
+        nodes.update_one({"sites.compute.id": compute_id}, {"$set": {"sites.compute.$.is_force_disabled": flag}})
+        print("nodes:::", nodes)
+
+        updated_node = nodes.find_one({"sites.compute.id": compute_id})
+        print("updated_node:::", updated_node)
+        updated_site = next(compute for compute in updated_node["compute"] if compute["id"] == compute_id)
+        print("updated_node:::", updated_node)
+        return {"compute_id": compute_id, "is_force_disabled": updated_site.get("is_force_disabled")}
 
     def set_storages_forced_flag(self, storage_id: str, flag: bool):
         """Set forced flag for storages"""
