@@ -23,9 +23,7 @@ def handle_client_exceptions(func):
         except CustomHTTPException as e:
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(
-                repr(e), "".join(traceback.format_tb(e.__traceback__))
-            )
+            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper
@@ -49,9 +47,7 @@ def handle_exceptions(func):
         except CustomHTTPException as e:
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(
-                repr(e), "".join(traceback.format_tb(e.__traceback__))
-            )
+            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper

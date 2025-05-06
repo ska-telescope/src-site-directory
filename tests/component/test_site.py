@@ -14,9 +14,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 def test_set_site_enabled():
     """Test to set site as enabled"""
     site_id = "5b8251b6-12ea-499e-8699-edcd8a55d9b8"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/enabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/enabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -30,9 +28,7 @@ def test_set_site_enabled():
 def test_set_site_disabled():
     """Test to set site as disabled"""
     site_id = "5b8251b6-12ea-499e-8699-edcd8a55d9b8"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/disabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/disabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200

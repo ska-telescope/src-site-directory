@@ -159,9 +159,7 @@ async def list_compute(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all compute."""
     if node_names:
@@ -224,9 +222,7 @@ async def get_compute_from_id(
 async def list_nodes(
     request: Request,
     only_names: bool = Query(default=False, description="Return only node names"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List nodes with an option to return only node names."""
     rtn = BACKEND.list_nodes(include_archived=False, include_inactive=include_inactive)
@@ -448,9 +444,7 @@ async def list_schemas(request: Request) -> JSONResponse:
     summary="Get schema",
 )
 @handle_exceptions
-async def get_schema(
-    request: Request, schema: str = Path(description="Schema name")
-) -> Union[JSONResponse, HTTPException]:
+async def get_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
     """Get a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(
@@ -475,9 +469,7 @@ async def get_schema(
     summary="Render a schema",
 )
 @handle_exceptions
-async def render_schema(
-    request: Request, schema: str = Path(description="Schema name")
-) -> Union[JSONResponse, HTTPException]:
+async def render_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
     """Render a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(
@@ -487,9 +479,7 @@ async def render_schema(
         raise SchemaNotFound
 
     # pop countries enum for readability
-    dereferenced_schema.get("properties").get("sites", {}).get("items", {}).get("properties", {}).get(
-        "country", {}
-    ).pop("enum", None)
+    dereferenced_schema.get("properties").get("sites", {}).get("items", {}).get("properties", {}).get("country", {}).pop("enum", None)
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as schema_file:
@@ -569,16 +559,12 @@ async def list_service_types(request: Request) -> JSONResponse:
     try:
         # local
         dereferenced_local_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(
-                "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "local-service"))
-            ).absolute()
+            schema_path=pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "local-service"))).absolute()
         )
 
         # global
         dereferenced_global_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(
-                "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "global-service"))
-            ).absolute()
+            schema_path=pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "global-service"))).absolute()
         )
     except FileNotFoundError:
         raise SchemaNotFound
@@ -646,9 +632,7 @@ async def list_sites(
     request: Request,
     only_names: bool = Query(default=False, description="Return only site names"),
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List versions of all sites."""
     if node_names:
@@ -714,9 +698,7 @@ async def list_storages(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storages."""
     if node_names:
@@ -745,9 +727,7 @@ async def list_storages_for_grafana(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
     if node_names:
@@ -781,9 +761,7 @@ async def list_storages_in_topojson_format(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storages in topojson format."""
     if node_names:
@@ -852,9 +830,7 @@ async def list_storage_areas(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storage areas."""
     if node_names:
@@ -883,9 +859,7 @@ async def list_storage_areas_for_grafana(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
     if node_names:
@@ -919,9 +893,7 @@ async def list_storage_areas_in_topojson_format(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(
-        default=False, description="Include inactive resources? e.g. in downtime, force disabled"
-    ),
+    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
     if node_names:
@@ -955,9 +927,7 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
     """List storage area types."""
     try:
         dereferenced_storage_area_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(
-                "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area"))
-            ).absolute()
+            schema_path=pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), "storage-area"))).absolute()
         )
     except FileNotFoundError:
         raise SchemaNotFound
@@ -1136,11 +1106,7 @@ async def www_login(
 async def www_logout(request: Request) -> Union[HTMLResponse]:
     if request.session.get("access_token"):
         request.session.pop("access_token")
-    return HTMLResponse(
-        "You are logged out. Click <a href="
-        + get_url_for_app_from_request("www_login", request)
-        + ">here</a> to login."
-    )
+    return HTMLResponse("You are logged out. Click <a href=" + get_url_for_app_from_request("www_login", request) + ">here</a> to login.")
 
 
 @api_version(1)
@@ -1175,9 +1141,7 @@ async def add_node_form(
                 raise PermissionDenied
 
         # Load schema.
-        schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute()
-        )
+        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
 
         # Remove sites
         schema.get("properties", {}).pop("sites")
@@ -1206,9 +1170,7 @@ async def add_node_form(
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -1242,9 +1204,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
                 raise PermissionDenied
 
         # Load schema.
-        schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute()
-        )
+        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
 
         # Get latest values for requested node.
         node = BACKEND.get_node(node_name=node_name)
@@ -1286,9 +1246,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -1337,9 +1295,7 @@ async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse,
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -1389,9 +1345,7 @@ async def report_overview(request: Request, node_name: str) -> Union[TEMPLATES.T
         )
     else:
         return HTMLResponse(
-            "Please <a href="
-            + get_url_for_app_from_request("www_login", request)
-            + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 

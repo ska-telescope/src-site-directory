@@ -40,9 +40,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(
-            api_url=self.api_url, compute_id=compute_id
-        )
+        get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(api_url=self.api_url, compute_id=compute_id)
         resp = self.session.get(get_compute_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -70,9 +68,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(
-            api_url=self.api_url, service_id=service_id
-        )
+        get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(api_url=self.api_url, service_id=service_id)
         resp = self.session.get(get_service_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -86,9 +82,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(
-            api_url=self.api_url, storage_id=storage_id
-        )
+        get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url, storage_id=storage_id)
         resp = self.session.get(get_storage_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -102,9 +96,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(
-            api_url=self.api_url, storage_area_id=storage_area_id
-        )
+        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(api_url=self.api_url, storage_area_id=storage_area_id)
         resp = self.session.get(get_storage_area_by_id_endpoint)
         resp.raise_for_status()
         return resp

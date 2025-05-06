@@ -77,9 +77,7 @@ def test_get_site(id, expected_exists, mock_backend):
         assert not result
 
 
-@pytest.mark.parametrize(
-    "node_name,site_name,expected_exists", [("SKAOSRC", "SKAOSRC_A", True), ("SKAOSRC", "SKAOSRC_C", False)]
-)
+@pytest.mark.parametrize("node_name,site_name,expected_exists", [("SKAOSRC", "SKAOSRC_A", True), ("SKAOSRC", "SKAOSRC_C", False)])
 def test_get_site_by_names(node_name, site_name, expected_exists, mock_backend):
     result = mock_backend.get_site_from_names(node_name=node_name, site_name=site_name, node_version="latest")
     if expected_exists:

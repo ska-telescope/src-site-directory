@@ -9,9 +9,7 @@ from ska_src_site_capabilities_api.backend.backend import Backend
 class MongoBackend(Backend):
     """Backend API for MongoDB."""
 
-    def __init__(
-        self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None
-    ):
+    def __init__(self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None):
         """
         Initialises a MongoBackend instance.
 
@@ -25,9 +23,7 @@ class MongoBackend(Backend):
         """
         super().__init__()
         if mongo_database and mongo_username and mongo_password and mongo_host:
-            self.connection_string = "mongodb://{}:{}@{}:{}/".format(
-                mongo_username, mongo_password, mongo_host, int(mongo_port)
-            )
+            self.connection_string = "mongodb://{}:{}@{}:{}/".format(mongo_username, mongo_password, mongo_host, int(mongo_port))
         self.mongo_database = mongo_database
         self.client = client  # used for mocking
 
@@ -365,10 +361,7 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if (
-                        associated_storage_area_id
-                        and service.get("associated_storage_area_id") != associated_storage_area_id
-                    ):
+                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     # Add parent information
                     response.append(
@@ -386,10 +379,7 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if (
-                        associated_storage_area_id
-                        and service.get("associated_storage_area_id") != associated_storage_area_id
-                    ):
+                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     # Add parent information
                     response.append(
@@ -439,9 +429,7 @@ class MongoBackend(Backend):
                 response.append({"parent_node_name": parent_node_name, **site})
         return response
 
-    def list_storages(
-        self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False
-    ):
+    def list_storages(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
         """
         Lists storage resources based on specified filters.
 
@@ -502,9 +490,7 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(
-        self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False
-    ):
+    def list_storage_areas(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
         """
         Lists storage areas based on specified filters.
 
@@ -528,9 +514,7 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for storage in self.list_storages(
-            node_names=node_names, site_names=site_names, include_inactive=include_inactive
-        ):
+        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
             parent_storage = self.get_site_from_names(
                 node_name=storage.get("parent_node_name"),
                 node_version="latest",

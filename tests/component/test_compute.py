@@ -24,9 +24,7 @@ def test_list_compute():
 def test_set_compute_enabled():
     """Test to set compute as enabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -40,9 +38,7 @@ def test_set_compute_enabled():
 def test_set_compute_disabled():
     """Test to set compute as disabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -56,9 +52,7 @@ def test_set_compute_disabled():
 def test_set_compute_services_enabled():
     """Test to set compute services as enabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/services/enabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/services/enabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -72,9 +66,7 @@ def test_set_compute_services_enabled():
 def test_set_compute_disabled():
     """Test to set compute services as disabled"""
     compute_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
-    response = httpx.put(
-        f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/services/disabled"  # noqa: E231
-    )
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/services/disabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
