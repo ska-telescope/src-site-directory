@@ -79,5 +79,13 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def set_compute_services_disabled_flag(self, compute_id: str, flag: bool):
+        raise NotImplementedError
+
+    @abstractmethod
     def set_storages_disabled_flag(self, storage_id: str, flag: bool):
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_storages_areas_disabled_flag(self, storage_id: str, flag: bool):
         raise NotImplementedError

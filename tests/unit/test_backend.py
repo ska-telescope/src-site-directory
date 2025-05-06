@@ -187,6 +187,18 @@ def test_set_compute_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2
     assert result.get("is_force_disabled") is True
 
 
+def test_set_compute_services_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+    result = mock_backend.set_compute_services_disabled_flag(id, False)
+    assert result.get("compute_id") == id
+    assert result.get("services_is_force_disabled") is False
+
+
+def test_set_compute_services_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+    result = mock_backend.set_compute_services_disabled_flag(id, True)
+    assert result.get("compute_id") == id
+    assert result.get("services_is_force_disabled") is True
+
+
 def test_set_storages_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
     result = mock_backend.set_storages_disabled_flag(id, False)
     assert result.get("storage_id") == id
@@ -197,3 +209,15 @@ def test_set_storages_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564
     result = mock_backend.set_storages_disabled_flag(id, True)
     assert result.get("storage_id") == id
     assert result.get("is_force_disabled") is True
+
+
+def test_set_storages_areas_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+    result = mock_backend.set_storages_areas_disabled_flag(id, False)
+    assert result.get("storage_id") == id
+    assert result.get("storage_areas_is_force_disabled") is False
+
+
+def test_set_stoarges_areas_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+    result = mock_backend.set_storages_areas_disabled_flag(id, True)
+    assert result.get("storage_id") == id
+    assert result.get("storage_areas_is_force_disabled") is True
