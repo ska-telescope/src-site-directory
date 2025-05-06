@@ -669,8 +669,6 @@ class MongoBackend(Backend):
                     for areas in storage_areas:
                         areas["is_force_disabled"] = flag
 
-        print("sites:::", node.get("sites"))
-
         nodes.replace_one({"_id": node["_id"]}, node)
 
         return {"storage_id": storage_id, "storage_areas_is_force_disabled": flag}
