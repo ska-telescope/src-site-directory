@@ -1555,7 +1555,7 @@ async def set_compute_disabled(
 @api_version(1)
 @app.put(
     "/storages/{storage_id}/enabled",
-    include_in_schema=False,  # what is this ?
+    include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
