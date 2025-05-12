@@ -21,8 +21,8 @@ def test_list_services():
 
 
 @pytest.mark.post_deployment
-def test_set_compute_services_enabled():
-    """Test to set compute services as enabled"""
+def test_set_services_enabled():
+    """Test to verify services as enabled"""
     service_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/enabled")  # noqa: E231
     response_data = response.json()
@@ -35,8 +35,8 @@ def test_set_compute_services_enabled():
 
 
 @pytest.mark.post_deployment
-def test_set_compute_disabled():
-    """Test to set compute services as disabled"""
+def test_set_services_disabled():
+    """Test to verify services as disabled"""
     service_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disabled")  # noqa: E231
     response_data = response.json()
