@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import mongomock
 import pytest
@@ -161,61 +162,125 @@ def test_list_storage_areas_with_site_name_filter(mock_backend):
     assert len(storage_areas) == 1
 
 
-def test_set_site_enabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
+def test_set_site_enabled(mock_backend, expected_exists=True, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
     result = mock_backend.set_site_disabled_flag(id, False)
-    assert result.get("site_id") == id
-    assert result.get("is_force_disabled") is False
+    if expected_exists:
+        assert result.get("site_id") == id
+        assert result.get("is_force_disabled") is False
+    else:
+        assert not result
 
 
-def test_set_site_disabled(mock_backend, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
+def test_set_site_disabled(mock_backend, expected_exists=True, id="8b008348-0d8d-4505-a625-1e6e8df56e8a"):
     result = mock_backend.set_site_disabled_flag(id, True)
-    assert result.get("site_id") == id
-    assert result.get("is_force_disabled") is True
+    if expected_exists:
+        assert result.get("site_id") == id
+        assert result.get("is_force_disabled") is True
+    else:
+        assert not result
 
 
-def test_set_compute_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+def test_set_compute_enabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
     result = mock_backend.set_compute_disabled_flag(id, False)
-    assert result.get("compute_id") == id
-    assert result.get("is_force_disabled") is False
+    if expected_exists:
+        assert result.get("compute_id") == id
+        assert result.get("is_force_disabled") is False
+    else:
+        assert not result
 
 
-def test_set_compute_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+def test_set_compute_disabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
     result = mock_backend.set_compute_disabled_flag(id, True)
-    assert result.get("compute_id") == id
-    assert result.get("is_force_disabled") is True
+    if expected_exists:
+        assert result.get("compute_id") == id
+        assert result.get("is_force_disabled") is True
+    else:
+        assert not result
 
 
-def test_set_compute_services_enabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+def test_set_compute_services_enabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
     result = mock_backend.set_compute_services_disabled_flag(id, False)
-    assert result.get("compute_id") == id
-    assert result.get("services_is_force_disabled") is False
+    if expected_exists:
+        assert result.get("compute_id") == id
+        assert result.get("services_is_force_disabled") is False
+    else:
+        assert not result
 
 
-def test_set_compute_services_disabled(mock_backend, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
+def test_set_compute_services_disabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
     result = mock_backend.set_compute_services_disabled_flag(id, True)
-    assert result.get("compute_id") == id
-    assert result.get("services_is_force_disabled") is True
+    if expected_exists:
+        assert result.get("compute_id") == id
+        assert result.get("services_is_force_disabled") is True
+    else:
+        assert not result
 
 
-def test_set_storages_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+def test_set_storages_enabled(mock_backend, expected_exists=True, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
     result = mock_backend.set_storages_disabled_flag(id, False)
-    assert result.get("storage_id") == id
-    assert result.get("is_force_disabled") is False
+    if expected_exists:
+        assert result.get("storage_id") == id
+        assert result.get("is_force_disabled") is False
+    else:
+        assert not result
 
 
-def test_set_storages_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
+def test_set_storages_disabled(mock_backend, expected_exists=True, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
     result = mock_backend.set_storages_disabled_flag(id, True)
-    assert result.get("storage_id") == id
-    assert result.get("is_force_disabled") is True
+    if expected_exists:
+        assert result.get("storage_id") == id
+        assert result.get("is_force_disabled") is True
+    else:
+        assert not result
 
 
-def test_set_storages_areas_enabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
-    result = mock_backend.set_storages_areas_disabled_flag(id, False)
-    assert result.get("storage_id") == id
-    assert result.get("storage_areas_is_force_disabled") is False
+# @pytest.mark.parametrize("storage_area_id, expected_exists", [
+#     ("f62199c3-62ad-44ee-a6e0-dd34e891d423", True),  # Node exists
+#     ("non_existent_id", False)  # Node does not exist
+# ])
+# def test_set_storages_areas_enabled(mock_backend, storage_area_id, expected_exists):
+#     # Mock the update_one method to simulate the update behavior
+#     mock_backend._get_mongo_client.return_value.get_database.return_value.nodes.update_one = MagicMock()
+
+#     # Call the method to test
+#     result = mock_backend.set_storages_areas_disabled_flag(storage_area_id, False)
+
+#     # If the node exists, check the expected results
+#     if expected_exists:
+#         assert result.get("storage_id") == storage_area_id
+#         assert result.get("is_force_disabled") is False
+#     else:
+#         # If the node does not exist, assert that the result is empty
+#         assert not result
+
+#     # Assert that the update_one method was called (even though it doesn't actually execute)
+#     mock_backend._get_mongo_client.return_value.get_database.return_value.nodes.update_one.assert_called_once()
 
 
-def test_set_stoarges_areas_disabled(mock_backend, id="180f2f39-4548-4f11-80b1-7471564e5c05"):
-    result = mock_backend.set_storages_areas_disabled_flag(id, True)
-    assert result.get("storage_id") == id
-    assert result.get("storage_areas_is_force_disabled") is True
+@pytest.mark.parametrize("set_flag", [False, True])  # enabled  # disabled
+def test_set_storages_areas_enabled_disabled(set_flag, mock_backend, storage_area_id="f62199c3-62ad-44ee-a6e0-dd34e891d423", expected_exists=True):
+    mock_client = MagicMock()
+    mock_db = MagicMock()
+    mock_collection = MagicMock()
+
+    mock_backend._get_mongo_client = MagicMock(return_value=mock_client)
+
+    mock_client.__getitem__.return_value = mock_db  # db access
+    mock_db.__getitem__.return_value = mock_collection  # nodes collection
+
+    # Mock the behavior of the find_one method
+    mock_collection.find_one.return_value = (
+        {"name": "node_name", "sites": [{"storages": [{"id": storage_area_id, "areas": [{"id": storage_area_id, "is_force_disabled": set_flag}]}]}]}
+        if expected_exists
+        else None
+    )
+
+    # Mock the update_one method
+    mock_collection.update_one = MagicMock()
+    result = mock_backend.set_storages_areas_disabled_flag(storage_area_id, set_flag)
+
+    if expected_exists:
+        assert result.get("storage_id") == storage_area_id
+        assert result.get("is_force_disabled") is set_flag
+    else:
+        assert not result

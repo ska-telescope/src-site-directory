@@ -636,23 +636,22 @@ class MongoBackend(Backend):
 
         return {"storage_id": storage_id, "is_force_disabled": flag}
 
-    def set_storages_areas_disabled_flag(self, storage_id: str, flag: bool):
-        """Set is_force_disabled flag for storages areas"""
+    def set_storages_areas_disabled_flag(self, storage_area_id: str, flag: bool):
+        """Set is_force_disabled flag for storage areas"""
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
-        node = nodes.find_one({"sites.storages.id": storage_id})
+        node = nodes.find_one({"sites.storages.areas.id": storage_area_id})
+
         if not node:
             return {}
 
-        for site in node.get("sites", []):
-            for storage in site.get("storages", []):
-                if storage["id"] == storage_id:
-                    storage_areas = storage.get("areas")
+        node_name = node.get("name")
 
-                    for areas in storage_areas:
-                        areas["is_force_disabled"] = flag
-
-        nodes.replace_one({"_id": node["_id"]}, node)
-
-        return {"storage_id": storage_id, "storage_areas_is_force_disabled": flag}
+        nodes.update_one(
+            {"sites.storages.areas.id": storage_area_id},
+            {"$set": {"sites.$[s].storages.$[st].areas.$[a].is_force_disabled": flag}},
+            array_filters=[{"s.storages.id": {"$exists": True}}, {"st.id": {"$exists": True}}, {"a.id": storage_area_id}],
+        )
+        self.add_edit_node(node, node_name=node_name)
+        return {"storage_id": storage_area_id, "is_force_disabled": flag}

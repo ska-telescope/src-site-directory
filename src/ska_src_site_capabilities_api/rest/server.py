@@ -1604,7 +1604,7 @@ async def set_storages_disabled(
 
 @api_version(1)
 @app.put(
-    "/storages/{storage_id}/areas/enabled",
+    "/storage-areas/{storage_area_id}/enabled",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
@@ -1619,16 +1619,16 @@ async def set_storages_disabled(
 @handle_exceptions
 async def set_storages_areas_enabled(
     request: Request,
-    storage_id: str = Path(description="Storage ID"),
+    storage_area_id: str = Path(description="Storage area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_areas_disabled_flag(storage_id, False)
+    response = BACKEND.set_storages_areas_disabled_flag(storage_area_id, False)
     return JSONResponse(response)
 
 
 @api_version(1)
 @app.put(
-    "/storages/{storage_id}/areas/disabled",
+    "/storage-areas/{storage_area_id}/disabled",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
@@ -1643,10 +1643,10 @@ async def set_storages_areas_enabled(
 @handle_exceptions
 async def set_storages_areas_disabled(
     request: Request,
-    storage_id: str = Path(description="Storage ID"),
+    storage_area_id: str = Path(description="Storage area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_areas_disabled_flag(storage_id, True)
+    response = BACKEND.set_storages_areas_disabled_flag(storage_area_id, True)
     return JSONResponse(response)
 
 
