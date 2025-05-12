@@ -180,34 +180,8 @@ def test_set_site_disabled(mock_backend, expected_exists=True, id="8b008348-0d8d
         assert not result
 
 
-def test_set_compute_enabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
-    result = mock_backend.set_compute_disabled_flag(id, False)
-    if expected_exists:
-        assert result.get("compute_id") == id
-        assert result.get("is_force_disabled") is False
-    else:
-        assert not result
-
-
-def test_set_compute_disabled(mock_backend, expected_exists=True, id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"):
-    result = mock_backend.set_compute_disabled_flag(id, True)
-    if expected_exists:
-        assert result.get("compute_id") == id
-        assert result.get("is_force_disabled") is True
-    else:
-        assert not result
-
-
-@pytest.mark.parametrize(
-    "set_flag, service_id",
-    [
-        (False, "21990532-7231-4ab9-9fa7-3dfe587332ec"),
-        (True, "21990532-7231-4ab9-9fa7-3dfe587332ec"),
-        (False, "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f"),
-        (True, "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f"),
-    ],
-)  # enabled  # disabled
-def test_set_services_enabled_disabled(mock_backend, set_flag, service_id, expected_exists=True):
+@pytest.mark.parametrize("set_flag", [False, True])  # enabled  # disabled
+def test_set_compute_enabled_disabled(set_flag, mock_backend, compute_id="db1d3ee3-74e4-48aa-afaf-8d7709a2f57c", expected_exists=True):
     mock_client = MagicMock()
     mock_db = MagicMock()
     mock_nodes = MagicMock()
@@ -219,10 +193,52 @@ def test_set_services_enabled_disabled(mock_backend, set_flag, service_id, expec
 
     # Mock the behavior of the find_one method
     mock_nodes.find_one.return_value = (
-        {"name": "node_name", "sites": [{"compute": {"associated_local_services": [{"id": service_id, "is_force_disabled": False}]}}]}
-        if expected_exists
-        else None
+        {"name": "node_name", "sites": [{"compute": [{"id": compute_id, "is_force_disabled": set_flag}]}]} if expected_exists else None
     )
+
+    # Mock the update_one method
+    mock_nodes.update_one = MagicMock()
+    result = mock_backend.set_compute_disabled_flag(compute_id, set_flag)
+
+    if expected_exists:
+        assert result.get("compute_id") == compute_id
+        assert result.get("is_force_disabled") is set_flag
+    else:
+        assert not result
+
+
+@pytest.mark.parametrize(
+    "set_flag, service_id, service_type",
+    [
+        (False, "21990532-7231-4ab9-9fa7-3dfe587332ec", "local"),
+        (True, "21990532-7231-4ab9-9fa7-3dfe587332ec", "local"),
+        (False, "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f", "global"),
+        (True, "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f", "global"),
+    ],
+)  # enabled  # disabled # for local and global services
+def test_set_services_enabled_disabled(mock_backend, set_flag, service_id, service_type, expected_exists=True):
+    mock_client = MagicMock()
+    mock_db = MagicMock()
+    mock_nodes = MagicMock()
+
+    mock_backend._get_mongo_client = MagicMock(return_value=mock_client)
+
+    mock_client.__getitem__.return_value = mock_db  # db access
+    mock_db.__getitem__.return_value = mock_nodes  # nodes collection
+
+    # Mock the behavior of the find_one method
+    if service_type == "local":
+        mock_nodes.find_one.return_value = (
+            {"name": "node_name", "sites": [{"compute": {"associated_local_services": [{"id": service_id, "is_force_disabled": False}]}}]}
+            if expected_exists
+            else None
+        )
+    elif service_type == "global":
+        mock_nodes.find_one.return_value = (
+            {"name": "node_name", "sites": [{"compute": {"associated_global_services": [{"id": service_id, "is_force_disabled": False}]}}]}
+            if expected_exists
+            else None
+        )
 
     # Mock the update_one method
     mock_nodes.update_one = MagicMock()
@@ -258,7 +274,7 @@ def test_set_storages_areas_enabled_disabled(set_flag, mock_backend, storage_are
     result = mock_backend.set_storages_areas_disabled_flag(storage_area_id, set_flag)
 
     if expected_exists:
-        assert result.get("storage_id") == storage_area_id
+        assert result.get("storage_area_id") == storage_area_id
         assert result.get("is_force_disabled") is set_flag
     else:
         assert not result

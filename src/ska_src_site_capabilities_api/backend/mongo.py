@@ -582,13 +582,14 @@ class MongoBackend(Backend):
         if not node:
             return {}
 
-        for site in node["sites"]:
-            for compute in site.get("compute", []):
-                if compute["id"] == compute_id:
-                    compute["is_force_disabled"] = flag
+        node_name = node.get("name")
 
-        nodes.replace_one({"_id": node["_id"]}, node)
-
+        nodes.update_one(
+            {"sites.compute.id": compute_id},
+            {"$set": {"sites.$[s].compute.$[c].is_force_disabled": flag}},
+            array_filters=[{"s.compute.id": {"$exists": True}}, {"c.id": compute_id}],
+        )
+        self.add_edit_node(node, node_name=node_name)
         return {"compute_id": compute_id, "is_force_disabled": flag}
 
     def set_services_disabled_flag(self, service_id: str, flag: bool):
@@ -655,7 +656,7 @@ class MongoBackend(Backend):
             array_filters=[{"s.storages.id": {"$exists": True}}, {"st.id": {"$exists": True}}, {"a.id": storage_area_id}],
         )
         self.add_edit_node(node, node_name=node_name)
-        return {"storage_id": storage_area_id, "is_force_disabled": flag}
+        return {"storage_area_id": storage_area_id, "is_force_disabled": flag}
 
     def find_node_by_service_id(self, service_id: str):
         """Find node using service id"""
