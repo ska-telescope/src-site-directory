@@ -18,3 +18,31 @@ def test_list_services():
         assert response.status_code == 200
     else:
         assert response.status_code == 403
+
+
+@pytest.mark.post_deployment
+def test_set_compute_services_enabled():
+    """Test to set compute services as enabled"""
+    service_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/enabled")  # noqa: E231
+    response_data = response.json()
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        assert response_data["service_id"] == service_id
+        assert response_data["is_force_disabled"] is False
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.post_deployment
+def test_set_compute_disabled():
+    """Test to set compute services as disabled"""
+    service_id = "dd875a28-2df8-4f9f-838c-aa4110b4c4b9"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disabled")  # noqa: E231
+    response_data = response.json()
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        assert response_data["service_id"] == service_id
+        assert response_data["is_force_disabled"] is True
+    else:
+        assert response.status_code == 403
