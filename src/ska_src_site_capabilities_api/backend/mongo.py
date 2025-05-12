@@ -110,6 +110,8 @@ class MongoBackend(Backend):
         else:  # Updating an existing node
             node_values["version"] = latest_node.get("version") + 1
 
+        node_values.pop("_id", None)
+
         # Insert this new version of the node into the nodes collection
         inserted_node = nodes.insert_one(node_values)
 
