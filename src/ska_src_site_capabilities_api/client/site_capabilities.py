@@ -504,27 +504,27 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def set_compute_services_enabled(self, compute_id: str):
-        """Set compute services enabled
+    def set_services_enabled(self, service_id: str):
+        """Set services enabled
 
-        :param str compute_id: The unique identifier of the compute.
+        :param str service_id: The unique identifier of the service.
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/compute/{compute_id}/services/enabled"
+        endpoint = f"{self.api_url}/services/{service_id}/enabled"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def set_compute_disabled(self, compute_id: str):
-        """Set compute services disabled
+    def set_services_disabled(self, service_id: str):
+        """Set services disabled
 
-        :param str compute_id: The unique identifier of the compute.
+        :param str service_id: The unique identifier of the service.
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/compute/{compute_id}/services/disabled"
+        endpoint = f"{self.api_url}/services/{service_id}/disabled"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -556,27 +556,27 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def set_storages_areas_enabled(self, storage_id: str):
+    def set_storages_areas_enabled(self, storage_area_id: str):
         """Set storages areas enabled
 
-        :param str storage_id: The unique identifier of the storage.
+        :param str storage_area_id: The unique identifier of the storage areas.
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storages/{storage_id}/areas/enabled"
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/enabled"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
 
     @handle_client_exceptions
-    def set_storages_areas_disabled(self, storage_id: str):
+    def set_storages_areas_disabled(self, storage_area_id: str):
         """Set storages areas disabled
 
-        :param str storage_id: The unique identifier of the storage.
+        :param str storage_area_id: The unique identifier of the storage areas.
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storages/{storage_id}/areas/disabled"
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/disabled"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp

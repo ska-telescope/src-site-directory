@@ -1508,7 +1508,7 @@ async def set_compute_disabled(
 
 @api_version(1)
 @app.put(
-    "/compute/{compute_id}/services/enabled",
+    "/services/{service_id}/enabled",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
@@ -1517,22 +1517,22 @@ async def set_compute_disabled(
         Depends(increment_request_counter),
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
-    tags=["Compute local and global services enabled"],
+    tags=["Local and/or global services enabled"],
     summary="Set is_forced_disabled flag to false",
 )
 @handle_exceptions
-async def set_compute_services_enabled(
+async def set_services_enabled(
     request: Request,
-    compute_id: str = Path(description="Compute ID"),
+    service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_services_disabled_flag(compute_id, False)
+    response = BACKEND.set_services_disabled_flag(service_id, False)
     return JSONResponse(response)
 
 
 @api_version(1)
 @app.put(
-    "/compute/{compute_id}/services/disabled",
+    "/services/{service_id}/disabled",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
@@ -1541,16 +1541,16 @@ async def set_compute_services_enabled(
         Depends(increment_request_counter),
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
-    tags=["Compute local and global services disabled"],
+    tags=["Local and/or global services disabled"],
     summary="Set is_forced_disabled flag to true",
 )
 @handle_exceptions
-async def set_compute_services_disabled(
+async def set_services_disabled(
     request: Request,
-    compute_id: str = Path(description="Compute ID"),
+    service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_services_disabled_flag(compute_id, True)
+    response = BACKEND.set_services_disabled_flag(service_id, True)
     return JSONResponse(response)
 
 

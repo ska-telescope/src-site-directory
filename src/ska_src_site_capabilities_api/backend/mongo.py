@@ -591,49 +591,50 @@ class MongoBackend(Backend):
 
         return {"compute_id": compute_id, "is_force_disabled": flag}
 
-    def set_compute_services_disabled_flag(self, compute_id: str, flag: bool):
-        """Set is_force_disabled flag for compute services local and/or global"""
+    def set_services_disabled_flag(self, service_id: str, flag: bool):
+        """Set is_force_disabled flag for services"""
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
-        node = nodes.find_one({"sites.compute.id": compute_id})
 
+        node, service_type = self.find_node_by_service_id(service_id)
         if not node:
             return {}
 
-        for site in node.get("sites", []):
-            for compute in site.get("compute", []):
-                if compute.get("id") == compute_id:
-                    global_services = compute.get("associated_global_services")
-                    local_services = compute.get("associated_local_services")
+        node_name = node.get("name")
+        if service_type == "global":
+            nodes.update_one(
+                {"$set": {"sites.$[s].compute.associated_global_services.$[svc].is_force_disabled": flag}},
+                array_filters=[{"s.compute.associated_global_services.id": {"$exists": True}}, {"svc.id": service_id}],
+            )
+        elif service_type == "local":
+            nodes.update_one(
+                {"$set": {"sites.$[s].compute.associated_local_services.$[svc].is_force_disabled": flag}},
+                array_filters=[{"s.compute.associated_local_services.id": {"$exists": True}}, {"svc.id": service_id}],
+            )
 
-                    if global_services:
-                        for service in global_services:
-                            service["is_force_disabled"] = flag
-                    if local_services:
-                        for service in local_services:
-                            service["is_force_disabled"] = flag
-
-        nodes.replace_one({"_id": node["_id"]}, node)
-
-        return {"compute_id": compute_id, "services_is_force_disabled": flag}
+        self.add_edit_node(node, node_name=node_name)
+        return {"service_id": service_id, "is_force_disabled": flag}
 
     def set_storages_disabled_flag(self, storage_id: str, flag: bool):
         """Set is_force_disabled flag for storages"""
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
+
         node = nodes.find_one({"sites.storages.id": storage_id})
         if not node:
             return {}
 
-        for site in node.get("sites", []):
-            for storages in site.get("storages", []):
-                if storages["id"] == storage_id:
-                    storages["is_force_disabled"] = flag
+        node_name = node.get("name")
 
-        nodes.replace_one({"_id": node["_id"]}, node)
+        nodes.update_one(
+            {"sites.storages.id": storage_id},
+            {"$set": {"sites.$[s].storages.$[st].is_force_disabled": flag}},
+            array_filters=[{"s.storages.id": {"$exists": True}}, {"st.id": storage_id}],
+        )
 
+        self.add_edit_node(node, node_name=node_name)
         return {"storage_id": storage_id, "is_force_disabled": flag}
 
     def set_storages_areas_disabled_flag(self, storage_area_id: str, flag: bool):
@@ -655,3 +656,18 @@ class MongoBackend(Backend):
         )
         self.add_edit_node(node, node_name=node_name)
         return {"storage_id": storage_area_id, "is_force_disabled": flag}
+
+    def find_node_by_service_id(self, service_id: str):
+        """Find node using service id"""
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+        nodes = db.nodes
+        node = nodes.find_one({"sites.compute.associated_global_services.id": service_id})
+        if node:
+            return node, "global"
+
+        node = nodes.find_one({"sites.compute.associated_local_services.id": service_id})
+        if node:
+            return node, "local"
+
+        return None, None
