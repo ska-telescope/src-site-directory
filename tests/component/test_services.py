@@ -37,7 +37,7 @@ def test_set_services_enabled():
 @pytest.mark.post_deployment
 def test_set_services_disabled():
     """Test to verify services as disabled"""
-    service_id = "1f73c95e-301b-4f5e-a2cf-aeb461da2d70"
+    service_id = "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disabled")  # noqa: E231
     response_data = response.json()
     print(response_data)
