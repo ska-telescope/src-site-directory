@@ -608,12 +608,11 @@ class MongoBackend(Backend):
 
         # Ensure serivices exists
         for site in node.get("sites", []):
-            if "compute" not in site:
-                site["compute"] = {}
-            if service_type == "global" and "associated_global_services" not in site["compute"]:
-                site["compute"]["associated_global_services"] = []
-            elif service_type == "local" and "associated_local_services" not in site["compute"]:
-                site["compute"]["associated_local_services"] = []
+            for compute in site.get("compute"):
+                if service_type == "global" and "associated_global_services" not in compute:
+                    site["compute"]["associated_global_services"] = []
+                elif service_type == "local" and "associated_local_services" not in compute:
+                    site["compute"]["associated_local_services"] = []
 
         nodes.replace_one({"name": node_name}, node)
 
