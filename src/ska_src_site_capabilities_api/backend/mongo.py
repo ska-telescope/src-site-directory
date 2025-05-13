@@ -607,13 +607,13 @@ class MongoBackend(Backend):
         node_name = node.get("name")
         if service_type == "global":
             nodes.update_one(
-                {"name": node_name},
+                {"sites.compute.associated_global_services": {"$exists": True}},
                 {"$set": {"sites.$[s].compute.associated_global_services.$[svc].is_force_disabled": flag}},
                 array_filters=[{"s.compute.associated_global_services.id": {"$exists": True}}, {"svc.id": service_id}],
             )
         elif service_type == "local":
             nodes.update_one(
-                {"name": node_name},
+                {"sites.compute.associated_local_services": {"$exists": True}},
                 {"$set": {"sites.$[s].compute.associated_local_services.$[svc].is_force_disabled": flag}},
                 array_filters=[{"s.compute.associated_local_services.id": {"$exists": True}}, {"svc.id": service_id}],
             )
