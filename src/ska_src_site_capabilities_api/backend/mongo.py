@@ -605,17 +605,16 @@ class MongoBackend(Backend):
             return {}
 
         node_name = node.get("name")
-
-        # Ensure serivices exists
         for site in node.get("sites", []):
-            for compute in site.get("compute"):
-                if service_type == "global" and "associated_global_services" not in compute:
-                    site["compute"]["associated_global_services"] = []
-                elif service_type == "local" and "associated_local_services" not in compute:
-                    site["compute"]["associated_local_services"] = []
+            if "compute" not in site or not isinstance(site["compute"], dict):
+                site["compute"] = {}
+            compute = site["compute"]
+            if service_type == "global" and "associated_global_services" not in compute:
+                compute["associated_global_services"] = []
+            elif service_type == "local" and "associated_local_services" not in compute:
+                compute["associated_local_services"] = []
 
         nodes.replace_one({"name": node_name}, node)
-
         if service_type == "global":
             nodes.update_one(
                 {"name": node_name},
