@@ -605,17 +605,29 @@ class MongoBackend(Backend):
             return {}
 
         node_name = node.get("name")
+
+        # Ensure serivices exists
+        for site in node.get("sites", []):
+            if "compute" not in site:
+                site["compute"] = {}
+            if service_type == "global" and "associated_global_services" not in site["compute"]:
+                site["compute"]["associated_global_services"] = []
+            elif service_type == "local" and "associated_local_services" not in site["compute"]:
+                site["compute"]["associated_local_services"] = []
+
+        nodes.replace_one({"name": node_name}, node)
+
         if service_type == "global":
             nodes.update_one(
-                {"sites.compute.associated_global_services": {"$exists": True}},
+                {"name": node_name},
                 {"$set": {"sites.$[s].compute.associated_global_services.$[svc].is_force_disabled": flag}},
-                array_filters=[{"s.compute.associated_global_services.id": {"$exists": True}}, {"svc.id": service_id}],
+                array_filters=[{"s.compute.associated_global_services": {"$exists": True}}, {"svc.id": service_id}],
             )
         elif service_type == "local":
             nodes.update_one(
-                {"sites.compute.associated_local_services": {"$exists": True}},
+                {"name": node_name},
                 {"$set": {"sites.$[s].compute.associated_local_services.$[svc].is_force_disabled": flag}},
-                array_filters=[{"s.compute.associated_local_services.id": {"$exists": True}}, {"svc.id": service_id}],
+                array_filters=[{"s.compute.associated_local_services": {"$exists": True}}, {"svc.id": service_id}],
             )
 
         self.add_edit_node(node, node_name=node_name)
