@@ -23,7 +23,7 @@ def test_list_storage_areas():
 @pytest.mark.post_deployment
 def test_set_storages_areas_enabled():
     """Test to set storage areas as enabled"""
-    storage_area_id = "180f2f39-4548-4f11-80b1-7471564e5c05"
+    storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/enabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
@@ -37,7 +37,7 @@ def test_set_storages_areas_enabled():
 @pytest.mark.post_deployment
 def test_set_storages_areas_disabled():
     """Test to set storage areas as disabled"""
-    storage_area_id = "180f2f39-4548-4f11-80b1-7471564e5c05"
+    storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/disabled")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
