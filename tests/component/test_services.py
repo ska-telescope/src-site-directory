@@ -26,7 +26,6 @@ def test_set_services_enabled():
     service_id = "1f73c95e-301b-4f5e-a2cf-aeb461da2d70"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/enabled")  # noqa: E231
     response_data = response.json()
-    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["service_id"] == service_id
@@ -41,6 +40,7 @@ def test_set_services_disabled():
     service_id = "1f73c95e-301b-4f5e-a2cf-aeb461da2d70"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disabled")  # noqa: E231
     response_data = response.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["service_id"] == service_id
