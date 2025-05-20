@@ -40,9 +40,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(
-            api_url=self.api_url, compute_id=compute_id
-        )
+        get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(api_url=self.api_url, compute_id=compute_id)
         resp = self.session.get(get_compute_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -70,9 +68,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(
-            api_url=self.api_url, service_id=service_id
-        )
+        get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(api_url=self.api_url, service_id=service_id)
         resp = self.session.get(get_service_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -86,9 +82,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(
-            api_url=self.api_url, storage_id=storage_id
-        )
+        get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url, storage_id=storage_id)
         resp = self.session.get(get_storage_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -102,9 +96,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(
-            api_url=self.api_url, storage_area_id=storage_area_id
-        )
+        get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(api_url=self.api_url, storage_area_id=storage_area_id)
         resp = self.session.get(get_storage_area_by_id_endpoint)
         resp.raise_for_status()
         return resp
@@ -456,5 +448,135 @@ class SiteCapabilitiesClient:
         """
         ping_endpoint = "{api_url}/ping".format(api_url=self.api_url)
         resp = self.session.get(ping_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_site_enabled(self, site_id: str):
+        """Unset site force disabled.
+
+        :param str site_id: The unique identifier of the site.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/sites/{site_id}/enabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_site_disabled(self, site_id: str):
+        """Set site force disabled.
+
+        :param str site_id: The unique identifier of the site.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/sites/{site_id}/disabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_compute_enabled(self, compute_id: str):
+        """Unset compute force disabled.
+
+        :param str compute_id: The unique identifier of the compute.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/compute/{compute_id}/enabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_compute_disabled(self, compute_id: str):
+        """Set compute force disabled.
+
+        :param str compute_id: The unique identifier of the compute.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/compute/{compute_id}/disabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_service_enabled(self, service_id: str):
+        """Unset service force disabled.
+
+        :param str service_id: The unique identifier of the service.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/services/{service_id}/enabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_service_disabled(self, service_id: str):
+        """Set service force disabled.
+
+        :param str service_id: The unique identifier of the service.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/services/{service_id}/disabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_storage_enabled(self, storage_id: str):
+        """Unset storage force disabled.
+
+        :param str storage_id: The unique identifier of the storage.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/storages/{storage_id}/enabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_storage_disabled(self, storage_id: str):
+        """Set storage force disabled.
+
+        :param str storage_id: The unique identifier of the storage.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/storages/{storage_id}/disabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_storage_area_enabled(self, storage_area_id: str):
+        """Unset storage area force disabled.
+
+        :param str storage_area_id: The unique identifier of the storage area.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/enabled"
+        resp = self.session.put(endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def set_storage_area_disabled(self, storage_area_id: str):
+        """Set storage area force disabled.
+
+        :param str storage_area_id: The unique identifier of the storage area.
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/disabled"
+        resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp

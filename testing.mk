@@ -1,9 +1,9 @@
 # Configuration items for python linting and formatting targets (python.mk)
-PYTHON_LINE_LENGTH=120
+PYTHON_LINE_LENGTH=150
 PYTHON_SWITCHES_FOR_ISORT=
 PYTHON_SWITCHES_FOR_BLACK=
 PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503
-PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503
+PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503,W0212
 
 # Configuration items for k8s deployment testing (k8s.mk)
 PROJECT=ska-src-site-capabilities-api
@@ -17,7 +17,7 @@ ifeq ($(MAKECMDGOALS),python-test)					# if running pytest outside of deployment
     PYTHON_VARS_AFTER_PYTEST=-x -m 'not post_deployment' $(FILE)
 endif
 ifeq ($(MAKECMDGOALS),k8s-test)						# if running pytest inside deployment test runner
-    PYTHON_VARS_AFTER_PYTEST=-x -m 'post_deployment' $(FILE)
+    PYTHON_VARS_AFTER_PYTEST= -m 'post_deployment' $(FILE)
 endif
 
 # Override pre for k8s-test (k8s.mk): create requirements.txt in required place to be passed in to test runner (/tests)
@@ -31,4 +31,5 @@ K8S_CHART_COMMON_PARAMS = \
 	--set secrets.api.sessions.key=$(SESSIONS_SECRET_KEY) \
 	--set secrets.common.mongo.password=$(MONGO_PASSWORD) \
 	--set ing.enabled=false \
-	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
+	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN) \
+	--set svc.api.mongo_init_data_relpath=tests/assets

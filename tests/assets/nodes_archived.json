@@ -1,27 +1,27 @@
 [
   {
-    "name": "SKAOSRC",
+    "name": "TEST",
     "comments": "",
     "sites": [
       {
         "id": "8b008348-0d8d-4505-a625-1e6e8df56e8a",
-        "name": "SKAOSRC_A",
-        "description": "Magenta prototype site deployment",
+        "name": "TEST_A",
+        "description": "Test site A deployment",
         "country": "GB",
         "latitude": 51.4964,
         "longitude": -0.1224,
-        "primary_contact_email": "rob.barnsley@skao.int",
-        "secondary_contact_email": "j.collinson@skao.int",
+        "primary_contact_email": "someone1@skao.int",
+        "secondary_contact_email": "someone2@skao.int",
         "storages": [
           {
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
-            "host": "srcdev.skatelescope.org",
+            "host": "host.skao.int",
             "base_path": "/storm/sa",
 
             "srm": "storm",
             "device_type": "",
             "size_in_terabytes": 11,
-            "name": "SKAOSRC",
+            "name": "TEST",
             "supported_protocols": [
               {
                 "prefix": "https",
@@ -33,7 +33,7 @@
                 "id": "f62199c3-62ad-44ee-a6e0-dd34e891d423",
                 "type": "rse",
                 "relative_path": "/nondeterministic",
-                "name": "STFC_STORM_ND",
+                "name": "STORM_ND",
                 "tier": 1,
                 "other_attributes": {},
                 "is_force_disabled": false
@@ -67,9 +67,8 @@
             ],
             "associated_global_services": [
               {
-                "id": "global-service-1",
-                "type": "global_service_example",
-                "description": "This is an example of a global service.",
+                "id": "dd200c23-60f4-49c0-a987-3e11f06a4c8c",
+                "type": "rucio",
                 "version": "1.0",
                 "other_attributes": {}
               }
@@ -83,13 +82,13 @@
       },
       {
         "id": "e86fe7a5-980e-466b-95ec-bb5c0b8120a4",
-        "name": "SKAOSRC_B",
-        "description": "Magenta prototype site deployment",
+        "name": "TEST_B",
+        "description": "Test site B deployment",
         "country": "GB",
         "latitude": 53.4808,
         "longitude": -2.2426,
-        "primary_contact_email": "rob.barnsley@skao.int",
-        "secondary_contact_email": "j.collinson@skao.int",
+        "primary_contact_email": "someone3@skao.int",
+        "secondary_contact_email": "someone4@skao.int",
         "storages": [
           {
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
@@ -98,7 +97,7 @@
             "srm": "storm",
             "device_type": "",
             "size_in_terabytes": 11,
-            "name": "SKAOSRC",
+            "name": "TEST",
             "supported_protocols": [
               {
                 "prefix": "https",
@@ -110,7 +109,7 @@
                 "id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                 "type": "rse",
                 "relative_path": "/deterministic",
-                "name": "STFC_STORM",
+                "name": "STORM",
                 "tier": 1,
                 "other_attributes": {},
                 "is_force_disabled": false
@@ -122,7 +121,7 @@
         "compute": [
           {
             "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
-            "name": "SKAOSRC",
+            "name": "TEST",
             "latitude": 51.4964,
             "longitude": -0.1224,
             "middleware_version": "1",
@@ -131,21 +130,10 @@
                 "id": "4f57724b-aa73-4c6c-bf0c-3fb95677cc91",
                 "type": "jupyterhub",
                 "prefix": "https",
-                "host": "jupyterhub.srcdev.skao.int",
+                "host": "jupyterhub.skao.int",
                 "port": 443,
                 "path": "/",
-                "name": "SKAO Jupyter hub",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "is_force_disabled": false
-              },
-              {
-                "id": "fb508c67-4339-4727-b873-b1ac617d72d5",
-                "type": "jupyterhub",
-                "prefix": "http",
-                "host": "localhost",
-                "port": 8000,
-                "name": "Tangerine local test JupyterHub",
+                "name": "Jupyterhub",
                 "other_attributes": {},
                 "is_mandatory": false,
                 "is_force_disabled": false
@@ -154,13 +142,13 @@
                 "id": "05e18fb5-5f32-4c24-a399-0c50c77fb6d7",
                 "type": "soda_sync",
                 "prefix": "https",
-                "host": "gatekeeper.srcdev.skao.int",
+                "host": "gatekeeper.skao.int",
                 "port": 443,
                 "path": "/soda",
                 "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                 "other_attributes": {
                   "resourceIdentifier": {
-                    "value": "ivo://skao.src/skaosrc-soda/"
+                    "value": "ivo://skao.src/test-soda/"
                   },
                   "ivoid_to_namespace_regex": "\\?([^\\/]+)",
                   "ivoid_to_name_regex": ".*\\/(.*)"
@@ -172,13 +160,13 @@
                 "id": "85563c81-d7b3-47af-b6bb-390f54ae48f2",
                 "type": "soda_async",
                 "prefix": "https",
-                "host": "gatekeeper.srcdev.skao.int",
+                "host": "gatekeeper.skao.int",
                 "port": 443,
                 "path": "/soda/async",
                 "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                 "other_attributes": {
                   "resourceIdentifier": {
-                    "value": "ivo://skao.src/skaosrc-soda/"
+                    "value": "ivo://skao.src/test-soda/"
                   },
                   "ivoid_to_namespace_regex": "\\?([^\\/]+)",
                   "ivoid_to_name_regex": ".*\\/(.*)"
@@ -193,24 +181,12 @@
                 "other_attributes": {},
                 "is_mandatory": false,
                 "is_force_disabled": false
-              },
-              {
-                "id": "076f2185-f7e5-4a19-9365-523085ff64ec",
-                "type": "jupyterhub",
-                "prefix": "https",
-                "host": "gateway-test.srcdev.skao.int",
-                "path": "/jupyterhub/",
-                "name": "Tangerine (gateway-test) JupyterHUB",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "is_force_disabled": false
               }
             ],
             "associated_global_services": [
               {
-                "id": "global-service-2",
-                "type": "global_service_example_2",
-                "description": "Another example of a global service.",
+                "id": "dd200c23-60f4-49c0-a987-3e11f06a4c8d",
+                "type": "fts",
                 "version": "1.1",
                 "other_attributes": {}
               }
@@ -223,8 +199,8 @@
         "is_force_disabled": false
       }
     ],
-    "last_updated_at": "2025-03-18T15:31:18.850288",
-    "last_updated_by_username": "robbarnsley",
+    "last_updated_at": "2025-02-18T15:31:18.850288",
+    "last_updated_by_username": "user",
     "version": 2
   }
 ]

@@ -10,8 +10,8 @@ until mongosh --quiet --host $MONGO_HOST --port $MONGO_PORT --eval "print(\"wait
 n_docs=`mongosh $MONGO_DATABASE --quiet --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD --authenticationDatabase=admin --eval="db.nodes.countDocuments()"`
 if [ "$n_docs" -eq "0" ]; then
    echo "importing documents..."
-   mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c nodes --authenticationDatabase=admin --jsonArray etc/init/nodes.json
-   mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c nodes_archived --authenticationDatabase=admin --jsonArray etc/init/nodes_archived.json
+   mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c nodes --authenticationDatabase=admin --jsonArray $MONGO_INIT_DATA_RELPATH/nodes.json
+   mongoimport --host $MONGO_HOST --port $MONGO_PORT -u $MONGO_USERNAME -p $MONGO_PASSWORD -d $MONGO_DATABASE -c nodes_archived --authenticationDatabase=admin --jsonArray $MONGO_INIT_DATA_RELPATH/nodes_archived.json
 fi
 
 export SERVICE_VERSION=`awk -F '[" ]+' '/^version =/ {print $3}' pyproject.toml`

@@ -1,5 +1,5 @@
 """
-A module for  component tests related to status.
+A module for component tests related to status.
 """
 import os
 

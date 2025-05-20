@@ -50,6 +50,10 @@ include:
   # badges
   - project: 'ska-telescope/templates-repository'
     file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
+  # release automation
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/release.gitlab-ci.yml'
+
 
 # Overrides for and extensions of SKAO jobs
 #
