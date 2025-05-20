@@ -26,12 +26,16 @@ def test_set_storages_areas_enabled():
     storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/enabled")  # noqa: E231
     response_data = response.json()
+    get_storage_areas = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}")  # noqa: E231
+    response_data = get_storage_areas.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["storage_area_id"] == storage_area_id
         assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
+    assert 0
 
 
 @pytest.mark.post_deployment
@@ -40,9 +44,13 @@ def test_set_storages_areas_disabled():
     storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/disabled")  # noqa: E231
     response_data = response.json()
+    get_storage_areas = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}")  # noqa: E231
+    response_data = get_storage_areas.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["storage_area_id"] == storage_area_id
         assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403
+    assert 0

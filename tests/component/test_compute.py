@@ -26,6 +26,8 @@ def test_set_compute_enabled():
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled")  # noqa: E231
     response_data = response.json()
+    get_compute = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}")  # noqa: E231
+    response_data = get_compute.json()
     print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -33,6 +35,7 @@ def test_set_compute_enabled():
         assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
+    assert 0
 
 
 @pytest.mark.post_deployment
@@ -41,6 +44,8 @@ def test_set_compute_disabled():
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disabled")  # noqa: E231
     response_data = response.json()
+    get_compute = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}")  # noqa: E231
+    response_data = get_compute.json()
     print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -48,3 +53,4 @@ def test_set_compute_disabled():
         assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403
+    assert 0
