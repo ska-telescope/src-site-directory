@@ -35,6 +35,7 @@ def test_set_storages_areas_enabled():
     else:
         assert response.status_code == 403
 
+
 @pytest.mark.post_deployment
 def test_set_storages_areas_disabled():
     """Test to set storage area as disabled"""
