@@ -16,12 +16,16 @@ def test_set_site_enabled():
     site_id = "8b008348-0d8d-4505-a625-1e6e8df56e8a"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/enable")  # noqa: E231
     response_data = response.json()
+    get_site = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}")  # noqa: E231
+    response_data = get_site.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["site_id"] == site_id
         assert response_data["is_force_disabled"] is False
     else:
         assert response.status_code == 403
+    assert 0
 
 
 @pytest.mark.post_deployment
@@ -30,9 +34,13 @@ def test_set_site_disabled():
     site_id = "8b008348-0d8d-4505-a625-1e6e8df56e8a"
     response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}/disable")  # noqa: E231
     response_data = response.json()
+    get_site = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/sites/{site_id}")  # noqa: E231
+    response_data = get_site.json()
+    print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
         assert response_data["site_id"] == site_id
         assert response_data["is_force_disabled"] is True
     else:
         assert response.status_code == 403
+    assert 0
