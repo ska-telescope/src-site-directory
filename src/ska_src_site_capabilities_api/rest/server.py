@@ -202,6 +202,54 @@ async def get_compute_from_id(
 
 
 @api_version(1)
+@app.put(
+    "/compute/{compute_id}/enable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Compute"],
+    summary="Unset compute force disabled.",
+)
+@handle_exceptions
+async def set_compute_enabled(
+    request: Request,
+    compute_id: str = Path(description="Compute ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_compute_force_disabled_flag(compute_id, False)
+    return JSONResponse(response)
+
+
+@api_version(1)
+@app.put(
+    "/compute/{compute_id}/disable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Compute"],
+    summary="Set compute force disabled.",
+)
+@handle_exceptions
+async def set_compute_disabled(
+    request: Request,
+    compute_id: str = Path(description="Compute ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_compute_force_disabled_flag(compute_id, True)
+    return JSONResponse(response)
+
+
+@api_version(1)
 @app.get(
     "/nodes",
     responses={
@@ -611,6 +659,54 @@ async def get_service_from_id(
 
 
 @api_version(1)
+@app.put(
+    "/services/{service_id}/enable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Services"],
+    summary="Unset service force disabled.",
+)
+@handle_exceptions
+async def set_services_enabled(
+    request: Request,
+    service_id: str = Path(description="Service ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_service_force_disabled_flag(service_id, False)
+    return JSONResponse(response)
+
+
+@api_version(1)
+@app.put(
+    "/services/{service_id}/disable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Services"],
+    summary="Set service force disabled.",
+)
+@handle_exceptions
+async def set_service_disabled(
+    request: Request,
+    service_id: str = Path(description="Service ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_service_force_disabled_flag(service_id, True)
+    return JSONResponse(response)
+
+
+@api_version(1)
 @app.get(
     "/sites",
     responses={
@@ -674,6 +770,57 @@ async def get_site_from_id(
     if not rtn:
         raise SiteNotFound(site_id)
     return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.put(
+    "/sites/{site_id}/enable",
+    responses={200: {}, 401: {}, 403: {}, 404: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Sites"],
+    summary="Unset site force disabled.",
+)
+@handle_exceptions
+async def set_site_enabled(
+    request: Request,
+    site_id: str = Path(description="Site ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_site_force_disabled_flag(site_id, False)
+    if not response:
+        raise SiteNotFound(site_id)
+    return JSONResponse(response)
+
+
+@api_version(1)
+@app.put(
+    "/sites/{site_id}/disable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Sites"],
+    summary="Set site force disabled.",
+)
+@handle_exceptions
+async def set_site_disabled(
+    request: Request,
+    site_id: str = Path(description="Site ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_site_force_disabled_flag(site_id, True)
+    if not response:
+        raise SiteNotFound(site_id)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -806,6 +953,54 @@ async def get_storage_from_id(
     if not rtn:
         raise StorageNotFound(storage_id)
     return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.put(
+    "/storages/{storage_id}/enable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Storages"],
+    summary="Unset storage force disabled.",
+)
+@handle_exceptions
+async def set_storages_enabled(
+    request: Request,
+    storage_id: str = Path(description="Storage ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_storage_force_disabled_flag(storage_id, False)
+    return JSONResponse(response)
+
+
+@api_version(1)
+@app.put(
+    "/storages/{storage_id}/disable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Storages"],
+    summary="Set storage force disabled.",
+)
+@handle_exceptions
+async def set_storages_disabled(
+    request: Request,
+    storage_id: str = Path(description="Storage ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_storage_force_disabled_flag(storage_id, True)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -963,6 +1158,54 @@ async def get_storage_area_from_id(
     if not rtn:
         raise StorageAreaNotFound(storage_area_id)
     return JSONResponse(rtn)
+
+
+@api_version(1)
+@app.put(
+    "/storage-areas/{storage_area_id}/enable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Storage Areas"],
+    summary="Unset storage area force disabled.",
+)
+@handle_exceptions
+async def set_storages_areas_enabled(
+    request: Request,
+    storage_area_id: str = Path(description="Storage Area ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_storage_area_force_disabled_flag(storage_area_id, False)
+    return JSONResponse(response)
+
+
+@api_version(1)
+@app.put(
+    "/storage-areas/{storage_area_id}/disable",
+    include_in_schema=False,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Storage Areas"],
+    summary="Set storage area force disabled.",
+)
+@handle_exceptions
+async def set_storages_areas_disabled(
+    request: Request,
+    storage_area_id: str = Path(description="Storage Area ID"),
+    authorization=Depends(HTTPBearer(auto_error=False)),
+) -> Union[JSONResponse, HTTPException]:
+    response = BACKEND.set_storage_area_force_disabled_flag(storage_area_id, True)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -1405,249 +1648,6 @@ async def health(request: Request):
             },
         },
     )
-
-
-@api_version(1)
-@app.put(
-    "/sites/{site_id}/enabled",
-    responses={200: {}, 401: {}, 403: {}, 404: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites enabled"],
-    summary="Set is_forced_disabled flag to false",
-)
-@handle_exceptions
-async def set_site_enabled(
-    request: Request,
-    site_id: str = Path(description="Site ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_disabled_flag(site_id, False)
-    if not response:
-        raise SiteNotFound(site_id)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/sites/{site_id}/disabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Sites disabled"],
-    summary="Set is_forced_disabled flag to true",
-)
-@handle_exceptions
-async def set_site_disabled(
-    request: Request,
-    site_id: str = Path(description="Site ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_site_disabled_flag(site_id, True)
-    if not response:
-        raise SiteNotFound(site_id)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/compute/{compute_id}/enabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Compute enabled"],
-    summary="Set is_forced_disabled flag to false",
-)
-@handle_exceptions
-async def set_compute_enabled(
-    request: Request,
-    compute_id: str = Path(description="Compute ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_disabled_flag(compute_id, False)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/compute/{compute_id}/disabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Compute disabled"],
-    summary="Set is_forced_disabled flag to true",
-)
-@handle_exceptions
-async def set_compute_disabled(
-    request: Request,
-    compute_id: str = Path(description="Compute ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_compute_disabled_flag(compute_id, True)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/services/{service_id}/enabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Local and/or global services enabled"],
-    summary="Set is_forced_disabled flag to false",
-)
-@handle_exceptions
-async def set_services_enabled(
-    request: Request,
-    service_id: str = Path(description="Service ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_services_disabled_flag(service_id, False)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/services/{service_id}/disabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Local and/or global services disabled"],
-    summary="Set is_forced_disabled flag to true",
-)
-@handle_exceptions
-async def set_services_disabled(
-    request: Request,
-    service_id: str = Path(description="Service ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_services_disabled_flag(service_id, True)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/storages/{storage_id}/enabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Storage enabled"],
-    summary="Set is_forced_disabled flag to false",
-)
-@handle_exceptions
-async def set_storages_enabled(
-    request: Request,
-    storage_id: str = Path(description="Storage ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_disabled_flag(storage_id, False)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/storages/{storage_id}/disabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Storage disabled"],
-    summary="Set is_forced_disabled flag to true",
-)
-@handle_exceptions
-async def set_storages_disabled(
-    request: Request,
-    storage_id: str = Path(description="Storage ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_disabled_flag(storage_id, True)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/storage-areas/{storage_area_id}/enabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Storage areas enabled"],
-    summary="Set is_forced_disabled flag to false",
-)
-@handle_exceptions
-async def set_storages_areas_enabled(
-    request: Request,
-    storage_area_id: str = Path(description="Storage area ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_areas_disabled_flag(storage_area_id, False)
-    return JSONResponse(response)
-
-
-@api_version(1)
-@app.put(
-    "/storage-areas/{storage_area_id}/disabled",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Storage areas disabled"],
-    summary="Set is_forced_disabled flag to true",
-)
-@handle_exceptions
-async def set_storages_areas_disabled(
-    request: Request,
-    storage_area_id: str = Path(description="Storage area ID"),
-    authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
-    response = BACKEND.set_storages_areas_disabled_flag(storage_area_id, True)
-    return JSONResponse(response)
 
 
 # Versionise the API.

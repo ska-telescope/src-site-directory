@@ -1,5 +1,5 @@
 """
-A module for  component tests related to compute.
+A module for component tests related to compute.
 """
 import os
 
@@ -12,7 +12,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 @pytest.mark.post_deployment
 def test_list_compute():
-    """Test to list all compute."""
+    """Test to list all compute"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -24,7 +24,7 @@ def test_list_compute():
 def test_set_compute_enabled():
     """Test to set compute as enabled"""
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enabled")  # noqa: E231
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/enable")  # noqa: E231
     response_data = response.json()
     print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
@@ -39,7 +39,7 @@ def test_set_compute_enabled():
 def test_set_compute_disabled():
     """Test to set compute as disabled"""
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disabled")  # noqa: E231
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute/{compute_id}/disable")  # noqa: E231
     response_data = response.json()
     print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":

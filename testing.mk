@@ -31,4 +31,5 @@ K8S_CHART_COMMON_PARAMS = \
 	--set secrets.api.sessions.key=$(SESSIONS_SECRET_KEY) \
 	--set secrets.common.mongo.password=$(MONGO_PASSWORD) \
 	--set ing.enabled=false \
-	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN)
+	--set svc.api.mongo_host=mongo.$(KUBE_NAMESPACE).svc.$(CLUSTER_DOMAIN) \
+	--set svc.api.mongo_init_data_relpath=tests/assets

@@ -1,5 +1,5 @@
 """
-A module for  component tests related to storage areas.
+A module for component tests related to storage areas.
 """
 import os
 
@@ -12,7 +12,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 @pytest.mark.post_deployment
 def test_list_storage_areas():
-    """Test to list storage areas."""
+    """Test to list storage areas"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -22,9 +22,9 @@ def test_list_storage_areas():
 
 @pytest.mark.post_deployment
 def test_set_storages_areas_enabled():
-    """Test to set storage areas as enabled"""
-    storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/enabled")  # noqa: E231
+    """Test to set storage area as enabled"""
+    storage_area_id = "f62199c3-62ad-44ee-a6e0-dd34e891d423"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/enable")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -36,9 +36,9 @@ def test_set_storages_areas_enabled():
 
 @pytest.mark.post_deployment
 def test_set_storages_areas_disabled():
-    """Test to set storage areas as disabled"""
-    storage_area_id = "448e27fe-b695-4f91-90c3-0a8f2561ccdf"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/disabled")  # noqa: E231
+    """Test to set storage area as disabled"""
+    storage_area_id = "f62199c3-62ad-44ee-a6e0-dd34e891d423"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas/{storage_area_id}/disable")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200

@@ -12,6 +12,10 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def delete_all_nodes(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_compute(self, compute_id):
         raise NotImplementedError
 
@@ -71,21 +75,21 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_site_disabled_flag(self, site_id: str, flag: bool):
+    def set_site_force_disabled_flag(self, site_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_compute_disabled_flag(self, compute_id: str, flag: bool):
+    def set_compute_force_disabled_flag(self, compute_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_services_disabled_flag(self, service_id: str, flag: bool):
+    def set_service_force_disabled_flag(self, service_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_storages_disabled_flag(self, storage_id: str, flag: bool):
+    def set_storage_force_disabled_flag(self, storage_id: str, flag: bool):
         raise NotImplementedError
 
     @abstractmethod
-    def set_storages_areas_disabled_flag(self, storage_area_id: str, flag: bool):
+    def set_storage_area_force_disabled_flag(self, storage_area_id: str, flag: bool):
         raise NotImplementedError

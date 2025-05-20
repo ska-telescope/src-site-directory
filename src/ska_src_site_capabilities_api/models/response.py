@@ -32,22 +32,24 @@ ComputeGetResponse = ComputeWithParents
 ComputeListResponse = List[ComputeWithParents]
 
 
-class LocalServiceWithParents(LocalService):
+class LocalServiceWithParentsAndType(LocalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_compute_id: UUID = Field(default_factory=uuid4)
+    scope: str = "local"
 
 
-LocalServiceGetResponse = LocalServiceWithParents
+LocalServiceGetResponse = LocalServiceWithParentsAndType
 
 
-class GlobalServiceWithParents(GlobalService):
+class GlobalServiceWithParentsAndType(GlobalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_compute_id: UUID = Field(default_factory=uuid4)
+    scope: str = "global"
 
 
-GlobalServiceGetResponse = GlobalServiceWithParents
+GlobalServiceGetResponse = GlobalServiceWithParentsAndType
 
 
 class GenericErrorResponse(Response):
@@ -87,7 +89,7 @@ SchemasListResponse = List[str]
 SchemaGetResponse = Schema
 
 
-ServicesListResponse = List[Union[GlobalServiceWithParents, LocalServiceWithParents]]
+ServicesListResponse = List[Union[GlobalServiceWithParentsAndType, LocalServiceWithParentsAndType]]
 
 
 class ServicesTypesResponse(Response):

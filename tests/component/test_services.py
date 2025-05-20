@@ -1,5 +1,5 @@
 """
-A module for  component tests related to services.
+A module for component tests related to services.
 """
 import os
 
@@ -12,7 +12,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 @pytest.mark.post_deployment
 def test_list_services():
-    """Test to list all services."""
+    """Test to list all services"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -22,9 +22,9 @@ def test_list_services():
 
 @pytest.mark.post_deployment
 def test_set_services_enabled():
-    """Test to verify services as enabled"""
-    service_id = "1f73c95e-301b-4f5e-a2cf-aeb461da2d70"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/enabled")  # noqa: E231
+    """Test to set service as enabled"""
+    service_id = "4f57724b-aa73-4c6c-bf0c-3fb95677cc91"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/enable")  # noqa: E231
     response_data = response.json()
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
@@ -36,9 +36,9 @@ def test_set_services_enabled():
 
 @pytest.mark.post_deployment
 def test_set_services_disabled():
-    """Test to verify services as disabled"""
-    service_id = "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f"
-    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disabled")  # noqa: E231
+    """Test to set service as disabled"""
+    service_id = "4f57724b-aa73-4c6c-bf0c-3fb95677cc91"
+    response = httpx.put(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services/{service_id}/disable")  # noqa: E231
     response_data = response.json()
     print(response_data)
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":

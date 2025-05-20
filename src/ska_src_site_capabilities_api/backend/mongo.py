@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime, timezone
 
 import dateutil.parser
@@ -125,6 +126,17 @@ class MongoBackend(Backend):
 
         return inserted_node.inserted_id
 
+    def delete_all_nodes(self):
+        """
+        Deletes all node documents from both active and archived collections.
+
+        This method removes all documents from the `nodes` and `nodes_archived` collections.
+        """
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+        db.nodes.delete_many({})
+        db.nodes_archived.delete_many({})
+
     def get_compute(self, compute_id):
         """
         Retrieves a compute resource by its ID.
@@ -184,11 +196,22 @@ class MongoBackend(Backend):
             parent_node_name = service.get("parent_node_name")
             parent_site_name = service.get("parent_site_name")
             parent_compute_id = service.get("parent_compute_id")
+
+            # get compute element to establish if local or global service
+            compute = self.get_compute(parent_compute_id)
+            if any(s.get("id") == service_id for s in compute.get("associated_global_services", [])):
+                service_scope = "associated_global_services"
+            elif any(s.get("id") == service_id for s in compute.get("associated_local_services", [])):
+                service_scope = "associated_local_services"
+            else:
+                service_scope = None
+
             if service.get("id") == service_id:
                 response = {
                     "parent_node_name": parent_node_name,
                     "parent_site_name": parent_site_name,
                     "parent_compute_id": parent_compute_id,
+                    "scope": service_scope,
                     **service,
                 }
                 break
@@ -556,11 +579,36 @@ class MongoBackend(Backend):
         return response
 
     def list_storage_area_types_from_schema(self, schema):
+        """
+        Extracts the list of storage area types from a given JSON schema.
+
+        This method retrieves the enumeration of valid storage area types defined
+        under the 'type' property in the provided schema.
+
+        Args:
+            schema (dict): A JSON schema dictionary that may contain a 'type' property with an enum.
+
+        Returns:
+            list: A list of valid storage area types, or an empty list if not defined in the schema.
+        """
         response = schema.get("properties", {}).get("type", {}).get("enum", [])
         return response
 
-    def set_site_disabled_flag(self, site_id: str, flag: bool):
-        """Set is_force_disabled flag for sites"""
+    def set_site_force_disabled_flag(self, site_id: str, flag: bool):
+        """
+        Sets the 'is_force_disabled' flag for a specific site within a node.
+
+        This method updates the `is_force_disabled` field for the site identified
+        by `site_id` in the MongoDB `nodes` collection.
+
+        Args:
+            site_id (str): The ID of the site whose flag should be updated.
+            flag (bool): The value to set for the `is_force_disabled` flag.
+
+        Returns:
+            dict: The updated site dictionary if the site is found and updated,
+                  or an empty dictionary if the site is not found.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
@@ -568,121 +616,236 @@ class MongoBackend(Backend):
         if not node:
             return {}
 
-        # Update the is_force_disabled flag for the requested site
-        nodes.update_one({"sites.id": site_id}, {"$set": {"sites.$.is_force_disabled": flag}})
-        updated_node = nodes.find_one({"sites.id": site_id})
-        updated_site = next(site for site in updated_node["sites"] if site["id"] == site_id)
+        updated_node = copy.deepcopy(node)
+        updated_site = None
+        for site in updated_node.get("sites", []):
+            if site.get("id") == site_id:
+                site["is_force_disabled"] = flag
+                updated_site = site
+                break
+
+        if updated_site is None:
+            return {}
+
+        # Pass the modified node to add_edit_node
+        self.add_edit_node(updated_node, node_name=updated_node.get("name"))
         return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
 
-    def set_compute_disabled_flag(self, compute_id: str, flag: bool):
-        """Set is_force_disabled flag for compute"""
+    def set_compute_force_disabled_flag(self, compute_id: str, flag: bool):
+        """
+        Sets the 'is_force_disabled' flag for a specific compute resource.
+
+        This method updates the `is_force_disabled` field for the compute entry
+        identified by `compute_id` within a site's compute list in the MongoDB `nodes` collection.
+
+        Args:
+            compute_id (str): The ID of the compute resource to update.
+            flag (bool): The value to set for the `is_force_disabled` flag.
+
+        Returns:
+            dict: A dictionary containing the `compute_id` and the new `is_force_disabled` value,
+                  or an empty dictionary if the compute resource is not found.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
-        node = nodes.find_one({"sites.compute.id": compute_id})
 
+        # Get the compute with parent context
+        compute = self.get_compute(compute_id)
+        if not compute:
+            return {}
+        parent_node_name = compute.get("parent_node_name")
+        parent_site_name = compute.get("parent_site_name")
+
+        # Find the full node document by node name
+        node = nodes.find_one({"name": parent_node_name})
         if not node:
             return {}
 
-        node_name = node.get("name")
+        updated_node = copy.deepcopy(node)
+        updated_compute = None
+        for site in updated_node.get("sites", []):
+            if site.get("name") != parent_site_name:
+                continue
+            for compute in site.get("compute", []):
+                if compute.get("id") == compute_id:
+                    compute["is_force_disabled"] = flag
+                    updated_compute = compute
+                    break
+            if updated_compute:
+                break
 
-        nodes.update_one(
-            {"sites.compute.id": compute_id},
-            {"$set": {"sites.$[s].compute.$[c].is_force_disabled": flag}},
-            array_filters=[{"s.compute.id": {"$exists": True}}, {"c.id": compute_id}],
-        )
-        self.add_edit_node(node, node_name=node_name)
-        return {"compute_id": compute_id, "is_force_disabled": flag}
+        if updated_compute is None:
+            return {}
 
-    def set_services_disabled_flag(self, service_id: str, flag: bool):
-        """Set is_force_disabled flag for services"""
+        # Pass the modified node to add_edit_node
+        self.add_edit_node(updated_node, node_name=parent_node_name)
+        return {"compute_id": compute_id, "is_force_disabled": updated_compute.get("is_force_disabled")}
+
+    def set_service_force_disabled_flag(self, service_id: str, flag: bool):
+        """
+        Sets the 'is_force_disabled' flag for a specific service.
+
+        This method locates the service by its ID, determines whether it is a global
+        or local service, and updates the `is_force_disabled` field accordingly within
+        the compute configuration of the appropriate site in the MongoDB `nodes` collection.
+
+        Args:
+            service_id (str): The ID of the service to update.
+            flag (bool): The value to set for the `is_force_disabled` flag.
+
+        Returns:
+            dict: A dictionary containing the updated service ID and status,
+                  or an empty dictionary if the service is not found.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
 
-        node, service_type = self.find_node_by_service_id(service_id)
+        # Get the service with parent context
+        service = self.get_service(service_id)
+        if not service:
+            return {}
+        parent_node_name = service.get("parent_node_name")
+        parent_site_name = service.get("parent_site_name")
+        parent_compute_id = service.get("parent_compute_id")
+        service_scope = service.get("scope")
+
+        # Find the full node document by node name
+        node = nodes.find_one({"name": parent_node_name})
         if not node:
             return {}
 
-        node_name = node.get("name")
-        for site in node.get("sites", []):
-            if "compute" not in site or not isinstance(site["compute"], dict):
-                site["compute"] = {}
-            compute = site["compute"]
-            if service_type == "global" and "associated_global_services" not in compute:
-                compute["associated_global_services"] = []
-            elif service_type == "local" and "associated_local_services" not in compute:
-                compute["associated_local_services"] = []
+        updated_node = copy.deepcopy(node)
+        updated_service = None
+        for site in updated_node.get("sites", []):
+            if site.get("name") != parent_site_name:
+                continue
+            for compute in site.get("compute", []):
+                if compute.get("id") != parent_compute_id:
+                    continue
+                for svc in compute.get("associated_{}_services".format(service_scope), []):
+                    if svc.get("id") == service_id:
+                        svc["is_force_disabled"] = flag
+                        updated_service = svc
+                        break
+                if updated_service:
+                    break
+            if updated_service:
+                break
 
-        nodes.replace_one({"name": node_name}, node)
-        if service_type == "global":
-            nodes.update_one(
-                {"name": node_name},
-                {"$set": {"sites.$[s].compute.associated_global_services.$[svc].is_force_disabled": flag}},
-                array_filters=[{"s.compute.associated_global_services": {"$exists": True}}, {"svc.id": service_id}],
-            )
-        elif service_type == "local":
-            nodes.update_one(
-                {"name": node_name},
-                {"$set": {"sites.$[s].compute.associated_local_services.$[svc].is_force_disabled": flag}},
-                array_filters=[{"s.compute.associated_local_services": {"$exists": True}}, {"svc.id": service_id}],
-            )
+        if not updated_service:
+            return {}
 
-        self.add_edit_node(node, node_name=node_name)
-        return {"service_id": service_id, "is_force_disabled": flag}
+        self.add_edit_node(updated_node, node_name=parent_node_name)
+        return {"service_id": service_id, "is_force_disabled": updated_service.get("is_force_disabled")}
 
-    def set_storages_disabled_flag(self, storage_id: str, flag: bool):
-        """Set is_force_disabled flag for storages"""
+    def set_storage_force_disabled_flag(self, storage_id: str, flag: bool):
+        """
+        Sets the 'is_force_disabled' flag for a specific storage resource.
+
+        This method updates the `is_force_disabled` field for the storage entry
+        identified by `storage_id` within a site's storages list in the MongoDB `nodes` collection.
+
+        Args:
+            storage_id (str): The ID of the storage resource to update.
+            flag (bool): The value to set for the `is_force_disabled` flag.
+
+        Returns:
+            dict: A dictionary containing the `storage_id` and the new `is_force_disabled` value,
+                  or an empty dictionary if the storage resource is not found.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
 
-        node = nodes.find_one({"sites.storages.id": storage_id})
+        # Get the storage with parent context
+        storage = self.get_storage(storage_id)
+        if not storage:
+            return {}
+        parent_node_name = storage.get("parent_node_name")
+        parent_site_name = storage.get("parent_site_name")
+
+        # Find the full node document by node name
+        node = nodes.find_one({"name": parent_node_name})
         if not node:
             return {}
 
-        node_name = node.get("name")
+        updated_node = copy.deepcopy(node)
+        updated_storage = None
+        for site in updated_node.get("sites", []):
+            if site.get("name") != parent_site_name:
+                continue
+            for storage in site.get("storages", []):
+                if storage.get("id") == storage_id:
+                    storage["is_force_disabled"] = flag
+                    updated_storage = storage
+                    break
+            if updated_storage:
+                break
 
-        nodes.update_one(
-            {"sites.storages.id": storage_id},
-            {"$set": {"sites.$[s].storages.$[st].is_force_disabled": flag}},
-            array_filters=[{"s.storages.id": {"$exists": True}}, {"st.id": storage_id}],
-        )
+        if not updated_storage:
+            return {}
 
-        self.add_edit_node(node, node_name=node_name)
-        return {"storage_id": storage_id, "is_force_disabled": flag}
+        # Pass the modified node to add_edit_node
+        self.add_edit_node(updated_node, node_name=parent_node_name)
 
-    def set_storages_areas_disabled_flag(self, storage_area_id: str, flag: bool):
-        """Set is_force_disabled flag for storage areas"""
+        return {"storage_id": storage_id, "is_force_disabled": updated_storage.get("is_force_disabled")}
+
+    def set_storage_area_force_disabled_flag(self, storage_area_id: str, flag: bool):
+        """
+        Sets the 'is_force_disabled' flag for a specific storage area.
+
+        This method updates the `is_force_disabled` field for the storage area
+        identified by `storage_area_id` within a site's storages list in the
+        MongoDB `nodes` collection.
+
+        Args:
+            storage_area_id (str): The ID of the storage area to update.
+            flag (bool): The value to set for the `is_force_disabled` flag.
+
+        Returns:
+            dict: A dictionary containing the `storage_area_id` and the new `is_force_disabled` value,
+                  or an empty dictionary if the storage area is not found.
+        """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
         nodes = db.nodes
-        node = nodes.find_one({"sites.storages.areas.id": storage_area_id})
 
+        # Get the storage area with parent context
+        storage_area = self.get_storage_area(storage_area_id)
+        if not storage_area:
+            return {}
+        parent_node_name = storage_area.get("parent_node_name")
+        parent_site_name = storage_area.get("parent_site_name")
+        parent_storage_id = storage_area.get("parent_storage_id")
+
+        # Load the full node document
+        node = nodes.find_one({"name": parent_node_name})
         if not node:
             return {}
 
-        node_name = node.get("name")
+        updated_node = copy.deepcopy(node)
+        updated_storage_area = None
+        for site in updated_node.get("sites", []):
+            if site.get("name") != parent_site_name:
+                continue
+            for storage in site.get("storages", []):
+                if storage.get("id") != parent_storage_id:
+                    continue
+                for area in storage.get("areas", []):
+                    if area.get("id") == storage_area_id:
+                        area["is_force_disabled"] = flag
+                        updated_storage_area = area
+                        break
+                if updated_storage_area:
+                    break
+            if updated_storage_area:
+                break
+        if not updated_storage_area:
+            return {}
 
-        nodes.update_one(
-            {"sites.storages.areas.id": storage_area_id},
-            {"$set": {"sites.$[s].storages.$[st].areas.$[a].is_force_disabled": flag}},
-            array_filters=[{"s.storages.id": {"$exists": True}}, {"st.id": {"$exists": True}}, {"a.id": storage_area_id}],
-        )
-        self.add_edit_node(node, node_name=node_name)
-        return {"storage_area_id": storage_area_id, "is_force_disabled": flag}
+        # Pass the modified node to add_edit_node
+        self.add_edit_node(updated_node, node_name=parent_node_name)
 
-    def find_node_by_service_id(self, service_id: str):
-        """Find node using service id"""
-        client = self._get_mongo_client()
-        db = client[self.mongo_database]
-        nodes = db.nodes
-        node = nodes.find_one({"sites.compute.associated_global_services.id": service_id})
-        if node:
-            return node, "global"
-
-        node = nodes.find_one({"sites.compute.associated_local_services.id": service_id})
-        if node:
-            return node, "local"
-
-        return None, None
+        return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
