@@ -459,7 +459,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/sites/{site_id}/enabled"
+        endpoint = f"{self.api_url}/sites/{site_id}/enable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -472,7 +472,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/sites/{site_id}/disabled"
+        endpoint = f"{self.api_url}/sites/{site_id}/disable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -485,7 +485,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/compute/{compute_id}/enabled"
+        endpoint = f"{self.api_url}/compute/{compute_id}/enable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -498,7 +498,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/compute/{compute_id}/disabled"
+        endpoint = f"{self.api_url}/compute/{compute_id}/disable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -511,7 +511,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/services/{service_id}/enabled"
+        endpoint = f"{self.api_url}/services/{service_id}/enable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -524,7 +524,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/services/{service_id}/disabled"
+        endpoint = f"{self.api_url}/services/{service_id}/disable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -537,7 +537,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storages/{storage_id}/enabled"
+        endpoint = f"{self.api_url}/storages/{storage_id}/enable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -550,7 +550,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storages/{storage_id}/disabled"
+        endpoint = f"{self.api_url}/storages/{storage_id}/disable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -563,7 +563,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/enabled"
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/enable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
@@ -576,7 +576,7 @@ class SiteCapabilitiesClient:
         :return: A requests response.
         :rtype: requests.models.Response
         """
-        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/disabled"
+        endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/disable"
         resp = self.session.put(endpoint)
         resp.raise_for_status()
         return resp
