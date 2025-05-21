@@ -204,8 +204,12 @@ async def get_compute_from_id(
 @api_version(1)
 @app.put(
     "/compute/{compute_id}/enable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.ComputeEnableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -213,7 +217,7 @@ async def get_compute_from_id(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Compute"],
-    summary="Unset compute force disabled.",
+    summary="Unset a compute from being force disabled",
 )
 @handle_exceptions
 async def set_compute_enabled(
@@ -228,8 +232,12 @@ async def set_compute_enabled(
 @api_version(1)
 @app.put(
     "/compute/{compute_id}/disable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.ComputeDisableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -237,7 +245,7 @@ async def set_compute_enabled(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Compute"],
-    summary="Set compute force disabled.",
+    summary="Set a compute to be force disabled",
 )
 @handle_exceptions
 async def set_compute_disabled(
@@ -661,8 +669,12 @@ async def get_service_from_id(
 @api_version(1)
 @app.put(
     "/services/{service_id}/enable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.ServiceEnableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -670,10 +682,10 @@ async def get_service_from_id(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Services"],
-    summary="Unset service force disabled.",
+    summary="Unset a service from being force disabled",
 )
 @handle_exceptions
-async def set_services_enabled(
+async def set_service_enabled(
     request: Request,
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -685,8 +697,12 @@ async def set_services_enabled(
 @api_version(1)
 @app.put(
     "/services/{service_id}/disable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.ServiceDisableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -694,7 +710,7 @@ async def set_services_enabled(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Services"],
-    summary="Set service force disabled.",
+    summary="Set a service to be force disabled",
 )
 @handle_exceptions
 async def set_service_disabled(
@@ -775,7 +791,12 @@ async def get_site_from_id(
 @api_version(1)
 @app.put(
     "/sites/{site_id}/enable",
-    responses={200: {}, 401: {}, 403: {}, 404: {}},
+    responses={
+        200: {"model": models.response.SiteEnableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -783,7 +804,7 @@ async def get_site_from_id(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Sites"],
-    summary="Unset site force disabled.",
+    summary="Unset a site from being force disabled",
 )
 @handle_exceptions
 async def set_site_enabled(
@@ -800,8 +821,12 @@ async def set_site_enabled(
 @api_version(1)
 @app.put(
     "/sites/{site_id}/disable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.SiteDisableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -809,7 +834,7 @@ async def set_site_enabled(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Sites"],
-    summary="Set site force disabled.",
+    summary="Set a site to be force disabled",
 )
 @handle_exceptions
 async def set_site_disabled(
@@ -958,8 +983,12 @@ async def get_storage_from_id(
 @api_version(1)
 @app.put(
     "/storages/{storage_id}/enable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.StorageEnableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -967,10 +996,10 @@ async def get_storage_from_id(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Storages"],
-    summary="Unset storage force disabled.",
+    summary="Unset a storage from being force disabled",
 )
 @handle_exceptions
-async def set_storages_enabled(
+async def set_storage_enabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -982,8 +1011,12 @@ async def set_storages_enabled(
 @api_version(1)
 @app.put(
     "/storages/{storage_id}/disable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.StorageDisableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -991,10 +1024,10 @@ async def set_storages_enabled(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Storages"],
-    summary="Set storage force disabled.",
+    summary="Set a storage to be force disabled",
 )
 @handle_exceptions
-async def set_storages_disabled(
+async def set_storage_disabled(
     request: Request,
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1163,8 +1196,12 @@ async def get_storage_area_from_id(
 @api_version(1)
 @app.put(
     "/storage-areas/{storage_area_id}/enable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.StorageAreaEnableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -1172,10 +1209,10 @@ async def get_storage_area_from_id(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Storage Areas"],
-    summary="Unset storage area force disabled.",
+    summary="Unset a storage area from being force disabled",
 )
 @handle_exceptions
-async def set_storages_areas_enabled(
+async def set_storage_area_enabled(
     request: Request,
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
@@ -1187,8 +1224,12 @@ async def set_storages_areas_enabled(
 @api_version(1)
 @app.put(
     "/storage-areas/{storage_area_id}/disable",
-    include_in_schema=False,
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.StorageAreaDisableResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -1196,10 +1237,10 @@ async def set_storages_areas_enabled(
         Depends(permission_dependencies.verify_permission_for_service_route),
     ],
     tags=["Storage Areas"],
-    summary="Set storage area force disabled.",
+    summary="Set a storage area to be force disabled",
 )
 @handle_exceptions
-async def set_storages_areas_disabled(
+async def set_storage_area_disabled(
     request: Request,
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
