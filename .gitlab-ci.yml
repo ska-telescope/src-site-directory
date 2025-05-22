@@ -72,6 +72,8 @@ stop-k8s-test:
 .k8s-test-template:
   extends:
     - k8s-test
+  variables:
+    CI_KEEP_NAMESPACE: false    # delete namespace immediately rather than wait for clean-up (fixes issues with running the pipeline against the same commit hash).
   before_script:
     - echo "$CI_PROJECT_NAME"
     - echo "$CI_COMMIT_SHORT_SHA"
