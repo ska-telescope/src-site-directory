@@ -374,6 +374,30 @@ async def edit_node(
 
 
 @api_version(1)
+@app.delete(
+    "/nodes/{node_name}",
+    include_in_schema=True,
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Delete a node by name",
+)
+@handle_exceptions
+async def delete_node(
+    request: Request,
+    node_name: str = Path(description="Node name"),
+) -> Union[JSONResponse, HTTPException]:
+
+    rtn = BACKEND.delete_node_by_name(node_name)
+    return JSONResponse(rtn)
+
+
+@api_version(1)
 @app.get(
     "/nodes/dump",
     responses={

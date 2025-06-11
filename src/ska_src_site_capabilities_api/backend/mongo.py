@@ -134,8 +134,30 @@ class MongoBackend(Backend):
         """
         client = self._get_mongo_client()
         db = client[self.mongo_database]
-        db.nodes.delete_many({})
-        db.nodes_archived.delete_many({})
+
+        result_nodes = db.nodes.delete_many({})
+        result_archived = db.nodes_archived.delete_many({})
+        return {
+            "deleted_from_nodes_count": result_nodes.deleted_count,
+            "deleted_from_nodes_archived_count": result_archived.deleted_count,
+        }
+
+    def delete_node_by_name(self, node_name):
+        """
+        Deletes a node document with the specified name from both active and archived collections.
+
+        Args:
+            node_name (str): The name of the node to delete.
+        """
+        client = self._get_mongo_client()
+        db = client[self.mongo_database]
+
+        result_nodes = db.nodes.delete_many({"name": node_name})
+        result_archived = db.nodes_archived.delete_many({"name": node_name})
+        return {
+            "deleted_from_nodes_count": result_nodes.deleted_count,
+            "deleted_from_nodes_archived_count": result_archived.deleted_count,
+        }
 
     def get_compute(self, compute_id):
         """
