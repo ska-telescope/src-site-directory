@@ -392,7 +392,6 @@ async def delete_node(
     request: Request,
     node_name: str = Path(description="Node name"),
 ) -> Union[JSONResponse, HTTPException]:
-
     rtn = BACKEND.delete_node_by_name(node_name)
     return JSONResponse(rtn)
 
