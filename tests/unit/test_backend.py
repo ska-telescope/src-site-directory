@@ -61,8 +61,8 @@ def test_delete_node_by_name(name, mock_db, mock_backend):
     nodes_documents_before_count = mock_db["nodes"].count_documents({})
     nodes_archived_documents_before_count = mock_db["nodes_archived"].count_documents({})
     mock_backend.delete_node_by_name(node_name=name)
-    assert mock_db["nodes"].count_documents({}) == nodes_documents_before_count-1
-    assert mock_db["nodes_archived"].count_documents({}) == nodes_archived_documents_before_count-1
+    assert mock_db["nodes"].count_documents({}) == nodes_documents_before_count - 1
+    assert mock_db["nodes_archived"].count_documents({}) == nodes_archived_documents_before_count - 1
 
 
 @pytest.mark.parametrize("id,expected_exists", [("db1d3ee3-74e4-48aa-afaf-8d7709a2f57c", True), ("0", False)])
