@@ -58,7 +58,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
+DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -372,6 +372,26 @@ async def edit_node(
     id = BACKEND.add_edit_node(values, node_name=node_name)
     return HTMLResponse(repr(id))
 
+@api_version(1)
+@app.delete(
+    "/nodes/{node_name}",
+    responses={200: {}, 401: {}, 403: {}},
+    dependencies=[Depends(increment_request_counter)]
+    if DEBUG
+    else [
+        Depends(increment_request_counter),
+        Depends(permission_dependencies.verify_permission_for_service_route),
+    ],
+    tags=["Nodes"],
+    summary="Delete a node by name",
+)
+@handle_exceptions
+async def delete_node_by_name(
+    request: Request,
+    node_name: str = Path(description="Node name"),
+) -> Union[JSONResponse, HTTPException]:
+    result = BACKEND.delete_node_by_name(node_name)
+    return JSONResponse(result)
 
 @api_version(1)
 @app.get(
