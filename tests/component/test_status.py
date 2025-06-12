@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_check_ping():
     """Test to check ping API"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/ping")  # noqa: E231
@@ -19,7 +19,7 @@ def test_check_ping():
     assert response_data["status"] == "UP"
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_check_health():
     """Test to check health API"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health")  # noqa: E231

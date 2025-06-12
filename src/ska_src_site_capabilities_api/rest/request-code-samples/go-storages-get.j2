@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	url := "{{ api_server_url }}/storages?only_node_names=SOME_STRING_VALUE&only_site_names=SOME_STRING_VALUE&include_inactive=SOME_BOOLEAN_VALUE"
+	url := "{{ api_server_url }}/storages?node_names=SOME_STRING_VALUE&site_names=SOME_STRING_VALUE&include_inactive=SOME_BOOLEAN_VALUE"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

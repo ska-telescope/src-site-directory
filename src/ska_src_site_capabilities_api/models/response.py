@@ -166,6 +166,11 @@ NodesGetResponse = Node
 NodesListResponse = List[Node]
 NodesDumpResponse = List[Node]
 
+class DeleteNodeByNameResponse(Response):
+    deleted_from_nodes_count: int = Field(examples=[1])
+    deleted_from_nodes_archived_count: int = Field(examples=[1])
+
+
 # =======================
 # Schema Responses
 # =======================

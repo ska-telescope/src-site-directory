@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.59]
+
+### Added
+
+- More code samples
+- Deletion by node name endpoint
+
+### Changed
+
+- Unit tests now marked as "unit"
+- Typos in README and CONTRIBUTING
+
 ## [0.3.58]
 
 ### Added

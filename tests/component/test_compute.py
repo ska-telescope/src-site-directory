@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_list_compute():
     """Test to list all compute"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/compute")  # noqa: E231
@@ -20,7 +20,7 @@ def test_list_compute():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_compute_enabled():
     """Test to set compute as enabled"""
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"
@@ -36,7 +36,7 @@ def test_set_compute_enabled():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_compute_disabled():
     """Test to set compute as disabled"""
     compute_id = "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"

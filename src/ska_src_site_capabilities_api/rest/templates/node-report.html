@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/form.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/report.css" />
+  <link rel="shortcut icon" href="{{ base_url }}static/img/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div id="header">
+     <img src="{{ base_url }}static/img/logo2.png"/>
+     <h1>{{ title }}</h1>
+     <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
+      <div id="token-timer"></div>
+  </div>
+  <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+  <div id="report"></div>
+  <div id="footer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="text/javascript" src="{{ base_url }}static/js/token.js"></script>
+  <script>
+    window.onload = function() {
+        // start the token timer
+        let token = "{{ access_token }}";
+        if (token) {
+            startTokenTimer(token, "token-timer");
+        } else {
+            console.warn("No access token found.");
+        }
+    };
+  </script>
+  <script>
+    function createDowntimeChart(canvasId, data) {
+      const result = [];
+
+      // Helper to parse date
+      function formatDate(date) {
+        return date.toLocaleDateString("en-GB", {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        });
+      }
+
+      // Helper to extract downtime entries
+      function addDowntimes(items, label) {
+        (items || []).forEach(item => {
+          (item.downtime || []).forEach(d => {
+            const [start, end] = d.date_range.split(" to ").map(date => new Date(date));
+            result.push({
+              x: [start, end],
+              y: label,
+              type: d.type,
+              reason: d.reason || 'N/A'
+            });
+          });
+        });
+      }
+
+      // Helper for colours
+      function getColorForType(type) {
+        const colors = {
+          'Site': 'rgba(54, 162, 235, 0.8)',
+          'Storage': 'rgba(255, 159, 64, 0.8)',
+          'Compute': 'rgba(75, 192, 192, 0.8)',
+          'Storage Area': 'rgba(153, 102, 255, 0.8)',
+          'Local Service': 'rgba(255, 206, 86, 0.8)',
+          'Global Service': 'rgba(255, 99, 132, 0.8)'
+        };
+        return colors[type] || 'rgba(100, 100, 100, 0.8)';
+      }
+
+      // If it's a full site object with nested things
+      if (data && data.storages && data.compute) {
+        // Site level
+        addDowntimes([data], 'Site');
+
+        // Storage and storage areas
+        addDowntimes(data.storages, 'Storage');
+        data.storages?.forEach(storage => {
+          addDowntimes(storage.areas, 'Storage Area');
+        });
+
+        // Compute and services
+        addDowntimes(data.compute, 'Compute');
+        data.compute?.forEach(compute => {
+          addDowntimes(compute.associated_local_services, 'Local Service');
+          addDowntimes(compute.associated_global_services, 'Global Service');
+        });
+      } else {
+        // Fallback: assume it's a simple flat downtime[] array
+        addDowntimes(data, 'Downtime');
+      }
+
+      // Group by `y` label
+      const grouped = {};
+      result.forEach(entry => {
+        if (!grouped[entry.y]) grouped[entry.y] = [];
+        grouped[entry.y].push(entry);
+      });
+
+      const datasets = Object.entries(grouped).map(([label, entries]) => ({
+        label,
+        data: entries,
+        backgroundColor: getColorForType(label)
+      }));
+
+      setTimeout(() => {
+        new Chart(document.getElementById(canvasId), {
+          type: 'bar',
+          data: {datasets},
+          options: {
+            maintainAspectRatio: false,
+            animation: false,
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+              x: {
+                type: 'time',
+                min: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+                max: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+                time: {
+                  unit: 'month'
+                },
+                title: {
+                  display: true,
+                  text: 'Date',
+                },
+              },
+              y: {
+                stacked: true,
+                ticks: {
+                  display: false
+                },
+                title: {
+                  display: false
+                },
+                grid: {
+                  drawTicks: false
+                }
+              }
+            },
+            plugins: {
+              tooltip: {
+                displayColors: false,
+                callbacks: {
+                  label: function (context) {
+                    const {raw} = context;
+                    const [start, end] = raw.x.map(ts => new Date(ts));
+                    return [
+                      `${formatDate(start)} → ${formatDate(end)}`,
+                      `Type: ${raw.type}`,
+                      `Reason: ${raw.reason}`
+                    ];
+                  }
+                }
+              }
+            },
+            datasets: {
+              bar: {
+                barPercentage: 1.0,
+                categoryPercentage: 1.0
+              }
+            }
+          }
+        });
+      }, 0);
+    }
+  </script>
+  <script>
+    const data = {{ data | tojson }};
+    const reportDiv = document.getElementById("report");
+
+    const siteUpIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    const siteDownIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    // 1. Create map
+    const map = L.map('map', {
+      center: [20, 0],
+      zoom: 2,
+      scrollWheelZoom: false,
+    });
+
+    // 2. Add tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO'
+}).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png').addTo(map);
+    // 3. Add markers for each site
+    const siteBounds = [];
+    data.sites.forEach((site, siteIndex) => {
+      if (site.latitude && site.longitude) {
+        const markerIcon = site.is_force_disabled ? siteDownIcon : siteUpIcon;
+        const latlng = [site.latitude, site.longitude];
+
+        // Store position for zooming later
+        siteBounds.push(latlng);
+
+        // Add marker
+        L.marker(latlng, { icon: markerIcon })
+          .addTo(map)
+          .bindPopup(`
+            <strong>${site.name} (${site.country || ""})</strong>
+
+          `);
+      }
+
+      const siteDetails = document.createElement("details");
+      siteDetails.open = false
+      if (site.is_force_disabled) siteDetails.classList.add("force-disabled");
+
+      const summary = document.createElement("summary");
+      summary.textContent = `${site.name} (${site.country})`;
+      siteDetails.appendChild(summary);
+
+      const siteDiv = document.createElement("div");
+      siteDiv.className = "section";
+      siteDiv.innerHTML = `
+        <p><strong>ID:</strong> ${site.id || ""}</p>
+        <p><strong>Description:</strong> ${site.description || ""}</p>
+        <p><strong>Primary Contact:</strong> ${site.primary_contact_email || ""}</p>
+        <p><strong>Secondary Contact:</strong> ${site.secondary_contact_email || ""}</p>
+        <p><strong>Force Disabled:</strong> ${site.is_force_disabled ? "Yes" : "No"}</p>
+      `;
+      siteDetails.appendChild(siteDiv);
+
+      const combinedCanvasId = `combined-downtime-${siteIndex}`;
+      const combinedChartSection = document.createElement("div");
+      combinedChartSection.innerHTML = `
+        <div class="subheading">Downtime Timeline (6mo)</div>
+        <div class="downtime-chart-container">
+          <canvas id="${combinedCanvasId}" class="downtime-chart"></canvas>
+        </div>
+      `;
+      setTimeout(() => createDowntimeChart(combinedCanvasId, site), 0);
+      siteDetails.appendChild(combinedChartSection);
+
+      if (site.storages?.length) {
+        const storageDiv = document.createElement("div");
+        storageDiv.className = "section";
+        storageDiv.innerHTML = `<div class="subheading">Storages</div>`;
+
+        site.storages.forEach(storage => {
+          const storageBox = document.createElement("div");
+          storageBox.className = "nested-box";
+          if (storage.is_force_disabled) storageBox.classList.add("force-disabled");
+
+          storageBox.innerHTML = `
+            <p><strong>ID:</strong> ${storage.id}</p>
+            <p><strong>Host:</strong> ${storage.host}</p>
+            <p><strong>Base Path:</strong> ${storage.base_path}</p>
+            <p><strong>SRM:</strong> ${storage.srm}</p>
+            <p><strong>Device Type:</strong> ${storage.device_type || ""}</p>
+            <p><strong>Size:</strong> ${storage.size_in_terabytes} TB</p>
+            <p><strong>Identifier:</strong> ${storage.identifier || ""}</p>
+            <p><strong>Force Disabled:</strong> ${storage.is_force_disabled ? "Yes" : "No"}</p>
+          `;
+
+          if (storage.supported_protocols?.length) {
+            const protoSection = document.createElement("div");
+            protoSection.className = "nested-section";
+            protoSection.innerHTML = `<div class="subheading">Supported Protocols</div>`;
+            const protoTable = document.createElement("table");
+            protoTable.innerHTML = `<tr><th>Prefix</th><th>Port</th></tr>`;
+            storage.supported_protocols.forEach(proto => {
+              protoTable.innerHTML += `<tr><td>${proto.prefix}</td><td>${proto.port}</td></tr>`;
+            });
+            protoSection.appendChild(protoTable);
+            storageBox.appendChild(protoSection);
+          }
+
+          if (storage.areas?.length) {
+            const areaSection = document.createElement("div");
+            areaSection.className = "nested-section";
+            areaSection.innerHTML = `<div class="subheading">Storage Areas</div>`;
+            const areaTable = document.createElement("table");
+            areaTable.innerHTML = `<tr><th>ID</th><th>Type</th><th>Version</th><th>Relative Path</th><th>Identifier</th><th>Tier</th><th>Force Disabled</th></tr>`;
+            storage.areas.forEach(area => {
+              const row = document.createElement("tr");
+              if (area.is_force_disabled) row.classList.add("force-disabled");
+              row.innerHTML = `
+                <td>${area.id}</td>
+                <td>${area.type}</td>
+                <td>${area.version || ""}</td>
+                <td>${area.relative_path || ""}</td>
+                <td>${area.identifier || ""}</td>
+                <td>${area.tier}</td>
+                <td>${area.is_force_disabled ? "Yes" : "No"}</td>
+              `;
+              areaTable.appendChild(row);
+            });
+            areaSection.appendChild(areaTable);
+            storageBox.appendChild(areaSection);
+          }
+
+          storageDiv.appendChild(storageBox);
+        });
+        siteDetails.appendChild(storageDiv);
+      }
+
+      if (site.compute?.length) {
+        const computeSection = document.createElement("div");
+        computeSection.className = "section";
+        computeSection.innerHTML = `<div class="subheading">Compute Resources</div>`;
+
+        site.compute.forEach(compute => {
+          const computeBox = document.createElement("div");
+          computeBox.className = "nested-box";
+          if (compute.is_force_disabled) computeBox.classList.add("force-disabled");
+
+          computeBox.innerHTML = `
+            <p><strong>ID:</strong> ${compute.id}</p>
+            <p><strong>Description:</strong> ${compute.description || ""}</p>
+            <p><strong>Identifier:</strong> ${compute.identifier || ""}</p>
+            <p><strong>Middleware Version:</strong> ${compute.middleware_version || ""}</p>
+            <p><strong>Hardware Type:</strong> ${compute.hardware_type || ""}</p>
+            <p><strong>Hardware Capabilities:</strong> ${(compute.hardware_capabilities || []).join(", ")}</p>
+            <p><strong>Force Disabled:</strong> ${compute.is_force_disabled ? "Yes" : "No"}</p>
+          `;
+
+          if (compute.associated_local_services?.length) {
+            const localSection = document.createElement("div");
+            localSection.className = "nested-section";
+            localSection.innerHTML = `<div class="subheading">Associated Local Services</div>`;
+            const localTable = document.createElement("table");
+            localTable.innerHTML = `<tr><th>ID</th><th>Type</th><th>Version</th><th>Prefix</th><th>Host</th><th>Port</th><th>Path</th><th>Identifier</th><th>Mandatory</th><th>Force Disabled</th></tr>`;
+            compute.associated_local_services.forEach(svc => {
+              const row = document.createElement("tr");
+              if (svc.is_force_disabled) row.classList.add("force-disabled");
+              row.innerHTML = `
+                <td>${svc.id}</td>
+                <td>${svc.type}</td>
+                <td>${svc.version || ""}</td>
+                <td>${svc.prefix || ""}</td>
+                <td>${svc.host || ""}</td>
+                <td>${svc.port || ""}</td>
+                <td>${svc.path || ""}</td>
+                <td>${svc.identifier || ""}</td>
+                <td>${svc.is_mandatory ? "Yes" : "No"}</td>
+                <td>${svc.is_force_disabled ? "Yes" : "No"}</td>
+              `;
+              localTable.appendChild(row);
+            });
+            localSection.appendChild(localTable);
+            computeBox.appendChild(localSection);
+          }
+
+          if (compute.associated_global_services?.length) {
+            const globalSection = document.createElement("div");
+            globalSection.className = "nested-section";
+            globalSection.innerHTML = `<div class="subheading">Associated Global Services</div>`;
+            const globalTable = document.createElement("table");
+            globalTable.innerHTML = `<tr><th>ID</th><th>Type</th><th>Version</th><th>Prefix</th><th>Host</th><th>Port</th><th>Path</th><th>Identifier</th><th>Force Disabled</th></tr>`;
+            compute.associated_global_services.forEach(svc => {
+              const row = document.createElement("tr");
+              if (svc.is_force_disabled) row.classList.add("force-disabled");
+              row.innerHTML = `
+                <td>${svc.id}</td>
+                <td>${svc.type}</td>
+                <td>${svc.version || ""}</td>
+                <td>${svc.prefix || ""}</td>
+                <td>${svc.host || ""}</td>
+                <td>${svc.port || ""}</td>
+                <td>${svc.path || ""}</td>
+                <td>${svc.identifier || ""}</td>
+                <td>${svc.is_force_disabled ? "Yes" : "No"}</td>
+              `;
+              globalTable.appendChild(row);
+            });
+            globalSection.appendChild(globalTable);
+            computeBox.appendChild(globalSection);
+          }
+          computeSection.appendChild(computeBox);
+        });
+        siteDetails.appendChild(computeSection);
+      }
+        reportDiv.appendChild(siteDetails);
+    });
+
+    // 4. Fit map to all markers
+    if (siteBounds.length > 0) {
+      map.fitBounds(siteBounds, { padding: [20, 20] });
+    }
+  </script>
+</body>
+</html>

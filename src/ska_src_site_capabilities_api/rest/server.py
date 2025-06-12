@@ -18,13 +18,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi_versionizer.versionizer import api_version, versionize
 from jinja2 import Template
 from plantuml import PlantUML
-from ska_src_authn_api.client.authentication import AuthenticationClient
-from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
+from ska_src_authn_api.client.authentication import AuthenticationClient
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
@@ -43,6 +42,7 @@ from ska_src_site_capabilities_api.common.exceptions import (
     UnauthorizedRequest,
     handle_exceptions,
 )
+from ska_src_permissions_api.client.permissions import PermissionsClient
 from ska_src_site_capabilities_api.common.utility import (
     convert_readme_to_html_docs,
     get_api_server_url_from_request,
@@ -58,7 +58,7 @@ config = Config(".env")
 
 # Debug mode (runs unauthenticated)
 #
-DEBUG = True# if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
+DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
@@ -375,7 +375,11 @@ async def edit_node(
 @api_version(1)
 @app.delete(
     "/nodes/{node_name}",
-    responses={200: {}, 401: {}, 403: {}},
+    responses={
+        200: {"model": models.response.DeleteNodeByNameResponse},
+        401: {},
+        403: {}
+    },
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [

@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_list_services():
     """Test to list all services"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/services")  # noqa: E231
@@ -20,7 +20,7 @@ def test_list_services():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_services_enabled():
     """Test to set service as enabled"""
     service_id = "4f57724b-aa73-4c6c-bf0c-3fb95677cc91"
@@ -36,7 +36,7 @@ def test_set_services_enabled():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_services_disabled():
     """Test to set service as disabled"""
     service_id = "4f57724b-aa73-4c6c-bf0c-3fb95677cc91"
