@@ -18,12 +18,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi_versionizer.versionizer import api_version, versionize
 from jinja2 import Template
 from plantuml import PlantUML
+from ska_src_authn_api.client.authentication import AuthenticationClient
+from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
-from ska_src_authn_api.client.authentication import AuthenticationClient
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
@@ -42,7 +43,6 @@ from ska_src_site_capabilities_api.common.exceptions import (
     UnauthorizedRequest,
     handle_exceptions,
 )
-from ska_src_permissions_api.client.permissions import PermissionsClient
 from ska_src_site_capabilities_api.common.utility import (
     convert_readme_to_html_docs,
     get_api_server_url_from_request,
@@ -372,14 +372,11 @@ async def edit_node(
     id = BACKEND.add_edit_node(values, node_name=node_name)
     return HTMLResponse(repr(id))
 
+
 @api_version(1)
 @app.delete(
     "/nodes/{node_name}",
-    responses={
-        200: {"model": models.response.DeleteNodeByNameResponse},
-        401: {},
-        403: {}
-    },
+    responses={200: {"model": models.response.DeleteNodeByNameResponse}, 401: {}, 403: {}},
     dependencies=[Depends(increment_request_counter)]
     if DEBUG
     else [
@@ -396,6 +393,7 @@ async def delete_node_by_name(
 ) -> Union[JSONResponse, HTTPException]:
     result = BACKEND.delete_node_by_name(node_name)
     return JSONResponse(result)
+
 
 @api_version(1)
 @app.get(
