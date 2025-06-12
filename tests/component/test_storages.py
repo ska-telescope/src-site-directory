@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_list_storages():
     """Test to list storages."""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storages")  # noqa: E231
@@ -20,7 +20,7 @@ def test_list_storages():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_storages_enabled():
     """Test to set storage as enabled"""
     storage_id = "180f2f39-4548-4f11-80b1-7471564e5c05"
@@ -36,7 +36,7 @@ def test_set_storages_enabled():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_storages_disabled():
     """Test to set storage as disabled"""
     storage_id = "180f2f39-4548-4f11-80b1-7471564e5c05"

@@ -14,10 +14,10 @@ K8S_TEST_IMAGE_TO_TEST=python:3.8-slim-buster	# the image used by the test runne
 # The following sets the expected location of the package inside CI & sets the required variables for component testing.
 PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KUBE_NAMESPACE=$(KUBE_NAMESPACE) DISABLE_AUTHENTICATION=$(DISABLE_AUTHENTICATION)
 ifeq ($(MAKECMDGOALS),python-test)					# if running pytest outside of deployment test runner
-    PYTHON_VARS_AFTER_PYTEST=-x -m 'not post_deployment' $(FILE)
+    PYTHON_VARS_AFTER_PYTEST=-x -m 'unit' $(FILE)
 endif
 ifeq ($(MAKECMDGOALS),k8s-test)						# if running pytest inside deployment test runner
-    PYTHON_VARS_AFTER_PYTEST= -m 'post_deployment' $(FILE)
+    PYTHON_VARS_AFTER_PYTEST= -m 'component' $(FILE)
 endif
 
 # Override pre for k8s-test (k8s.mk): create requirements.txt in required place to be passed in to test runner (/tests)

@@ -10,7 +10,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_site_enabled():
     """Test to set site as enabled"""
     site_id = "8b008348-0d8d-4505-a625-1e6e8df56e8a"
@@ -26,7 +26,7 @@ def test_set_site_enabled():
         assert response.status_code == 403
 
 
-@pytest.mark.post_deployment
+@pytest.mark.component
 def test_set_site_disabled():
     """Test to set site as disabled"""
     site_id = "8b008348-0d8d-4505-a625-1e6e8df56e8a"
