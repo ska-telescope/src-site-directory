@@ -12,6 +12,10 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def delete_node_by_name(self, node_name):
+        raise NotImplementedError
+
+    @abstractmethod
     def delete_all_nodes(self):
         raise NotImplementedError
 
