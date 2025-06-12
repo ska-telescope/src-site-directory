@@ -374,29 +374,6 @@ async def edit_node(
 
 
 @api_version(1)
-@app.delete(
-    "/nodes/{node_name}",
-    include_in_schema=True,
-    responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
-    tags=["Nodes"],
-    summary="Delete a node by name",
-)
-@handle_exceptions
-async def delete_node(
-    request: Request,
-    node_name: str = Path(description="Node name"),
-) -> Union[JSONResponse, HTTPException]:
-    rtn = BACKEND.delete_node_by_name(node_name)
-    return JSONResponse(rtn)
-
-
-@api_version(1)
 @app.get(
     "/nodes/dump",
     responses={
@@ -1695,11 +1672,15 @@ async def health(request: Request):
     #
     # Permissions API
     #
-    permissions_api_response = PERMISSIONS.ping()
+    try:
+        response = PERMISSIONS.ping()
+        permissions_api_healthy = response.status_code == 200
+    except Exception:
+        permissions_api_healthy = False
 
     # Set return code dependent on criteria e.g. dependent service statuses
     #
-    healthy_criteria = [permissions_api_response.status_code == 200]
+    healthy_criteria = [permissions_api_healthy]
     return JSONResponse(
         status_code=status.HTTP_200_OK if all(healthy_criteria) else status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
@@ -1707,7 +1688,7 @@ async def health(request: Request):
             "number_of_managed_requests": REQUESTS_COUNTER,
             "dependent_services": {
                 "permissions-api": {
-                    "status": "UP" if permissions_api_response.status_code == 200 else "DOWN",
+                    "status": "UP" if permissions_api_healthy else "DOWN",
                 }
             },
         },
