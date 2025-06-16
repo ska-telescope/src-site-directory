@@ -25,7 +25,8 @@
         "perfsonar",
         "canfar",
         "carta",
-        "prepare_data"
+        "prepare_data",
+        "gaussconv"
       ],
       "default": null,
       "required": true
