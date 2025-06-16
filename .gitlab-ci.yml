@@ -84,7 +84,7 @@ stop-k8s-test:
     - kubectl -n $KUBE_NAMESPACE get all
     - kubectl -n $KUBE_NAMESPACE get services
   rules:
-    - when: always
+    - when: on_success
 
 .stop-k8s-test-template:
   extends:
