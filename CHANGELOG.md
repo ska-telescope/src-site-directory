@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - More code samples
 - Deletion by node name endpoint
+- Component tests now only run on success
 
 ### Changed
 
