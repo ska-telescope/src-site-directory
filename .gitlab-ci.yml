@@ -5,6 +5,8 @@ services:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: tcp://docker:2375/
 
 cache:
   paths:
@@ -14,6 +16,7 @@ stages:
 - lint
 - lint-post
 - build
+- build-and-publish
 - test
 - publish
 - pages
@@ -123,3 +126,23 @@ stop-k8s-test-api-with-enabled-auth:
     - .stop-k8s-test-template
   variables:
     KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+
+build-and-publish:
+  stage: build-and-publish
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo "Reading version from VERSION file..."
+    - cat VERSION
+    - export RUCIO_TAG=$(cat VERSION | xargs)
+  script:
+    - echo "Building Rucio Client image"
+    - echo "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
+    - docker build -t "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG" --build-arg TAG="$RUCIO_TAG" -f Dockerfile.dev .
+    - echo "Pushing Rucio Client image to $CI_REGISTRY"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+    - docker push "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
+  only:
+    - branches
+
