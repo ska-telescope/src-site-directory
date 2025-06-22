@@ -139,7 +139,7 @@ build-and-publish:
   script:
     - echo "Building Rucio Client image"
     - echo "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
-    - docker build -t "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG" --build-arg TAG="$SCAPI_TAG" -f Dockerfile.dev .
+    - docker build -t "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG" --build-arg TAG="$SCAPI_TAG" -f Dockerfile .
     - echo "Pushing Rucio Client image to $CI_REGISTRY"
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
     - docker push "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
