@@ -13,119 +13,119 @@ cache:
     - build
 
 stages:
-#- lint
-#- lint-post
-#- build
+- lint
+- lint-post
+- build
 - build-and-publish
-#- test
-#- publish
-#- pages
-#- scan
+- test
+- publish
+- pages
+- scan
 
-#join_lint_reports:
-#  stage: lint-post
-#  tags:
-#    - k8srunner
-#  script:
-#    - make join-lint-reports
-#  artifacts:
-#    paths:
-#      - build/
-#    when: always
+join_lint_reports:
+  stage: lint-post
+  tags:
+    - k8srunner
+  script:
+    - make join-lint-reports
+  artifacts:
+    paths:
+      - build/
+    when: always
 
 # Standardised SKAO jobs (see https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/)
-#include:
+include:
   # python formatting, linting and testing
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/python.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/python.gitlab-ci.yml'
   # docs
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/docs.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/docs.gitlab-ci.yml'
   # OCI images build and publish
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
   # helm chart linting and publishing
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/helm-chart.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/helm-chart.gitlab-ci.yml'
   # k8s
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
   # badges
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
   # release automation
-#  - project: 'ska-telescope/templates-repository'
-#    file: 'gitlab-ci/includes/release.gitlab-ci.yml'
+  - project: 'ska-telescope/templates-repository'
+    file: 'gitlab-ci/includes/release.gitlab-ci.yml'
 
 
 # Overrides for and extensions of SKAO jobs
-#
-# *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
-#
-# 1) Set base *k8s-test jobs to not run.
-#k8s-test:
-#  rules:
-#  - when: never
 
-#stop-k8s-test:
-#  rules:
-#  - when: never
+# *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
+
+# 1) Set base *k8s-test jobs to not run.
+k8s-test:
+  rules:
+  - when: never
+
+stop-k8s-test:
+  rules:
+  - when: never
 
 # 2) Create templates that extend *k8s-test jobs with some common parameters.
-#.k8s-test-template:
-#  extends:
-#    - k8s-test
-#  variables:
-#    CI_KEEP_NAMESPACE: false    # delete namespace immediately rather than wait for clean-up (fixes issues with running the pipeline against the same commit hash).
-#  before_script:
-#    - echo "$CI_PROJECT_NAME"
-#    - echo "$CI_COMMIT_SHORT_SHA"
-#    - make k8s-namespace
-#    - make k8s-namespace-credentials SERVICE_ACCOUNT=$SERVICE_ACCOUNT
-#    - make k8s-install-chart
-#    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
-#    - kubectl -n $KUBE_NAMESPACE get all
-#    - kubectl -n $KUBE_NAMESPACE get services
-#  rules:
-#    - when: on_success
+.k8s-test-template:
+  extends:
+    - k8s-test
+  variables:
+    CI_KEEP_NAMESPACE: false    # delete namespace immediately rather than wait for clean-up (fixes issues with running the pipeline against the same commit hash).
+  before_script:
+    - echo "$CI_PROJECT_NAME"
+    - echo "$CI_COMMIT_SHORT_SHA"
+    - make k8s-namespace
+    - make k8s-namespace-credentials SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+    - make k8s-install-chart
+    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+    - kubectl -n $KUBE_NAMESPACE get all
+    - kubectl -n $KUBE_NAMESPACE get services
+  rules:
+    - when: on_success
 
-#.stop-k8s-test-template:
-#  extends:
-#    - stop-k8s-test
-#  rules:
-#    - when: manual
+.stop-k8s-test-template:
+  extends:
+    - stop-k8s-test
+  rules:
+    - when: manual
 
 # 3) Define new *k8s-test jobs that extend off these templates but with specific configuration parameters for
 #    enabled and disabled auth environments.
-#k8s-test-api-with-disabled-auth:
-#  extends:
-#    - .k8s-test-template
-#  variables:
-#    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
-#    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
-#    ADDMARK: ""
-#    DISABLE_AUTHENTICATION: "yes"
+k8s-test-api-with-disabled-auth:
+  extends:
+    - .k8s-test-template
+  variables:
+    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+    ADDMARK: ""
+    DISABLE_AUTHENTICATION: "yes"
 
-#k8s-test-api-with-enabled-auth:
-#  extends:
-#    - .k8s-test-template
-#  variables:
-#    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
-#    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
-#    ADDMARK: ""
-#    DISABLE_AUTHENTICATION: "no"
+k8s-test-api-with-enabled-auth:
+  extends:
+    - .k8s-test-template
+  variables:
+     KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+    ADDMARK: ""
+    DISABLE_AUTHENTICATION: "no"
 
-#stop-k8s-test-api-with-disabled-auth:
-#  extends:
-#    - .stop-k8s-test-template
-#  variables:
-#    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+stop-k8s-test-api-with-disabled-auth:
+  extends:
+    - .stop-k8s-test-template
+  variables:
+    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
 
-#stop-k8s-test-api-with-enabled-auth:
-#  extends:
-#    - .stop-k8s-test-template
-#  variables:
-#    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+stop-k8s-test-api-with-enabled-auth:
+  extends:
+    - .stop-k8s-test-template
+  variables:
+    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
 
 build-and-publish:
   stage: build-and-publish
