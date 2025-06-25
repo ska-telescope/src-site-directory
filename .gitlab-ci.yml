@@ -5,8 +5,7 @@ services:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: tcp://docker:2375/
+  
 
 cache:
   paths:
@@ -130,6 +129,9 @@ stop-k8s-test-api-with-enabled-auth:
 build-and-publish:
   stage: build-and-publish
   image: docker:latest
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375/
   services:
     - docker:dind
   before_script:
