@@ -140,11 +140,11 @@ build-and-publish:
     - export SCAPI_TAG=$(grep '^tag=' .release | cut -d '=' -f2 | xargs)
   script:
     - echo "Building Site Capabilities image"
-    - echo "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
-    - docker build -t "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG" --build-arg TAG="$SCAPI_TAG" -f Dockerfile .
+    - echo "$CI_REGISTRY_IMAGE/integration:$CI_COMMIT_REF_SLUG"
+    - docker build -t "$CI_REGISTRY_IMAGE/integration:$CI_COMMIT_REF_SLUG" --build-arg TAG="$SCAPI_TAG" -f Dockerfile .
     - echo "Pushing Site Capabilities image to $CI_REGISTRY"
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
-    - docker push "$CI_REGISTRY_IMAGE/scapi:$CI_COMMIT_REF_SLUG"
+    - docker push "$CI_REGISTRY_IMAGE/integration:$CI_COMMIT_REF_SLUG"
   only:
     - branches
 
