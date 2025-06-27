@@ -84,7 +84,6 @@ def test_post_and_get_node_storm1(site_capabilities_token):
             {
                 "name": "STORM1",
                 "comments": "",
-                "id": "to be assigned",
                 "description": "Storm 1",
                 "country": "SKAO",
                 "primary_contact_email": "michele.delliveneri@skao.int",
@@ -172,7 +171,6 @@ def test_post_and_get_node_storm2(site_capabilities_token):
             {
                 "name": "STORM2",
                 "comments": "",
-                "id": "to be assigned",
                 "description": "Storm 2",
                 "country": "SKAO",
                 "primary_contact_email": "michele.delliveneri@skao.int",
