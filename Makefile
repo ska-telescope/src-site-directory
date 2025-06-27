@@ -1,3 +1,6 @@
+# Set build context as PWD for multiple images
+OCI_IMAGE_BUILD_CONTEXT = $(PWD)
+
 # Bespoke partial Makefiles
 include testing.mk		# add testing settings and targets
 ifneq ($(CI_JOB_ID),)
