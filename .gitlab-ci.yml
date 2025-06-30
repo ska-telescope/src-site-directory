@@ -15,9 +15,9 @@ stages:
 - lint
 - lint-post
 - build
-- build-and-publish
 - test
 - publish
+- integration
 - pages
 - scan
 
