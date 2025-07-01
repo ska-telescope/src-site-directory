@@ -1722,7 +1722,7 @@ async def health(request: Request):
                 },
                 "auth-api": {
                     "status": "UP" if auth_api_healthy else "DOWN",
-                }
+                },
             },
         },
     )
