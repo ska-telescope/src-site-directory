@@ -5,120 +5,144 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.59]
+
+### Added
+
+- More code samples
+- Deletion by node name endpoint
+- Component tests now only run on success
+
+### Changed
+
+- Unit tests now marked as "unit"
+- Typos in README and CONTRIBUTING
+
+## [0.3.58]
+
+### Added
+
+- Introduced endpoints to enable/disable storage, compute, and site components:
+  - `/sites/{site_id}/enabled` and `/sites/{site_id}/disabled`
+  - `/compute/{compute_id}/enabled` and `/compute/{compute_id}/disabled`
+  - `/storages/{storage_id}/enabled` and `/storages/{storage_id}/disabled`
+- Added client methods corresponding to the new endpoints.
+- Implemented unit tests to validate new backend methods.
+- Added component tests to verify end-to-end flow, starting from the API call within the pipeline namespace.
+- Integrated release automation for pipeline configuration.
+- Added test for add_edit node
+
 ## [0.3.57]
 
 ### Added
 
-- SKAO CI/CD component testing framework (credit Shraddha B.).
-  - Implementation of secrets for mongodb and iam credentials. 
-  - Updates in templates to utilise secrets as helm variables.
-  - Use of template repository for make targets to install and uninstall chart.
-  - Deployment setup to install site capabilities chart on pipeline in unique namespace. 
-  - Namespace based on each commit.
-  - Jobs to destroy the created namespace manually.
-  - Implementation of component tests.
-  - Test-runner pod setup to execute newly implemented tests.
-  - Implementation of separate jobs with separate namespace w.r.t enabled and disabled authentication.
-  - Documentation for readthedocs for new approach.
-  - Helm configuration changes for gitlab pipeline to release/publish the chart on CAR (Central Artifact Repository).
-- Streamlined image (from debian bullseye to buster + removed MongoDB server installation + removed Dockerfile layers).
-- Fixed code-samples target and added new code samples to routes.
-- Tool to migrate schema (0.3.56->0.3.57) in tools/
-- Dropped "only_" in query parameters where sensible
-- Renamed "identifier" to "name" to avoid conflict with "id" attribute
+- Introduced SKAO CI/CD component testing framework (credit: Shraddha B.):
+  - Implemented secrets management for MongoDB and IAM credentials.
+  - Updated Helm templates to use secrets as variables.
+  - Integrated template repository for `make` targets (install/uninstall charts).
+  - Configured deployments to install the site capabilities chart in a unique namespace per commit.
+  - Added jobs to manually destroy the created namespaces.
+  - Developed new component tests.
+  - Set up a test-runner pod to execute tests.
+  - Created separate jobs and namespaces for authentication-enabled and disabled test cases.
+  - Documented the approach in ReadTheDocs.
+  - Updated Helm configuration for GitLab pipeline to release and publish charts to the Central Artifact Repository (CAR).
+- Streamlined Docker image:
+  - Switched base from Debian Bullseye to Buster.
+  - Removed MongoDB server installation.
+  - Simplified Dockerfile layers.
+- Fixed the `code-samples` target and added new route examples.
+- Added schema migration tool (`0.3.56` → `0.3.57`) in `tools/`.
+- Removed `only_` prefix from query parameters where appropriate.
+- Renamed `identifier` to `name` to avoid conflicts with the `id` attribute.
 
 ## [0.3.56]
 
 ### Added
 
-- Unit tests for backend.
+- Added backend unit tests.
 
 ## [0.3.56]
 
 ### Added
 
-- New add node landing page at www/nodes.
-- New edit node landing page at www/nodes/<node_name>.
-- Filtering for service types on list services endpoint.
-- Filtering for node and site names on all relevant endpoints.
+- New "Add Node" page at `/www/nodes`.
+- New "Edit Node" page at `/www/nodes/<node_name>`.
+- Added service type filtering to the "list services" endpoint.
+- Enabled filtering by node and site names on relevant endpoints.
 
 ### Changed
 
-- Restructed MongoDB database to have nodes at top level.
-- Added concept of parent_* ids for subelements in list endpoints (for traceability).
-- Renamed disabled to is_force_disabled for clarity.
-- All list endpoints now have a different model response.
-- Site now includes site_id (like other child elements of node).
-- Added some common functions in server.py to common/utility.py.
-- Two collections in backend now used, one for archival documents and one for latest.
-- Added more routes to /www/docs/user page.
+- Restructured MongoDB to place nodes at the top level.
+- Introduced `parent_*` IDs for sub-elements in list endpoints (for traceability).
+- Renamed `disabled` to `is_force_disabled` for clarity.
+- Updated all list endpoints to return a new response model.
+- `site` now includes `site_id`, similar to other node child elements.
+- Moved common functions from `server.py` to `common/utility.py`.
+- Separated backend collections into archival and current.
+- Expanded `/www/docs/user` with additional routes.
 
 ### Removed
 
-- Ability to add_site, this is now done through /www/nodes/<node_name>.
+- Removed ability to add a site directly; this is now done via `/www/nodes/<node_name>`.
 
 ## [0.3.55]
 
 ### Added
 
-- Redirect from www/sites/add/<site> when not logged in.
-- Token expiration warnings and timer.
-- Downtime/disabled fields for all entities.
-- Favicon to site html.
-- Server side constraint on node_name being unique
+- Redirect from `/www/sites/add/<site>` if user is not logged in.
+- Token expiration warnings and countdown timer.
+- Added `downtime` and `disabled` fields for all entities.
+- Favicon added to site HTML.
+- Server-side constraint to enforce unique `node_name`.
 
 ### Changed
 
-- Tier value is now integer, not string.
-- CSS layout to be a bit more clear for nested fieldsets.
-- Global services now part of compute.
-- Name of associated_compute_id or associate_storage_id to parent_compute_id and parent_storage_id.
-- List services endpoint now takes service_scope (all||local||global).
-- Compute hardware_type changed from checkbox to radio (no longer array).
-- Updated out of date models.
+- `tier` value is now an integer instead of a string.
+- Improved CSS layout for nested fieldsets.
+- Global services are now included under compute.
+- Renamed `associated_compute_id` and `associate_storage_id` to `parent_compute_id` and `parent_storage_id`.
+- Updated "list services" endpoint to accept `service_scope` (`all`, `local`, or `global`).
+- Changed compute `hardware_type` from checkbox array to a radio button.
+- Refreshed outdated models.
 
 ### Fixed
 
-- Set default items in tabarrays to 0 (ln2456 of jsonform).
-- Issue around non-focusable elements with hidden tabs in Chrome. Location of validation error now presented in box.
+- Set default items to `0` in tab arrays (line 2456 of `jsonform`).
+- Addressed issue with hidden tabs in Chrome causing non-focusable validation errors—location of the error is now clearly displayed.
 
 ### Removed
 
-- Tier titles from form.
-- via_proxy flag from schemas.
+- Removed tier titles from forms.
+- Removed `via_proxy` flag from schemas.
 
 ## [0.3.54]
 
 ### Added
 
-- Symlink in charts/ska-src-site-capabilities-api pointing to etc/helm, as release machinery from System assumes
-  this location.
+- Created symlink at `charts/ska-src-site-capabilities-api` pointing to `etc/helm`, as expected by release tooling.
 
 ### Changed
 
-- Makefile now uses System Makefile targets for release handling.
-- Reference to VERSION in Dockerfile init, now references version in pyproject.toml.
-- Reference to VERSION in docs/conf.py, now references version in pyproject.toml.
+- Updated Makefile to use System targets for release processes.
+- Dockerfile now pulls version from `pyproject.toml`.
+- `docs/conf.py` now references the version from `pyproject.toml`.
 
 ### Removed
 
-- VERSION now handled by pyproject.toml.
-- etc/scripts/increment* scripts, now handled by System Makefile targets.
+- Removed `VERSION` file; now managed via `pyproject.toml`.
+- Removed `etc/scripts/increment*`; functionality now handled by System Makefile targets.
 
 ## [0.3.53]
 
-### Added
-
 ### Changed
 
-- Removed redundant includes and parameters from Makefile, changed ordering and included comments.
-- Dockerfile copy redundancy. Now only copy application files across once.
+- Removed redundant includes and parameters from Makefile; added comments and reordered sections.
+- Optimized Dockerfile to copy application files only once.
 
 ### Fixed
 
-- PYTHON_LINE_LENGTH to Makefile.
-
-### Removed
+- Defined `PYTHON_LINE_LENGTH` in Makefile.
 
 
 

@@ -12,6 +12,7 @@ tests/unittests/reports
 htmlcov/
 .tox/
 coverage.xml
+pytest-logs.txt
 
 # Temporary developer scripts
 dev_scripts
@@ -24,8 +25,6 @@ build/
 dist/
 *.egg-info/
 
-# Bespoke environment files
-docker-compose.local.yml
 .env
 
 # IDE/development files

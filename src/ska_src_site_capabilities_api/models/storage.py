@@ -10,9 +10,7 @@ from pydantic import BaseModel, Field, NonNegativeInt
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "storage-area"))).absolute()
 with open(schema_path) as f:
     dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-hardware_capabilities = (
-    dereferenced_schema.get("properties", {}).get("hardware_capabilities", {}).get("items", {}).get("enum", [])
-)
+hardware_capabilities = dereferenced_schema.get("properties", {}).get("hardware_capabilities", {}).get("items", {}).get("enum", [])
 storage_area_types = dereferenced_schema.get("properties", {}).get("type", {}).get("enum", [])
 
 StorageAreaType = Literal[tuple(storage_area_types)]

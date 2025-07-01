@@ -2,7 +2,7 @@ import requests
 
 url = "{{ api_server_url }}/storage-areas/topojson"
 
-querystring = {"only_node_names":"SOME_STRING_VALUE","only_site_names":"SOME_STRING_VALUE","include_inactive":"SOME_BOOLEAN_VALUE"}
+querystring = {"node_names":"SOME_STRING_VALUE","site_names":"SOME_STRING_VALUE","include_inactive":"SOME_BOOLEAN_VALUE"}
 
 response = requests.request("GET", url, params=querystring)
 

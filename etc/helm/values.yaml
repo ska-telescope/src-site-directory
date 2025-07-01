@@ -3,7 +3,7 @@ svc:
     image:
       registry: artefact.skao.int
       image: ska-src-site-capabilities-api
-      tag: 0.3.57
+      tag: 0.3.60
       pullPolicy: Always
     root_path: /api
     scheme: https
@@ -12,10 +12,11 @@ svc:
     iam_client_audience: site-capabilities-api
     mongo_host: mongo
     mongo_port: 27017
-    permissions_api_url: https://permissions.srcdev.skao.int/api/v1
+    mongo_init_data_relpath: etc/init
+    permissions_api_url: https://permissions.srcnet.skao.int/api/v1
     permissions_service_name: site-capabilities-api
     permissions_service_version: 1
-    auth_api_url: https://authn.srcdev.skao.int/api/v1
+    auth_api_url: https://authn.srcnet.skao.int/api/v1
     sessions_secret_key:
     schemas_relpath: ../../../etc/schemas
   common:
@@ -45,7 +46,7 @@ secrets:
 ing:
   enabled: true
   api:
-    host: site-capabilities.srcdev.skao.int
+    host: site-capabilities.srcnet.skao.int
 
 persistence:
   storageClass: bds1

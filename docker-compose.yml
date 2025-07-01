@@ -19,7 +19,7 @@ services:
     image: ska-src-site-capabilities-api-core:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.core
     environment:
       DISABLE_AUTHENTICATION: "no"
       API_ROOT_PATH:
@@ -34,6 +34,7 @@ services:
       MONGO_PASSWORD:
       MONGO_PORT: 27017
       MONGO_USERNAME: *mongo_root_username
+      MONGO_INIT_DATA_RELPATH: etc/init
       PERMISSIONS_API_URL: https://permissions.srcdev.skao.int/api/v1
       PERMISSIONS_SERVICE_NAME: site-capabilities-api
       PERMISSIONS_SERVICE_VERSION: 1

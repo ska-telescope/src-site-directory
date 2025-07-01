@@ -20,7 +20,7 @@ git clone <ska-src-site-capabilities-api-url>
 2. Initialise submodules for standard make targets and variables
 
 ```bash
-ska-src-data-management-api$ git submodule update --recursive --init
+ska-src-site-capabilities-api$ git submodule update --recursive --init
 ```
 
 ## Development cycle
@@ -29,37 +29,37 @@ Makefile targets have been included to facilitate easier and more consistent dev
 follows:
 
 1. Depending on what you are working on, fork the project and create a new major/minor/patch branch, e.g. 
-    ```bash
-    ska-src-data-management-api$ make patch-branch NAME=some-name
-    ```
-    Note that this both creates and checkouts the branch.
+   ```bash
+   ska-src-site-capabilities-api$ make patch-branch NAME=some-name
+   ```
+   Note that this both creates and checkouts the branch.
 
 2. Make your changes.
 
 3. Create new (OpenAPI) code samples if necessary (requires the service to be running):
    ```bash
-   ska-src-data-management-api$ make code-samples
+   ska-src-site-capabilities-api$ make code-samples
    ```
 
 4. Update `poetry.lock`
    ```bash
-   ska-src-data-management-api$ poetry lock --no-update
+   ska-src-site-capabilities-api$ poetry lock --no-update
    ```
    
 5. Add your changes to the branch:
     ```bash
-   ska-src-data-management-api$ git add ...
+   ska-src-site-capabilities-api$ git add ...
     ```
    
 6. Bump the version and commit, entering a commit message when prompted:
     ```bash
-   ska-src-data-management-api$ make bump-and-commit
+   ska-src-site-capabilities-api$ make bump-and-commit
     ```
    This is essential to keep version numbers consistent across the helm chart and python package.
    
 7. Push the changes to your fork when ready:
     ```bash
-   ska-src-data-management-api$ make push
+   ska-src-site-capabilities-api$ make push
     ```
 
 8. Create a merge request against upstream main.
@@ -71,13 +71,13 @@ follows:
 1. To work inside a poetry shell:
 
 ```bash
-ska-src-data-management-api$ poetry shell
+ska-src-site-capabilities-api$ poetry shell
 ```
 
 2. To install dependencies from `pyproject.toml`:
 
 ```bash
-(venv)ska-src-data-management-api$ poetry install
+(venv)ska-src-site-capabilities-api$ poetry install
 ```
 
 ### Bypassing AuthN/Z
@@ -99,9 +99,8 @@ component tests are executed during the ``test`` stage of the CI/CD pipeline und
 For local testing, an environment can be installed via minikube/helm with:
 
 ```bash
-ska-src-data-management-api$ minikube start
-ska-src-data-management-api$ make k8s-install-chart
-ska-src-data-management-api$ make k8s-test
+ska-src-site-capabilities-api$ minikube start
+ska-src-site-capabilities-api$ make k8s-install-chart
 ```
 
 Note that if only tests are modified, it isn't necessary to run the `k8s-install-chart` target.
@@ -109,8 +108,8 @@ Note that if only tests are modified, it isn't necessary to run the `k8s-install
 To run the tests locally with both authentication enabled and disabled, respectively:
 
 ```bash
-ska-src-data-management-api$ make k8s-test-auth
-ska-src-data-management-api$ make k8s-test-noauth
+ska-src-site-capabilities-api$ make k8s-test-auth
+ska-src-site-capabilities-api$ make k8s-test-noauth
 ```
 
 ## Code quality
@@ -137,7 +136,7 @@ should be run inside a poetry shell.
 There is a Makefile target for generating documentation locally:
 
 ```bash
-ska-src-data-management-api/docs$ make html
+ska-src-site-capabilities-api/docs$ make html
 ```
 
 To render inheritance diagrams etc., the `graphviz` library must be installed.

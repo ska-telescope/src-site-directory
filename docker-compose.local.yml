@@ -1,0 +1,7 @@
+version: "3.5"
+services:
+  core:
+    environment:
+      DISABLE_AUTHENTICATION: "yes"
+    volumes:
+      - .:/opt/ska-src-site-capabilities-api

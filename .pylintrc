@@ -83,7 +83,8 @@ disable=consider-using-f-string,
         missing-timeout,
         unused-import,
         undefined-variable,
-        function-redefined
+        function-redefined,
+        protected-access
 
 
 

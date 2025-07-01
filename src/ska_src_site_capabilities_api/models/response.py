@@ -6,12 +6,7 @@ from pydantic import BaseModel, Field, NonNegativeInt
 from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.node import Node
 from ska_src_site_capabilities_api.models.schema import Schema
-from ska_src_site_capabilities_api.models.service import (
-    GlobalService,
-    GlobalServiceType,
-    LocalService,
-    LocalServiceType,
-)
+from ska_src_site_capabilities_api.models.service import GlobalService, GlobalServiceType, LocalService, LocalServiceType
 from ska_src_site_capabilities_api.models.site import Site
 from ska_src_site_capabilities_api.models.storage import (
     Storage,
@@ -23,38 +18,170 @@ from ska_src_site_capabilities_api.models.storage import (
 )
 
 
+# =======================
+# Base Response Class
+# =======================
 class Response(BaseModel):
     pass
 
 
+# =======================
+# Compute Responses
+# =======================
 class ComputeWithParents(Compute):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
 
 
 ComputeGetResponse = ComputeWithParents
-
 ComputeListResponse = List[ComputeWithParents]
 
 
-class LocalServiceWithParents(LocalService):
+class ComputeEnableResponse(Response):
+    compute_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=False, examples=[False])
+
+
+class ComputeDisableResponse(Response):
+    compute_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=True, examples=[True])
+
+
+# =======================
+# Service Responses
+# =======================
+class GlobalServiceWithParentsAndType(GlobalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_compute_id: UUID = Field(default_factory=uuid4)
+    scope: str = "global"
 
 
-LocalServiceGetResponse = LocalServiceWithParents
+GlobalServiceGetResponse = GlobalServiceWithParentsAndType
 
 
-class GlobalServiceWithParents(GlobalService):
+class LocalServiceWithParentsAndType(LocalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_compute_id: UUID = Field(default_factory=uuid4)
+    scope: str = "local"
 
 
-GlobalServiceGetResponse = GlobalServiceWithParents
+LocalServiceGetResponse = LocalServiceWithParentsAndType
+
+ServicesListResponse = List[Union[GlobalServiceWithParentsAndType, LocalServiceWithParentsAndType]]
 
 
+class ServiceEnableResponse(Response):
+    service_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=False, examples=[False])
+
+
+class ServiceDisableResponse(Response):
+    service_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=True, examples=[True])
+
+
+class ServicesTypesResponse(Response):
+    global_: List[GlobalServiceType] = Field(..., alias="global")
+    local: List[LocalServiceType]
+
+
+ServicesTypesGlobalResponse = List[GlobalServiceType]
+ServicesTypesLocalResponse = List[LocalServiceType]
+
+
+# =======================
+# Site Responses
+# =======================
+class SiteWithParents(Site):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+
+
+SiteGetResponse = SiteWithParents
+SitesListResponse = List[SiteWithParents]
+
+
+class SiteEnableResponse(Response):
+    site_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=False, examples=[False])
+
+
+class SiteDisableResponse(Response):
+    site_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=True, examples=[True])
+
+
+# =======================
+# Storage Responses
+# =======================
+class StorageWithParents(Storage):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+
+
+StorageGetResponse = StorageWithParents
+StoragesListResponse = List[StorageWithParents]
+StoragesGrafanaResponse = List[StorageGrafana]
+StoragesTopojsonResponse = List[StorageTopojson]
+
+
+class StorageEnableResponse(Response):
+    storage_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=False, examples=[False])
+
+
+class StorageDisableResponse(Response):
+    storage_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=True, examples=[True])
+
+
+class StorageAreaWithParents(StorageArea):
+    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_storage_id: UUID = Field(default_factory=uuid4)
+
+
+StorageAreaGetResponse = StorageAreaWithParents
+StorageAreasListResponse = List[StorageAreaWithParents]
+StorageAreasGrafanaResponse = List[StorageAreaGrafana]
+StorageAreasTopojsonResponse = List[StorageAreaTopojson]
+StorageAreasTypesResponse = List[str]
+
+
+class StorageAreaEnableResponse(Response):
+    storage_area_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=False, examples=[False])
+
+
+class StorageAreaDisableResponse(Response):
+    storage_area_id: UUID = Field(default_factory=uuid4)
+    is_force_disabled: bool = Field(default=True, examples=[True])
+
+
+# =======================
+# Node Responses
+# =======================
+NodesGetResponse = Node
+NodesListResponse = List[Node]
+NodesDumpResponse = List[Node]
+
+
+class DeleteNodeByNameResponse(Response):
+    deleted_from_nodes_count: int = Field(examples=[1])
+    deleted_from_nodes_archived_count: int = Field(examples=[1])
+
+
+# =======================
+# Schema Responses
+# =======================
+SchemaGetResponse = Schema
+SchemasListResponse = List[str]
+
+
+# =======================
+# Miscellaneous Responses
+# =======================
 class GenericErrorResponse(Response):
     detail: str
 
@@ -75,71 +202,6 @@ class HealthResponse(Response):
     dependent_services: DependentServices
 
 
-NodesDumpResponse = List[Node]
-
-NodesGetResponse = Node
-
-NodesListResponse = List[Node]
-
-
 class PingResponse(Response):
     status: Literal["UP", "DOWN"]
     version: str
-
-
-SchemasListResponse = List[str]
-
-SchemaGetResponse = Schema
-
-
-ServicesListResponse = List[Union[GlobalServiceWithParents, LocalServiceWithParents]]
-
-
-class ServicesTypesResponse(Response):
-    global_: List[GlobalServiceType] = Field(..., alias="global")
-    local: List[LocalServiceType]
-
-
-ServicesTypesLocalResponse = List[LocalServiceType]
-
-ServicesTypesGlobalResponse = List[GlobalServiceType]
-
-
-class SiteWithParents(Site):
-    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
-
-
-SiteGetResponse = SiteWithParents
-
-SitesListResponse = List[SiteWithParents]
-
-
-class StorageAreaWithParents(StorageArea):
-    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
-    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
-    parent_storage_id: UUID = Field(default_factory=uuid4)
-
-
-StorageAreaGetResponse = StorageAreaWithParents
-
-StorageAreasListResponse = List[StorageAreaWithParents]
-
-StorageAreasGrafanaResponse = List[StorageAreaGrafana]
-
-StorageAreasTopojsonResponse = List[StorageAreaTopojson]
-
-StorageAreasTypesResponse = List[str]
-
-
-class StorageWithParents(Storage):
-    parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
-    parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
-
-
-StorageGetResponse = StorageWithParents
-
-StoragesListResponse = List[StorageWithParents]
-
-StoragesGrafanaResponse = List[StorageGrafana]
-
-StoragesTopojsonResponse = List[StorageTopojson]
