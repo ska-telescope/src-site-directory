@@ -19,7 +19,7 @@ services:
     image: ska-src-site-capabilities-api-core:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.core
     environment:
       DISABLE_AUTHENTICATION: "no"
       API_ROOT_PATH:
