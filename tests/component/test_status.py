@@ -23,6 +23,6 @@ def test_check_ping():
 def test_check_health():
     """Test to check health API"""
     response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/health")  # noqa: E231
-    assert response.status_code == 500  # permissions API will be down
+    assert response.status_code == 500  # permissions and auth API will be down
     response_data = response.json()
     assert response_data["uptime"] > 0
