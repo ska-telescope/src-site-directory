@@ -1700,9 +1700,17 @@ async def health(request: Request):
     except Exception:
         permissions_api_healthy = False
 
+    # Auth API
+    #
+    try:
+        response = AUTH.ping()
+        auth_api_healthy = response.status_code == 200
+    except Exception:
+        auth_api_healthy = False
+
     # Set return code dependent on criteria e.g. dependent service statuses
     #
-    healthy_criteria = [permissions_api_healthy]
+    healthy_criteria = [permissions_api_healthy, auth_api_healthy]
     return JSONResponse(
         status_code=status.HTTP_200_OK if all(healthy_criteria) else status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
@@ -1711,7 +1719,10 @@ async def health(request: Request):
             "dependent_services": {
                 "permissions-api": {
                     "status": "UP" if permissions_api_healthy else "DOWN",
-                }
+                },
+                "auth-api": {
+                    "status": "UP" if auth_api_healthy else "DOWN",
+                },
             },
         },
     )
