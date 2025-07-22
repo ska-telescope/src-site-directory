@@ -2,7 +2,7 @@ svc:
   api:
     image:
       registry: artefact.skao.int
-      image: ska-src-site-capabilities-api
+      image: ska-src-site-capabilities-api-core
       tag: 0.3.60
       pullPolicy: Always
     root_path: /api
