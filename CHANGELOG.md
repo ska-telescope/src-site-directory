@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Image build now uses same Dockerfile to create a branch-tagged version in the -integration repository
+- Runner for join lint job now uses aws after cloud outage
+
 
 ## [0.3.60]
 
