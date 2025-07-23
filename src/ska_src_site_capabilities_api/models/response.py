@@ -69,12 +69,14 @@ class LocalServiceWithParentsAndType(LocalService):
 
 LocalServiceGetResponse = LocalServiceWithParentsAndType
 
+
 class LocalPrometheusServiceTarget(BaseModel):
     targets: List[str]
     labels: LocalServiceWithParentsAndType
 
 
 LocalServicePrometheusResponse = LocalPrometheusServiceTarget
+
 
 class GlobalPrometheusServiceTarget(BaseModel):
     targets: List[str]

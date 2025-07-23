@@ -608,7 +608,7 @@ async def list_services(
         site_names = [name.strip() for name in site_names.split(",")]
     if service_types:
         service_types = [name.strip() for name in service_types.split(",")]
-    
+
     for_prometheus = output == "prometheus"
 
     rtn = BACKEND.list_services(

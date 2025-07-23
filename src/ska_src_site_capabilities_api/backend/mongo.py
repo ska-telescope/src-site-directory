@@ -440,7 +440,7 @@ class MongoBackend(Backend):
                             **service,
                         }
                     )
-        
+
         if for_prometheus:
             formatted = []
             for service in response:
@@ -454,12 +454,9 @@ class MongoBackend(Backend):
                 else:
                     path = ""
                 target = f"{prefix}://{host}{path}"
-                formatted.append({
-                    "targets": [target],
-                    "labels": service
-                })
+                formatted.append({"targets": [target], "labels": service})
             return formatted
-        
+
         return response
 
     def list_service_types_from_schema(self, schema):

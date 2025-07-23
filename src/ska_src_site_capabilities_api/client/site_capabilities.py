@@ -235,7 +235,7 @@ class SiteCapabilitiesClient:
         node_names: List[str] = None,
         service_types: List[str] = None,
         service_scope: str = "all",
-        output: str = None
+        output: str = None,
     ):
         """List services.
 
@@ -258,7 +258,7 @@ class SiteCapabilitiesClient:
             "node_names": node_names,
             "service_types": service_types,
             "service_scope": service_scope,
-            "output": output
+            "output": output,
         }
 
         resp = self.session.get(services_endpoint, params=params)
