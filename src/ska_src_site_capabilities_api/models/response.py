@@ -69,7 +69,24 @@ class LocalServiceWithParentsAndType(LocalService):
 
 LocalServiceGetResponse = LocalServiceWithParentsAndType
 
-ServicesListResponse = List[Union[GlobalServiceWithParentsAndType, LocalServiceWithParentsAndType]]
+class LocalPrometheusServiceTarget(BaseModel):
+    targets: List[str]
+    labels: LocalServiceWithParentsAndType
+
+
+LocalServicePrometheusResponse = LocalPrometheusServiceTarget
+
+class GlobalPrometheusServiceTarget(BaseModel):
+    targets: List[str]
+    labels: GlobalServiceWithParentsAndType
+
+
+GlobalServicePrometheusResponse = GlobalPrometheusServiceTarget
+
+ServicesListResponseGeneric = List[Union[GlobalServiceWithParentsAndType, LocalServiceWithParentsAndType]]
+ServicesListResponsePrometheus = List[Union[LocalServicePrometheusResponse, GlobalServicePrometheusResponse]]
+
+ServicesListResponse = Union[ServicesListResponseGeneric, ServicesListResponsePrometheus]
 
 
 class ServiceEnableResponse(Response):

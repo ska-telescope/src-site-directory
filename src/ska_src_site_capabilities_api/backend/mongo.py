@@ -376,6 +376,7 @@ class MongoBackend(Backend):
         service_scope="all",
         include_inactive=False,
         associated_storage_area_id=None,
+        for_prometheus=False,
     ):
         """
         Lists services based on specified filters.
@@ -387,6 +388,7 @@ class MongoBackend(Backend):
             service_scope: String ("all", "local", "global") to filter by service scope.
             include_inactive: Boolean to include inactive compute resources.
             associated_storage_area_id: String to filter services by associated storage area ID.
+            for_prometheus: Boolean to return data formatted for Prometheus Service Discovery Config
 
         Returns:
             A list of service dictionaries, each containing scope and parent information.
@@ -438,7 +440,26 @@ class MongoBackend(Backend):
                             **service,
                         }
                     )
-
+        
+        if for_prometheus:
+            formatted = []
+            for service in response:
+                prefix = service.get("prefix", "http").replace("://", "")
+                host = service.get("host", "")
+                path = service.get("path", "")
+                if path:
+                    path = path.strip()
+                    if not path.startswith("/"):
+                        path = "/" + path
+                else:
+                    path = ""
+                target = f"{prefix}://{host}{path}"
+                formatted.append({
+                    "targets": [target],
+                    "labels": service
+                })
+            return formatted
+        
         return response
 
     def list_service_types_from_schema(self, schema):
