@@ -1,3 +1,4 @@
+import os
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import IAMEndpointNotFoundInWellKnown
@@ -10,7 +11,12 @@ class IAM:
 
     def __init__(self, client_conf_url=None):
         # Get oidc endpoints from IAM .well_known.
-        resp = requests.get(client_conf_url)
+        # Use custom CA bundle if available for SSL verification
+        session = requests.Session()
+        ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE")
+        if ca_bundle:
+            session.verify = ca_bundle
+        resp = session.get(client_conf_url)
         resp.raise_for_status()
         self.client_well_known = resp.json()
 
