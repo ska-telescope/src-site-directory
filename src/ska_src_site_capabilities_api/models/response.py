@@ -1,4 +1,4 @@
-from typing import List, Literal, Union
+from typing import List, Literal, Union, Dict
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, NonNegativeInt
@@ -70,23 +70,15 @@ class LocalServiceWithParentsAndType(LocalService):
 LocalServiceGetResponse = LocalServiceWithParentsAndType
 
 
-class LocalPrometheusServiceTarget(BaseModel):
+class PrometheusServiceTarget(BaseModel):
     targets: List[str]
-    labels: LocalServiceWithParentsAndType
+    labels: Dict[str, str]
 
 
-LocalServicePrometheusResponse = LocalPrometheusServiceTarget
-
-
-class GlobalPrometheusServiceTarget(BaseModel):
-    targets: List[str]
-    labels: GlobalServiceWithParentsAndType
-
-
-GlobalServicePrometheusResponse = GlobalPrometheusServiceTarget
+ServicesPrometheusResponse = PrometheusServiceTarget
 
 ServicesListResponseGeneric = List[Union[GlobalServiceWithParentsAndType, LocalServiceWithParentsAndType]]
-ServicesListResponsePrometheus = List[Union[LocalServicePrometheusResponse, GlobalServicePrometheusResponse]]
+ServicesListResponsePrometheus = List[ServicesPrometheusResponse]
 
 ServicesListResponse = Union[ServicesListResponseGeneric, ServicesListResponsePrometheus]
 

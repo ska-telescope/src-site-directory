@@ -1,4 +1,6 @@
 import copy
+import json
+
 from datetime import datetime, timezone
 
 import dateutil.parser
@@ -447,6 +449,8 @@ class MongoBackend(Backend):
                 prefix = service.get("prefix", "http").replace("://", "")
                 host = service.get("host", "")
                 path = service.get("path", "")
+                if host == "":
+                    continue
                 if path:
                     path = path.strip()
                     if not path.startswith("/"):
@@ -454,7 +458,15 @@ class MongoBackend(Backend):
                 else:
                     path = ""
                 target = f"{prefix}://{host}{path}"
-                formatted.append({"targets": [target], "labels": service})
+
+                labels = {}
+                for key, value in service.items():
+                    if isinstance(value, (dict, list)):
+                        labels[key] = json.dumps(value)
+                    else:
+                        labels[key] = str(value)
+
+                formatted.append({"targets": [target], "labels": labels})
             return formatted
 
         return response
