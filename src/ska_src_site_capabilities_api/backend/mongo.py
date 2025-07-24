@@ -445,19 +445,13 @@ class MongoBackend(Backend):
         if for_prometheus:
             formatted = []
             for service in response:
-                prefix = service.get("prefix", "http").replace("://", "")
-                host = service.get("host", "")
-                path = service.get("path", "")
-                if host == "":
+                if not service.get("host"):
                     continue
-                if path:
-                    path = path.strip()
-                    if not path.startswith("/"):
-                        path = "/" + path
-                else:
-                    path = ""
-                target = f"{prefix}://{host}{path}"
-
+                path = service.get("path", "")
+                path = path.strip() if path else ""
+                if path and not path.startswith("/"):
+                    path = "/" + path
+                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}{path}'
                 labels = {}
                 for key, value in service.items():
                     if isinstance(value, (dict, list)):
