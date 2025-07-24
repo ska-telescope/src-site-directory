@@ -1,6 +1,5 @@
 import copy
 import json
-
 from datetime import datetime, timezone
 
 import dateutil.parser
