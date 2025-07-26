@@ -1,6 +1,7 @@
 """
 A module for component tests related to storage areas.
 """
+
 import os
 
 import httpx

@@ -1,4 +1,5 @@
 import os
+
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import IAMEndpointNotFoundInWellKnown
