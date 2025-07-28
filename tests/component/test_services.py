@@ -1,6 +1,7 @@
 """
 A module for component tests related to services.
 """
+
 import os
 
 import httpx

@@ -1,4 +1,5 @@
 """Integration tests for Site Capabilities API."""
+
 import json
 import logging
 import random
