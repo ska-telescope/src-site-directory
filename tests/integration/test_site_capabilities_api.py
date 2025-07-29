@@ -103,12 +103,21 @@ def test_post_and_get_node_storm1(site_capabilities_token):
                             {
                                 "id": "to be assigned",
                                 "type": "rse",
-                                "relative_path": "/",
+                                "relative_path": "/deterministic",
                                 "name": "STORM1",
                                 "downtime": [],
                                 "other_attributes": "",
                                 "is_force_disabled": False,
-                            }
+                            },
+                            {
+                                "id": "to be assigned",
+                                "type": "rse",
+                                "relative_path": "/nondeterministic",
+                                "name": "STORM1_NONDET",
+                                "downtime": [],
+                                "other_attributes": "",
+                                "is_force_disabled": False,
+                            },
                         ],
                         "downtime": [],
                         "is_force_disabled": False,
@@ -190,7 +199,7 @@ def test_post_and_get_node_storm2(site_capabilities_token):
                             {
                                 "id": "to be assigned",
                                 "type": "rse",
-                                "relative_path": "/",
+                                "relative_path": "/deterministic",
                                 "name": "STORM2",
                                 "downtime": [],
                                 "other_attributes": "",
@@ -198,8 +207,17 @@ def test_post_and_get_node_storm2(site_capabilities_token):
                             },
                             {
                                 "id": "to be assigned",
+                                "type": "rse",
+                                "relative_path": "/nondeterministic",
+                                "name": "STORM2_NONDET",
+                                "downtime": [],
+                                "other_attributes": "",
+                                "is_force_disabled": False,
+                            },
+                            {
+                                "id": "to be assigned",
                                 "type": "ingest",
-                                "relative_path": "/tmp/ingest/staging",
+                                "relative_path": "/ingest/staging",
                                 "other_attributes": {},
                                 "downtime": [],
                                 "is_force_disabled": False,
@@ -242,7 +260,7 @@ def test_post_and_get_node_storm2(site_capabilities_token):
 
     assert response is not None, "Failed to fetch existing node"
     storage_area_id = response.get("sites", [{}])[0].get("storages", [{}])[0].get("areas", [{}])[0].get("id")
-    ingest_area_id = response.get("sites", [{}])[0].get("storages", [{}])[0].get("areas", [{}])[1].get("id")
+    ingest_area_id = response.get("sites", [{}])[0].get("storages", [{}])[0].get("areas", [{}])[2].get("id")
     response["sites"][0]["compute"] = [
         {
             "id": "to be assigned",
