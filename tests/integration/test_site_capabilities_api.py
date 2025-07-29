@@ -117,7 +117,7 @@ def test_post_and_get_node_storm1(site_capabilities_token):
                                 "downtime": [],
                                 "other_attributes": "",
                                 "is_force_disabled": False,
-                            }
+                            },
                         ],
                         "downtime": [],
                         "is_force_disabled": False,
