@@ -145,12 +145,14 @@ async def increment_request_counter(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Compute"],
     summary="List all compute",
 )
@@ -180,12 +182,14 @@ async def list_compute(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Compute"],
     summary="Get compute from id",
 )
@@ -210,12 +214,14 @@ async def get_compute_from_id(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Compute"],
     summary="Unset a compute from being force disabled",
 )
@@ -238,12 +244,14 @@ async def set_compute_enabled(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Compute"],
     summary="Set a compute to be force disabled",
 )
@@ -265,12 +273,14 @@ async def set_compute_disabled(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="List all nodes",
 )
@@ -294,12 +304,14 @@ async def list_nodes(
     "/nodes",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Add a node",
 )
@@ -338,12 +350,14 @@ async def add_node(
     "/nodes/{node_name}",
     include_in_schema=False,
     responses={200: {}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Edit a node",
 )
@@ -377,12 +391,14 @@ async def edit_node(
 @app.delete(
     "/nodes/{node_name}",
     responses={200: {"model": models.response.DeleteNodeByNameResponse}, 401: {}, 403: {}},
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Delete a node by name",
 )
@@ -403,12 +419,14 @@ async def delete_node_by_name(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Dump all versions of all nodes",
 )
@@ -428,12 +446,14 @@ async def dump_nodes(request: Request) -> Union[HTMLResponse, HTTPException]:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Nodes"],
     summary="Get node from name",
 )
@@ -461,12 +481,14 @@ async def get_node_version(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="Get site from node and site names",
 )
@@ -581,12 +603,14 @@ async def render_schema(request: Request, schema: str = Path(description="Schema
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Services"],
     summary="List all services",
 )
@@ -671,12 +695,14 @@ async def list_service_types(request: Request) -> JSONResponse:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Services"],
     summary="Get service from id",
 )
@@ -701,12 +727,14 @@ async def get_service_from_id(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Services"],
     summary="Unset a service from being force disabled",
 )
@@ -729,12 +757,14 @@ async def set_service_enabled(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Services"],
     summary="Set a service to be force disabled",
 )
@@ -756,12 +786,14 @@ async def set_service_disabled(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="List all sites",
 )
@@ -793,12 +825,14 @@ async def list_sites(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="Get site from id",
 )
@@ -823,12 +857,14 @@ async def get_site_from_id(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="Unset a site from being force disabled",
 )
@@ -853,12 +889,14 @@ async def set_site_enabled(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Sites"],
     summary="Set a site to be force disabled",
 )
@@ -882,12 +920,14 @@ async def set_site_disabled(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storages"],
     summary="List all storages",
 )
@@ -985,12 +1025,14 @@ async def list_storages_in_topojson_format(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storages"],
     summary="Get storage from id",
 )
@@ -1015,12 +1057,14 @@ async def get_storage_from_id(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storages"],
     summary="Unset a storage from being force disabled",
 )
@@ -1043,12 +1087,14 @@ async def set_storage_enabled(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storages"],
     summary="Set a storage to be force disabled",
 )
@@ -1070,12 +1116,14 @@ async def set_storage_disabled(
         401: {},
         403: {},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storage Areas"],
     summary="List all storage areas",
 )
@@ -1198,12 +1246,14 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storage Areas"],
     summary="Get storage area from id",
 )
@@ -1228,12 +1278,14 @@ async def get_storage_area_from_id(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storage Areas"],
     summary="Unset a storage area from being force disabled",
 )
@@ -1256,12 +1308,14 @@ async def set_storage_area_enabled(
         403: {},
         404: {"model": models.response.GenericErrorResponse},
     },
-    dependencies=[Depends(increment_request_counter)]
-    if DEBUG
-    else [
-        Depends(increment_request_counter),
-        Depends(permission_dependencies.verify_permission_for_service_route),
-    ],
+    dependencies=(
+        [Depends(increment_request_counter)]
+        if DEBUG
+        else [
+            Depends(increment_request_counter),
+            Depends(permission_dependencies.verify_permission_for_service_route),
+        ]
+    ),
     tags=["Storage Areas"],
     summary="Set a storage area to be force disabled",
 )

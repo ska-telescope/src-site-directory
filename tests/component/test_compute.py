@@ -1,6 +1,7 @@
 """
 A module for component tests related to compute.
 """
+
 import os
 
 import httpx
