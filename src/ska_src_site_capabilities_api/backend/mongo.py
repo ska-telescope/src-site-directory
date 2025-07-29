@@ -451,7 +451,7 @@ class MongoBackend(Backend):
                 path = path.strip() if path else ""
                 if path and not path.startswith("/"):
                     path = "/" + path
-                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}{path}'
+                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}:{service.get("port",80)}{path}'
                 labels = {}
                 for key, value in service.items():
                     if isinstance(value, (dict, list)):

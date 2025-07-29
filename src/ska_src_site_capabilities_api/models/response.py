@@ -1,7 +1,7 @@
 from typing import Dict, List, Literal, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.node import Node
@@ -70,9 +70,22 @@ class LocalServiceWithParentsAndType(LocalService):
 LocalServiceGetResponse = LocalServiceWithParentsAndType
 
 
+class PrometheusServiceLabels(BaseModel):
+    scope: str = Field(examples=["local", "global"])
+    parent_node_name: str = Field(examples=["SKAOSRC"])
+    parent_site_name: str = Field(examples=["SKAOSRC"])
+    parent_compute_id: str = Field(examples=["db1d3ee3-74e4-48aa-afaf-8d7709a2f57c"])
+    id: str = Field(examples=["7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f"])
+    type: str = Field(examples=["rucio"])
+    prefix: str = Field(examples=["https"])
+    host: str = Field(examples=["rucio.srcdev.skao.int"])
+    path: str = Field(examples=["/path/to/service"])
+    model_config = ConfigDict(extra="allow")
+
+
 class PrometheusServiceTarget(BaseModel):
-    targets: List[str]
-    labels: Dict[str, str]
+    targets: List[HttpUrl]
+    labels: PrometheusServiceLabels
 
 
 ServicesPrometheusResponse = PrometheusServiceTarget
