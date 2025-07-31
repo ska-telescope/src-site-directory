@@ -158,6 +158,15 @@ def test_list_nodes(mock_backend):
 
 
 @pytest.mark.unit
+def test_list_services_with_output_prometheus(mock_backend):
+    services = mock_backend.list_services(for_prometheus=True)
+    for service in services:
+        assert "targets" in service
+        assert "labels" in service
+        assert service["targets"]
+
+
+@pytest.mark.unit
 def test_list_services_with_node_name_filter(mock_backend):
     services = mock_backend.list_services(node_names="TEST")
     assert len(services) == 7

@@ -623,6 +623,7 @@ async def list_services(
     service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
     associated_storage_area_id: str = Query(default=None, description="Filter by associated storage area ID"),
+    output: str = Query(default=None, description="Output format (e.g., 'prometheus' for Prometheus HTTP SD response)"),
 ) -> JSONResponse:
     """List all services."""
     if node_names:
@@ -632,6 +633,8 @@ async def list_services(
     if service_types:
         service_types = [name.strip() for name in service_types.split(",")]
 
+    for_prometheus = output == "prometheus"
+
     rtn = BACKEND.list_services(
         node_names=node_names,
         site_names=site_names,
@@ -639,6 +642,7 @@ async def list_services(
         service_scope=service_scope,
         include_inactive=include_inactive,
         associated_storage_area_id=associated_storage_area_id,
+        for_prometheus=for_prometheus,
     )
     return JSONResponse(rtn)
 
