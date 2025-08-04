@@ -623,6 +623,7 @@ async def list_services(
     service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
     associated_storage_area_id: str = Query(default=None, description="Filter by associated storage area ID"),
+    environments: str = Query(default=None, description="Filter by environments (comma-separated)"),
     output: str = Query(default=None, description="Output format (e.g., 'prometheus' for Prometheus HTTP SD response)"),
 ) -> JSONResponse:
     """List all services."""
@@ -632,6 +633,8 @@ async def list_services(
         site_names = [name.strip() for name in site_names.split(",")]
     if service_types:
         service_types = [name.strip() for name in service_types.split(",")]
+    if environments:
+        environments = [environment.strip() for environment in environments.split(",")]
 
     for_prometheus = output == "prometheus"
 
@@ -643,6 +646,7 @@ async def list_services(
         include_inactive=include_inactive,
         associated_storage_area_id=associated_storage_area_id,
         for_prometheus=for_prometheus,
+        environments=environments,
     )
     return JSONResponse(rtn)
 
@@ -1133,14 +1137,17 @@ async def list_storage_areas(
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    environments: str = Query(default=None, description="Filter by environments (comma-separated)"),
 ) -> JSONResponse:
     """List all storage areas."""
     if node_names:
         node_names = [name.strip() for name in node_names.split(",")]
     if site_names:
         site_names = [name.strip() for name in site_names.split(",")]
+    if environments:
+        environments = [environment.strip() for environment in environments.split(",")]
 
-    rtn = BACKEND.list_storage_areas(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
+    rtn = BACKEND.list_storage_areas(node_names=node_names, site_names=site_names, include_inactive=include_inactive, environments=environments)
     return JSONResponse(rtn)
 
 
