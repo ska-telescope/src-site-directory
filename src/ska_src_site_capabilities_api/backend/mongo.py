@@ -378,7 +378,7 @@ class MongoBackend(Backend):
         include_inactive=False,
         associated_storage_area_id=None,
         for_prometheus=False,
-        environments=[]
+        environments=[],
     ):
         """
         Lists services based on specified filters.
@@ -416,7 +416,9 @@ class MongoBackend(Backend):
                         continue
                     if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
-                    if environments and not any(env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])):
+                    if environments and not any(
+                        env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])
+                    ):
                         continue
                     # Add parent information
                     response.append(
@@ -458,7 +460,7 @@ class MongoBackend(Backend):
                 path = path.strip() if path else ""
                 if path and not path.startswith("/"):
                     path = "/" + path
-                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}:{service.get("port",80)}{path}'
+                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}:{service.get("port", 80)}{path}'  # noqa: E231
                 labels = {}
                 for key, value in service.items():
                     if isinstance(value, (dict, list)):
@@ -586,7 +588,7 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         environments = environments or []
-        
+
         if topojson:
             response = {
                 "type": "Topology",
@@ -604,7 +606,9 @@ class MongoBackend(Backend):
             site_longitude = parent_storage.get("longitude")
             for storage_area in storage.get("areas", []):
                 # Apply filters for environments
-                if environments and not any(env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])):
+                if environments and not any(
+                    env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])
+                ):
                     continue
                 if topojson:
                     print()

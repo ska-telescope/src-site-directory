@@ -55,7 +55,9 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def list_services(self, node_names, site_names, service_types, service_scope, include_inactive, associated_storage_area_id, for_prometheus, environments):
+    def list_services(
+        self, node_names, site_names, service_types, service_scope, include_inactive, associated_storage_area_id, for_prometheus, environments
+    ):
         raise NotImplementedError
 
     @abstractmethod
