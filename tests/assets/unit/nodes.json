@@ -17,7 +17,6 @@
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
             "host": "host.skao.int",
             "base_path": "/storm/sa",
-
             "srm": "storm",
             "device_type": "",
             "size_in_terabytes": 11,
@@ -36,7 +35,10 @@
                 "name": "STORM_ND",
                 "tier": 1,
                 "other_attributes": {},
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Production"
+                ]
               },
               {
                 "id": "f605dd74-7a43-40e5-9229-48845416e30a",
@@ -44,7 +46,10 @@
                 "relative_path": "/ingest/staging",
                 "tier": 1,
                 "other_attributes": {},
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Development"
+                ]
               }
             ],
             "is_force_disabled": false
@@ -62,7 +67,10 @@
                 "associated_storage_area_id": "f605dd74-7a43-40e5-9229-48845416e30a",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Integration"
+                ]
               }
             ],
             "associated_global_services": [
@@ -70,7 +78,10 @@
                 "id": "dd200c23-60f4-49c0-a987-3e11f06a4c8c",
                 "type": "rucio",
                 "version": "1.0",
-                "other_attributes": {}
+                "other_attributes": {},
+                "environments": [
+                  "Production"
+                ]
               }
             ],
             "hardware_capabilities": [],
@@ -112,7 +123,11 @@
                 "name": "STORM",
                 "tier": 1,
                 "other_attributes": {},
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Integration",
+                  "Development"
+                ]
               }
             ],
             "is_force_disabled": false
@@ -136,7 +151,11 @@
                 "name": "Jupyterhub",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Integration",
+                  "Production"
+                ]
               },
               {
                 "id": "05e18fb5-5f32-4c24-a399-0c50c77fb6d7",
@@ -154,7 +173,11 @@
                   "ivoid_to_name_regex": ".*\\/(.*)"
                 },
                 "is_mandatory": false,
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Integration",
+                  "Development"
+                ]
               },
               {
                 "id": "85563c81-d7b3-47af-b6bb-390f54ae48f2",
@@ -172,7 +195,12 @@
                   "ivoid_to_name_regex": ".*\\/(.*)"
                 },
                 "is_mandatory": false,
-                "is_force_disabled": false
+                "is_force_disabled": false,
+                "environments": [
+                  "Integration",
+                  "Development",
+                  "Production"
+                ]
               },
               {
                 "id": "37ff3e9e-ed8e-4432-8a10-51bc345c3eb8",
@@ -188,7 +216,10 @@
                 "id": "dd200c23-60f4-49c0-a987-3e11f06a4c8d",
                 "type": "fts",
                 "version": "1.1",
-                "other_attributes": {}
+                "other_attributes": {},
+                "environments": [
+                  "Production"
+                ]
               }
             ],
             "hardware_capabilities": [],
@@ -199,7 +230,7 @@
         "is_force_disabled": false
       }
     ],
-    "last_updated_at": "2025-02-18T15:31:18.850288",
+    "last_updated_at": "2025-03-18T15:31:18.850288",
     "last_updated_by_username": "user",
     "version": 2
   }

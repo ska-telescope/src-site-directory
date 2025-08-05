@@ -417,7 +417,7 @@ class MongoBackend(Backend):
                     if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     if environments and not any(
-                        env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])
+                        env.lower() in [e.lower() for e in environments] for env in service.get("environments", ["Production"])
                     ):
                         continue
                     # Add parent information
