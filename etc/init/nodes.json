@@ -74,6 +74,7 @@
           {
             "id": "1bc84c20-b8fd-451b-a923-ac4d275ffa9f",
             "hardware_type": "container",
+            "compute_units": 0,
             "description": "Resources on our k8s-cluster running in an OpenStack environemnt.",
             "associated_local_services": [
               {
@@ -265,6 +266,7 @@
           {
             "id": "e4480f83-3639-4321-a0dc-106782de45cc",
             "hardware_type": "bare-metal",
+            "compute_units": 0,
             "description": "Gornergrat-dev",
             "associated_local_services": [
               {
@@ -347,6 +349,7 @@
             "id": "6bd3fb8d-7188-4e52-bc32-9911bb8b8f3d",
             "hardware_type": "bare-metal",
             "description": "Gornergrat",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "5ca893b1-0b76-4b49-a74d-e2c891a092b4",
@@ -481,6 +484,7 @@
           {
             "id": "dd875a28-2df8-4f9f-838c-aa4110b4c4b9",
             "description": "Shanghai Astronomical Observatory (SHAO)",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "1f73c95e-301b-4f5e-a2cf-aeb461da2d70",
@@ -728,6 +732,7 @@
           {
             "id": "e24a1a87-01f2-4a4a-8e3e-4234951c45d0",
             "description": "University of Cambridge HPC",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "21990532-7231-4ab9-9fa7-3dfe587332ec",
@@ -751,6 +756,7 @@
             "id": "668a1146-c496-4e04-994c-39f33e8dd0db",
             "hardware_type": "vm",
             "description": "UKSRC K8s Cluster at RAL",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "2282f7c8-dbdc-4b89-8fc2-895a2061b0f5",
@@ -861,6 +867,7 @@
           {
             "id": "f6576fb3-b022-4c08-8695-6492ab603320",
             "hardware_type": "vm",
+            "compute_units": 0,
             "description": "UKSRC K8s Staging Cluster at RAL",
             "associated_local_services": [
               {
@@ -983,6 +990,7 @@
           {
             "id": "161a1ba5-2080-480b-bd64-4bc95691e7bc",
             "hardware_type": "vm",
+            "compute_units": 0,
             "description": "UKSRC K8s Production Cluster at Cambridge ",
             "associated_local_services": [
               {
@@ -1094,6 +1102,7 @@
           {
             "id": "58753d34-e8cf-4d83-b5b6-1f7d1cf3f36a",
             "hardware_type": "vm",
+            "compute_units": 0,
             "description": "UKSRC K8s Staging Cluster at Cambridge ",
             "associated_local_services": [
               {
@@ -1202,6 +1211,7 @@
           {
             "id": "c06944b2-4f1f-4e5c-9c5f-0091ad141742",
             "hardware_type": "vm",
+            "compute_units": 0,
             "description": "UKSRC K8s Staging Cluster at RAL-dev",
             "associated_local_services": [
               {
@@ -1362,6 +1372,7 @@
           {
             "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
             "hardware_type": "container",
+            "compute_units": 0,
             "middleware_version": "1",
             "associated_global_services": [
               {
@@ -1606,6 +1617,7 @@
           {
             "id": "bee1cc88-cad4-497e-8954-59c30c2b69bf",
             "hardware_type": "vm",
+            "compute_units": 0,
             "description": "gatekeeper",
             "associated_local_services": [
               {
@@ -1679,6 +1691,7 @@
           {
             "id": "452768b4-d2da-4159-a0c3-3baa8d40ae5c",
             "hardware_type": "container",
+            "compute_units": 0,
             "description": "Canadian Astronomy Data Centre",
             "associated_local_services": [
               {
@@ -1842,6 +1855,7 @@
         "compute": [
           {
             "id": "f2ec82a1-6e81-4386-a838-2a57ac808430",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "93dffde3-1db0-44df-9379-60c546c16ff8",
@@ -2075,6 +2089,7 @@
           {
             "id": "b7e25bf4-d9dc-4430-9158-74f6db50df86",
             "hardware_type": "bare-metal",
+            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "6f2e22b6-4304-401e-93ac-3db9958a445a",

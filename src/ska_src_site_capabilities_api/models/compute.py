@@ -29,6 +29,7 @@ class Compute(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["SKAOSRC"])
     url: str = Field(examples=["service.srcdev.skao.int"])
+    compute_units: float = Field(examples=[10])
     hardware_capabilities: HardwareCapabilities = Field(examples=[*hardware_capabilities])
     hardware_type: HardwareType = Field(examples=[*hardware_type])
     description: str = Field(examples=["some description"])

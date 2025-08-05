@@ -9,6 +9,12 @@
       "format": "uuid",
       "default": "to be assigned"
     },
+    "compute_units": {
+      "type": "number",
+      "title": "Compute units",
+      "default": null,
+      "required": true
+    },
     "hardware_capabilities": {
       "type": "array",
       "title": "Hardware capabilities",
