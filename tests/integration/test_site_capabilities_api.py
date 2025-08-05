@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 BASE_API_URL = "http://scapi-core:8080/v1"
-#BASE_API_URL = "http://localhost:8080/v1"
+# BASE_API_URL = "http://localhost:8080/v1"
 
 
 @pytest.fixture(scope="module")
@@ -114,7 +114,7 @@ class TestNode:
         """Edit a node."""
         post_response = send_post_request(self.get_node_url(node_name), token=site_capabilities_token, json_body=node_payload)
         if not post_response:
-            logger.warning(f"POST /nodes/{node_name} returned no JSON, assuming edit succeeded.")
+            logger.warning("POST /nodes/%s returned no JSON, assuming edit succeeded.", node_name)
         return post_response
 
     def _get_compute(self, node_name: str, site_capabilities_token: str):
@@ -142,40 +142,40 @@ class TestNode:
 @pytest.mark.integration
 class TestNodeAdd(TestNode):
     @pytest.mark.order(1)
-    def test_delete_node_STORM1(self, site_capabilities_token):
+    def test_delete_node_storm1(self, site_capabilities_token):
         response = self._delete_node(node_name="STORM1", site_capabilities_token=site_capabilities_token)
         assert response.status_code == 200
 
     @pytest.mark.order(2)
-    def test_delete_node_STORM2(self, site_capabilities_token):
+    def test_delete_node_storm2(self, site_capabilities_token):
         response = self._delete_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
         assert response.status_code == 200
 
     @pytest.mark.order(3)
-    def test_create_node_STORM1(self, site_capabilities_token, node_storm1):
+    def test_create_node_storm1(self, site_capabilities_token, node_storm1):
         create_response = self._create_node(node_name="STORM1", site_capabilities_token=site_capabilities_token, node_payload=node_storm1)
         assert create_response.status_code == 200
 
         # Verify
         get_response = self._get_node(node_name="STORM1", site_capabilities_token=site_capabilities_token)
         assert get_response.status_code == 200
-        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm1)  ## in == out
+        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm1)  # in == out
 
     @pytest.mark.order(4)
-    def test_create_node_STORM2(self, site_capabilities_token, node_storm2):
+    def test_create_node_storm2(self, site_capabilities_token, node_storm2):
         create_response = self._create_node(node_name="STORM2", site_capabilities_token=site_capabilities_token, node_payload=node_storm2)
         assert create_response.status_code == 200
 
         # Verify
         get_response = self._get_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
         assert get_response.status_code == 200
-        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm2)  ## in == out
+        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm2)  # in == out
 
 
 @pytest.mark.integration
 class TestNodeEdit(TestNode):
     @pytest.mark.order(5)
-    def test_create_new_compute_STORM2(self, site_capabilities_token, compute_storm2):
+    def test_create_new_compute_storm2(self, site_capabilities_token, compute_storm2):
         # Get the current storage areas json for STORM2
         get_storage_areas_response = self._get_storage_areas(node_name="STORM2", site_capabilities_token=site_capabilities_token)
         assert get_storage_areas_response.status_code == 200
@@ -184,8 +184,12 @@ class TestNodeEdit(TestNode):
         # Populate compute_storm2 asset with associated_storage_area_ids
         rse_storage_area_id = next((area for area in storage_areas_storm2 if area.get("type") == "rse"), {}).get("id", None)
         ingest_area_id = next((area for area in storage_areas_storm2 if area.get("type") == "ingest"), {}).get("id", None)
-        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "prepare_data"), {})["associated_storage_area_id"] = rse_storage_area_id
-        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "ingest"), {})["associated_storage_area_id"] = ingest_area_id
+        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "prepare_data"), {})[
+            "associated_storage_area_id"
+        ] = rse_storage_area_id
+        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "ingest"), {})[
+            "associated_storage_area_id"
+        ] = ingest_area_id
 
         # Get the full storm2 node json
         get_node_response = self._get_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
@@ -202,7 +206,6 @@ class TestNodeEdit(TestNode):
         assert get_node_response.status_code == 200
         node_storm2 = get_node_response.json()
         first_compute_element_storm2 = next(
-            (site.get("compute", [])[0] for site in node_storm2.get("sites", []) if site.get("name") == "STORM2" and site.get("compute")),
-            {}
+            (site.get("compute", [])[0] for site in node_storm2.get("sites", []) if site.get("name") == "STORM2" and site.get("compute")), {}
         )
-        assert self._strip_keys_for_comparison(first_compute_element_storm2) == self._strip_keys_for_comparison(compute_storm2)    # in == out 
+        assert self._strip_keys_for_comparison(first_compute_element_storm2) == self._strip_keys_for_comparison(compute_storm2)  # in == out

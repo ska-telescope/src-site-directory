@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Service environments (int, prod, dev)
+- Refactored bits of integration tests
 
 ## [0.3.64]
 
