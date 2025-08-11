@@ -444,6 +444,7 @@ class MongoBackend(Backend):
 
         if for_prometheus:
             formatted = []
+            now = datetime.now(timezone.utc)
             for service in response:
                 if not service.get("host"):
                     continue
@@ -451,11 +452,51 @@ class MongoBackend(Backend):
                 path = path.strip() if path else ""
                 if path and not path.startswith("/"):
                     path = "/" + path
-                target = f'{service.get("prefix", "http").replace("://", "")}://{service.get("host")}:{service.get("port",80)}{path}'
+
+                target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+                if service.get("port") is not None:
+                    target += f':{service["port"]}'
+
+                target += path
+
+                if service.get("type") == "gatekeeper":
+                    target += "/ping"
+
                 labels = {}
                 for key, value in service.items():
                     if isinstance(value, (dict, list)):
-                        labels[key] = json.dumps(value)
+                        if key == "downtime":
+                            upcoming_downtimes = []
+                            nearest_downtime = None
+                            is_down = False
+                            for dt in value:
+                                try:
+                                    date_range = dt.get("date_range", "")
+                                    start_str, end_str = date_range.split(" to ")
+                                    start = dateutil.parser.parse(start_str)
+                                    end = dateutil.parser.parse(end_str)
+                                    upcoming_downtimes.append((start, end, dt))
+                                except Exception: 
+                                    continue
+
+                            upcoming_downtimes.sort(key=lambda x: x[0])
+
+                            for start, end, dt in upcoming_downtimes:
+                                if start <= now and now <= end:
+                                    is_down = True
+                                    nearest_downtime = dt
+                                    break
+                                elif start > now and nearest_downtime is None:
+                                    nearest_downtime = dt 
+
+                            if nearest_downtime:
+                                labels["downtime_type"] = nearest_downtime.get("type", "")
+                                labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
+                                labels["downtime_reason"] = nearest_downtime.get("reason", "")
+                                
+                            labels["in_downtime"] = str(is_down).lower()
+                        else:
+                            labels[key] = json.dumps(value)
                     else:
                         labels[key] = str(value)
 
