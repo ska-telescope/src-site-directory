@@ -1,0 +1,40 @@
+{
+    "id": "to be assigned",
+    "hardware_type": "container",
+    "description": "",
+    "associated_local_services": [
+        {
+            "id": "to be assigned",
+            "type": "prepare_data",
+            "prefix": "http",
+            "host": "dp-core",
+            "port": 8000,
+            "path": "/",
+            "other_attributes": {},
+            "is_mandatory": false,
+            "downtime": [],
+            "is_force_disabled": false,
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id this will be populated by the test",
+            "environments": [
+              "Development"
+            ]
+        },
+        {
+            "id": "to be assigned",
+            "type": "ingest",
+            "version": "1.0.0",
+            "other_attributes": {},
+            "is_mandatory": false,
+            "is_force_disabled": false,
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id this will be populated by the test",
+            "environments": [
+              "Development"
+            ]
+        }
+    ],
+    "hardware_capabilities": [],
+    "downtime": [],
+    "is_force_disabled": false
+}

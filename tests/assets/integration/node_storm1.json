@@ -1,0 +1,62 @@
+{
+  "name": "STORM1",
+  "description": "Storm 1",
+  "comments": "",
+  "version": 1,
+  "sites": [
+    {
+      "name": "STORM1",
+      "comments": "",
+      "description": "Storm 1",
+      "country": "SKAO",
+      "primary_contact_email": "michele.delliveneri@skao.int",
+      "secondary_contact_email": "",
+      "storages": [
+        {
+          "id": "to be assigned",
+          "host": "storm1.local",
+          "base_path": "/sa",
+          "srm": "storm",
+          "device_type": "",
+          "size_in_terabytes": 0.01,
+          "name": "STORM1",
+          "supported_protocols": [{"prefix": "https", "port": 443}],
+          "areas": [
+            {
+              "id": "to be assigned",
+              "type": "rse",
+              "relative_path": "/deterministic",
+              "name": "STORM1",
+              "downtime": [],
+              "other_attributes": "",
+              "is_force_disabled": false,
+              "environments": [
+                "Development"
+              ]
+            },
+            {
+              "id": "to be assigned",
+              "type": "rse",
+              "relative_path": "/nondeterministic",
+              "name": "STORM1_NONDET",
+              "downtime": [],
+              "other_attributes": "",
+              "is_force_disabled": false,
+              "environments": [
+                "Development"
+              ]
+            }
+          ],
+          "downtime": [],
+          "is_force_disabled": false
+        }
+      ],
+      "latitude": 0.0,
+      "longitude": 0.0,
+      "id": "to be assigned",
+      "downtime": [],
+      "is_force_disabled": false,
+      "other_attributes": ""
+    }
+  ]
+}
