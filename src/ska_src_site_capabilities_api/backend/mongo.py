@@ -379,7 +379,7 @@ class MongoBackend(Backend):
         Returns:
             dict: Prometheus label key-value pairs.
         """
-        labels = []
+        labels = {}
 
         for key, value in service.items():
             if isinstance(value, (dict, list)):
