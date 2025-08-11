@@ -24,7 +24,7 @@ stages:
 join_lint_reports:
   stage: lint-post
   tags:
-    - k8srunner
+    - ${SKA_DEFAULT_RUNNER}
   script:
     - make join-lint-reports
   artifacts:

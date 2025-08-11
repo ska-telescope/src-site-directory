@@ -514,6 +514,10 @@
                           "readOnly": true
                         },
                         {
+                          "key": "sites[].compute[].compute_units",
+                          "placeholder": "Compute units for this compute element"
+                        },
+                        {
                           "key": "sites[].compute[].hardware_capabilities",
                           "type": "checkboxes",
                           "placeholder": "Hardware capabilities for this compute element"
