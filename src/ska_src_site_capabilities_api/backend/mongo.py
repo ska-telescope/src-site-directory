@@ -369,6 +369,51 @@ class MongoBackend(Backend):
 
         return nodes or []
 
+    def get_downtime_labels(self, value):
+        """
+        Returns the nearest (most recent or ongoing) downtime event labels for the given service.
+
+        Args:
+            value: A list of downtime records associated with the service.
+
+        Returns:
+            The nearest downtime event labels for a given service.
+        """
+
+        now = datetime.now(timezone.utc)
+        upcoming_downtimes = []
+        nearest_downtime = None
+        is_down = False
+        for dt in value:
+            try:
+                start_str, end_str = dt.get("date_range", "").split(" to ")
+                start = dateutil.parser.parse(start_str)
+                end = dateutil.parser.parse(end_str)
+                upcoming_downtimes.append((start, end, dt))
+            except Exception:
+                continue
+        upcoming_downtimes.sort(key=lambda x: x[0])
+        for start, end, dt in upcoming_downtimes:
+            if start <= now <= end:
+                is_down = True
+                nearest_downtime = dt
+                break
+            if start > now and nearest_downtime is None:
+                nearest_downtime = dt
+
+        labels = {"in_downtime": str(is_down).lower()}
+
+        if nearest_downtime:
+            labels.update(
+                {
+                    "downtime_type": nearest_downtime.get("type", ""),
+                    "downtime_date_range": nearest_downtime.get("date_range", ""),
+                    "downtime_reason": nearest_downtime.get("reason", ""),
+                }
+            )
+
+        return labels
+
     def list_services(
         self,
         node_names=None,
@@ -442,66 +487,38 @@ class MongoBackend(Backend):
                         }
                     )
 
-        if for_prometheus:
-            formatted = []
-            now = datetime.now(timezone.utc)
-            for service in response:
-                if not service.get("host"):
-                    continue
-                path = service.get("path", "")
-                path = path.strip() if path else ""
-                if path and not path.startswith("/"):
-                    path = "/" + path
+            if for_prometheus:
+                formatted = []
+                for service in response:
+                    if not service.get("host"):
+                        continue
+                    path = service.get("path", "")
+                    path = path.strip() if path else ""
+                    if path and not path.startswith("/"):
+                        path = "/" + path
 
-                target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
-                if service.get("port") is not None:
-                    target += f':{service["port"]}'
+                    target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+                    if service.get("port") is not None:
+                        target += f':{service.get("port")}'
 
-                target += path
+                    target += path
 
-                if service.get("type") == "gatekeeper":
-                    target += "/ping"
+                    if service.get("type") == "gatekeeper":
+                        target += "/ping"
 
-                labels = {}
-                for key, value in service.items():
-                    if isinstance(value, (dict, list)):
-                        if key == "downtime":
-                            upcoming_downtimes = []
-                            nearest_downtime = None
-                            is_down = False
-                            for dt in value:
-                                try:
-                                    date_range = dt.get("date_range", "")
-                                    start_str, end_str = date_range.split(" to ")
-                                    start = dateutil.parser.parse(start_str)
-                                    end = dateutil.parser.parse(end_str)
-                                    upcoming_downtimes.append((start, end, dt))
-                                except Exception:
-                                    continue
-
-                            upcoming_downtimes.sort(key=lambda x: x[0])
-
-                            for start, end, dt in upcoming_downtimes:
-                                if start <= now and now <= end:
-                                    is_down = True
-                                    nearest_downtime = dt
-                                    break
-                                elif start > now and nearest_downtime is None:
-                                    nearest_downtime = dt
-
-                            if nearest_downtime:
-                                labels["downtime_type"] = nearest_downtime.get("type", "")
-                                labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
-                                labels["downtime_reason"] = nearest_downtime.get("reason", "")
-
-                            labels["in_downtime"] = str(is_down).lower()
+                    labels = {}
+                    for key, value in service.items():
+                        if isinstance(value, (dict, list)):
+                            if key == "downtime":
+                                downtime_labels = self.get_downtime_labels(value=value)
+                                labels.update(downtime_labels)
+                            else:
+                                labels[key] = json.dumps(value)
                         else:
-                            labels[key] = json.dumps(value)
-                    else:
-                        labels[key] = str(value)
+                            labels[key] = str(value)
 
-                formatted.append({"targets": [target], "labels": labels})
-            return formatted
+                    formatted.append({"targets": [target], "labels": labels})
+                return formatted
 
         return response
 
