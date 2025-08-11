@@ -476,7 +476,7 @@ class MongoBackend(Backend):
                                     start = dateutil.parser.parse(start_str)
                                     end = dateutil.parser.parse(end_str)
                                     upcoming_downtimes.append((start, end, dt))
-                                except Exception: 
+                                except Exception:
                                     continue
 
                             upcoming_downtimes.sort(key=lambda x: x[0])
@@ -487,13 +487,13 @@ class MongoBackend(Backend):
                                     nearest_downtime = dt
                                     break
                                 elif start > now and nearest_downtime is None:
-                                    nearest_downtime = dt 
+                                    nearest_downtime = dt
 
                             if nearest_downtime:
                                 labels["downtime_type"] = nearest_downtime.get("type", "")
                                 labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
                                 labels["downtime_reason"] = nearest_downtime.get("reason", "")
-                                
+
                             labels["in_downtime"] = str(is_down).lower()
                         else:
                             labels[key] = json.dumps(value)
