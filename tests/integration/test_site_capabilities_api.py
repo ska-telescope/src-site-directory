@@ -3,6 +3,7 @@
 import json
 import logging
 import random
+from pathlib import Path
 
 import pytest
 import requests
@@ -10,6 +11,31 @@ import requests
 # Configure logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+
+BASE_API_URL = "http://scapi-core:8080/v1"
+# BASE_API_URL = "http://localhost:8080/v1"
+
+
+@pytest.fixture(scope="module")
+def compute_storm2():
+    """Fixture to return storm2 compute json."""
+    with Path("tests/assets/integration/compute_storm2.json").open("r") as compute_file:
+        return json.load(compute_file)
+
+
+@pytest.fixture(scope="module")
+def node_storm1():
+    """Fixture to return storm1 node json."""
+    with Path("tests/assets/integration/node_storm1.json").open("r") as node_file:
+        return json.load(node_file)
+
+
+@pytest.fixture(scope="module")
+def node_storm2():
+    """Fixture to return storm2 node json."""
+    with Path("tests/assets/integration/node_storm2.json").open("r") as node_file:
+        return json.load(node_file)
 
 
 @pytest.fixture(scope="module")
@@ -26,15 +52,8 @@ def send_get_request(url, token):
     response = requests.get(url, headers=headers, timeout=30)
     logger.info("Status Code: %s", response.status_code)
     try:
-        data = response.json()
-        logger.info("Response JSON:")
-        logger.info(json.dumps(data, indent=2))
-
-        # If the response is empty, treat it as no result
-        if not data or not isinstance(data, dict):
-            return None
-
-        return data
+        response.json()
+        return response
     except ValueError:
         logger.warning("Response not JSON. Raw text:")
         logger.warning(response.text)
@@ -45,265 +64,148 @@ def send_post_request(url, token, json_body):
     """Send POST request with authorization token and JSON body."""
     headers = {"Authorization": f"Bearer {token}", "accept": "application/json", "Content-Type": "application/json"}
     logger.info("POST %s -> sending payload:", url)
-    logger.info(json.dumps(json_body, indent=2))
-
     response = requests.post(url, headers=headers, json=json_body, timeout=30)
-
     logger.info("POST %s -> %s", url, response.status_code)
     try:
         logger.info("Response: %s", json.dumps(response.json(), indent=2))
-    except (ValueError, requests.exceptions.JSONDecodeError):
+    except (ValueError, json.JSONDecodeError):
         logger.warning("Response not JSON. Raw text:")
         logger.warning(response.text)
-
-    assert response.status_code in [200, 201], f"POST to {url} failed with status {response.status_code}"
     return response
 
 
-@pytest.mark.integration
-def test_post_and_get_node_storm1(site_capabilities_token):
-    """Test creating and retrieving STORM1 node via API."""
-    latitude = round(random.uniform(-90, 90), 6)
-    longitude = round(random.uniform(-180, 180), 6)
-    # Delete STORM1 node if it exists
-    delete_url = "http://scapi-core:8080/v1/nodes/STORM1"
-    delete_response = send_post_request(delete_url, site_capabilities_token, {})
-    # delete_response = requests.delete(delete_url, headers=headers)
-    if delete_response.status_code == 200:
-        logger.info("STORM1 node deleted successfully before test.")
-    elif delete_response.status_code == 404:
-        logger.info("STORM1 node did not exist before test.")
-    else:
-        logger.warning("Unexpected DELETE status: %s", delete_response.status_code)
+class TestNode:
+    @staticmethod
+    def get_compute_url(node_name: str) -> str:
+        return f"{BASE_API_URL}/compute?node_names={node_name}"
 
-    node_payload = {
-        "name": "STORM1",
-        "description": "Storm 1",
-        "comments": "",
-        "version": 1,
-        "sites": [
-            {
-                "name": "STORM1",
-                "comments": "",
-                "description": "Storm 1",
-                "country": "SKAO",
-                "primary_contact_email": "michele.delliveneri@skao.int",
-                "secondary_contact_email": "",
-                "storages": [
-                    {
-                        "id": "to be assigned",
-                        "host": "storm1.local",
-                        "base_path": "/sa",
-                        "srm": "storm",
-                        "device_type": "",
-                        "size_in_terabytes": 0.01,
-                        "name": "STORM1",
-                        "supported_protocols": [{"prefix": "https", "port": 443}],
-                        "areas": [
-                            {
-                                "id": "to be assigned",
-                                "type": "rse",
-                                "relative_path": "/deterministic",
-                                "name": "STORM1",
-                                "downtime": [],
-                                "other_attributes": "",
-                                "is_force_disabled": False,
-                            },
-                            {
-                                "id": "to be assigned",
-                                "type": "rse",
-                                "relative_path": "/nondeterministic",
-                                "name": "STORM1_NONDET",
-                                "downtime": [],
-                                "other_attributes": "",
-                                "is_force_disabled": False,
-                            },
-                        ],
-                        "downtime": [],
-                        "is_force_disabled": False,
-                    }
-                ],
-                "latitude": latitude,
-                "longitude": longitude,
-                "id": "to be assigned",
-                "downtime": [],
-                "is_force_disabled": False,
-                "other_attributes": "",
-            }
-        ],
-    }
+    @staticmethod
+    def get_nodes_url() -> str:
+        return f"{BASE_API_URL}/nodes"
 
-    # Check if the node already exists
-    get_url = "http://scapi-core:8080/v1/nodes/STORM1"
-    try:
-        response = send_get_request(get_url, site_capabilities_token)
-        if response and response.get("name") == "STORM1":
-            logger.info("STORM1 already exists, skipping creation.")
-            return
-    except (requests.exceptions.RequestException, ValueError):
-        logger.info("STORM1 does not exist or error occurred, proceeding to create.")
+    @staticmethod
+    def get_node_url(node_name: str) -> str:
+        return f"{TestNode.get_nodes_url()}/{node_name}"
 
-    # Send POST to create node
-    post_url = "http://scapi-core:8080/v1/nodes"
-    post_response = send_post_request(post_url, site_capabilities_token, node_payload)
+    @staticmethod
+    def get_storage_areas_url(node_name: str) -> str:
+        return f"{BASE_API_URL}/storage-areas?node_names={node_name}"
 
-    if not post_response:
-        logger.warning("POST /nodes returned no JSON, assuming creation succeeded.")
+    def _create_node(self, node_name: str, site_capabilities_token: str, node_payload: dict) -> dict:
+        """Check existence of node & create if needed."""
+        try:
+            existing = send_get_request(self.get_node_url(node_name), token=site_capabilities_token).json()
+            if existing and existing.get("name") == node_name:
+                logger.info("%s already exists, skipping creation.", node_name)
+                return existing
+        except (requests.exceptions.RequestException, ValueError):
+            logger.info("%s does not exist or error occurred, proceeding to create.", node_name)
 
-    # Validate with GET
-    get_result = send_get_request(get_url, site_capabilities_token)
-    assert get_result is not None, "Expected non-empty response"
-    assert get_result.get("name") == "STORM1", f"Unexpected name: {get_result}"
-    assert get_result.get("sites", [{}])[0].get("name") == "STORM1", f"Unexpected sites data: {get_result.get('sites')}"
+        post_response = send_post_request(self.get_nodes_url(), token=site_capabilities_token, json_body=node_payload)
+        if not post_response:
+            logger.warning("POST /nodes returned no JSON, assuming creation succeeded.")
+        return post_response
+
+    def _delete_node(self, node_name: str, site_capabilities_token: str):
+        """Delete existing node."""
+        return send_post_request(self.get_node_url(node_name), token=site_capabilities_token, json_body={})
+
+    def _edit_node(self, node_name: str, site_capabilities_token: str, node_payload: dict) -> dict:
+        """Edit a node."""
+        post_response = send_post_request(self.get_node_url(node_name), token=site_capabilities_token, json_body=node_payload)
+        if not post_response:
+            logger.warning("POST /nodes/%s returned no JSON, assuming edit succeeded.", node_name)
+        return post_response
+
+    def _get_compute(self, node_name: str, site_capabilities_token: str):
+        """Get a compute."""
+        return send_get_request(self.get_compute_url(node_name), token=site_capabilities_token)
+
+    def _get_node(self, node_name: str, site_capabilities_token: str):
+        """Get a node."""
+        return send_get_request(self.get_node_url(node_name), token=site_capabilities_token)
+
+    def _get_storage_areas(self, node_name: str, site_capabilities_token: str):
+        """Get a storage area."""
+        return send_get_request(self.get_storage_areas_url(node_name), token=site_capabilities_token)
+
+    @staticmethod
+    def _strip_keys_for_comparison(obj, keys=["id", "created_at", "created_by_username", "version"]):
+        """Recursively remove specified keys from a dictionary or list for comparison."""
+        if isinstance(obj, dict):
+            return {k: TestNode._strip_keys_for_comparison(v, keys) for k, v in obj.items() if k not in keys}
+        elif isinstance(obj, list):
+            return [TestNode._strip_keys_for_comparison(item, keys) for item in obj]
+        return obj
 
 
 @pytest.mark.integration
-def test_post_and_get_node_storm2(site_capabilities_token):
-    """Test creating and retrieving STORM2 node with compute services via API."""
-    latitude = round(random.uniform(-90, 90), 6)
-    longitude = round(random.uniform(-180, 180), 6)
-    # Delete STORM2 node if it exists
-    delete_url = "http://scapi-core:8080/v1/nodes/STORM2"
-    delete_response = send_post_request(delete_url, site_capabilities_token, {})
-    if delete_response.status_code == 200:
-        logger.info("STORM2 node deleted successfully before test.")
-    elif delete_response.status_code == 404:
-        logger.info("STORM2 node did not exist before test.")
-    else:
-        logger.warning("Unexpected DELETE status: %s", delete_response.status_code)
+class TestNodeAdd(TestNode):
+    @pytest.mark.order(1)
+    def test_delete_node_storm1(self, site_capabilities_token):
+        response = self._delete_node(node_name="STORM1", site_capabilities_token=site_capabilities_token)
+        assert response.status_code == 200
 
-    node_payload = {
-        "name": "STORM2",
-        "description": "Storm 2",
-        "comments": "",
-        "version": 1,
-        "sites": [
-            {
-                "name": "STORM2",
-                "comments": "",
-                "description": "Storm 2",
-                "country": "SKAO",
-                "primary_contact_email": "michele.delliveneri@skao.int",
-                "secondary_contact_email": "",
-                "storages": [
-                    {
-                        "id": "to be assigned",
-                        "host": "storm2.local",
-                        "base_path": "/sa",
-                        "srm": "storm",
-                        "device_type": "",
-                        "size_in_terabytes": 0.01,
-                        "name": "STORM2",
-                        "supported_protocols": [{"prefix": "https", "port": 443}],
-                        "areas": [
-                            {
-                                "id": "to be assigned",
-                                "type": "rse",
-                                "relative_path": "/deterministic",
-                                "name": "STORM2",
-                                "downtime": [],
-                                "other_attributes": "",
-                                "is_force_disabled": False,
-                            },
-                            {
-                                "id": "to be assigned",
-                                "type": "rse",
-                                "relative_path": "/nondeterministic",
-                                "name": "STORM2_NONDET",
-                                "downtime": [],
-                                "other_attributes": "",
-                                "is_force_disabled": False,
-                            },
-                            {
-                                "id": "to be assigned",
-                                "type": "ingest",
-                                "relative_path": "/ingest/staging",
-                                "other_attributes": {},
-                                "downtime": [],
-                                "is_force_disabled": False,
-                            },
-                        ],
-                        "downtime": [],
-                        "is_force_disabled": False,
-                    }
-                ],
-                "latitude": latitude,
-                "longitude": longitude,
-                "id": "to be assigned",
-                "downtime": [],
-                "is_force_disabled": False,
-                "other_attributes": "",
-            }
-        ],
-    }
+    @pytest.mark.order(2)
+    def test_delete_node_storm2(self, site_capabilities_token):
+        response = self._delete_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
+        assert response.status_code == 200
 
-    # Check if the node already exists
-    get_url = "http://scapi-core:8080/v1/nodes/STORM2"
-    try:
-        response = send_get_request(get_url, site_capabilities_token)
-        if response and response.get("name") == "STORM2":
-            logger.info("STORM2 already exists, skipping creation.")
-            return
-    except (requests.exceptions.RequestException, ValueError):
-        logger.info("STORM2 does not exist or error occurred, proceeding to create.")
+    @pytest.mark.order(3)
+    def test_create_node_storm1(self, site_capabilities_token, node_storm1):
+        create_response = self._create_node(node_name="STORM1", site_capabilities_token=site_capabilities_token, node_payload=node_storm1)
+        assert create_response.status_code == 200
 
-    # Send POST to create node
-    post_url = "http://scapi-core:8080/v1/nodes"
-    post_response = send_post_request(post_url, site_capabilities_token, node_payload)
+        # Verify
+        get_response = self._get_node(node_name="STORM1", site_capabilities_token=site_capabilities_token)
+        assert get_response.status_code == 200
+        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm1)  # in == out
 
-    if not post_response:
-        logger.warning("POST /nodes returned no JSON, assuming creation succeeded.")
+    @pytest.mark.order(4)
+    def test_create_node_storm2(self, site_capabilities_token, node_storm2):
+        create_response = self._create_node(node_name="STORM2", site_capabilities_token=site_capabilities_token, node_payload=node_storm2)
+        assert create_response.status_code == 200
 
-    # Get the storage area id
-    get_url = "http://scapi-core:8080/v1/nodes/STORM2"
-    response = send_get_request(get_url, site_capabilities_token)
+        # Verify
+        get_response = self._get_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
+        assert get_response.status_code == 200
+        assert self._strip_keys_for_comparison(get_response.json()) == self._strip_keys_for_comparison(node_storm2)  # in == out
 
-    assert response is not None, "Failed to fetch existing node"
-    storage_area_id = response.get("sites", [{}])[0].get("storages", [{}])[0].get("areas", [{}])[0].get("id")
-    ingest_area_id = response.get("sites", [{}])[0].get("storages", [{}])[0].get("areas", [{}])[2].get("id")
-    response["sites"][0]["compute"] = [
-        {
-            "id": "to be assigned",
-            "hardware_type": "container",
-            "description": "",
-            "associated_local_services": [
-                {
-                    "id": "to be assigned",
-                    "type": "prepare_data",
-                    "prefix": "http",
-                    "host": "dp-core",
-                    "port": 8000,
-                    "path": "/",
-                    "other_attributes": {},
-                    "is_mandatory": False,
-                    "downtime": [],
-                    "is_force_disabled": False,
-                    "associated_storage_area_id": storage_area_id,
-                },
-                {
-                    "id": "to be assigned",
-                    "type": "ingest",
-                    "version": "1.0.0",
-                    "associated_storage_area_id": ingest_area_id,
-                    "other_attributes": {},
-                    "is_mandatory": False,
-                    "is_force_disabled": False,
-                },
-            ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": False,
-        }
-    ]
-    # Send POST to create compute
-    post_url = "http://scapi-core:8080/v1/nodes/STORM2"
-    post_response = send_post_request(post_url, site_capabilities_token, response)
 
-    if not post_response:
-        logger.warning("POST /nodes/STORM2/compute returned no JSON, assuming creation succeeded.")
+@pytest.mark.integration
+class TestNodeEdit(TestNode):
+    @pytest.mark.order(5)
+    def test_create_new_compute_storm2(self, site_capabilities_token, compute_storm2):
+        # Get the current storage areas json for STORM2
+        get_storage_areas_response = self._get_storage_areas(node_name="STORM2", site_capabilities_token=site_capabilities_token)
+        assert get_storage_areas_response.status_code == 200
+        storage_areas_storm2 = get_storage_areas_response.json()
 
-    # Validate with GET
-    get_result = send_get_request(get_url, site_capabilities_token)
-    assert get_result is not None, "Expected non-empty response"
-    assert get_result.get("name") == "STORM2", f"Unexpected name: {get_result}"
-    assert get_result.get("sites", [{}])[0].get("name") == "STORM2", f"Unexpected sites data: {get_result.get('sites')}"
+        # Populate compute_storm2 asset with associated_storage_area_ids
+        rse_storage_area_id = next((area for area in storage_areas_storm2 if area.get("type") == "rse"), {}).get("id", None)
+        ingest_area_id = next((area for area in storage_areas_storm2 if area.get("type") == "ingest"), {}).get("id", None)
+        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "prepare_data"), {})[
+            "associated_storage_area_id"
+        ] = rse_storage_area_id
+        next((svc for svc in compute_storm2["associated_local_services"] if svc["type"] == "ingest"), {})[
+            "associated_storage_area_id"
+        ] = ingest_area_id
+
+        # Get the full storm2 node json
+        get_node_response = self._get_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
+        assert get_node_response.status_code == 200
+        node_storm2 = get_node_response.json()
+
+        # Attach this compute block to the existing STORM2 node json
+        next(site for site in node_storm2["sites"] if site["name"] == "STORM2")["compute"] = [compute_storm2]
+        response = self._edit_node(node_name="STORM2", site_capabilities_token=site_capabilities_token, node_payload=node_storm2)
+        assert response.status_code == 200
+
+        # Verify
+        get_node_response = self._get_node(node_name="STORM2", site_capabilities_token=site_capabilities_token)
+        assert get_node_response.status_code == 200
+        node_storm2 = get_node_response.json()
+        first_compute_element_storm2 = next(
+            (site.get("compute", [])[0] for site in node_storm2.get("sites", []) if site.get("name") == "STORM2" and site.get("compute")), {}
+        )
+        assert self._strip_keys_for_comparison(first_compute_element_storm2) == self._strip_keys_for_comparison(compute_storm2)  # in == out

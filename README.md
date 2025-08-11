@@ -105,41 +105,6 @@ route ```/nodes/{node}``` provides the `node` as a path parameter, and this valu
 into the role definition. The source of the substitution for the role definition depends on either the path parameters, 
 query parameters or body of the request; which are used depends on where the parameters are expected to come from.
 
-## Schemas
-
-It is recommended to record data in the document database by using the web frontend
-(`/www/nodes/`, `/www/nodes/<node_name>`). These forms perform both client and server side verification of the input 
-against the node schema at `etc/schemas/node.json` (which is, as an aside, constructed using 
-other schemas in the same directory by referencing). For each record created or modified, a version number is 
-incremented for the corresponding node and the input stored alongside the schema used to generate the form. All 
-versions of a node specification are retained. Nodes can be added programmatically, but care should be taken to keep 
-the input in line with the corresponding schema.
-
-Schemas are flexible and new ones can be added/existing ones amended.
-
-### Adding and amending schemas
-
-To amend/add a new resource, the following checklist may be helpful:
-
-- (adding only) Create the schema and add to the `etc/schemas` directory
-- (amending only) Edit the corresponding schema in the `etc/schemas` directory
-- Add to or amend any models (`src/ska_src_site_capabilities_api/models`) if there are new ones or the schema of an 
-  existing model has changed
-- Amend the form uis (`src/ska_src_site_capabilities_api/rest/static/js/add-node-form-ui.js`, `src/ska_src_site_capabilities_api/rest/static/js/edit-node-form-ui.js`)
-- Amend the node template (`src/ska_src_site_capabilities_api/rest/templates/node.html`):
-- Amend the REST server (`src/ska_src_site_capabilities_api/rest/server.py`):
-    - Add any routes and corresponding backend functions (check that existing functionality isn't broken with any big
-      changes!)
-    - Add a new tag to the `openapi_schema` (if a new section for routes has been defined)
-    - Change `responses` in the `app` route decorator to reference the appropriate models
-- (optional) Check that the `etc/init/nodes.json` has entries that conform to the new schema
-
-In addition you will need to amend external dependencies by:
-
-- Ensuring that any dependent calls that utilise this schema aren't adversely affected, and 
-- If a new route has been created or its signature modified, check that the corresponding Permissions API policy has 
-  been added/amended
-
 ## Deployment
 
 Deployment is managed by docker-compose or helm.

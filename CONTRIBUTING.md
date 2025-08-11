@@ -84,6 +84,34 @@ ska-src-site-capabilities-api$ poetry shell
 
 AuthN/Z can be bypassed **for development only** by setting `DISABLE_AUTHENTICATION=yes` in the environment.
 
+## Schemas
+
+It is recommended to record data in the document database by using the web frontend
+(`/www/nodes/`, `/www/nodes/<node_name>`). These forms perform both client and server side verification of the input 
+against the node schema at `etc/schemas/node.json` (which is, as an aside, constructed using 
+other schemas in the same directory by referencing). For each record created or modified, a version number is 
+incremented for the corresponding node and the input stored alongside the schema used to generate the form. All 
+versions of a node specification are retained. Nodes can be added programmatically, but care should be taken to keep 
+the input in line with the corresponding schema.
+
+Schemas are flexible and new ones can be added/existing ones amended.
+
+### Adding and amending schemas
+
+To amend/add a new resource, the following checklist may be helpful:
+
+- (adding only) Create the schema and add to the `etc/schemas` directory
+- (amending only) Edit the corresponding schema in the `etc/schemas` directory
+- Add/amend any models (`src/ska_src_site_capabilities_api/models`) 
+- Amend the form UIs (`src/ska_src_site_capabilities_api/rest/static/js/add-node-form-ui.js`, `src/ska_src_site_capabilities_api/rest/static/js/edit-node-form-ui.js`)
+- Amend the node template (`src/ska_src_site_capabilities_api/rest/templates/node.html`)
+- Amend the REST server and backend (`src/ska_src_site_capabilities_api/rest/server.py`, `src/ska_src_site_capabilities_api/backend`):
+    - Add/amend any routes and corresponding backend functions
+    - (if a new section for routes has been defined) Add a new tag to the `openapi_schema` 
+    - (if a new model has been created) Change `responses` in the `app` route decorator to reference the appropriate models
+- (if a new route has been created or its signature modified) Check that the corresponding Permissions API policy has been added/amended
+- Amend and unit/integration test assets to reflect these changes
+
 ## Testing
 
 Testing is done via the `pytest` module, with code coverage provided by the `pytest-cov` module.

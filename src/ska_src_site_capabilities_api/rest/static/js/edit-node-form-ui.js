@@ -466,6 +466,10 @@
                                   }
                                 },
                                 {
+                                  "key": "sites[].storages[].areas[].environments",
+                                  "type": "checkboxes"
+                                },
+                                {
                                   "key": "sites[].storages[].areas[].other_attributes",
                                   "type": "ace",
                                   "aceMode": "json",
@@ -635,6 +639,10 @@
                                   }
                                 },
                                 {
+                                  "key": "sites[].compute[].associated_local_services[].environments",
+                                  "type": "checkboxes"
+                                },
+                                {
                                   "key": "sites[].compute[].associated_local_services[].other_attributes",
                                   "type": "ace",
                                   "aceMode": "json",
@@ -719,6 +727,10 @@
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "key": "sites[].compute[].associated_global_services[].environments",
+                                  "type": "checkboxes"
                                 },
                                 {
                                   "key": "sites[].compute[].associated_global_services[].other_attributes",

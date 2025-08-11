@@ -1,0 +1,73 @@
+{
+    "name": "STORM2",
+    "description": "Storm 2",
+    "comments": "",
+    "version": 1,
+    "sites": [
+        {
+            "name": "STORM2",
+            "comments": "",
+            "description": "Storm 2",
+            "country": "SKAO",
+            "primary_contact_email": "michele.delliveneri@skao.int",
+            "secondary_contact_email": "",
+            "storages": [
+                {
+                    "id": "to be assigned",
+                    "host": "storm2.local",
+                    "base_path": "/sa",
+                    "srm": "storm",
+                    "device_type": "",
+                    "size_in_terabytes": 0.01,
+                    "name": "STORM2",
+                    "supported_protocols": [{"prefix": "https", "port": 443}],
+                    "areas": [
+                        {
+                            "id": "to be assigned",
+                            "type": "rse",
+                            "relative_path": "/deterministic",
+                            "name": "STORM2",
+                            "downtime": [],
+                            "other_attributes": "",
+                            "is_force_disabled": false,
+                            "environments": [
+                                "Production"
+                            ]
+                        },
+                        {
+                            "id": "to be assigned",
+                            "type": "rse",
+                            "relative_path": "/nondeterministic",
+                            "name": "STORM2_NONDET",
+                            "downtime": [],
+                            "other_attributes": "",
+                            "is_force_disabled": false,
+                            "environments": [
+                                "Production"
+                            ]
+                        },
+                        {
+                            "id": "to be assigned",
+                            "type": "ingest",
+                            "relative_path": "/ingest/staging",
+                            "other_attributes": {},
+                            "downtime": [],
+                            "is_force_disabled": false,
+                            "environments": [
+                                "Production"
+                            ]
+                        }
+                    ],
+                    "downtime": [],
+                    "is_force_disabled": false
+                }
+            ],
+            "latitude": 0.0,
+            "longitude": 0.0,
+            "id": "to be assigned",
+            "downtime": [],
+            "is_force_disabled": false,
+            "other_attributes": ""
+        }
+    ]
+}

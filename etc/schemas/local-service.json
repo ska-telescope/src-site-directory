@@ -102,6 +102,9 @@
         }
       }
     },
+    "environments": {
+      "$ref": "environments.json"
+    },
     "other_attributes": {
       "type": "textarea",
       "title": "Other service attributes (as json)",
