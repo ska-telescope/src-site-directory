@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska-src-site-capabilities-api"
-version = "0.3.63"
+version = "0.3.66"
 description = "SRCNet Site Capabilities API"
 authors = ["Rob Barnsley"]
 license = "BSD-3-Clause"
@@ -74,6 +74,7 @@ pytest-forked = "^1.3.0"
 pytest-mock = "^3.10.0"
 pytest-xdist = "^2.4.0"
 pytest-repeat = "^0.9.1"
+pytest-order = "1.3.0"
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^6.1.0"

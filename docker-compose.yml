@@ -35,10 +35,10 @@ services:
       MONGO_PORT: 27017
       MONGO_USERNAME: *mongo_root_username
       MONGO_INIT_DATA_RELPATH: etc/init
-      PERMISSIONS_API_URL: https://permissions.srcdev.skao.int/api/v1
+      PERMISSIONS_API_URL: https://permissions.srcnet.skao.int/api/v1
       PERMISSIONS_SERVICE_NAME: site-capabilities-api
       PERMISSIONS_SERVICE_VERSION: 1
-      AUTH_API_URL: https://authn.srcdev.skao.int/api/v1
+      AUTH_API_URL: https://authn.srcnet.skao.int/api/v1
       SESSIONS_SECRET_KEY:
       SCHEMAS_RELPATH: ../../../etc/schemas
     ports:

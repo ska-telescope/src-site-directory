@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.66]
+
+### Added
+
+- `compute_units` in compute schema
+
+## [0.3.65]
+
+### Added
+
+- Service environments (int, prod, dev)
+- Refactored bits of integration tests
+
+## [0.3.64]
+
+### Added
+
+- for\_prometheus endpoints for services
+
+## [0.3.63]
+
+### Changed
+
+- Amended integration tests
+
+## [0.3.62]
+
+### Changed
+
+- Changes to CA requests bundle for intenv
+
 ## [0.3.61]
 
 ### Added
