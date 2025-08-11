@@ -369,48 +369,54 @@ class MongoBackend(Backend):
 
         return nodes or []
 
-    def get_downtime_labels(self, value):
+    def get_service_labels_for_prometheus(self, service):
         """
-        Returns the nearest (most recent or ongoing) downtime event labels for the given service.
+        Returns Prometheus labels for a service, including downtime status and metadata if applicable.
 
         Args:
-            value: A list of downtime records associated with the service.
+            service: Service data with optional downtime details.
 
         Returns:
-            The nearest downtime event labels for a given service.
+            dict: Prometheus label key-value pairs.
         """
+        labels = []
 
-        now = datetime.now(timezone.utc)
-        upcoming_downtimes = []
-        nearest_downtime = None
-        is_down = False
-        for dt in value:
-            try:
-                start_str, end_str = dt.get("date_range", "").split(" to ")
-                start = dateutil.parser.parse(start_str)
-                end = dateutil.parser.parse(end_str)
-                upcoming_downtimes.append((start, end, dt))
-            except Exception:
-                continue
-        upcoming_downtimes.sort(key=lambda x: x[0])
-        for start, end, dt in upcoming_downtimes:
-            if start <= now <= end:
-                is_down = True
-                nearest_downtime = dt
-                break
-            if start > now and nearest_downtime is None:
-                nearest_downtime = dt
-
-        labels = {"in_downtime": str(is_down).lower()}
-
-        if nearest_downtime:
-            labels.update(
-                {
-                    "downtime_type": nearest_downtime.get("type", ""),
-                    "downtime_date_range": nearest_downtime.get("date_range", ""),
-                    "downtime_reason": nearest_downtime.get("reason", ""),
-                }
-            )
+        for key, value in service.items():
+            if isinstance(value, (dict, list)):
+                if key == "downtime":
+                    now = datetime.now(timezone.utc)
+                    upcoming_downtimes = []
+                    nearest_downtime = None
+                    is_down = False
+                    for dt in value:
+                        try:
+                            start_str, end_str = dt.get("date_range", "").split(" to ")
+                            start = dateutil.parser.parse(start_str)
+                            end = dateutil.parser.parse(end_str)
+                            upcoming_downtimes.append((start, end, dt))
+                        except Exception:
+                            continue
+                    upcoming_downtimes.sort(key=lambda x: x[0])
+                    for start, end, dt in upcoming_downtimes:
+                        if start <= now <= end:
+                            is_down = True
+                            nearest_downtime = dt
+                            break
+                        if start > now and nearest_downtime is None:
+                            nearest_downtime = dt
+                    labels = {"in_downtime": str(is_down).lower()}
+                    if nearest_downtime:
+                        labels.update(
+                            {
+                                "downtime_type": nearest_downtime.get("type", ""),
+                                "downtime_date_range": nearest_downtime.get("date_range", ""),
+                                "downtime_reason": nearest_downtime.get("reason", ""),
+                            }
+                        )
+                else:
+                    labels[key] = json.dumps(value)
+            else:
+                labels[key] = str(value)
 
         return labels
 
@@ -515,16 +521,7 @@ class MongoBackend(Backend):
                 if service.get("type") == "gatekeeper":
                     target += "/ping"
 
-                labels = {}
-                for key, value in service.items():
-                    if isinstance(value, (dict, list)):
-                        if key == "downtime":
-                            downtime_labels = self.get_downtime_labels(value=value)
-                            labels.update(downtime_labels)
-                        else:
-                            labels[key] = json.dumps(value)
-                    else:
-                        labels[key] = str(value)
+                labels = self.get_service_labels_for_prometheus(service=service)
 
                 formatted.append({"targets": [target], "labels": labels})
             return formatted
