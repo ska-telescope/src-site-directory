@@ -487,38 +487,38 @@ class MongoBackend(Backend):
                         }
                     )
 
-            if for_prometheus:
-                formatted = []
-                for service in response:
-                    if not service.get("host"):
-                        continue
-                    path = service.get("path", "")
-                    path = path.strip() if path else ""
-                    if path and not path.startswith("/"):
-                        path = "/" + path
+        if for_prometheus:
+            formatted = []
+            for service in response:
+                if not service.get("host"):
+                    continue
+                path = service.get("path", "")
+                path = path.strip() if path else ""
+                if path and not path.startswith("/"):
+                    path = "/" + path
 
-                    target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
-                    if service.get("port") is not None:
-                        target += f':{service.get("port")}'
+                target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+                if service.get("port") is not None:
+                    target += f':{service.get("port")}'
 
-                    target += path
+                target += path
 
-                    if service.get("type") == "gatekeeper":
-                        target += "/ping"
+                if service.get("type") == "gatekeeper":
+                    target += "/ping"
 
-                    labels = {}
-                    for key, value in service.items():
-                        if isinstance(value, (dict, list)):
-                            if key == "downtime":
-                                downtime_labels = self.get_downtime_labels(value=value)
-                                labels.update(downtime_labels)
-                            else:
-                                labels[key] = json.dumps(value)
+                labels = {}
+                for key, value in service.items():
+                    if isinstance(value, (dict, list)):
+                        if key == "downtime":
+                            downtime_labels = self.get_downtime_labels(value=value)
+                            labels.update(downtime_labels)
                         else:
-                            labels[key] = str(value)
+                            labels[key] = json.dumps(value)
+                    else:
+                        labels[key] = str(value)
 
-                    formatted.append({"targets": [target], "labels": labels})
-                return formatted
+                formatted.append({"targets": [target], "labels": labels})
+            return formatted
 
         return response
 
