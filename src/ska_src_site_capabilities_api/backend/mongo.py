@@ -404,15 +404,11 @@ class MongoBackend(Backend):
                             break
                         if start > now and nearest_downtime is None:
                             nearest_downtime = dt
-                    labels = {"in_downtime": str(is_down).lower()}
+                    labels["in_downtime"] = str(is_down).lower()
                     if nearest_downtime:
-                        labels.update(
-                            {
-                                "downtime_type": nearest_downtime.get("type", ""),
-                                "downtime_date_range": nearest_downtime.get("date_range", ""),
-                                "downtime_reason": nearest_downtime.get("reason", ""),
-                            }
-                        )
+                        labels["downtime_type"] = nearest_downtime.get("type", "")
+                        labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
+                        labels["downtime_reason"] = nearest_downtime.get("reason", "")
                 else:
                     labels[key] = json.dumps(value)
             else:
