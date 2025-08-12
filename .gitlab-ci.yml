@@ -61,8 +61,8 @@ include:
 
 oci-image-build:
   variables:
-    - CURRENT_COMMIT: $(CI_COMMIT_SHA)
-    - LAST_COMMIT: $(LAST_COMMIT_HASH)
+    - CURRENT_COMMIT: "$CI_COMMIT_SHA"
+    - LAST_COMMIT: "$LAST_COMMIT_HASH"
   rules:
     # To avoid triggering build overrides in case of already merged pipelines
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CURRENT_COMMIT == $LAST_COMMIT 
