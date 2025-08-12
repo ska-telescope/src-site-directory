@@ -59,6 +59,13 @@ include:
 
 # Overrides for and extensions of SKAO jobs
 
+oci-image-build:
+  variables:
+    - CURRENT_COMMIT: $(CI_COMMIT_SHA)
+    - LAST_COMMIT: $(LAST_COMMIT_HASH)
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event" and $CURRENT_COMMIT != $LAST_COMMIT
+
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 
 # 1) Set base *k8s-test jobs to not run.
