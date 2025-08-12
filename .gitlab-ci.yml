@@ -64,7 +64,9 @@ oci-image-build:
     - CURRENT_COMMIT: $(CI_COMMIT_SHA)
     - LAST_COMMIT: $(LAST_COMMIT_HASH)
   rules:
-    - if: $CI_PIPELINE_SOURCE != "merge_request_event" and $CURRENT_COMMIT != $LAST_COMMIT
+    # To avoid triggering build overrides in case of already merged pipelines
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CURRENT_COMMIT == $LAST_COMMIT 
+      when: never 
 
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 
