@@ -20,7 +20,7 @@ BASE_API_URL = "http://scapi-core:8080/v1"
 @pytest.fixture(scope="module")
 def compute_storm2():
     """Fixture to return storm2 compute json."""
-    assets_dir = (Path(__file__).resolve().parent.parent / "assets" / "integration")
+    assets_dir = Path(__file__).resolve().parent.parent / "assets" / "integration"
     with (assets_dir / "compute_storm2.json").open("r", encoding="utf-8") as compute_file:
         return json.load(compute_file)
 
@@ -28,7 +28,7 @@ def compute_storm2():
 @pytest.fixture(scope="module")
 def node_storm1():
     """Fixture to return storm1 node json."""
-    assets_dir = (Path(__file__).resolve().parent.parent / "assets" / "integration")
+    assets_dir = Path(__file__).resolve().parent.parent / "assets" / "integration"
     with (assets_dir / "node_storm1.json").open("r", encoding="utf-8") as node_file:
         return json.load(node_file)
 
@@ -36,7 +36,7 @@ def node_storm1():
 @pytest.fixture(scope="module")
 def node_storm2():
     """Fixture to return storm2 node json."""
-    assets_dir = (Path(__file__).resolve().parent.parent / "assets" / "integration")
+    assets_dir = Path(__file__).resolve().parent.parent / "assets" / "integration"
     with (assets_dir / "node_storm2.json").open("r", encoding="utf-8") as node_file:
         return json.load(node_file)
 
