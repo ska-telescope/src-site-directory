@@ -7,7 +7,7 @@
             "id": "to be assigned",
             "type": "prepare_data",
             "prefix": "http",
-            "host": "dp-core",
+            "host": "data-prep.local",
             "port": 8000,
             "path": "/",
             "other_attributes": {},
