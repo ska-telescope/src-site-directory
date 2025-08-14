@@ -13,9 +13,10 @@ OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
 
 oci-pre-build-all:
 	@git fetch origin main;
-	@if git merge-base --is-ancestor HEAD origin/main; then \
-        echo "Branch is behind origin/main. Please rebase or merge main before proceeding."; \
+	@echo "🚀 Checking branch HEAD..."
+	@if ! git merge-base --is-ancestor origin/main HEAD; then \
+        echo "❌ Branch is behind origin/main. Please rebase or merge main before proceeding."; \
         exit 1; \
     else \
-        echo "Branch is up to date with origin/main."; \
+        echo "🚀 ✅ Branch is up to date with origin/main. Building project..."; \
     fi
