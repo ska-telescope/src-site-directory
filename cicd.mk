@@ -12,7 +12,7 @@ K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
 OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
 
 oci-pre-build-all:
-    @git fetch origin main
+    @git fetch origin main; \
     @if git merge-base --is-ancestor HEAD origin/main; then \
         echo "Branch is behind origin/main. Please rebase or merge main before proceeding."; \
         exit 1; \
