@@ -58,6 +58,17 @@ include:
 
 
 # Overrides for and extensions of SKAO jobs
+helm-chart-lint:
+  tags:
+    - aws-ska-default
+  
+oci-image-lint:
+  tags:
+    - aws-ska-default
+
+python-lint:
+  tags:
+    - aws-ska-default
 
 oci-image-build:
   tags:
