@@ -58,22 +58,6 @@ include:
 
 
 # Overrides for and extensions of SKAO jobs
-helm-chart-lint:
-  tags:
-    - aws-ska-default
-  
-oci-image-lint:
-  tags:
-    - aws-ska-default
-
-python-lint:
-  tags:
-    - aws-ska-default
-
-oci-image-build:
-  tags:
-    - aws-ska-default
-
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 
 # 1) Set base *k8s-test jobs to not run.
