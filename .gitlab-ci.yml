@@ -58,7 +58,6 @@ include:
 
 
 # Overrides for and extensions of SKAO jobs
-
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 
 # 1) Set base *k8s-test jobs to not run.
