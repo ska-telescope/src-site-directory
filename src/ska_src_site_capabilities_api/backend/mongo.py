@@ -223,12 +223,7 @@ class MongoBackend(Backend):
             parent_site_name = compute.get("parent_site_name")
             parent_site_id = compute.get("parent_site_id")
             if compute.get("id") == compute_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    "parent_site_id": parent_site_id,
-                    **compute
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **compute}
                 break
         return response
 
@@ -350,12 +345,7 @@ class MongoBackend(Backend):
             parent_site_name = storage.get("parent_site_name")
             parent_site_id = storage.get("parent_site_id")
             if storage.get("id") == storage_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    "parent_site_id": parent_site_id,
-                    **storage
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **storage}
                 break
         return response
 
@@ -443,7 +433,6 @@ class MongoBackend(Backend):
         include_inactive=False,
         associated_storage_area_id=None,
         for_prometheus=False,
-        environments=[],
     ):
         """
         Lists services based on specified filters.
@@ -455,8 +444,7 @@ class MongoBackend(Backend):
             service_scope: String ("all", "local", "global") to filter by service scope.
             include_inactive: Boolean to include inactive compute resources.
             associated_storage_area_id: String to filter services by associated storage area ID.
-            for_prometheus: Boolean to return data formatted for Prometheus Service Discovery Config
-            environments: List of environments to filter storage areas by. If None, no environment filtering is applied.
+            for_prometheus: Boolean to return data formatted for Prometheus Service Discovery Config.
 
         Returns:
             A list of service dictionaries, each containing scope and parent information.
@@ -467,7 +455,6 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         service_types = service_types or []
-        environments = environments or []
 
         for compute in self.list_compute(
             node_names=node_names,
@@ -476,14 +463,10 @@ class MongoBackend(Backend):
         ):
             if service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
-                    # Apply filters for service type, associated storage area ID and environments
+                    # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
                     if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
-                        continue
-                    if environments and not any(
-                        env.lower() in [e.lower() for e in environments] for env in service.get("environments", ["Production"])
-                    ):
                         continue
                     # Add parent information
                     response.append(
@@ -499,12 +482,10 @@ class MongoBackend(Backend):
 
             if service_scope in ["all", "global"]:
                 for service in compute.get("associated_global_services", []):
-                    # Apply filters for service type, associated storage area ID and environments
+                    # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
                     if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
-                        continue
-                    if environments and service.get("environments") not in environments:
                         continue
                     # Add parent information
                     response.append(
@@ -642,7 +623,7 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False, environments=[]):
+    def list_storage_areas(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
         """
         Lists storage areas based on specified filters.
 
@@ -652,7 +633,6 @@ class MongoBackend(Backend):
             topojson: Boolean to return data in TopoJSON format.
             for_grafana: Boolean to return data formatted for Grafana.
             include_inactive: Boolean to include inactive storage areas.
-            environments: List of environments to filter storage areas by. If None, no environment filtering is applied.
 
         Returns:
             A list of storage area dictionaries, each containing parent information,
@@ -660,7 +640,6 @@ class MongoBackend(Backend):
         """
         node_names = node_names or []
         site_names = site_names or []
-        environments = environments or []
 
         if topojson:
             response = {
@@ -678,11 +657,6 @@ class MongoBackend(Backend):
             site_latitude = parent_storage.get("latitude")
             site_longitude = parent_storage.get("longitude")
             for storage_area in storage.get("areas", []):
-                # Apply filters for environments
-                if environments and not any(
-                    env.lower() in [e.lower() for e in environments] for env in storage_area.get("environments", ["Production"])
-                ):
-                    continue
                 if topojson:
                     print()
                     response["objects"]["sites"]["geometries"].append(

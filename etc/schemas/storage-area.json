@@ -68,9 +68,6 @@
         }
       }
     },
-    "environments": {
-      "$ref": "environments.json"
-    },
     "other_attributes": {
       "type": "textarea",
       "title": "Other storage area attributes (as json)",

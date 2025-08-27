@@ -235,7 +235,6 @@ class SiteCapabilitiesClient:
         node_names: List[str] = None,
         service_types: List[str] = None,
         service_scope: str = "all",
-        environments: List[str] = None,
         output: str = None,
     ):
         """List services.
@@ -246,7 +245,6 @@ class SiteCapabilitiesClient:
         :param node_names: Filter by node names (comma-separated string).
         :param service_types: Filter by service types (comma-separated string).
         :param service_scope: Filter by scope of service (all||local||global).
-        :param environments: Filter by environments.
         :param output: Output format (e.g., 'prometheus' for Prometheus HTTP SD response)
 
         :return: A requests response.
@@ -260,7 +258,6 @@ class SiteCapabilitiesClient:
             "node_names": node_names,
             "service_types": service_types,
             "service_scope": service_scope,
-            "environments": environments,
             "output": output,
         }
 
@@ -374,7 +371,6 @@ class SiteCapabilitiesClient:
         node_names: List[str] = None,
         site_names: List[str] = None,
         include_inactive: bool = False,
-        environments: List[str] = None,
     ):
         """List storage areas.
 
@@ -386,7 +382,6 @@ class SiteCapabilitiesClient:
             "node_names": node_names,
             "site_names": site_names,
             "include_inactive": include_inactive,
-            "environments": environments,
         }
         resp = self.session.get(storage_areas_endpoint, params=params)
         resp.raise_for_status()
