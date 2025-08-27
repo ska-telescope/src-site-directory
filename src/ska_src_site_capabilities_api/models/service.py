@@ -6,14 +6,6 @@ from uuid import UUID, uuid4
 import jsonref
 from pydantic import BaseModel, Field, NonNegativeInt
 
-# get environments from schema
-schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "environments"))).absolute()
-with open(schema_path) as f:
-    dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
-environments = dereferenced_schema.get("items", {}).get("enum", [])
-
-Environments = Literal[tuple(environments)]
-
 # get local services from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "local-service"))).absolute()
 with open(schema_path) as f:
@@ -47,7 +39,6 @@ class Service(BaseModel):
     path: str = Field(examples=["/path/to/service"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
-    environments: List[Environments]
     is_force_disabled: bool = Field(examples=[True, False])
 
 

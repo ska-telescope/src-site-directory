@@ -29,10 +29,7 @@
                             "name": "STORM2",
                             "downtime": [],
                             "other_attributes": "",
-                            "is_force_disabled": false,
-                            "environments": [
-                                "Production"
-                            ]
+                            "is_force_disabled": false
                         },
                         {
                             "id": "to be assigned",
@@ -41,10 +38,7 @@
                             "name": "STORM2_NONDET",
                             "downtime": [],
                             "other_attributes": "",
-                            "is_force_disabled": false,
-                            "environments": [
-                                "Production"
-                            ]
+                            "is_force_disabled": false
                         },
                         {
                             "id": "to be assigned",
@@ -52,10 +46,7 @@
                             "relative_path": "/ingest/staging",
                             "other_attributes": {},
                             "downtime": [],
-                            "is_force_disabled": false,
-                            "environments": [
-                                "Production"
-                            ]
+                            "is_force_disabled": false
                         }
                     ],
                     "downtime": [],

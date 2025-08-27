@@ -29,10 +29,7 @@
               "name": "STORM1",
               "downtime": [],
               "other_attributes": "",
-              "is_force_disabled": false,
-              "environments": [
-                "Development"
-              ]
+              "is_force_disabled": false
             },
             {
               "id": "to be assigned",
@@ -41,10 +38,7 @@
               "name": "STORM1_NONDET",
               "downtime": [],
               "other_attributes": "",
-              "is_force_disabled": false,
-              "environments": [
-                "Development"
-              ]
+              "is_force_disabled": false
             }
           ],
           "downtime": [],

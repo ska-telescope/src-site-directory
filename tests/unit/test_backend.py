@@ -158,16 +158,6 @@ def test_list_nodes(mock_backend):
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize(
-    "environment, number_of_services",
-    [("Production", 3), ("Development", 2), ("Integration", 4)],
-)
-def test_list_services_with_environment_filter(mock_backend, environment, number_of_services):
-    services = mock_backend.list_services(environments=[environment])
-    assert len(services) == number_of_services
-
-
-@pytest.mark.unit
 def test_list_services_with_node_name_filter(mock_backend):
     services = mock_backend.list_services(node_names="TEST")
     assert len(services) == 7
@@ -199,16 +189,6 @@ def test_list_services_with_site_name_filter(mock_backend):
 def test_list_sites(mock_backend):
     sites = mock_backend.list_sites()
     assert len(sites) == 2
-
-
-@pytest.mark.unit
-@pytest.mark.parametrize(
-    "environment, number_of_storage_areas",
-    [("Production", 1), ("Development", 2), ("Integration", 1)],
-)
-def test_list_storage_areas_with_environment_filter(mock_backend, environment, number_of_storage_areas):
-    services = mock_backend.list_storage_areas(environments=[environment])
-    assert len(services) == number_of_storage_areas
 
 
 @pytest.mark.unit

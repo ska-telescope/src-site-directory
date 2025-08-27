@@ -1,9 +1,0 @@
-{
-  "title": "Environment",
-  "type": "array",
-  "items": {
-    "type": "string",
-    "enum": ["Development", "Integration", "Production"]
-  },
-  "minItems": 0
-}

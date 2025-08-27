@@ -15,10 +15,7 @@
             "downtime": [],
             "is_force_disabled": false,
             "associated_storage_area_id": null,
-            "_comment": "associated_storage_area_id this will be populated by the test",
-            "environments": [
-              "Development"
-            ]
+            "_comment": "associated_storage_area_id this will be populated by the test"
         },
         {
             "id": "to be assigned",
@@ -28,10 +25,7 @@
             "is_mandatory": false,
             "is_force_disabled": false,
             "associated_storage_area_id": null,
-            "_comment": "associated_storage_area_id this will be populated by the test",
-            "environments": [
-              "Development"
-            ]
+            "_comment": "associated_storage_area_id this will be populated by the test"
         }
     ],
     "hardware_capabilities": [],
