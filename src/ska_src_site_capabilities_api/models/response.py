@@ -31,6 +31,7 @@ class Response(BaseModel):
 class ComputeWithParents(Compute):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_id: UUID = Field(default_factory=uuid4)
 
 
 ComputeGetResponse = ComputeWithParents
@@ -53,6 +54,7 @@ class ComputeDisableResponse(Response):
 class GlobalServiceWithParentsAndType(GlobalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_id: UUID = Field(default_factory=uuid4)
     parent_compute_id: UUID = Field(default_factory=uuid4)
     scope: str = "global"
 
@@ -63,6 +65,7 @@ GlobalServiceGetResponse = GlobalServiceWithParentsAndType
 class LocalServiceWithParentsAndType(LocalService):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_id: UUID = Field(default_factory=uuid4)
     parent_compute_id: UUID = Field(default_factory=uuid4)
     scope: str = "local"
 
@@ -142,6 +145,7 @@ class SiteDisableResponse(Response):
 class StorageWithParents(Storage):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_id: UUID = Field(default_factory=uuid4)
 
 
 StorageGetResponse = StorageWithParents
@@ -163,6 +167,7 @@ class StorageDisableResponse(Response):
 class StorageAreaWithParents(StorageArea):
     parent_node_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
     parent_site_name: str = Field(examples=["SKAOSRC", "CNSRC", "KRSRC", "SPSRC", "JPSRC"])
+    parent_site_id: UUID = Field(default_factory=uuid4)
     parent_storage_id: UUID = Field(default_factory=uuid4)
 
 
