@@ -5,12 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.69]
+
+### Added
+
+- Parent site ids to respective elements (rather than just names)
+
 ## [0.3.68]
 
 ### Added
 
-- Added `_get_service_labels_for_prometheus` to backend
-- Added a pre-hook to CI that checks the branch's HEAD is up to date with main before building images
+- `_get_service_labels_for_prometheus` to backend
+- A pre-hook to CI that checks the branch's HEAD is up to date with main before building images
 
 ## [0.3.67]
 

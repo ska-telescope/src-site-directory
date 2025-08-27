@@ -221,8 +221,9 @@ class MongoBackend(Backend):
         for compute in self.list_compute(include_inactive=True):
             parent_node_name = compute.get("parent_node_name")
             parent_site_name = compute.get("parent_site_name")
+            parent_site_id = compute.get("parent_site_id")
             if compute.get("id") == compute_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, **compute}
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **compute}
                 break
         return response
 
@@ -265,6 +266,7 @@ class MongoBackend(Backend):
         for service in self.list_services(include_inactive=True):
             parent_node_name = service.get("parent_node_name")
             parent_site_name = service.get("parent_site_name")
+            parent_site_id = service.get("parent_site_id")
             parent_compute_id = service.get("parent_compute_id")
 
             # get compute element to establish if local or global service
@@ -280,6 +282,7 @@ class MongoBackend(Backend):
                 response = {
                     "parent_node_name": parent_node_name,
                     "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
                     "parent_compute_id": parent_compute_id,
                     "scope": service_scope,
                     **service,
@@ -340,8 +343,9 @@ class MongoBackend(Backend):
         for storage in self.list_storages(include_inactive=True):
             parent_node_name = storage.get("parent_node_name")
             parent_site_name = storage.get("parent_site_name")
+            parent_site_id = storage.get("parent_site_id")
             if storage.get("id") == storage_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, **storage}
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **storage}
                 break
         return response
 
@@ -359,11 +363,13 @@ class MongoBackend(Backend):
         for storage_area in self.list_storage_areas(include_inactive=True):
             parent_node_name = storage_area.get("parent_node_name")
             parent_site_name = storage_area.get("parent_site_name")
+            parent_site_id = storage_area.get("parent_site_id")
             parent_storage_id = storage_area.get("parent_storage_id")
             if storage_area.get("id") == storage_area_id:
                 response = {
                     "parent_node_name": parent_node_name,
                     "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
                     "parent_storage_id": parent_storage_id,
                     **storage_area,
                 }
@@ -387,12 +393,14 @@ class MongoBackend(Backend):
         response = []
         for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
+            parent_site_id = site.get("id")
             for compute in site.get("compute", []):
                 if site_names and parent_site_name not in site_names:
                     continue
                 compute_with_parent = {
                     "parent_node_name": site.get("parent_node_name"),
                     "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
                     **compute,
                 }
                 response.append(compute_with_parent)
@@ -473,6 +481,7 @@ class MongoBackend(Backend):
                             "scope": "local",
                             "parent_node_name": compute.get("parent_node_name"),
                             "parent_site_name": compute.get("parent_site_name"),
+                            "parent_site_id": compute.get("parent_site_id"),
                             "parent_compute_id": compute.get("id"),
                             **service,
                         }
@@ -493,6 +502,7 @@ class MongoBackend(Backend):
                             "scope": "global",
                             "parent_node_name": compute.get("parent_node_name"),
                             "parent_site_name": compute.get("parent_site_name"),
+                            "parent_site_id": compute.get("parent_site_id"),
                             "parent_compute_id": compute.get("id"),
                             **service,
                         }
@@ -585,6 +595,7 @@ class MongoBackend(Backend):
             response = []
         for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
+            parent_site_id = site.get("id")
             for storage in site.get("storages", []):
                 if site_names:
                     if parent_site_name not in site_names:
@@ -615,6 +626,7 @@ class MongoBackend(Backend):
                         {
                             "parent_node_name": site.get("parent_node_name"),
                             "parent_site_name": parent_site_name,
+                            "parent_site_id": parent_site_id,
                             **storage,
                         }
                     )
@@ -685,6 +697,7 @@ class MongoBackend(Backend):
                         {
                             "parent_node_name": storage.get("parent_node_name"),
                             "parent_site_name": storage.get("parent_site_name"),
+                            "parent_site_id": storage.get("parent_site_id"),
                             "parent_storage_id": storage.get("id"),
                             **storage_area,
                         }
