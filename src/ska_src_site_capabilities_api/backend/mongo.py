@@ -223,12 +223,7 @@ class MongoBackend(Backend):
             parent_site_name = compute.get("parent_site_name")
             parent_site_id = compute.get("parent_site_id")
             if compute.get("id") == compute_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    "parent_site_id": parent_site_id,
-                    **compute
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **compute}
                 break
         return response
 
@@ -350,12 +345,7 @@ class MongoBackend(Backend):
             parent_site_name = storage.get("parent_site_name")
             parent_site_id = storage.get("parent_site_id")
             if storage.get("id") == storage_id:
-                response = {
-                    "parent_node_name": parent_node_name,
-                    "parent_site_name": parent_site_name,
-                    "parent_site_id": parent_site_id,
-                    **storage
-                }
+                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **storage}
                 break
         return response
 
