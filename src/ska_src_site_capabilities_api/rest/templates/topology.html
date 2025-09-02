@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/form.css" />
+  <link rel="stylesheet" type="text/css" href="{{ base_url }}static/css/topology.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="{{ base_url }}static/img/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div id="header">
+     <img src="{{ base_url }}static/img/logo2.png"/>
+     <h1>{{ title }}</h1>
+     <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
+      <div id="token-timer"></div>
+  </div>
+  <div style="display:flex; justify-content:center; align-items:center; width:100%; height:100%;">
+    <div id="topology"></div>
+    <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+  </div>
+  <div style="margin-top: 20px; text-align: center;">
+    <svg id="legend"></svg>
+  </div>
+  <div style="margin-top: 20px; text-align: center;">
+    <button id="expandAll">Expand All</button>
+    <button id="collapseAll">Collapse All</button>
+    <button id="resetZoom">Reset Zoom</button>
+  </div>
+  <div id="footer"></div>
+
+  <script type="text/javascript" src="{{ base_url }}static/js/token.js"></script>
+  <script>
+    window.onload = function() {
+        let token = "{{ access_token }}";
+        if (token) {
+            startTokenTimer(token, "token-timer");
+        } else {
+            console.warn("No access token found.");
+        }
+    };
+  </script>
+
+<script>
+const raw = {{ data|tojson }};
+
+// ---------------- Helpers ----------------
+function expand(d) {
+  if (d._children) { d.children = d._children; d._children = null; }
+  if (d.children) d.children.forEach(expand);
+}
+
+function collapse(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+
+function getIcon(type) {
+  switch (type) {
+    case "root": return "";
+    case "node": return "🌐";
+    case "site": return "🏛️";
+    case "storage": return "💾";
+    case "compute": return "🧠";
+    case "service": return "⚙️";
+    case "area": return "📂";
+    default: return "•";
+  }
+}
+
+function buildTree(data) {
+  return {
+    name: "SRCNet",
+    type: "root",
+    children: data.map(node => ({
+      name: node.name,
+      type: "node",
+      children: (node.sites || []).map(site => ({
+        name: site.name,
+        type: "site",
+        children: [
+          ...(site.storages || []).map(st => ({
+            name: st.name || st.host || "Unspecified storage",
+            type: "storage",
+            description: st.description,
+            host: st.host,
+            base_path: st.base_path,
+            children: (st.areas || []).map(a => ({
+              name: a.name || a.relative_path || "Unspecified area",
+              type: "area"
+            }))
+          })),
+          ...(site.compute || []).map(c => ({
+            name: c.name || c.description || "Unspecified compute",
+            type: "compute",
+            description: c.description,
+            children: [
+              ...(c.associated_local_services || []).map(s => ({
+                name: s.name || s.type || "Unspecified local service",
+                type: "service",
+                service_type: s.type,
+                scope: s.scope
+              })),
+              ...(c.associated_global_services || []).map(s => ({
+                name: s.name || s.type || "Unspecified global service",
+                type: "service",
+                service_type: s.type,
+                scope: s.scope
+              }))
+            ]
+          }))
+        ]
+      }))
+    }))
+  };
+}
+
+const radialPoint = (x, y) => {
+  const angle = x - Math.PI / 2;
+  return [y * Math.cos(angle), y * Math.sin(angle)];
+};
+
+// ---------------- Setup ----------------
+const data = buildTree(raw);
+const width = 1200, height = 1200;
+const radius = width / 2;
+const k = 0.8;
+const tx = (1 - k) * width / 2;
+const ty = (1 - k) * height / 2;
+
+const svg = d3.select("#topology").append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const gZoom = svg.append("g");
+const g = gZoom.append("g")
+  .attr("transform", `translate(${width/2},${height/2})`);
+
+// background logo
+g.append("image")
+  .attr("href", "{{ base_url }}static/img/logo2.png")
+  .attr("x", -radius)
+  .attr("y", -radius)
+  .attr("width", radius * 2)
+  .attr("height", radius * 2)
+  .attr("opacity", 0.1);
+
+// zoom/pan
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 3])
+  .translateExtent([[-width/4, -height/4], [width + width/4, height + height/4]])
+  .on("zoom", (event) => gZoom.attr("transform", event.transform));
+
+svg.call(zoom);
+svg.call(
+  zoom.transform,
+  d3.zoomIdentity.translate(tx, ty).scale(k)
+);
+
+// tree layout
+const tree = d3.cluster().size([2 * Math.PI, radius]);
+let root = d3.hierarchy(data);
+root.x0 = 0; root.y0 = 0;
+root.children.forEach(collapse);
+
+// ---------------- Legend ----------------
+const legendData = [
+  { type: "node", label: "Node", icon: getIcon("node") },
+  { type: "site", label: "Site", icon: getIcon("site") },
+  { type: "storage", label: "Storage", icon: getIcon("storage") },
+  { type: "area", label: "Area", icon: getIcon("area") },
+  { type: "compute", label: "Compute", icon: getIcon("compute") },
+  { type: "service", label: "Service", icon: getIcon("service") }
+];
+
+const legendSvg = d3.select("#legend")
+  .attr("width", 600)
+  .attr("height", 50);
+
+const legend = legendSvg.append("g")
+  .attr("class", "legend")
+  .attr("transform", "translate(20,20)");
+
+legendData.forEach((d, i) => {
+  const group = legend.append("g").attr("transform", `translate(${i*100},0)`);
+  group.append("text").attr("class", "icon").attr("x", 0).attr("y", 5).text(d.icon);
+  group.append("text").attr("class", "label").attr("x", 20).attr("y", 5).text(d.label);
+});
+
+// ---------------- Buttons ----------------
+d3.select("#expandAll").on("click", () => { expand(root); update(root); });
+d3.select("#collapseAll").on("click", () => { root.children.forEach(collapse); update(root); });
+d3.select("#resetZoom").on("click", () => {
+  const initialTransform = d3.zoomIdentity.translate(tx, ty).scale(k);
+  svg.transition().duration(750).call(zoom.transform, initialTransform);
+});
+
+// ---------------- Update function ----------------
+let nodeId = 0;
+function update(source) {
+  const treeData = tree(root);
+  const nodes = treeData.descendants();
+  const links = treeData.links();
+
+  // ---- Nodes ----
+  const node = g.selectAll("g.node")
+    .data(nodes, d => (d.id ??= ++nodeId));
+
+  const nodeEnter = node.enter().append("g")
+    .attr("class", d => `node ${d.data.type}`)
+    .attr("transform", () => {
+      const [x, y] = radialPoint(source.x0, source.y0);
+      return `translate(${x},${y})`;
+    })
+    .on("click", (event, d) => {
+      if (d.children) { d._children = d.children; d.children = null; }
+      else if (d._children) { d.children = d._children; d._children = null; }
+      update(d);
+    })
+    .style("cursor", d => (d._children || d.children) ? "pointer" : "default");
+
+  // tooltip
+  const tooltip = d3.select("#tooltip");
+  nodeEnter
+    .on("mouseover", (event, d) => {
+      let icon = getIcon(d.data.type);
+      let html = `
+        <span style="display:inline-block;padding:2px 6px;border-radius:4px;background:#eee;font-weight:600;">
+          ${icon} ${d.data.name}
+        </span><br/><br/>
+        <b>Type:</b> ${d.data.type || "-"}<br/>
+      `;
+
+      switch (d.data.type) {
+        case "service":
+          if (d.data.service_type) html += `<b>Service Type:</b> ${d.data.service_type}<br/>`;
+          if (d.data.scope) html += `<b>Scope:</b> ${d.data.scope}<br/>`;
+          break;
+        case "storage":
+          if (d.data.host) html += `<b>Host:</b> ${d.data.host}<br/>`;
+          if (d.data.base_path) html += `<b>Base Path:</b> ${d.data.base_path}<br/>`;
+          break;
+        case "area":
+          if (d.data.relative_path) html += `<b>Relative Path:</b> ${d.data.relative_path}<br/>`;
+          break;
+      }
+
+      tooltip.style("opacity", 1).html(html)
+        .style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mousemove", (event) => {
+      tooltip.style("left", (event.pageX + 12) + "px")
+             .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", () => tooltip.style("opacity", 0));
+
+  // highlight branch
+  nodeEnter
+    .on("mouseover.highlight", (event, d) => {
+      const neighbors = new Set(d.ancestors().concat(d.descendants()));
+      g.selectAll("g.node").style("opacity", n => neighbors.has(n) ? 1 : 0.2);
+      g.selectAll("path.link").style("opacity", l =>
+        neighbors.has(l.source) && neighbors.has(l.target) ? 1 : 0.1
+      );
+    })
+    .on("mouseout.highlight", () => {
+      g.selectAll("g.node").style("opacity", 1);
+      g.selectAll("path.link").style("opacity", 1);
+    });
+
+  // node labels/icons
+  nodeEnter.append("text")
+    .attr("class", "icon")
+    .attr("dx", "-0.70em")
+    .attr("dy", "0.30em")
+    .attr("x", -12)
+    .text(d => getIcon(d.data.type));
+
+  nodeEnter.filter(d => d.data.type !== "root")
+    .append("text")
+    .attr("class", "label")
+    .attr("dy", "0.31em")
+    .attr("x", 8)
+    .text(d => d.data.name);
+
+  const nodeUpdate = nodeEnter.merge(node);
+  nodeUpdate.transition()
+    .attr("transform", d => {
+      const [x, y] = radialPoint(d.x, d.y);
+      return `translate(${x},${y})`;
+    });
+
+  node.exit().transition().remove();
+
+  // ---- Links ----
+  const link = g.selectAll("path.link").data(links, d => d.target.id);
+
+  const linkEnter = link.enter().insert("path", "g")
+    .attr("class", "link")
+    .attr("d", d3.linkRadial()
+      .angle(() => source.x)
+      .radius(() => source.y));
+
+  linkEnter.merge(link).transition()
+    .attr("d", d3.linkRadial()
+      .angle(d => d.x)
+      .radius(d => d.y));
+
+  link.exit().transition().remove();
+
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+}
+
+update(root);
+</script>
+
+</body>
+</html>
