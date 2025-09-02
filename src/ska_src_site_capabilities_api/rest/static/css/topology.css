@@ -1,0 +1,81 @@
+body {
+  font-family: 'Roboto', 'Noto Color Emoji', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+.node {
+  cursor: default;
+}
+
+.node.expandable {
+  cursor: pointer;
+}
+
+.node .icon {
+  font-size: 30px;
+}
+
+.node .label {
+  font-size: 18px;
+  font-family: 'Roboto', 'Noto Color Emoji', sans-serif;
+  fill: #222;
+}
+
+.node.search-match text.label {
+  font-weight: bold;
+  fill: red;
+}
+
+.tooltip {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}
+
+.legend text {
+  font-family: 'Roboto', 'Noto Color Emoji', sans-serif;
+  font-size: 12px;
+  fill: #222;
+}
+
+.legend .icon {
+  font-size: 14px;
+}
+
+.site .label {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.storage .label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.area .label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.compute .label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.service .label {
+  font-size: 12px;
+  font-weight: 500;
+}

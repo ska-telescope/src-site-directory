@@ -1614,9 +1614,10 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
         )
 
 
+#TODO
 @api_version(1)
 @app.get(
-    "/www/report/services",
+    "/www/reports/services",
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
@@ -1665,16 +1666,16 @@ async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse,
 
 @api_version(1)
 @app.get(
-    "/www/report/nodes/{node_name}",
+    "/www/topology",
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
-    tags=["Reports"],
-    summary="Overview report",
+    tags=["Topology"],
+    summary="Topology",
 )
 @handle_exceptions
-async def report_overview(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
-    """Node report."""
+async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
+    """Topology."""
     if request.session.get("access_token"):
         # Check access permissions.
         if not DEBUG:
@@ -1691,14 +1692,13 @@ async def report_overview(request: Request, node_name: str) -> Union[TEMPLATES.T
                 raise err
             if not rtn.get("is_authorised", False):
                 raise PermissionDenied
-
         return TEMPLATES.TemplateResponse(
-            "node-report.html",
+            "topology.html",
             {
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
-                "title": "Report for SRCNet Node ({})".format(node_name),
-                "data": BACKEND.get_node(node_name=node_name, node_version="latest"),
+                "title": "Topology of SRCNet",
+                "data": BACKEND.list_nodes(include_archived=False, include_inactive=True),
                 "sign_out_url": get_url_for_app_from_request(
                     "www_logout",
                     request,
