@@ -5,6 +5,8 @@ services:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   
 
 cache:
@@ -12,6 +14,7 @@ cache:
     - build
 
 stages:
+- build-sonar
 - lint
 - lint-post
 - build
@@ -31,6 +34,23 @@ join_lint_reports:
     paths:
       - build/
     when: always
+
+build-sonar:
+  image: sonarsource/sonar-scanner-cli:11
+  stage: build-sonar
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+  script: 
+  - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'sonarqube'
 
 # Standardised SKAO jobs (see https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/)
 include:
