@@ -38,6 +38,8 @@ stages:
 build-sonar:
   image: sonarsource/sonar-scanner-cli:11
   stage: build-sonar
+  tags:
+    - ${SKA_DEFAULT_RUNNER}
   cache:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
