@@ -117,6 +117,24 @@ class NodeVersionNotFound(CustomHTTPException):
         super().__init__(self.message)
 
 
+class RetryRequestError(CustomHTTPException):
+    def __init__(self, last_error, last_response):
+        error_type = type(last_error).__name__ if last_error else ""
+        error_message = str(last_error) if last_error else ""
+        try:
+            response_content = last_response.json() if last_response is not None else None
+        except Exception:
+            response_content = last_response.text if last_response else ""
+
+        self.message = (
+            "External request failed.\n"
+            f"Last Error Type: {error_type}\n"
+            f"Last Error Message: {error_message}\n"
+            f"Last Response Content: {json.dumps(response_content, indent=2) if response_content else ''}"
+        )
+        super().__init__(self.message)
+
+
 class SchemaNotFound(CustomHTTPException):
     def __init__(self, schema):
         self.message = "Schema with name '{}' could not be found".format(schema)

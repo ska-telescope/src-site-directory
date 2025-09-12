@@ -1674,7 +1674,7 @@ async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse,
     summary="Topology",
 )
 @handle_exceptions
-async def report_overview(request: Request) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
+async def topology(request: Request) -> Union[TEMPLATES.TemplateResponse, RedirectResponse]:
     """Topology."""
     if request.session.get("access_token"):
         # Check access permissions.

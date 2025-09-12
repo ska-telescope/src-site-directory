@@ -3,6 +3,7 @@ import os
 import requests
 
 from ska_src_site_capabilities_api.common.exceptions import IAMEndpointNotFoundInWellKnown
+from ska_src_site_capabilities_api.common.utility import retry_request
 
 
 class IAM:
@@ -17,8 +18,7 @@ class IAM:
         ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE")
         if ca_bundle:
             session.verify = ca_bundle
-        resp = session.get(client_conf_url)
-        resp.raise_for_status()
+        resp = retry_request(method="GET", url=client_conf_url)
         self.client_well_known = resp.json()
 
     @property

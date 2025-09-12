@@ -1,10 +1,14 @@
 import ast
 import json
+import time
 import uuid
 from urllib.parse import urlparse
 
 import jsonref
 import markdown
+import requests
+
+from ska_src_site_capabilities_api.common.exceptions import RetryRequestError
 
 
 def convert_readme_to_html_docs(
@@ -149,3 +153,47 @@ def recursive_stringify(input, stringify_keys=["other_attributes"]):
         for i in range(len(input)):
             input[i] = recursive_stringify(input[i])
     return input
+
+
+def retry_request(
+    method,
+    url,
+    headers={},
+    data=None,
+    params=None,
+    json=None,
+    session=None,
+    n_max_retries=3,
+    wait_for_s=0.1,
+    timeout_s=3,
+):
+    """Retries generic HTTP requests using the requests library (non-streamed response)."""
+    # Assign requests session if provided, otherwise create a new one.
+    #
+    session = session or requests.Session()
+
+    # Attempt request <n_max_retries>, waiting <wait_for_s> between each attempt.
+    #
+    n_current_retry = 1
+    while n_current_retry <= n_max_retries:
+        try:
+            response = session.request(
+                method=method,
+                url=url,
+                headers=headers,
+                data=data,
+                json=json,
+                params=params,
+                timeout=timeout_s,
+            )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as err:
+            if 500 <= response.status_code < 600:
+                last_response = response
+                last_error = err
+                n_current_retry += 1
+            else:
+                raise err
+        time.sleep(wait_for_s)
+    raise RetryRequestError(last_error, last_response)
