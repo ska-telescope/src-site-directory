@@ -1,6 +1,6 @@
 version: "3.5"
 services:
-  core:
+  scapi-core:
     environment:
       DISABLE_AUTHENTICATION: "yes"
     volumes:

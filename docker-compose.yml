@@ -1,25 +1,32 @@
 version: "3.5"
 
-x-mongo-database: &mongo_database site-capabilities
-x-mongo-root-username: &mongo_root_username root
-x-mongo-root-password: &mongo_root_password ${MONGO_PASSWORD}
-
 services:
-  mongo:
-    container_name: ska-src-site-capabilities-mongo
+  scapi-mongo:
+    container_name: scapi-mongo
     image: mongo:5.0.15
+    env_file:
+      - .env
     environment:
-      MONGO_INITDB_DATABASE: *mongo_database
-      MONGO_INITDB_ROOT_USERNAME: *mongo_root_username
-      MONGO_INITDB_ROOT_PASSWORD: *mongo_root_password
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     ports:
       - 27017:27017
-  core:
-    container_name: ska-src-site-capabilities-api-core
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  scapi-core:
+    container_name: scapi-core
     image: ska-src-site-capabilities-api-core:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.core
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile.core
+    env_file:
+      - .env
     environment:
       DISABLE_AUTHENTICATION: "no"
       API_ROOT_PATH:
@@ -29,11 +36,11 @@ services:
       API_IAM_CLIENT_SECRET:
       API_IAM_CLIENT_SCOPES: openid profile
       API_IAM_CLIENT_AUDIENCE: site-capabilities-api
-      MONGO_DATABASE: *mongo_database
-      MONGO_HOST: ska-src-site-capabilities-mongo
-      MONGO_PASSWORD:
+      MONGO_DATABASE: ${MONGO_DATABASE}
+      MONGO_HOST: scapi-mongo
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
       MONGO_PORT: 27017
-      MONGO_USERNAME: *mongo_root_username
+      MONGO_USERNAME: ${MONGO_USERNAME}
       MONGO_INIT_DATA_RELPATH: etc/init
       PERMISSIONS_API_URL: https://permissions.srcnet.skao.int/api/v1
       PERMISSIONS_SERVICE_NAME: site-capabilities-api
@@ -42,4 +49,14 @@ services:
       SESSIONS_SECRET_KEY:
       SCHEMAS_RELPATH: ../../../etc/schemas
     ports:
-      - 8080:8080
+      - 8081:8080
+    depends_on:
+      scapi-mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+

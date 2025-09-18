@@ -7,7 +7,7 @@
             "id": "to be assigned",
             "type": "prepare_data",
             "prefix": "http",
-            "host": "data-prep.local",
+            "host": "dpapi.local",
             "port": 8000,
             "path": "/",
             "other_attributes": {},
