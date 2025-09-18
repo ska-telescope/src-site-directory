@@ -50,7 +50,7 @@ build-sonar:
   - echo "$CI_COMMIT_REF_SLUG"
   - echo "$SONAR_HOST_URL"
   - echo "$SONAR_USER_HOME"
-  - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}" -Dsonar.login="${SONAR_TOKEN}"
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
