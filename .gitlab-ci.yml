@@ -151,10 +151,10 @@ integration-test:
     - git submodule update --init --recursive
     # Start the stack
     - bash scripts/stack/start-stack.sh
-    # Wait for api-tests container to finish
-    - echo "Waiting for api-tests container to finish..."
-    - docker wait api-tests
-    - EXIT_CODE=$(docker inspect api-tests --format='{{.State.ExitCode}}')
+    # Wait for tester container to finish
+    - echo "Waiting for tester container to finish..."
+    - docker wait tester
+    - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}')
     - exit $EXIT_CODE
   after_script:
     # Clean up the integration environment directory (if it exists)
