@@ -1,7 +1,12 @@
 version: "3.5"
 services:
   scapi-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.core
     environment:
       DISABLE_AUTHENTICATION: "yes"
     volumes:
       - .:/opt/ska-src-site-capabilities-api
+    ports:
+      - 8080:8080

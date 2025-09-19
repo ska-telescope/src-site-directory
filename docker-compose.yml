@@ -22,9 +22,6 @@ services:
   scapi-core:
     container_name: scapi-core
     image: ska-src-site-capabilities-api-core:latest
-    #build:
-    #  context: .
-    #  dockerfile: Dockerfile.core
     env_file:
       - .env
     environment:
@@ -48,8 +45,6 @@ services:
       AUTH_API_URL: https://authn.srcnet.skao.int/api/v1
       SESSIONS_SECRET_KEY:
       SCHEMAS_RELPATH: ../../../etc/schemas
-    ports:
-      - 8081:8080
     depends_on:
       scapi-mongo:
         condition: service_healthy
