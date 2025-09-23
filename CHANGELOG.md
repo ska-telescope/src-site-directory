@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Introduced `cavern` type in local services schema
+- Introduced `compute-api` and `accounting-api` service types in global services schema
+
+## [0.3.73]
+
+### Changed
+
 - Amending image registries for consistency
 
 ## [0.3.72]

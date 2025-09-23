@@ -19,7 +19,9 @@
         "site-capabilities-api",
         "permissions-api",
         "auth-api",
-        "gms"
+        "gms",
+        "compute-api",
+        "accounting-api"
       ],
       "default": null,
       "required": true

@@ -26,7 +26,8 @@
         "canfar",
         "carta",
         "prepare_data",
-        "gaussconv"
+        "gaussconv",
+        "cavern"
       ],
       "default": null,
       "required": true
