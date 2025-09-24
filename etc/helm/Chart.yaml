@@ -1,9 +1,9 @@
 apiVersion: v2
-name: ska-src-site-capabilities-api
-description: A helm chart for ska-src-site-capabilities-api deployment
+name: scapi
+description: A helm chart for scapi deployment
 type: application
-version: 0.3.72
-appVersion: 0.3.72
+version: 0.3.73
+appVersion: 0.3.73
 maintainers:
   - name: Rob Barnsley
     email: rob.barnsley@skao.int

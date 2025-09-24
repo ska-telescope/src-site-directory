@@ -21,7 +21,7 @@ services:
 
   scapi-core:
     container_name: scapi-core
-    image: ska-src-site-capabilities-api-core:latest
+    image: scapi-core:latest
     env_file:
       - .env
     environment:
@@ -54,4 +54,3 @@ services:
       timeout: 10s
       retries: 5
       start_period: 5s
-

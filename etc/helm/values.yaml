@@ -1,9 +1,21 @@
+global:
+  minikube: true
+  retry:
+    - "--tries=10"
+    - "--sleep=5"
+
+labels:
+  app: scapi
+
+annotations:
+  app.gitlab.com/app: CI_PROJECT_PATH_SLUG
+
 svc:
   api:
     image:
       registry: artefact.skao.int
-      image: ska-src-site-capabilities-api-core
-      tag: 0.3.72
+      image: scapi-core
+      tag: 0.3.73
       pullPolicy: Always
     root_path: /api
     scheme: https
