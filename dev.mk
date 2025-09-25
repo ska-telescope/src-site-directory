@@ -2,7 +2,7 @@ CLUSTER_DOMAIN=cluster.local
 
 ## Bespoke chart configuration for deployment in dev context (k8s.mk)
 K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
-	--set svc.api.image.image=$(PROJECT_NAME)-core \
+	--set svc.api.image.image=$(PROJECT)-core \
 	--set svc.api.image.pullPolicy=Never \
 	--set svc.api.image.tag=$(VERSION) \
 	--set persistence.storageClass=standard

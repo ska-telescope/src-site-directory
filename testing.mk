@@ -6,7 +6,7 @@ PYTHON_SWITCHES_FOR_FLAKE8=--ignore=F401,F811,F821,W503
 PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503,W0212
 
 # Configuration items for k8s deployment testing (k8s.mk)
-PROJECT=ska-src-site-capabilities-api
+PROJECT=scapi
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 K8S_TEST_IMAGE_TO_TEST=python:3.8-slim-buster	# the image used by the test runner inside the deployment environment
 
