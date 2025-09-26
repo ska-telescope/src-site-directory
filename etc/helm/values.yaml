@@ -15,7 +15,7 @@ svc:
     image:
       registry: artefact.skao.int
       image: scapi-core
-      tag: 0.3.73
+      tag: 0.3.74
       pullPolicy: Always
     root_path: /api
     scheme: https
