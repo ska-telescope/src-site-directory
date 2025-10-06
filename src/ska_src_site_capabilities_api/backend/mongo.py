@@ -122,6 +122,7 @@ class MongoBackend(Backend):
                             "prefix": protocol.get("prefix"),
                             "port": protocol.get("port"),
                             **storage_area,
+                            "type": f"{storage_area.get('type', '').upper()}-T{storage_area.get('tier', '0')}"
                         }
                     )
 
