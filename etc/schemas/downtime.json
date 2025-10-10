@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Downtime scheduler schema.",
+  "properties": {
+    "node": {
+      "type": "string",
+      "title": "Node",
+      "description": "Node affected by the downtime.",
+      "default": null
+    },
+    "site": {
+      "type": "string",
+      "title": "Site",
+      "description": "Site affected by the downtime.",
+      "default": null
+    },
+    "resourceType": {
+      "type": "string",
+      "title": "Resource Type",
+      "description": "Type of resource affected.",
+      "default": null
+    },
+    "specificResource": {
+      "type": "string",
+      "title": "Specific Resource",
+      "description": "Specific resource affected.",
+      "default": null
+    },
+    "startTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Start Time",
+      "description": "Downtime start time."
+    },
+    "endTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "End Time",
+      "description": "Downtime end time."
+    },
+    "timeType": {
+      "type": "string",
+      "title": "Time Type",
+      "enum": ["planned", "unplanned"],
+      "description": "Type of downtime (planned/unplanned)."
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason",
+      "description": "Reason for the downtime."
+    }
+  },
+  "required": ["startTime", "endTime", "reason"]
+}
+
