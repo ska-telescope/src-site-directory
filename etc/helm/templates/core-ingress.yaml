@@ -20,7 +20,7 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: {{ .Release.Name }}-core-svc
+            name: core
             port:
               number: {{ .Values.svc.api.containerPort }}
   ingressClassName: nginx

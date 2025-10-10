@@ -14,7 +14,7 @@ CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 @pytest.mark.component
 def test_list_storage_areas():
     """Test to list storage areas"""
-    response = httpx.get(f"http://test-core-svc.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas")  # noqa: E231
+    response = httpx.get(f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1/storage-areas")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 200
     else:

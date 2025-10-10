@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-core-svc
+  name: core
   namespace: {{ .Release.Namespace }}
   labels:
     io.kompose.service: core
