@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     io.kompose.service: core
-  name: core
+  name: {{ .Release.Name }}-core-deployment
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
@@ -39,18 +39,18 @@ spec:
         - name: API_IAM_CLIENT_AUDIENCE
           value: {{ .Values.svc.api.iam_client_audience }}
         - name: MONGO_DATABASE
-          value: {{ .Values.svc.common.mongo_database }}
+          value: {{ .Values.svc.mongo.mongo_database }}
         - name: MONGO_HOST
-          value: {{ .Values.svc.api.mongo_host }}
+          value: {{ .Values.svc.mongo.mongo_host }}
         - name: MONGO_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mongo-credentials
               key: password
         - name: MONGO_PORT
-          value: {{ .Values.svc.api.mongo_port | quote }}
+          value: {{ .Values.svc.mongo.mongo_port | quote }}
         - name: MONGO_USERNAME
-          value: {{ .Values.svc.common.mongo_username }}
+          value: {{ .Values.svc.mongo.mongo_username }}
         - name: MONGO_INIT_DATA_RELPATH
           value: {{ .Values.svc.api.mongo_init_data_relpath }}
         - name: PERMISSIONS_API_URL
@@ -74,7 +74,7 @@ spec:
         imagePullPolicy: {{ .Values.svc.api.image.pullPolicy }}
         name: scapi-core
         ports:
-        - containerPort: 8080
+        - containerPort: {{ .Values.svc.api.containerPort }}
         resources: {}
         livenessProbe:
           httpGet:

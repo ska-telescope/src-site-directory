@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: core
+  name: {{ .Release.Name }}-core-svc
   namespace: {{ .Release.Namespace }}
   labels:
     io.kompose.service: core
 spec:
   ports:
-  - port: 8080
+  - port: {{ .Values.svc.api.containerPort }}
     protocol: TCP
-    targetPort: 8080
+    targetPort: {{ .Values.svc.api.containerPort }}
   selector:
     io.kompose.service: core
   type: LoadBalancer

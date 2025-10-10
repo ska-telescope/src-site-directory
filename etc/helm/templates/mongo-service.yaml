@@ -3,13 +3,13 @@ kind: Service
 metadata:
   labels:
     io.kompose.service: mongo
-  name: mongo
+  name: {{ .Release.Name }}-mongo-svc
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-  - name: "27017"
-    port: 27017
-    targetPort: 27017
+  - name: "mongo-svc-port"
+    port: {{ .Values.svc.mongo.mongo_port }}
+    targetPort: {{ .Values.svc.mongo.mongo_port }}
   selector:
     io.kompose.service: mongo
   type: LoadBalancer

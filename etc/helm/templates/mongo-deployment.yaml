@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     io.kompose.service: mongo
-  name: mongo
+  name: {{ .Release.Name }}-mongo-deployment
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
@@ -20,25 +20,25 @@ spec:
       containers:
       - env:
         - name: MONGO_INITDB_DATABASE
-          value: {{ .Values.svc.common.mongo_database }}
+          value: {{ .Values.svc.mongo.mongo_database }}
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mongo-credentials
               key: password
         - name: MONGO_INITDB_ROOT_USERNAME
-          value: {{ .Values.svc.common.mongo_username }}
+          value: {{ .Values.svc.mongo.mongo_username }}
         - name: MONGO_HOST
-          value: {{ .Values.svc.api.mongo_host }}
+          value: {{ .Values.svc.mongo.mongo_host }}
         - name: MONGO_PORT
-          value: {{ .Values.svc.api.mongo_port | quote}}
+          value: {{ .Values.svc.mongo.mongo_port | quote}}
         - name: DISABLE_AUTHENTICATION
           value: {{ .Values.svc.api.disable_authentication | quote }}
-        image: mongo:5.0.15
-        imagePullPolicy: ""
+        image: {{ .Values.svc.mongo.image.image }}:{{ .Values.svc.mongo.image.tag }}
+        imagePullPolicy: {{ .Values.svc.mongo.image.pullPolicy }}
         name: scapi-mongo
         ports:
-        - containerPort: 27017
+        - containerPort: {{ .Values.svc.api.mongo_port }}
         resources: {}
         volumeMounts:
           - mountPath: /data/db

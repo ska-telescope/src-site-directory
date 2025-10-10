@@ -22,8 +22,6 @@ svc:
     iam_client_conf_url: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
     iam_client_scopes: "openid profile"
     iam_client_audience: site-capabilities-api
-    mongo_host: mongo
-    mongo_port: 27017
     mongo_init_data_relpath: etc/init
     permissions_api_url: https://permissions.srcnet.skao.int/api/v1
     permissions_service_name: site-capabilities-api
@@ -31,7 +29,13 @@ svc:
     auth_api_url: https://authn.srcnet.skao.int/api/v1
     sessions_secret_key:
     schemas_relpath: ../../../etc/schemas
-  common:
+    containerPort: 8080
+  mongo:
+    image: mongo
+    tag: 5.0.15
+    pullPolicy: Always
+    mongo_host: mongo
+    mongo_port: 27017
     mongo_database: site-capabilities
     mongo_username: root
 

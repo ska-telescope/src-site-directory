@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: core-ingress
+  name: {{ .Release.Name }}-core-ingress
   namespace: {{ .Release.Namespace }}
   labels:
     io.kompose.service: core
@@ -20,8 +20,8 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: core
+            name: {{ .Release.Name }}-core-svc
             port:
-              number: 8080
+              number: {{ .Values.svc.api.containerPort }}
   ingressClassName: nginx
 {{- end }}
