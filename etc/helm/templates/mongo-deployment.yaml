@@ -38,7 +38,7 @@ spec:
         imagePullPolicy: {{ .Values.svc.mongo.image.pullPolicy }}
         name: scapi-mongo
         ports:
-        - containerPort: {{ .Values.svc.api.mongo_port }}
+        - containerPort: {{ .Values.svc.mongo.mongo_port }}
         resources: {}
         volumeMounts:
           - mountPath: /data/db
