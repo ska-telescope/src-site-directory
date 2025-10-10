@@ -16,6 +16,7 @@
       <div id="token-timer"></div>
   </div>
   <form novalidate></form> <!-- novaldiate as issue with tabarrays/bootstrap: https://stackoverflow.com/questions/7168645/invalid-form-control-only-in-google-chrome# -->
+  <form id="downtime-scheduler-form" novalidate></form>
   <div id="alert" class="alert" role="alert"></div>
   <div id="values"/>
   <div id="footer"></div>
@@ -132,6 +133,30 @@
               }
           });
       });
+  </script>
+  <script type="text/javascript">
+  fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
+    .then(response => response.json())
+    .then(downtimeFormUi => {
+      $('#downtime-scheduler-form').jsonForm({
+        "schema": {{ downtime_schema | tojson }},
+        "form": downtimeFormUi,
+        "value": {
+          "node": "Node-123",
+          "site": "Site-XYZ",
+          "resourceType": "compute",
+          "specificResource": "Resource-456",
+          "startTime": "2025-10-10T09:00:00Z",
+          "endTime": "2025-10-10T17:00:00Z",
+          "timeType": "planned",
+          "reason": "Routine maintenance"
+        },
+        "validate": true,
+        onSubmit: function (formErrors, values) {
+          // handle submit for downtime scheduler
+        }
+      });
+    });
   </script>
 </body>
 </html>
