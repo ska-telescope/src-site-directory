@@ -31,9 +31,10 @@ svc:
     schemas_relpath: ../../../etc/schemas
     containerPort: 8080
   mongo:
-    image: mongo
-    tag: 5.0.15
-    pullPolicy: Always
+    image:
+      image: mongo
+      tag: 5.0.15
+      pullPolicy: Always
     mongo_host: mongo
     mongo_port: 27017
     mongo_database: site-capabilities
