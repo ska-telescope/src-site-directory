@@ -138,6 +138,8 @@
   fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
     .then(response => response.json())
     .then(downtimeFormUi => {
+      console.log('Downtime Form UI:', downtimeFormUi);
+      console.log('Downtime Schema:', {{ downtime_schema | tojson }});
       $('#downtime-scheduler-form').jsonForm({
         "schema": {{ downtime_schema | tojson }},
         "form": downtimeFormUi,
@@ -156,6 +158,9 @@
           // handle submit for downtime scheduler
         }
       });
+    })
+    .catch(err => {
+      console.error('Failed to load downtime form UI:', err);
     });
   </script>
 </body>
