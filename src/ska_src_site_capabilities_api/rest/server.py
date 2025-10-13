@@ -1592,7 +1592,6 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
         # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as
         # [Object object].
         node = recursive_stringify(node)
-        logging.info("the node is {}".format(node))
 
         return TEMPLATES.TemplateResponse(
             "node.html",
