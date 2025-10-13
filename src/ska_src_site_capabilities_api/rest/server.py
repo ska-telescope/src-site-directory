@@ -2,6 +2,7 @@ import asyncio
 import copy
 import io
 import json
+import logging
 import os
 import pathlib
 import tempfile
@@ -1506,7 +1507,9 @@ async def add_node_form(
 
         # Load schema.
         schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
-
+        downtime_schema = load_and_dereference_schema(
+            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")).absolute()
+        )
         # Remove sites
         schema.get("properties", {}).pop("sites")
 
@@ -1518,6 +1521,9 @@ async def add_node_form(
                 "schema": schema,
                 "title": "Add SRCNet Node",
                 "form_name": "add-node-form-ui.js",
+                "downtime_schema": downtime_schema,
+                "downtime_scheduler_form": "downtime-scheduler-form-ui.js",
+                "downtime_values": {},
                 "submit_form_endpoint": get_url_for_app_from_request(
                     "add_node",
                     request,
@@ -1586,6 +1592,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
         # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as
         # [Object object].
         node = recursive_stringify(node)
+        logging.info("the node is {}".format(node))
 
         return TEMPLATES.TemplateResponse(
             "node.html",
