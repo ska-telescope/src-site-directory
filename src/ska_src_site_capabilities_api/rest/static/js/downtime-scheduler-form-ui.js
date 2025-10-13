@@ -14,23 +14,11 @@
         ]
     },
     {
-        "type": "fieldset",
-        "title": "Define Downtime Period",
-        "items": [
-            {
-                "type": "section",
-                "htmlClass": "date-time-group",
-                "items": ["startTime", "endTime"]
-            },
-            {
-                "key": "timeType",
-                "type": "radios"
-            },
-            {
-                "key": "reason",
-                "type": "textarea"
-            }
-        ]
+        "title": "Select Downtime Start and End",
+        "key": "date_range",
+        "type": "text",
+        "placeholder": "Select date range",
+        "htmlClass": "datepicker"
     },
     {
         "type": "submit",
