@@ -12,13 +12,17 @@
      <img src="{{ base_url }}static/img/logo2.png"/>
      <h1>{{ title }}</h1>
      <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
-     <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ base_url }}'">Schedule Downtime</button>
-      <div id="token-timer"></div>
+     <button style="margin-bottom: 2rem;" type="button" onclick="toggleDowntimeForm()">Schedule Downtime</button>
+     <div id="token-timer"></div>
   </div>
-  <form novalidate></form> <!-- novaldiate as issue with tabarrays/bootstrap: https://stackoverflow.com/questions/7168645/invalid-form-control-only-in-google-chrome# -->
-  <form id="downtime-scheduler-form" novalidate></form>
+  <div id="edit-node">
+    <form novalidate></form>
+  </div>
+  <div id="downtime-form-wrapper" style="display: none;">
+    <form id="downtime-scheduler-form" novalidate></form>
+  </div>
   <div id="alert" class="alert" role="alert"></div>
-  <div id="values"/>
+  <div id="values"></div>
   <div id="footer"></div>
   <script type="text/javascript">
     function showAndDismissAlert(type, message) {
@@ -136,33 +140,54 @@
 
   </script>
   <script type="text/javascript">
-  fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
-    .then(response => response.json())
-    .then(downtimeFormUi => {
-      console.log('Downtime Form UI:', downtimeFormUi);
-      console.log('Downtime Schema:', {{ downtime_schema | tojson }});
-      $('#downtime-scheduler-form').jsonForm({
-        "schema": {{ downtime_schema | tojson }},
-        "form": downtimeFormUi,
-        "value": {
-          "node": "Node-123",
-          "site": "Site-XYZ",
-          "resourceType": "compute",
-          "specificResource": "Resource-456",
-          "startTime": "2025-10-10T09:00:00Z",
-          "endTime": "2025-10-10T17:00:00Z",
-          "timeType": "planned",
-          "reason": "Routine maintenance"
-        },
-        "validate": true,
-        onSubmit: function (formErrors, values) {
-          // handle submit for downtime scheduler
-        }
+    let schedule_downtime = false;
+    function toggleDowntimeForm() {
+      schedule_downtime = !schedule_downtime;
+      const wrapper = document.getElementById('downtime-form-wrapper');
+      const edit_node_form = document.getElementById('edit-node');
+      const downtime_button = document.querySelector('button[onclick="toggleDowntimeForm()"]');
+      if (schedule_downtime) {
+        wrapper.style.display = 'block';
+        edit_node_form.style.display = 'none';
+        showDowntimeForm();
+        downtime_button.textContent = 'Hide Downtime Form';
+      } else {
+        wrapper.style.display = 'none';
+        edit_node_form.style.display = 'block';
+        $('#downtime-scheduler-form').html('');
+        downtime_button.textContent = 'Schedule Downtime';
+      }
+      console.log('schedule_downtime updated to:', schedule_downtime);
+    }
+  </script>
+  <script type="text/javascript">
+  function showDowntimeForm() {
+      fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
+      .then(response => response.json())
+      .then(downtimeFormUi => {
+        $('#downtime-scheduler-form').jsonForm({
+          "schema": {{ downtime_schema | tojson }},
+          "form": downtimeFormUi,
+          "value": {
+            "node": "Node-123",
+            "site": "Site-XYZ",
+            "resourceType": "compute",
+            "specificResource": "Resource-456",
+            "startTime": "2025-10-10T09:00:00Z",
+            "endTime": "2025-10-10T17:00:00Z",
+            "timeType": "planned",
+            "reason": "Routine maintenance"
+          },
+          "validate": true,
+          onSubmit: function (formErrors, values) {
+            // handle submit for downtime scheduler
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Failed to load downtime form UI:', err);
       });
-    })
-    .catch(err => {
-      console.error('Failed to load downtime form UI:', err);
-    });
+  }
   </script>
 </body>
 </html>
