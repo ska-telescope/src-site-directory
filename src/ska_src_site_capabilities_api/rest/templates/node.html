@@ -51,7 +51,11 @@
   <script type="text/javascript" src="{{ base_url }}static/js/easepick.min.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/token.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/datepicker.js"></script>
-  <script>
+  <script type="text/javascript">
+    const downtime_values = {{ downtime_values | tojson }};
+    const downtime_schema = {{ downtime_schema | tojson }};
+  </script>
+  <script type="text/javascript">
     window.onload = function() {
         // start the token timer
         let token = "{{ access_token }}";
@@ -160,22 +164,53 @@
       console.log('schedule_downtime updated to:', schedule_downtime);
     }
   </script>
+
   <script type="text/javascript">
+
+    let siteEnum = [];
+    if (downtime_values.site && downtime_values.site.length > 0) {
+    siteOptions = {};
+    siteEnum = downtime_values.site.map(site1 => site1.name);
+    downtime_values.site.forEach(site1 => {
+      siteOptions[site1.name] = site1.description || 'No Description';
+
+    });
+  }
+
+  console.log('siteOptions:', siteOptions);
+
   function showDowntimeForm() {
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
       .then(downtimeFormUi => {
+
+        console.log("trying everything")
+        const identifyTargetFieldset = downtimeFormUi.find(fs => fs.title === 'Identify the Downtime Target');
+        if (!identifyTargetFieldset) {
+        }
+
+        if (identifyTargetFieldset && identifyTargetFieldset.items) {
+          const siteField = identifyTargetFieldset.items.find(item => item.key === 'site');
+
+          if (siteField) {
+            siteField.titleMap = siteOptions;
+          }
+
+        }
+        if(!downtime_schema.properties.site) {
+          console.error("CRITICAL: downtime_schema is undefined. Check server-side rendering.");
+          return;
+        }
+
+        // if (downtime_schema.properties && downtime_schema.properties.site) {
+        //   downtime_schema.properties.site.enum = siteEnum;
+        //   console.log(downtime_schema)
+        // }
+
         $('#downtime-scheduler-form').jsonForm({
-          "schema": {{ downtime_schema | tojson }},
+          "schema":{{downtime_schema | tojson }},
           "form": downtimeFormUi,
-          "value": {
-            "node": "Node-123",
-            "site": "Site-XYZ",
-            "resourceType": "compute",
-            "specificResource": "Resource-456",
-            "date_range": "2024-10-01 to 2024-10-02",
-            "reason": "Routine maintenance"
-          },
+          "value": {{ downtime_values | tojson }},
           "validate": true,
           onSubmit: function (formErrors, values) {
             // handle submit for downtime scheduler
