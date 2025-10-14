@@ -8,7 +8,13 @@
         "title": "Identify the Downtime Target",
         "items": [
             "node",
-            "site",
+            {
+                "key": "site",
+                "title": "Affected Site",
+                "type": "select",
+                "titleMap": [
+                ]
+            },
             "resourceType",
             "specificResource"
         ]
