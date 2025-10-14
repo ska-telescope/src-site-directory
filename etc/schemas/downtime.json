@@ -10,9 +10,12 @@
       "default": null
     },
     "site": {
-      "type": "string",
+      "type": "select",
       "title": "Site",
       "description": "Site affected by the downtime.",
+      "enum": [
+       "site a",
+      "site b"],
       "default": null
     },
     "resourceType": {
