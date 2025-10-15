@@ -54,6 +54,7 @@
   <script type="text/javascript">
     const downtime_values = {{ downtime_values | tojson }};
     const downtime_schema = {{ downtime_schema | tojson }};
+    const values = {{ values | tojson }};
   </script>
   <script type="text/javascript">
     window.onload = function() {
@@ -178,49 +179,72 @@
   }
 
   console.log('siteOptions:', siteOptions);
+    console.log('downtime_values:', values);
 
   function showDowntimeForm() {
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
       .then(downtimeFormUi => {
-
-        console.log("trying everything")
-        const identifyTargetFieldset = downtimeFormUi.find(fs => fs.title === 'Identify the Downtime Target');
-        if (!identifyTargetFieldset) {
-        }
-
-        if (identifyTargetFieldset && identifyTargetFieldset.items) {
-          const siteField = identifyTargetFieldset.items.find(item => item.key === 'site');
-
-          if (siteField) {
-            siteField.titleMap = siteOptions;
-          }
-
-        }
-        if(!downtime_schema.properties.site) {
-          console.error("CRITICAL: downtime_schema is undefined. Check server-side rendering.");
-          return;
-        }
-
-        // if (downtime_schema.properties && downtime_schema.properties.site) {
-        //   downtime_schema.properties.site.enum = siteEnum;
-        //   console.log(downtime_schema)
-        // }
-
-        $('#downtime-scheduler-form').jsonForm({
-          "schema":{{downtime_schema | tojson }},
+        downtime_schema.properties.site.enum = values.sites.map(site1 => site1.name);
+        const downtime_form = $('#downtime-scheduler-form')
+        downtime_form.jsonForm({
+          "schema":downtime_schema,
           "form": downtimeFormUi,
-          "value": {{ downtime_values | tojson }},
+          "value": downtime_values,
           "validate": true,
           onSubmit: function (formErrors, values) {
-            // handle submit for downtime scheduler
+            console.log(formErrors, values);
           }
+        });
+
+        downtime_form.on('change', 'select[name="resourceType"]', async  function() {
+          let value = $(this).val();
+          const options = await loadDynamicOptions(value);
+          const updatedSchema = { ...downtime_schema  };
+
+          const currentFormValues = downtime_form.jsonFormValue();
+          updatedSchema.properties.specificResource.enum = options;
+
+          downtime_form.html('');
+          downtime_form.jsonForm({
+            schema: updatedSchema,
+            form: downtimeFormUi,
+            value: currentFormValues,
+            validate: true,
+            onSubmit: function (formErrors, values) {
+              // handle submit
+            }
+          });
         });
       })
       .catch(err => {
         console.error('Failed to load downtime form UI:', err);
       });
+
+      async function loadDynamicOptions(resourceType) {
+          const siteSelected = $('select[name="site"]').val();
+          console.log(siteSelected, resourceType);
+          switch(resourceType) {
+                case 'sites':
+                    return values.sites.map(site1 => site1.name);
+              case 'compute':
+                  let site = values.sites.find(site1 => site1.name === siteSelected);
+                  return site.compute.map(compute => compute.name || compute.description);
+              case 'storages':
+                  let siteForStorage = values.sites.find(site1 => site1.name === siteSelected);
+                  return siteForStorage.storages.map(storage => storage.host);
+              case 'storage-areas':
+                  let siteForStorageArea = values.sites.find(site1 => site1.name === siteSelected);
+                  return siteForStorageArea.storages.reduce((areas, storage) => {
+                      storage.areas.forEach(area => {
+                          areas.push(`${storage.host} - ${area.name}`);
+                      });
+                      return areas;
+                  }, []);
+          }
+      }
   }
+
   </script>
 </body>
 </html>

@@ -12,10 +12,18 @@
                 "key": "site",
                 "title": "Affected Site",
                 "type": "select",
-                "titleMap": [
-                ]
+                "titleMap": []
             },
-            "resourceType",
+            {
+                "key": "resourceType",
+                "titleMap": {
+                    "sites": "Site",
+                    "compute": "Compute Resource",
+                    "storages": "Storage Resource",
+                    "storage-areas": "Stoage Areas",
+                    "other": "Other Resource"
+                }
+            },
             "specificResource"
         ]
     },
