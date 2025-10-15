@@ -6,8 +6,7 @@
     "node": {
       "type": "string",
       "title": "Node",
-      "description": "Node affected by the downtime.",
-      "default": null
+      "description": "Node affected by the downtime."
     },
     "site": {
       "type": "select",
