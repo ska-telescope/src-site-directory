@@ -3,11 +3,6 @@
         "type": "fieldset",
         "title": "Downtime Management Form"
     },
-
-    {
-        "key": "node",
-        "readOnly": true
-    },
     {
         "key": "site",
         "title": "Affected Site",
@@ -20,11 +15,19 @@
             "sites": "Site",
             "compute": "Compute Resource",
             "storages": "Storage Resource",
-            "storage-areas": "Stoage Areas",
-            "other": "Other Resource"
+            "storage_areas": "Stoage Areas",
+            "compute_local_services": "Compute Local Services",
+            "compute_global_services": "Compute Global Services"
         }
     },
-    {"key": "specificResource", "titleMap": {}},
+    {
+        "key": "specificResource",
+        "titleMap": {}
+    },
+    {
+        "key": "type",
+        "title": "Type of Downtime"
+    },
     {
         "type": "text",
         "title": "Reason for Downtime",
