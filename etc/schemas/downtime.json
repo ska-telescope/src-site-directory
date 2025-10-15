@@ -3,37 +3,36 @@
   "type": "object",
   "description": "Downtime scheduler schema.",
   "properties": {
-    "node": {
-      "type": "string",
-      "title": "Node",
-      "description": "Node affected by the downtime."
-    },
     "site": {
       "type": "select",
       "title": "Site",
-      "description": "Site affected by the downtime.",
-      "enum": [
-       "site a",
-      "site b"],
       "default": null
     },
     "resourceType": {
       "type": "string",
       "title": "Resource Type",
-      "description": "Type of resource affected.",
-        "enum": [
-            "sites",
-            "storages",
-            "storage-areas",
-            "compute",
-            "other"
-        ]
+      "enum": [
+        "sites",
+        "storages",
+        "storage_areas",
+        "compute",
+        "compute_local_services",
+        "compute_global_services"
+      ]
     },
     "specificResource": {
       "type": "string",
       "title": "Specific Resource",
-      "description": "Specific resource affected.",
       "default": null
+    },
+    "type": {
+      "title": "Type",
+      "enum": [
+        "Planned",
+        "Unplanned"
+      ],
+      "default": "Planned",
+      "required": true
     },
     "date_range": {
       "type": "text",
@@ -42,10 +41,12 @@
     },
     "reason": {
       "type": "string",
-      "title": "Reason",
-      "description": "Reason for the downtime."
+      "title": "Reason"
     }
   },
-  "required": ["date_range", "reason"]
+  "required": [
+    "date_range",
+    "reason"
+  ]
 }
 
