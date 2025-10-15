@@ -162,7 +162,6 @@
         $('#downtime-scheduler-form').html('');
         downtime_button.textContent = 'Schedule Downtime';
       }
-      console.log('schedule_downtime updated to:', schedule_downtime);
     }
   </script>
 
@@ -177,7 +176,6 @@
         downtime_form.jsonForm({
           "schema": downtime_schema,
           "form": downtimeFormUi,
-          "value": { "node": `${values.name}` },
           "validate": true,
           onSubmit: function (formErrors, values) {
             alert("hello")
@@ -185,43 +183,14 @@
         });
 
         downtime_form.on('change', 'select[name="resourceType"]', function() {
-          const resourceType = $(this).val();
-          const options = loadDynamicOptions(resourceType, values);
-          const updatedSchema = { ...downtime_schema  };
-
-          const currentFormValues = downtime_form.jsonFormValue();
-          console.log(options)
-
-          updatedSchema.properties.specificResource.enum = Object.keys(options);
-
-          const updatedFormUi = downtimeFormUi.map(item => {
-                if (item.key === "specificResource") {
-                    console.log("updated specificResource", options);
-                    return { ...item, titleMap: options};
-                }
-                return item;
-            });
-
-          console.log(updatedFormUi);
-
-          downtime_form.html('');
-          downtime_form.jsonForm({
-            schema: updatedSchema,
-            form: updatedFormUi,
-            value: currentFormValues,
-            validate: true,
-            onSubmit: function (formErrors, values) {
-                alert("hello")
-              // handle submit
-            }
-          });
+            const resourceType = $(this).val();
+            reinitializeForm(resourceType, values, downtime_form, downtimeFormUi);
         });
       })
       .catch(err => {
         console.error('Failed to load downtime form UI:', err);
       });
   }
-
   </script>
 </body>
 </html>
