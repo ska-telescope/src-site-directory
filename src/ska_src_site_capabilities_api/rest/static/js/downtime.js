@@ -47,7 +47,7 @@ function loadDynamicOptions(resourceType, values) {
     return options;
 }
 
-function reinitializeForm(resourceType, values, downtime_form, downtimeFormUi) {
+function reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi) {
     const options = loadDynamicOptions(resourceType, values);
     const updatedSchema = {...downtime_schema};
 
@@ -73,3 +73,6 @@ function reinitializeForm(resourceType, values, downtime_form, downtimeFormUi) {
         }
     });
 }
+
+
+
