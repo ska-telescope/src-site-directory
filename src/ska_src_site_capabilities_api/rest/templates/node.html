@@ -163,11 +163,7 @@
         downtime_button.textContent = 'Schedule Downtime';
       }
     }
-  </script>
-
-  <script type="text/javascript">
-
-  function showDowntimeForm() {
+    function showDowntimeForm() {
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
       .then(downtimeFormUi => {
@@ -184,13 +180,13 @@
 
         downtime_form.on('change', 'select[name="resourceType"]', function() {
             const resourceType = $(this).val();
-            reinitializeForm(resourceType, values, downtime_form, downtimeFormUi);
+            reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi);
         });
       })
       .catch(err => {
         console.error('Failed to load downtime form UI:', err);
       });
-  }
+    }
   </script>
 </body>
 </html>
