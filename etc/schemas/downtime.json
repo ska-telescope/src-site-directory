@@ -22,7 +22,13 @@
       "type": "string",
       "title": "Resource Type",
       "description": "Type of resource affected.",
-      "default": null
+        "enum": [
+            "sites",
+            "storages",
+            "storage-areas",
+            "compute",
+            "other"
+        ]
     },
     "specificResource": {
       "type": "string",
