@@ -47,8 +47,8 @@ function loadDynamicOptions(resourceType, values) {
     return options;
 }
 
-function reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi) {
-    const options = loadDynamicOptions(resourceType, values);
+function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, downtimeFormUi) {
+    const options = loadDynamicOptions(resourceType, node_values);
     const updatedSchema = {...downtime_schema};
 
     const currentFormValues = downtime_form.jsonFormValue();
@@ -68,11 +68,107 @@ function reinitialiseWithNewOptions(resourceType, values, downtime_form, downtim
         value: currentFormValues,
         validate: true,
         onSubmit: function (formErrors, values) {
-            alert("hello")
-            // handle submit
+            console.log("calling update with values");
+            updateNodeJson(node_values, values);
         }
     });
 }
 
 
+function updateNodeJson(node_values, form_values) {
+    const {site, resourceType, specificResource, type, date_range, reason} = form_values;
+    console.log(site, resourceType, specificResource, type, date_range, reason);
+
+    switch (resourceType) {
+        case 'sites':
+            node_values.sites.forEach(s => {
+                if (s.id === specificResource) {
+                    s.downtime = s.downtime || [];
+                    s.downtime.push({
+                        type: type,
+                        reason: reason,
+                        date_range: date_range
+                    });
+                }
+            });
+            break;
+        case 'compute' :
+            node_values.sites.forEach(site => {
+                site.compute.forEach(s => {
+                    if (s.id === specificResource) {
+                        s.downtime = s.downtime || [];
+                        s.downtime.push({
+                            type: type,
+                            reason: reason,
+                            date_range: date_range
+                        });
+                    }
+                })
+            })
+            break;
+        case 'storages'  :
+            node_values.sites.forEach(site => {
+                site.storages.forEach(s => {
+                    if (s.id === specificResource) {
+                        s.downtime = s.downtime || [];
+                        s.downtime.push({
+                            type: type,
+                            reason: reason,
+                            date_range: date_range
+                        });
+                    }
+                })
+            })
+            break;
+        case 'storage_areas'  :
+            node_values.sites.forEach(site => {
+                site.storages.forEach(s => {
+                    s.areas.forEach(a => {
+                        if (a.id === specificResource) {
+                            a.downtime = a.downtime || [];
+                            a.downtime.push({
+                                type: type,
+                                reason: reason,
+                                date_range: date_range
+                            });
+                        }
+                    })
+                })
+            })
+            break;
+        case 'compute_local_services'  :
+            node_values.sites.forEach(site => {
+                site.compute.forEach(s => {
+                    s.associated_local_services.forEach(a => {
+                        if (a.id === specificResource) {
+                            a.downtime = a.downtime || [];
+                            a.downtime.push({
+                                type: type,
+                                reason: reason,
+                                date_range: date_range
+                            });
+                        }
+                    })
+                })
+            })
+            break;
+        case 'compute_global_services'   :
+            node_values.sites.forEach(site => {
+                site.compute.forEach(s => {
+                    s.associated_global_services.forEach(a => {
+                        if (a.id === specificResource) {
+                            a.downtime = a.downtime || [];
+                            a.downtime.push({
+                                type: type,
+                                reason: reason,
+                                date_range: date_range
+                            });
+                        }
+                    })
+                })
+            })
+            break;
+    }
+    console.log(node_values);
+}
 
