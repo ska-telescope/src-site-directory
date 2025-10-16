@@ -163,6 +163,8 @@
         downtime_button.textContent = 'Schedule Downtime';
       }
     }
+
+    console.log(values)
     function showDowntimeForm() {
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
@@ -174,7 +176,6 @@
           "form": downtimeFormUi,
           "validate": true,
           onSubmit: function (formErrors, values) {
-            alert("hello")
           }
         });
 
