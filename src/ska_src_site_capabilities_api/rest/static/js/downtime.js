@@ -74,98 +74,48 @@ function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, do
     });
 }
 
+function addDowntime(resources, id, downtime) {
+    const resource = resources.find(_ => _.id === id);
+    if (resource) {
+        resource.downtime ??= [];
+        resource.downtime.push(downtime);
+    }
+}
 
 function updateNodeJson(node_values, form_values) {
     const {site, resourceType, specificResource, type, date_range, reason} = form_values;
-    console.log(site, resourceType, specificResource, type, date_range, reason);
+
+    const affectedSite = node_values.sites.find(s => s.name === site);
+    const downtime = {
+        type: type,
+        reason: reason,
+        date_range: date_range
+    };
 
     switch (resourceType) {
         case 'sites':
-            node_values.sites.forEach(s => {
-                if (s.id === specificResource) {
-                    s.downtime = s.downtime || [];
-                    s.downtime.push({
-                        type: type,
-                        reason: reason,
-                        date_range: date_range
-                    });
-                }
-            });
+            affectedSite.downtime ??= [];
+            affectedSite?.downtime.push(downtime);
             break;
         case 'compute' :
-            node_values.sites.forEach(site => {
-                site.compute.forEach(s => {
-                    if (s.id === specificResource) {
-                        s.downtime = s.downtime || [];
-                        s.downtime.push({
-                            type: type,
-                            reason: reason,
-                            date_range: date_range
-                        });
-                    }
-                })
-            })
+            addDowntime(affectedSite?.compute, specificResource, downtime)
             break;
         case 'storages'  :
-            node_values.sites.forEach(site => {
-                site.storages.forEach(s => {
-                    if (s.id === specificResource) {
-                        s.downtime = s.downtime || [];
-                        s.downtime.push({
-                            type: type,
-                            reason: reason,
-                            date_range: date_range
-                        });
-                    }
-                })
-            })
+            addDowntime(affectedSite?.storages, specificResource, downtime)
             break;
         case 'storage_areas'  :
-            node_values.sites.forEach(site => {
-                site.storages.forEach(s => {
-                    s.areas.forEach(a => {
-                        if (a.id === specificResource) {
-                            a.downtime = a.downtime || [];
-                            a.downtime.push({
-                                type: type,
-                                reason: reason,
-                                date_range: date_range
-                            });
-                        }
-                    })
-                })
+            affectedSite?.storages.forEach(storage => {
+                addDowntime(storage.areas, specificResource, downtime)
             })
             break;
         case 'compute_local_services'  :
-            node_values.sites.forEach(site => {
-                site.compute.forEach(s => {
-                    s.associated_local_services.forEach(a => {
-                        if (a.id === specificResource) {
-                            a.downtime = a.downtime || [];
-                            a.downtime.push({
-                                type: type,
-                                reason: reason,
-                                date_range: date_range
-                            });
-                        }
-                    })
-                })
+            affectedSite?.compute.forEach(compute => {
+                addDowntime(compute.associated_local_services, specificResource, downtime)
             })
             break;
         case 'compute_global_services'   :
-            node_values.sites.forEach(site => {
-                site.compute.forEach(s => {
-                    s.associated_global_services.forEach(a => {
-                        if (a.id === specificResource) {
-                            a.downtime = a.downtime || [];
-                            a.downtime.push({
-                                type: type,
-                                reason: reason,
-                                date_range: date_range
-                            });
-                        }
-                    })
-                })
+            affectedSite?.compute.forEach(compute => {
+                addDowntime(compute.associated_global_services, specificResource, downtime)
             })
             break;
     }
