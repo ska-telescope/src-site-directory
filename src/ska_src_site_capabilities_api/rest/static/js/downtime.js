@@ -47,7 +47,7 @@ function loadDynamicOptions(resourceType, values) {
     return options;
 }
 
-function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, downtimeFormUi) {
+function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl) {
     const options = loadDynamicOptions(resourceType, node_values);
     const updatedSchema = {...downtime_schema};
 
@@ -68,10 +68,76 @@ function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, do
         value: currentFormValues,
         validate: true,
         onSubmit: function (formErrors, values) {
-            console.log("calling update with values");
+            if (formErrors) {
+                let fieldPath = formErrors[0].uri.split('#/')[1];
+                let message = `The field <b>${fieldPath}</b> failed validation: ${formErrors[0].message}.`;
+                showAndDismissAlert('danger', message);
+                return; // Stop execution on validation error
+            }
+
             updateNodeJson(node_values, values);
+            console.log("node values are" , node_values);
+
+            let jsonParsingErrors = parseOtherAttributes(node_values);
+
+            if (jsonParsingErrors.length > 0) {
+                let message = `The field <b>${jsonParsingErrors[0].uri}</b> failed validation: ${jsonParsingErrors[0].message}.`;
+                showAndDismissAlert('danger', message);
+                // Stop execution if parsing fails
+                return;
+            }
+            // --- REUSED LOGIC: AJAX Submission ---
+            else {
+                $.ajax({
+                    url: editNodeEndpointUrl, // Use the specific endpoint URL passed to the function
+                    data: JSON.stringify(node_values),
+                    type: 'POST', // Assuming your API uses POST for edits/updates. Change to 'PUT' if necessary.
+                    headers: {
+                        // Use the access token passed to the function
+                        "Authorization": token
+                    },
+                    success: function (data) {
+                        showAndDismissAlert('success', 'Node successfully edited after downtime schedule.')
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        // Display server error
+                        showAndDismissAlert('danger', xhr.responseText)
+                    }
+                });
+            }
         }
-    });
+        });
+}
+
+function parseOtherAttributes(obj, parentPath = '') {
+    let errors = [];
+
+    function recursiveParse(obj, currentPath) {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                let newPath = currentPath ? `${currentPath}/${key}` : key;
+
+                if (key === "other_attributes" && typeof obj[key] === "string") {
+                    try {
+                        if (obj[key] === "") {
+                            obj[key] = "{}";
+                        }
+                        obj[key] = JSON.parse(obj[key]);  // Parse and replace
+                    } catch (error) {
+                        errors.push({
+                            uri: newPath, // More readable path
+                            message: error.message
+                        });
+                    }
+                } else if (typeof obj[key] === "object" && obj[key] !== null) {
+                    recursiveParse(obj[key], newPath);  // Recursively track path
+                }
+            }
+        }
+    }
+
+    recursiveParse(obj, parentPath);
+    return errors.length > 0 ? errors : false;
 }
 
 function addDowntime(resources, id, downtime) {
@@ -121,4 +187,3 @@ function updateNodeJson(node_values, form_values) {
     }
     console.log(node_values);
 }
-
