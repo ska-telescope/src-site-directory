@@ -164,8 +164,9 @@
       }
     }
 
-    console.log(values)
-    function showDowntimeForm() {
+    function showDowntimeForm(){
+      let token = `Bearer {{ access_token }}`
+      let editNodeEndpointUrl = "{{ edit_node_endpoint_url }}";
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
       .then(downtimeFormUi => {
@@ -181,7 +182,7 @@
 
         downtime_form.on('change', 'select[name="resourceType"]', function() {
             const resourceType = $(this).val();
-            reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi);
+            reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl);
         });
       })
       .catch(err => {
