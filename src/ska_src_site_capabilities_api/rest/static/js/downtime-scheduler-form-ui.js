@@ -15,7 +15,7 @@
             "sites": "Site",
             "compute": "Compute Resource",
             "storages": "Storage Resource",
-            "storage_areas": "Stoage Areas",
+            "storage_areas": "Storage Areas",
             "compute_local_services": "Compute Local Services",
             "compute_global_services": "Compute Global Services"
         }
@@ -26,7 +26,7 @@
     },
     {
         "key": "type",
-        "title": "Type of Downtime"
+        "title": "Type of Downtime" 
     },
     {
         "type": "text",
