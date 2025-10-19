@@ -31,8 +31,8 @@
         "Planned",
         "Unplanned"
       ],
-      "default": "Planned",
-      "required": true
+      "required": true,
+      "default": "Planned"
     },
     "date_range": {
       "type": "text",
@@ -41,12 +41,9 @@
     },
     "reason": {
       "type": "string",
-      "title": "Reason"
+      "title": "Reason",
+      "required": true
     }
-  },
-  "required": [
-    "date_range",
-    "reason"
-  ]
+  }
 }
 

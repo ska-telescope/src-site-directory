@@ -76,8 +76,6 @@ function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, do
             }
 
             updateNodeJson(node_values, values);
-            console.log("node values are" , node_values);
-
             let jsonParsingErrors = parseOtherAttributes(node_values);
 
             if (jsonParsingErrors.length > 0) {
@@ -185,5 +183,5 @@ function updateNodeJson(node_values, form_values) {
             })
             break;
     }
-    console.log(node_values);
+
 }
