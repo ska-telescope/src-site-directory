@@ -166,7 +166,8 @@
 
     function showDowntimeForm(){
       let token = `Bearer {{ access_token }}`
-      let editNodeEndpointUrl = "{{ edit_node_endpoint_url }}";
+      let editNodeEndpointUrl = "{{ submit_form_endpoint }}";
+
       fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
       .then(response => response.json())
       .then(downtimeFormUi => {
@@ -180,6 +181,8 @@
           }
         });
 
+        reinitialiseWithNewOptions("sites", values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl);
+
         downtime_form.on('change', 'select[name="resourceType"]', function() {
             const resourceType = $(this).val();
             reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl);
@@ -191,4 +194,4 @@
     }
   </script>
 </body>
-</html>
+</html>=
