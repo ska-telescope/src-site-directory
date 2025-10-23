@@ -1,178 +1,191 @@
 [
   {
-    "name": "SWESRC",
-    "description": "Swedish SRC",
+    "name": "AUSSRC",
+    "description": "Australian SRC",
     "comments": "",
-    "version": 1,
     "sites": [
       {
-        "name": "SWESRC",
-        "comments": "",
-        "description": "Swedish SRC",
-        "country": "SE",
-        "primary_contact_email": "vitlacil@chalmers.se",
-        "secondary_contact_email": "franz.kirsten@chalmers.se",
+        "id": "27aefd16-3c8d-4403-8f05-9ad42200701c",
+        "name": "AUSSRC",
+        "description": "Australian SRC",
+        "country": "AU",
+        "latitude": -31.9529,
+        "longitude": 115.8613,
+        "primary_contact_email": "rini.angreani@curtin.edu.au",
+        "secondary_contact_email": "gordon.german@csiro.au",
         "storages": [
           {
-            "id": "e9e8b38b-7131-495a-9ed4-c2578e7ce831",
-            "host": "xrootd-01.swesrc.chalmers.se",
-            "base_path": "/data",
-            "srm": "xrd",
-            "device_type": "hdd",
-            "size_in_terabytes": 50,
+            "id": "d46c5c0f-96f0-4a9f-9fe6-02f541b6938e",
+            "host": "storm-webdav-oracle.aussrc.org",
+            "base_path": "/sa",
+            "srm": "storm",
+            "device_type": "",
+            "size_in_terabytes": 4,
+            "name": "AUSSRC",
             "supported_protocols": [
               {
                 "prefix": "https",
-                "port": 1094
+                "port": 8443
               }
             ],
             "areas": [
               {
-                "id": "26fd7cac-8baa-4bd7-87a5-804bf69642e0",
+                "id": "f1902d12-9c48-4673-a55a-7e7d05b6c57b",
                 "type": "rse",
-                "relative_path": "https://xrootd-01.swesrc.chalmers.se:1094/data",
-                "name": "SWESRC-OSO-T1",
+                "relative_path": "/storage",
+                "name": "AUSSRC_STORM",
                 "tier": 1,
-                "other_attributes": {},
-                "downtime": [],
+                "other_attributes": "",
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
-          },
+          }
+        ],
+        "other_attributes": "",
+        "is_force_disabled": false
+      }
+    ],
+    "last_updated_at": "2025-08-08T03:26:44.332148",
+    "last_updated_by_username": "riniangreani",
+    "version": 1
+  },
+  {
+    "name": "CANSRC",
+    "description": "Canadian SRC",
+    "comments": "",
+    "sites": [
+      {
+        "id": "be13724c-3623-46b3-bc12-a7dd537a27cd",
+        "name": "CANSRC",
+        "description": "Canadian SRC",
+        "country": "CA",
+        "latitude": 48.46344749985603,
+        "longitude": -123.31225676879588,
+        "primary_contact_email": "john.ouellette@nrc-cnrc.gc.ca",
+        "secondary_contact_email": "Dustin.Jenkins@nrc-cnrc.gc.ca",
+        "storages": [
           {
-            "id": "377ccaa5-ddec-4caf-9fcb-502bc0526664",
-            "host": "xrootd-02.swesrc.chalmers.se",
+            "id": "1ace961a-7be6-415a-9f65-5c670906c738",
+            "host": "humpback.rcs.uvic.ca",
             "base_path": "/data",
             "srm": "xrd",
             "device_type": "hdd",
-            "size_in_terabytes": 30,
+            "size_in_terabytes": 500,
+            "name": "CASRC_XRD",
             "supported_protocols": [
               {
                 "prefix": "https",
-                "port": 1094
+                "port": 8181
               }
             ],
             "areas": [
               {
-                "id": "a0eae585-521b-4be2-86a2-d0ff8b33f38d",
+                "id": "04432c25-8574-44b1-ad1f-6ee88f794711",
                 "type": "rse",
-                "relative_path": "https://xrootd-02.swesrc.chalmers.se:1094/data",
-                "name": "SWESRC-OSO-T0",
+                "relative_path": "/dev/deterministic",
+                "name": "CASRC_XRD",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
+                "environments": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
-            "id": "1bc84c20-b8fd-451b-a923-ac4d275ffa9f",
+            "id": "452768b4-d2da-4159-a0c3-3baa8d40ae5c",
+            "compute_units": 42,
             "hardware_type": "container",
-            "compute_units": 0,
-            "description": "Resources on our k8s-cluster running in an OpenStack environemnt.",
+            "description": "Canadian Astronomy Data Centre",
             "associated_local_services": [
               {
-                "id": "823148a0-93e2-43a6-a175-6aff1cf175cf",
+                "id": "0dddb922-b67e-4629-9b6f-2349d04350fe",
                 "type": "echo",
-                "prefix": "https://",
-                "host": "gatekeeper.swesrc.chalmers.se",
-                "path": "/gatekeeper-echo",
+                "prefix": "https",
+                "host": "src.canfar.net",
+                "path": "/echo",
+                "name": "CANSRC ECHO",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
+                "environments": [],
                 "is_force_disabled": false
               },
               {
-                "id": "453878d7-abf4-4f04-8de9-ae4a5eb1fa88",
-                "type": "jupyterhub",
-                "prefix": "https://",
-                "host": "services.swesrc.chalmers.se",
-                "path": "/jupyterhub/",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "4cf4d8c6-ddfc-4b53-84fe-c39f3a0992f2",
-                "type": "canfar",
-                "prefix": "https://",
-                "host": "services.swesrc.chalmers.se",
-                "path": "/science-portal",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "2f5b834a-37e2-4859-9cbc-a93aa074f735",
+                "id": "cfce5f46-f034-4dd8-adb9-5cc96cf63cc9",
                 "type": "soda_sync",
-                "prefix": "https://",
-                "host": "gatekeeper.swesrc.chalmers.se",
+                "version": "1.7",
+                "prefix": "https",
+                "host": "src.canfar.net",
                 "path": "/soda",
+                "name": "CANSRC SODA",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
+                "environments": [],
                 "is_force_disabled": false
               },
               {
-                "id": "28783140-6b0c-4aa7-a707-2094931f9a2b",
-                "type": "perfsonar",
-                "prefix": "https://",
-                "host": "perfsonar-c.swesrc.chalmers.se",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "5b1a92f1-d630-409c-ae1d-9fbb428dd639",
+                "id": "2b9f8215-9aec-4554-9a1d-ed87bd0e9cf7",
                 "type": "prepare_data",
                 "prefix": "https",
-                "host": "gatekeeper.swesrc.chalmers.se",
+                "host": "src.canfar.net",
                 "port": 443,
                 "path": "/preparedata",
+                "associated_storage_area_id": "04432c25-8574-44b1-ad1f-6ee88f794711",
+                "name": "CANSRC Prepare Data",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
+                "environments": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "88bf27b4-e1f0-461c-9573-47f9b6170abc",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "src.canfar.net",
+                "path": "/science-portal",
+                "name": "CANSRC Science Portal",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-03-20T15:21:05.482185",
-        "created_by_username": "fkirsten",
-        "latitude": 57.6901921,
-        "longitude": 11.9755092,
-        "id": "ae4f721f-9769-4cf8-aabd-4eeaf7aa56f6",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-08-20T16:07:09.261800",
+    "last_updated_by_username": "jouellette",
+    "version": 1
   },
   {
     "name": "CHSRC",
     "description": "Swiss SRC",
     "comments": "",
-    "version": 1,
     "sites": [
       {
+        "id": "2e29cfea-7ebd-4257-875d-c307e1d74238",
         "name": "CHSRC",
-        "comments": "",
         "description": "Swiss SRC",
         "country": "CH",
-        "primary_contact_email": "pablo.llopis@epfl.ch",
-        "secondary_contact_email": "",
+        "latitude": 46.024498567725466,
+        "longitude": 8.960111183239013,
+        "primary_contact_email": "rohini.joshi@fhnw.ch",
+        "secondary_contact_email": "pablo.llopis@epfl.ch",
+        "downtime": [
+          {
+            "date_range": "2025-08-24T22:00:00.000Z to 2025-08-25T20:00:00.000Z",
+            "type": "Planned",
+            "reason": "Testing downtime in Grafana dashboard"
+          }
+        ],
         "storages": [
           {
             "id": "12a3ff8c-ee53-477f-949d-a6193ee51dfc",
@@ -185,10 +198,13 @@
               {
                 "prefix": "https",
                 "port": 443
-              },
+              }
+            ],
+            "downtime": [
               {
-                "prefix": "root",
-                "port": 1094
+                "date_range": "2025-04-30T22:00:00.000Z to 2025-05-11T22:00:00.000Z",
+                "type": "Unplanned",
+                "reason": "Production cluster incident. Waiting for CSCS to restore data (it's the first time we do it, so no procedures in place for this yet)."
               }
             ],
             "areas": [
@@ -197,13 +213,18 @@
                 "type": "rse",
                 "relative_path": "/deterministic",
                 "name": "CHSRC_XRD_PROD",
-                "tier": 1,
+                "tier": 0,
+                "downtime": [
+                  {
+                    "date_range": "2025-04-30T22:00:00.000Z to 2025-05-11T22:00:00.000Z",
+                    "type": "Planned",
+                    "reason": "Production cluster incident. Waiting for CSCS to restore data (it's the first time we do it, so no procedures in place for this yet)."
+                  }
+                ],
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           },
           {
@@ -227,11 +248,9 @@
                 "name": "CHSRC_XRD_DEV",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           },
           {
@@ -247,27 +266,33 @@
                 "port": 2880
               }
             ],
+            "downtime": [
+              {
+                "date_range": "2025-08-04T06:00:00.000Z to 2025-08-04T07:00:00.000Z",
+                "type": "Planned",
+                "reason": "dCache upgrade to 10.2 (latest golden release)"
+              }
+            ],
             "areas": [
               {
                 "id": "31637ec6-e7d0-4c89-aef0-1a644ab6108e",
                 "type": "rse",
                 "name": "CHSRC_DCACHE",
-                "tier": 1,
+                "tier": 0,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
             "id": "e4480f83-3639-4321-a0dc-106782de45cc",
+            "compute_units": 5,
             "hardware_type": "bare-metal",
-            "compute_units": 0,
             "description": "Gornergrat-dev",
+            "name": "CHSRC-DEV",
             "associated_local_services": [
               {
                 "id": "df296b0f-4677-449a-bb2b-666527f3f3d1",
@@ -276,22 +301,20 @@
                 "prefix": "https",
                 "host": "gatekeeper.dev.skach.org",
                 "port": 443,
-                "path": "/soda",
+                "path": "/soda/ska/datasets/soda",
                 "name": "soda-dev",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
                 "id": "a2cba753-4589-4395-887c-937768fdcc75",
                 "type": "echo",
                 "prefix": "http",
-                "host": "ska-src-gatekeeper-echo.ska-src-gatekeeper-echo.svc.cluster.local",
+                "host": "echo.dev.skach.org",
                 "port": 8080,
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -302,7 +325,6 @@
                 "name": "JupyterHub (dev)",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -311,7 +333,6 @@
                 "host": "perfsonar.castor.skach.org",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -323,7 +344,6 @@
                 "name": "Science Platform (dev)",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -337,19 +357,18 @@
                 "name": "preparedata (dev)",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           },
           {
             "id": "6bd3fb8d-7188-4e52-bc32-9911bb8b8f3d",
+            "compute_units": 14,
             "hardware_type": "bare-metal",
             "description": "Gornergrat",
-            "compute_units": 0,
+            "name": "CHSRC-PROD",
             "associated_local_services": [
               {
                 "id": "5ca893b1-0b76-4b49-a74d-e2c891a092b4",
@@ -357,11 +376,11 @@
                 "prefix": "https",
                 "host": "gatekeeper.src.skach.org",
                 "port": 443,
-                "path": "/soda",
+                "path": "/soda/ska/datasets/soda",
+                "associated_storage_area_id": "f26ff4e4-30af-4339-88ed-bb0cb7037ca0",
                 "name": "soda-prod",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -371,7 +390,6 @@
                 "host": "echo.src.skach.org",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -382,7 +400,6 @@
                 "name": "JupyterHub (prod)",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -393,16 +410,25 @@
                 "path": "/science-portal",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
                 "id": "2125715d-65b9-4837-b02c-17deaa7fc2da",
                 "type": "perfsonar",
                 "host": "perfsonar.castor.skach.org",
+                "downtime": [
+                  {
+                    "date_range": "2025-08-24T22:00:00.000Z to 2025-08-25T20:00:00.000Z",
+                    "type": "Planned",
+                    "reason": "Testing downtime in Grafana dashboard"
+                  },
+                  {
+                    "date_range": "",
+                    "type": "Planned"
+                  }
+                ],
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -412,41 +438,37 @@
                 "host": "gatekeeper.src.skach.org",
                 "port": 443,
                 "path": "/preparedata",
-                "associated_storage_area_id": "CHSRC_XRD_PROD",
+                "associated_storage_area_id": "f26ff4e4-30af-4339-88ed-bb0cb7037ca0",
                 "name": "preparedata (prod)",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-03-17T09:08:56.056434",
-        "created_by_username": "pllopis",
-        "latitude": 46.024498567725466,
-        "longitude": 8.960111183239013,
-        "id": "2e29cfea-7ebd-4257-875d-c307e1d74238",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-10-14T14:14:26.291356",
+    "last_updated_by_username": "pllopis",
+    "version": 1
   },
   {
     "name": "CNSRC",
     "description": "China SRC",
     "comments": "",
-    "version": 1,
     "sites": [
       {
+        "id": "3b61f3e0-7e2b-4b00-830a-7ae4d3ba8903",
         "name": "CNSRC",
-        "comments": "",
         "description": "China SRC",
         "country": "CN",
+        "latitude": 39.9075,
+        "longitude": 116.3971,
         "primary_contact_email": "xuthus@shao.ac.cn",
         "secondary_contact_email": "",
         "storages": [
@@ -472,11 +494,9 @@
                 "name": "CNSRC-SHAO-T1",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
@@ -484,7 +504,6 @@
           {
             "id": "dd875a28-2df8-4f9f-838c-aa4110b4c4b9",
             "description": "Shanghai Astronomical Observatory (SHAO)",
-            "compute_units": 0,
             "associated_local_services": [
               {
                 "id": "1f73c95e-301b-4f5e-a2cf-aeb461da2d70",
@@ -496,7 +515,6 @@
                 "name": "CNSRC Gatekeeper Echo Service",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -509,7 +527,6 @@
                 "name": "CNSRC Jupyter Science Portal",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -519,10 +536,10 @@
                 "host": "gatekeeper.ska.zverse.space",
                 "port": 443,
                 "path": "/soda",
+                "associated_storage_area_id": "c06f0555-579d-4ea6-b434-8e62c65f1983",
                 "name": "CNSRC SODA_SYNC Service",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -530,7 +547,6 @@
                 "type": "carta",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -540,9 +556,9 @@
                 "host": "gatekeeper.ska.zverse.space",
                 "port": 443,
                 "path": "/preparedata",
+                "associated_storage_area_id": "c06f0555-579d-4ea6-b434-8e62c65f1983",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -553,7 +569,6 @@
                 "port": 443,
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -564,65 +579,68 @@
                 "port": 443,
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
                 "id": "174f676b-6aa7-4521-9e8d-479a97fa6d37",
                 "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.ska.zverse.space",
+                "port": 443,
+                "path": "/dashboards",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
                 "id": "eba38877-7853-460d-8386-9bed54fda77c",
                 "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.ska.zverse.space",
+                "port": 443,
+                "path": "/science-portal",
+                "associated_storage_area_id": "c06f0555-579d-4ea6-b434-8e62c65f1983",
+                "name": "CNSRC Canfar Science Portal",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "hardware_type": null,
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-03-25T03:20:31.347191",
-        "created_by_username": "zxu",
-        "latitude": 39.9075,
-        "longitude": 116.3971,
-        "id": "3b61f3e0-7e2b-4b00-830a-7ae4d3ba8903",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-08-05T07:24:42.012853",
+    "last_updated_by_username": "zxu",
+    "version": 1
   },
   {
-    "name": "AUSSRC",
-    "description": "Australian SRC",
+    "name": "ESPSRC",
+    "description": "Spanish SRC",
     "comments": "",
-    "version": 1,
     "sites": [
       {
-        "name": "AUSSRC",
-        "comments": "",
-        "description": "Australian SRC",
-        "country": "AU",
-        "primary_contact_email": "dave.pallot@icrar.org",
-        "secondary_contact_email": "",
+        "id": "74b0fdd8-9ab3-4ece-b6ea-48af026bbdf5",
+        "name": "ESPSRC",
+        "description": "Spanish SRC",
+        "country": "ES",
+        "latitude": 37.1342,
+        "longitude": -3.613,
+        "primary_contact_email": "mparra@iaa.es",
+        "secondary_contact_email": "sse@iaa.es",
         "storages": [
           {
-            "id": "d46c5c0f-96f0-4a9f-9fe6-02f541b6938e",
-            "host": "storm-storage-01.aussrc.org",
-            "base_path": "/storm/sa",
+            "id": "43505e6c-7ee7-4182-8f01-7adb5ff6f7aa",
+            "host": "rucio.espsrc.iaa.csic.es",
+            "base_path": "/disk",
             "srm": "storm",
-            "device_type": "",
-            "size_in_terabytes": 0.04,
-            "name": "AUSSRC",
+            "device_type": "ssd",
+            "size_in_terabytes": 8,
+            "name": "SPSRC",
             "supported_protocols": [
               {
                 "prefix": "https",
@@ -631,628 +649,510 @@
             ],
             "areas": [
               {
-                "id": "f1902d12-9c48-4673-a55a-7e7d05b6c57b",
+                "id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
                 "type": "rse",
-                "relative_path": "/test_rse/dev/deterministic",
-                "name": "AUSSRC_STORM",
-                "downtime": [],
-                "other_attributes": "",
-                "is_force_disabled": false
-              }
-            ],
-            "downtime": [],
-            "is_force_disabled": false
-          }
-        ],
-        "created_at": "2024-08-21T11:50:43.799085",
-        "created_by_username": "robbarnsley",
-        "latitude": -31.9529,
-        "longitude": 115.8613,
-        "id": "27aefd16-3c8d-4403-8f05-9ad42200701c",
-        "downtime": [],
-        "is_force_disabled": false,
-        "other_attributes": ""
-      }
-    ]
-  },
-  {
-    "name": "UKSRC",
-    "description": "UKSRC Site",
-    "comments": "",
-    "version": 1,
-    "sites": [
-      {
-        "name": "UKSRC",
-        "comments": "",
-        "description": "UKSRC Site",
-        "country": "GB",
-        "primary_contact_email": "sm2921@cam.ac.uk",
-        "secondary_contact_email": "john.garbutt@stackhpc.com",
-        "storages": [
-          {
-            "id": "93de7824-acc3-42db-8348-d12a337fb392",
-            "host": "xrootd01.uksrc.rl.ac.uk",
-            "base_path": "/denebdev/testbed/",
-            "srm": "xrd",
-            "device_type": "hdd",
-            "size_in_terabytes": 200,
-            "name": "UKSRC-RAL",
-            "supported_protocols": [
-              {
-                "prefix": "https",
-                "port": 1094
-              }
-            ],
-            "areas": [
-              {
-                "id": "df32b15e-4d74-4fe0-a8ec-3093ee286857",
-                "type": "rse",
-                "relative_path": "/",
-                "name": "UKSRC_RAL_XRD_DEVCEPHFS",
+                "relative_path": "/dev/deterministic",
+                "name": "SPSRC_STORM",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "aa0ccb9c-74dd-4bf4-8dab-7238554edc30",
-            "host": "xrootd01.uksrc.cam.ac.uk",
-            "base_path": "/data",
-            "srm": "xrd",
-            "device_type": "hdd",
-            "size_in_terabytes": 0.001,
-            "name": "UKSRC_CAM",
-            "supported_protocols": [
-              {
-                "prefix": "https",
-                "port": 443
-              }
-            ],
-            "areas": [
-              {
-                "id": "8784fbbb-91d5-4872-8968-0399a363474f",
-                "type": "rse",
-                "relative_path": "/",
-                "name": "UKSRC_CAM_XRD_T0",
-                "tier": 1,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
-            "id": "e24a1a87-01f2-4a4a-8e3e-4234951c45d0",
-            "description": "University of Cambridge HPC",
-            "compute_units": 0,
+            "id": "f2ec82a1-6e81-4386-a838-2a57ac808430",
+            "compute_units": 3,
             "associated_local_services": [
               {
-                "id": "21990532-7231-4ab9-9fa7-3dfe587332ec",
-                "type": "jupyterhub",
+                "id": "93dffde3-1db0-44df-9379-60c546c16ff8",
+                "type": "soda_sync",
+                "version": "1.7.3",
                 "prefix": "https",
-                "host": "portal.apps.hpc.cam.ac.uk",
-                "path": "/auth/federated/start/?option=ska-iam_openid",
-                "name": "Cambridge HPC Azimuth Instance",
+                "host": "gatekeeper.espsrc.iaa.csic.es",
+                "port": 443,
+                "path": "/soda/ska/datasets/soda",
+                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                "other_attributes": {
+                  "resourceIdentifier": {
+                    "value": "ivo://skao.src/spsrc-soda/"
+                  }
+                },
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "12cb64ee-df09-4e84-b304-aaed3a8ba8da",
+                "type": "soda_async",
+                "prefix": "https",
+                "host": "soda.espsrc.iaa.csic.es",
+                "port": 443,
+                "path": "/soda_uws/soda_cuts/",
+                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                "other_attributes": {
+                  "resourceIdentifier": {
+                    "value": "ivo://skao.src/spsrc-soda/"
+                  }
+                },
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "4a5f6d43-50dc-4062-9379-581a8946888f",
+                "type": "monitoring",
+                "version": "3.9.1",
+                "prefix": "https",
+                "host": "monitor.espsrc.iaa.csic.es",
+                "port": 443,
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "hardware_capabilities": [],
-            "hardware_type": null,
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "668a1146-c496-4e04-994c-39f33e8dd0db",
-            "hardware_type": "vm",
-            "description": "UKSRC K8s Cluster at RAL",
-            "compute_units": 0,
-            "associated_local_services": [
-              {
-                "id": "2282f7c8-dbdc-4b89-8fc2-895a2061b0f5",
-                "type": "jupyterhub",
-                "prefix": "https",
-                "host": "jupyterhub.ral.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "d921efbf-71a9-47cc-8527-69d1a0a50d8b",
-                "type": "echo",
-                "prefix": "https",
-                "host": "gatekeeper.ral.uksrc.org",
-                "port": 443,
-                "path": "/echo",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "681e42cd-9424-45cb-868a-6fa0c611a1c2",
-                "type": "gatekeeper",
-                "prefix": "https",
-                "host": "gatekeeper.ral.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "51d69ecd-e47a-44ca-9b5a-59c90a6dd631",
-                "type": "soda_sync",
-                "prefix": "https",
-                "host": "gatekeeper.ral.uksrc.org",
-                "port": 443,
-                "path": "soda",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "a6688cc2-7dbe-4f14-9cf4-8f515a503570",
-                "type": "canfar",
-                "prefix": "https",
-                "host": "canfar.ral.uksrc.org",
-                "path": "/science-portal",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "b67a1d4d-9adc-4d7f-9388-c2070163cf7f",
+                "id": "45e18a82-edee-4f6b-896a-52acf9f9c6c9",
                 "type": "perfsonar",
                 "prefix": "https",
-                "host": "perfsonar01.jc.rl.ac.uk",
-                "is_mandatory": true,
+                "host": "perfsonar.espsrc.iaa.csic.es",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "757f91ce-f7df-4249-a4f3-c54bbb600f73",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "prometheus.ral.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "3aa3544f-c305-489a-99a6-b9133f670fbd",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "grafana.ral.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "3b8db6e8-a2d3-4611-afe7-3c7b8f14658a",
-                "type": "prepare_data",
-                "prefix": "https",
-                "host": "gatekeeper.ral.uksrc.org",
-                "port": 443,
-                "path": "/preparedata",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "f6576fb3-b022-4c08-8695-6492ab603320",
-            "hardware_type": "vm",
-            "compute_units": 0,
-            "description": "UKSRC K8s Staging Cluster at RAL",
-            "associated_local_services": [
-              {
-                "id": "5375a0de-fc9c-4e89-9e0e-59eb986840aa",
-                "type": "jupyterhub",
-                "prefix": "https",
-                "host": "jupyterhub.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "ac558c13-5d1d-4a99-ba98-0ecb6bb6cb1d",
-                "type": "echo",
-                "prefix": "https",
-                "host": "gatekeeper.ral-stage.uksrc.org",
-                "port": 443,
-                "path": "/echo",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "e4df9cbf-b612-4375-85b9-f49e81e86618",
-                "type": "gatekeeper",
-                "host": "gatekeeper.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "85330965-d980-4fd8-9bf5-5e27a4467355",
-                "type": "soda_sync",
-                "prefix": "https",
-                "host": "gatekeeper.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "74650e73-f430-436d-b8d3-3dbff4c4cfe5",
+                "id": "ca866537-2efa-4fba-8d7d-4fd54c06a631",
                 "type": "canfar",
                 "prefix": "https",
-                "host": "canfar.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
+                "host": "canfar.espsrc.iaa.csic.es",
+                "path": "/science-portal/",
+                "name": "CANFAR Science Portal",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "e2274916-dc2d-46cd-89b9-5c2108fd3125",
-                "type": "perfsonar",
-                "prefix": "https",
-                "host": "perfsonar01.jc.rl.ac.uk",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "a08a84fe-fb6d-48c1-984a-1cb551438647",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "prometheus.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "5e56a258-3f68-4c5a-a419-d5d82781f12d",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "grafana.ral-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "64c36212-0b7c-420a-89ba-c81088ce593e",
-                "type": "prepare_data",
-                "prefix": "https",
-                "host": "gatekeeper.ral-stage.uksrc.org",
-                "port": 443,
-                "path": "/preparedata",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "fc165438-95f0-4f7a-ab9c-f95a7990a503",
+                "id": "dec441c5-6e64-4c47-a385-99543994c1d6",
                 "type": "echo",
                 "prefix": "https",
-                "host": "gatekeeper-dev.130-246-80-45.sslip.io",
+                "host": "gatekeeper.espsrc.iaa.csic.es",
                 "port": 443,
                 "path": "/echo",
-                "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "161a1ba5-2080-480b-bd64-4bc95691e7bc",
-            "hardware_type": "vm",
-            "compute_units": 0,
-            "description": "UKSRC K8s Production Cluster at Cambridge ",
-            "associated_local_services": [
-              {
-                "id": "cc5fc896-7195-4319-a00d-666c074f4822",
-                "type": "jupyterhub",
-                "prefix": "https",
-                "host": "jupyterhub.cam.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "766d075e-baa1-4ef3-8139-a7ab1edd50f5",
-                "type": "echo",
-                "prefix": "https",
-                "host": "gatekeeper.cam.uksrc.org",
-                "port": 443,
-                "path": "/echo",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "9ff740ef-8417-44f9-81ce-eedcbf4af19a",
+                "id": "d4785977-9f93-4e21-94f6-9dd408b40cec",
                 "type": "gatekeeper",
                 "prefix": "https",
-                "host": "gatekeeper.cam.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
+                "host": "gatekeeper.espsrc.iaa.csic.es",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "ca6bcad2-ef2a-4647-b875-018d2f9a6dc3",
-                "type": "soda_sync",
-                "prefix": "https",
-                "host": "gatekeeper.cam.uksrc.org",
-                "port": 443,
-                "path": "soda",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "d9fa67e3-7b85-4f0a-b81a-34ca686b3b7c",
-                "type": "canfar",
-                "prefix": "https",
-                "host": "canfar.cam.uksrc.org",
-                "path": "science-portal",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "2be7e5d4-b255-4432-b371-542d3e3e860a",
-                "type": "perfsonar",
-                "prefix": "https",
-                "host": "perfsonar01.cam.uksrc.org",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "f3ac5c4a-3c1e-4325-934f-102428db106d",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "prometheus.cam.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "b05c8a09-f8a2-49c1-bce6-b6cdc76ec6b6",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "grafana.cam.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "a7ecfe09-20ff-469c-a4c5-d3024ebe7d21",
+                "id": "670d440a-3fc1-49d0-8a53-ef197830c691",
                 "type": "prepare_data",
+                "version": "0.1",
                 "prefix": "https",
-                "host": "gatekeeper.cam.uksrc.org",
+                "host": "gatekeeper.espsrc.iaa.csic.es",
                 "port": 443,
                 "path": "/preparedata",
-                "is_mandatory": true,
+                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
                 "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "58753d34-e8cf-4d83-b5b6-1f7d1cf3f36a",
-            "hardware_type": "vm",
-            "compute_units": 0,
-            "description": "UKSRC K8s Staging Cluster at Cambridge ",
-            "associated_local_services": [
-              {
-                "id": "647c4e3b-c27a-4925-9909-62481c866465",
-                "type": "jupyterhub",
-                "prefix": "https",
-                "host": "jupyterhub.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "fdf5ca6b-54da-4b2b-8e36-a6abfbc5acc9",
+                "id": "ec31f0aa-3b80-4980-a8c9-08d2120c3034",
                 "type": "echo",
                 "prefix": "https",
-                "host": "gatekeeper.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "eba2a8ce-0a00-4044-934d-46ec354a1ece",
-                "type": "gatekeeper",
-                "prefix": "https",
-                "host": "gatekeeper.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "2a3dd2be-2be9-4370-b879-32eec88cd261",
-                "type": "soda_sync",
-                "prefix": "https",
-                "host": "gatekeeper.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "7f783a8a-2cfb-4a69-80d3-c7d7f0529a0c",
-                "type": "canfar",
-                "prefix": "https",
-                "host": "canfar.cam-stage.uksrc.org",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "b252cbcf-fc34-48e0-a8e8-952db2628de2",
-                "type": "perfsonar",
-                "prefix": "https",
-                "host": "perfsonar-01.hpc.cam.ac.uk",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "17e7dc6d-5c8e-43b8-9f69-b22fb2db4112",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "prometheus.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "141f97a4-88f0-4c38-b7f7-4e8b3f449e81",
-                "type": "monitoring",
-                "prefix": "https",
-                "host": "grafana.cam-stage.uksrc.org",
-                "port": 443,
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "713d1351-8e89-47e2-b670-b66163b1d2a9",
-                "type": "prepare_data",
-                "prefix": "https",
-                "host": "gatekeeper.cam-stage.uksrc.org",
-                "port": 443,
-                "path": "/preparedata",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": false
-          },
-          {
-            "id": "c06944b2-4f1f-4e5c-9c5f-0091ad141742",
-            "hardware_type": "vm",
-            "compute_units": 0,
-            "description": "UKSRC K8s Staging Cluster at RAL-dev",
-            "associated_local_services": [
-              {
-                "id": "1974afc9-8faf-44b6-a528-b5cacfbb8b80",
-                "type": "echo",
-                "prefix": "https",
-                "host": "gatekeeper-dev.130-246-80-45.sslip.io",
+                "host": "dev.gatekeeper.espsrc.iaa.csic.es",
                 "port": 443,
                 "path": "/echo",
-                "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "7cb2525e-a707-4d70-b209-c7a9e6f1cabd",
+                "id": "bad7edcd-a0f7-415d-8d9d-0977c6d501b5",
                 "type": "soda_sync",
+                "version": "1.6.2",
                 "prefix": "https",
-                "host": "gatekeeper-dev.130-246-80-45.sslip.io",
+                "host": "dev.gatekeeper.espsrc.iaa.csic.es",
                 "port": 443,
-                "is_mandatory": true,
+                "path": "/ska/datasets/soda",
+                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                "name": "soda-dev",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "3061857d-1aa7-4d64-af25-fc4e996c97b6",
+                "type": "gaussconv",
+                "version": "1.0",
+                "prefix": "https",
+                "host": "dev.gatekeeper.espsrc.iaa.csic.es",
+                "port": 443,
+                "path": "/gaussconv_fitsimg",
+                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                "name": "GaussConv",
+                "other_attributes": {},
+                "is_mandatory": false,
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-04-02T10:21:52.520480",
-        "created_by_username": "sm2921",
-        "latitude": 51.574,
-        "longitude": -1.315,
-        "id": "693def71-bcdb-464e-9290-0db7013f453f",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-10-14T14:26:08.894296",
+    "last_updated_by_username": "mparra",
+    "version": 1
+  },
+  {
+    "name": "ITSRC",
+    "comments": "",
+    "sites": [
+      {
+        "id": "86660409-92c6-4d7b-bd56-fc0115fa61a6",
+        "name": "ITSRC-ct",
+        "description": "ITSRC@INAF-OACT",
+        "country": "IT",
+        "latitude": 37.529,
+        "longitude": 15.0718,
+        "primary_contact_email": "matteo.stagni@inaf.it",
+        "secondary_contact_email": "giuseppe.tudisco@inaf.it",
+        "downtime": [
+          {
+            "date_range": "2025-10-29T16:00:00.000Z to 2025-10-29T20:00:00.000Z",
+            "type": "Planned",
+            "reason": "Network Maintenance"
+          }
+        ],
+        "storages": [
+          {
+            "id": "161dc1f7-6a7b-4315-9fab-4056bb5a9091",
+            "host": "itrse.oact.inaf.it",
+            "base_path": "/storage01/xrootd",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 27,
+            "name": "ITSRC_OACT_XRD",
+            "supported_protocols": [
+              {
+                "prefix": "http",
+                "port": 80
+              }
+            ],
+            "areas": [
+              {
+                "id": "cfb6f1c9-5004-4ef9-b0fd-9fab3beafcce",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "ITSRC_OACT_XRD",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          }
+        ],
+        "compute": [
+          {
+            "id": "b7e25bf4-d9dc-4430-9158-74f6db50df86",
+            "compute_units": 140,
+            "hardware_type": "bare-metal",
+            "description": "ITSRC",
+            "name": "ITSRC@INAF-OACT",
+            "middleware_version": "0.1",
+            "associated_local_services": [
+              {
+                "id": "6f2e22b6-4304-401e-93ac-3db9958a445a",
+                "type": "soda_sync",
+                "version": "1.8.2",
+                "prefix": "https",
+                "host": "dmapi.itsrc.oact.inaf.it",
+                "port": 443,
+                "path": "/soda/sync",
+                "associated_storage_area_id": "cfb6f1c9-5004-4ef9-b0fd-9fab3beafcce",
+                "name": "ska-src-soda",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "ad3f13ea-abc1-491a-bffc-8e4abbf2ddfa",
+                "type": "echo",
+                "prefix": "https",
+                "host": "dmapi.itsrc.oact.inaf.it",
+                "port": 443,
+                "path": "/echo",
+                "name": "ska-src-gatekeeper-echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "ac74610f-e20a-41f3-87cb-88111eea493f",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "dmapi.itsrc.oact.inaf.it",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "cfb6f1c9-5004-4ef9-b0fd-9fab3beafcce",
+                "name": "prepare_data",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "a8c12a8f-ddab-4841-b3b8-779e0af852d1",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.itsrc.oact.inaf.it",
+                "port": 443,
+                "path": "/science-portal/",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "2ab47136-bc0c-4c06-944b-bc69a1b32c63",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "monitoring.itsrc.oact.inaf.it",
+                "port": 443,
+                "path": "/",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              }
+            ],
+            "hardware_capabilities": [],
+            "is_force_disabled": false
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": false
+      },
+      {
+        "id": "d03194ac-b884-42f2-be02-bdb6052eb1da",
+        "name": "ITSRC-ada",
+        "description": "ITSRC @ CINECA ADA Cloud",
+        "country": "IT",
+        "latitude": 44.5238,
+        "longitude": 11.3388,
+        "primary_contact_email": "matteo.stagni@inaf.it",
+        "secondary_contact_email": "giuseppe.tudisco@inaf.it",
+        "compute": [
+          {
+            "id": "f054f53c-9898-410e-82f2-d81314eb4a54",
+            "compute_units": 32,
+            "hardware_type": "vm",
+            "description": "ITSRC",
+            "name": "ITSRC@CINECA-ADA",
+            "middleware_version": "0.1",
+            "associated_local_services": [
+              {
+                "id": "8ebe603e-0c13-48a7-8273-0145b45606b5",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.itsrc.ext.cineca.it",
+                "port": 443,
+                "path": "/science-portal/",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "5a03fafb-a0a7-408e-af1d-3f9ef7ae35e3",
+                "type": "echo",
+                "prefix": "https",
+                "host": "gatekeeper.itsrc.ext.cineca.it",
+                "port": 443,
+                "path": "/echo",
+                "name": "ska-src-gatekeeper-echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "hardware_capabilities": [],
+            "is_force_disabled": false
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": false
+      }
+    ],
+    "last_updated_at": "2025-10-21T07:02:54.147833",
+    "last_updated_by_username": "gtudisco",
+    "version": 1
+  },
+  {
+    "name": "JPSRC",
+    "comments": "",
+    "sites": [
+      {
+        "id": "5b8251b6-12ea-499e-8699-edcd8a55d9b8",
+        "name": "JPSRC",
+        "description": "JPSRC system at NAOJ's Mitaka campus.",
+        "country": "JP",
+        "latitude": 35.6754,
+        "longitude": 139.5369,
+        "primary_contact_email": "kaz.yamashita@nao.ac.jp",
+        "secondary_contact_email": "shintaro.yoshiura@nao.ac.jp",
+        "storages": [
+          {
+            "id": "21a13483-868c-4fe4-afe4-9f8ec94c4ee2",
+            "host": "shion-rse.mtk.nao.ac.jp",
+            "base_path": "/storm/sa",
+            "srm": "storm",
+            "device_type": "hdd",
+            "size_in_terabytes": 400,
+            "name": "JPSRC_STORM_PROD",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 8443
+              }
+            ],
+            "areas": [
+              {
+                "id": "3fc8ac9a-dae4-4514-b839-5140fda1cf32",
+                "type": "rse",
+                "relative_path": "/deterministic",
+                "name": "JPSRC_STORM_PROD",
+                "tier": 1,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          },
+          {
+            "id": "89ee6cac-0977-425e-b766-780a8e14420d",
+            "host": "jp-src-s000.mtk.nao.ac.jp",
+            "base_path": "/storm/sa",
+            "srm": "storm",
+            "device_type": "hdd",
+            "size_in_terabytes": 20,
+            "name": "JPSRC_STORM",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 8443
+              }
+            ],
+            "areas": [
+              {
+                "id": "58aa1f5e-6eee-4fad-b991-3aef25fdfe07",
+                "type": "rse",
+                "name": "JPSRC_STORM",
+                "tier": 1,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          }
+        ],
+        "compute": [
+          {
+            "id": "bee1cc88-cad4-497e-8954-59c30c2b69bf",
+            "compute_units": 12,
+            "hardware_type": "container",
+            "description": "JPSRC compute resources at NAOJ's Mitaka campus.",
+            "name": "JPSRC @ NAOJ",
+            "downtime": [
+              {
+                "date_range": "2025-08-21T15:00:00.000Z to 2025-09-09T15:00:00.000Z",
+                "type": "Planned",
+                "reason": "Due to a virtual network issue with OpenStack, we will try to redeploy. During the downtime, we also plan to add a system disk.\r\nIf there is a request, we can restore it temporarily within about two business days."
+              }
+            ],
+            "associated_local_services": [
+              {
+                "id": "0495a4fe-dbf7-4944-a824-05e90712fb5c",
+                "type": "echo",
+                "prefix": "https",
+                "host": "shion-gatekeeper.mtk.nao.ac.jp",
+                "port": 443,
+                "path": "/echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "c16eac64-08cd-4b51-80fb-53c0b03f395b",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "shion-gatekeeper.mtk.nao.ac.jp",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "3fc8ac9a-dae4-4514-b839-5140fda1cf32",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "e48aade0-4f4f-4270-bf82-e47c953b88db",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "shion-gatekeeper.mtk.nao.ac.jp",
+                "port": 443,
+                "path": "/soda",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "a9bbe538-17c3-4631-a0ca-7ecf93c8fcf6",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "shion-sp.mtk.nao.ac.jp",
+                "port": 443,
+                "path": "/science-portal",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "026558a6-9e91-4bd1-b021-1a04efb8450e",
+                "type": "perfsonar",
+                "prefix": "http",
+                "host": "shion-perfsonar.mtk.nao.ac.jp",
+                "port": 80,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "environments": [],
+                "is_force_disabled": false
+              }
+            ],
+            "hardware_capabilities": [],
+            "is_force_disabled": false
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": false
+      }
+    ],
+    "last_updated_at": "2025-08-26T09:01:26.191080",
+    "last_updated_by_username": "yamash",
+    "version": 1
   },
   {
     "name": "KRSRC",
@@ -1310,25 +1210,26 @@
   },
   {
     "name": "SKAOSRC",
-    "description": "Magenta prototype site deployment",
+    "description": "Magenta Node Deployment",
     "comments": "",
-    "version": 1,
     "sites": [
       {
+        "id": "76ce15aa-1b0b-4210-ac4b-370ee5c93066",
         "name": "SKAOSRC",
-        "comments": "",
-        "description": "Magenta prototype site deployment",
+        "description": "Magenta Site deployment",
         "country": "GB",
+        "latitude": 51.4964,
+        "longitude": -0.1224,
         "primary_contact_email": "rob.barnsley@skao.int",
         "secondary_contact_email": "j.collinson@skao.int",
         "storages": [
           {
             "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
-            "host": "storm.srcdev.skao.int",
+            "host": "storm.srcnet.skao.int",
             "base_path": "/sa",
             "srm": "storm",
             "device_type": "",
-            "size_in_terabytes": 11,
+            "size_in_terabytes": 5,
             "name": "SKAOSRC",
             "supported_protocols": [
               {
@@ -1342,8 +1243,8 @@
                 "type": "rse",
                 "relative_path": "/deterministic",
                 "name": "STFC_STORM",
+                "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1351,20 +1252,19 @@
                 "type": "rse",
                 "relative_path": "/nondeterministic",
                 "name": "STFC_STORM_ND",
+                "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
                 "id": "f605dd74-7a43-40e5-9229-48845416e30a",
                 "type": "ingest",
                 "relative_path": "/ingest/staging",
+                "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
@@ -1372,22 +1272,7 @@
           {
             "id": "db1d3ee3-74e4-48aa-afaf-8d7709a2f57c",
             "hardware_type": "container",
-            "compute_units": 0,
             "middleware_version": "1",
-            "associated_global_services": [
-              {
-                "id": "7b20faca-b4d3-4d1f-8349-4dc38dcc8a1f",
-                "type": "rucio",
-                "version": "1.29.0",
-                "prefix": "https",
-                "host": "rucio.srcdev.skao.int",
-                "port": 443,
-                "path": "/",
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
-            ],
             "associated_local_services": [
               {
                 "id": "cd200c23-60f4-49c0-a987-3e11f06a4c8c",
@@ -1396,7 +1281,6 @@
                 "associated_storage_area_id": "f605dd74-7a43-40e5-9229-48845416e30a",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1409,7 +1293,6 @@
                 "name": "SKAO Jupyter hub",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1420,15 +1303,14 @@
                 "port": 8000,
                 "name": "Tangerine local test JupyterHub (embed)",
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
+                "is_force_disabled": true,
+                "is_mandatory": false
               },
               {
                 "id": "05e18fb5-5f32-4c24-a399-0c50c77fb6d7",
                 "type": "soda_sync",
                 "prefix": "https",
-                "host": "gatekeeper.srcdev.skao.int",
+                "host": "gatekeeper.srcnet.skao.int",
                 "port": 443,
                 "path": "/soda/ska/datasets/soda",
                 "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
@@ -1440,7 +1322,6 @@
                   "ivoid_to_name_regex": ".*\\/(.*)"
                 },
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1459,7 +1340,6 @@
                   "ivoid_to_name_regex": ".*\\/(.*)"
                 },
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1468,7 +1348,6 @@
                 "version": "1",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1478,9 +1357,15 @@
                 "host": "gateway-test.srcdev.skao.int",
                 "path": "/jupyterhub/",
                 "name": "Tangerine (gateway-test) JupyterHUB (embed)",
+                "downtime": [
+                  {
+                    "date_range": "2025-07-24T23:00:00.000Z to 2025-07-26T23:00:00.000Z",
+                    "type": "Planned",
+                    "reason": "Regular maintenance"
+                  }
+                ],
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1490,9 +1375,15 @@
                 "host": "gateway.srcdev.skao.int",
                 "path": "/jupyterhub/",
                 "name": "Tangerine (gateway) JupyterHUB (embed)",
+                "downtime": [
+                  {
+                    "date_range": "2025-05-24T08:00:00.000Z to 2025-05-30T16:00:00.000Z",
+                    "type": "Planned",
+                    "reason": "Regular maintenance"
+                  }
+                ],
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1500,14 +1391,13 @@
                 "type": "prepare_data",
                 "version": "1",
                 "prefix": "https",
-                "host": "gatekeeper.srcdev.skao.int",
+                "host": "gatekeeper.srcnet.skao.int",
                 "port": 443,
                 "path": "/preparedata",
                 "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                 "name": "preparedata",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
@@ -1515,637 +1405,1252 @@
                 "type": "canfar",
                 "version": "1",
                 "prefix": "https",
-                "host": "canfar.srcdev.skao.int",
+                "host": "canfar.srcnet.skao.int",
                 "port": 443,
                 "path": "/science-portal",
                 "associated_storage_area_id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
                 "name": "CANFAR Science Platform",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
+                "is_force_disabled": false
+              }
+            ],
+            "associated_global_services": [
+              {
+                "id": "9f2752a5-abfa-4729-83d4-ef0661d9dcfa",
+                "type": "rucio",
+                "other_attributes": {},
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-03-11T15:10:29.893558",
-        "created_by_username": "jcollinson",
-        "latitude": 51.4964,
-        "longitude": -0.1224,
-        "id": "76ce15aa-1b0b-4210-ac4b-370ee5c93066",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-07-30T21:41:19.810348",
+    "last_updated_by_username": "chris-j-skipper",
+    "version": 1
   },
   {
-    "name": "JPSRC",
-    "description": "Japanese SRC",
+    "name": "SWESRC",
+    "description": "Swedish SRC",
     "comments": "",
-    "version": 1,
     "sites": [
       {
-        "name": "JPSRC",
-        "comments": "",
-        "description": "Japanese SRC",
-        "country": "JP",
-        "primary_contact_email": "kaz.yamashita@nao.ac.jp",
-        "secondary_contact_email": "shintaro.yoshiura@nao.ac.jp",
+        "id": "ae4f721f-9769-4cf8-aabd-4eeaf7aa56f6",
+        "name": "SWESRC",
+        "description": "Swedish SRC",
+        "country": "SE",
+        "latitude": 57.6901921,
+        "longitude": 11.9755092,
+        "primary_contact_email": "vitlacil@chalmers.se",
+        "secondary_contact_email": "franz.kirsten@chalmers.se",
         "storages": [
           {
-            "id": "89ee6cac-0977-425e-b766-780a8e14420d",
-            "host": "jp-src-s000.mtk.nao.ac.jp",
-            "base_path": "/storm/sa",
-            "srm": "storm",
-            "device_type": "",
-            "size_in_terabytes": 0.08,
-            "name": "JPSRC",
+            "id": "e9e8b38b-7131-495a-9ed4-c2578e7ce831",
+            "host": "xrootd-01.swesrc.chalmers.se",
+            "base_path": "/data",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 50,
             "supported_protocols": [
               {
                 "prefix": "https",
-                "port": 8443
+                "port": 1094
               }
             ],
             "areas": [
               {
-                "id": "58aa1f5e-6eee-4fad-b991-3aef25fdfe07",
+                "id": "26fd7cac-8baa-4bd7-87a5-804bf69642e0",
                 "type": "rse",
-                "name": "JPSRC_STORM",
+                "relative_path": "https://xrootd-01.swesrc.chalmers.se:1094/data",
+                "name": "SWESRC-OSO-T1",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
             "is_force_disabled": false
           },
           {
-            "id": "21a13483-868c-4fe4-afe4-9f8ec94c4ee2",
-            "host": "shion-rse.mtk.nao.ac.jp",
-            "base_path": "/storm/sa",
-            "srm": "storm",
-            "device_type": "",
-            "size_in_terabytes": 400,
+            "id": "377ccaa5-ddec-4caf-9fcb-502bc0526664",
+            "host": "xrootd-02.swesrc.chalmers.se",
+            "base_path": "/data",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 30,
             "supported_protocols": [
               {
                 "prefix": "https",
-                "port": 8443
+                "port": 1094
               }
             ],
             "areas": [
               {
-                "id": "3fc8ac9a-dae4-4514-b839-5140fda1cf32",
+                "id": "a0eae585-521b-4be2-86a2-d0ff8b33f38d",
                 "type": "rse",
-                "relative_path": "/deterministic",
-                "name": "JPSRC_STORM_PROD",
-                "tier": 1,
+                "relative_path": "https://xrootd-02.swesrc.chalmers.se:1094/data",
+                "name": "SWESRC-OSO-T0",
+                "tier": 0,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
+            "is_force_disabled": false
+          },
+          {
+            "id": "f1de5372-c2e6-418d-91bd-68c745e837cb",
+            "host": "dev-xrootd-t0-01.swesrc.chalmers.se",
+            "base_path": "/data",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 10,
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "02a0530b-43e7-49f7-b474-219d7cb58139",
+                "type": "rse",
+                "relative_path": "https://dev-xrootd-t0-01.swesrc.chalmers.se:1094/data",
+                "name": "SWESRC-OSO-T0-DEV",
+                "tier": 0,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
-            "id": "bee1cc88-cad4-497e-8954-59c30c2b69bf",
-            "hardware_type": "vm",
-            "compute_units": 0,
-            "description": "gatekeeper",
-            "associated_local_services": [
-              {
-                "id": "e48aade0-4f4f-4270-bf82-e47c953b88db",
-                "type": "soda_sync",
-                "prefix": "http",
-                "host": "shion-gatekeeper.mtk.nao.ac.jp",
-                "port": 80,
-                "path": "/soda",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "0495a4fe-dbf7-4944-a824-05e90712fb5c",
-                "type": "echo",
-                "prefix": "http",
-                "host": "shion-gatekeeper.mtk.nao.ac.jp",
-                "port": 80,
-                "path": "/echo",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "c16eac64-08cd-4b51-80fb-53c0b03f395b",
-                "type": "prepare_data",
-                "prefix": "http",
-                "host": "shion-gatekeeper.mtk.nao.ac.jp",
-                "port": 8080,
-                "path": "/preparedata",
-                "associated_storage_area_id": "JPSRC_STORM_PROD",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              }
+            "id": "1bc84c20-b8fd-451b-a923-ac4d275ffa9f",
+            "compute_units": 10.5,
+            "hardware_capabilities": [
+              "gpu"
             ],
-            "hardware_capabilities": [],
-            "downtime": [],
-            "is_force_disabled": false
-          }
-        ],
-        "other_attributes": {},
-        "created_at": "2025-03-30T12:17:28.576924",
-        "created_by_username": "syoshiura",
-        "latitude": 35.6754,
-        "longitude": 139.5369,
-        "id": "5b8251b6-12ea-499e-8699-edcd8a55d9b8",
-        "downtime": [],
-        "is_force_disabled": false
-      }
-    ]
-  },
-  {
-    "name": "CANSRC",
-    "description": "Canadian SRC",
-    "comments": "",
-    "version": 1,
-    "sites": [
-      {
-        "name": "CANSRC",
-        "comments": "",
-        "description": "Canadian SRC",
-        "country": "CA",
-        "primary_contact_email": "john.ouellette@nrc-cnrc.gc.ca",
-        "secondary_contact_email": "Dustin.Jenkins@nrc-cnrc.gc.ca",
-        "compute": [
-          {
-            "id": "452768b4-d2da-4159-a0c3-3baa8d40ae5c",
             "hardware_type": "container",
-            "compute_units": 0,
-            "description": "Canadian Astronomy Data Centre",
+            "description": "Resources on our k8s-cluster running in an OpenStack environment (PRODUCTION)",
             "associated_local_services": [
               {
-                "id": "233918d3-9947-4723-badb-4108995ec0d2",
-                "type": "soda_sync",
-                "prefix": "http://",
-                "host": "cansrc.kawfee.ca",
-                "path": "/soda",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "23a744c8-9f6c-4a16-ba28-2ca0ef54db34",
-                "type": "echo",
-                "prefix": "http://",
-                "host": "cansrc.kawfee.ca",
-                "path": "/echo",
+                "id": "823148a0-93e2-43a6-a175-6aff1cf175cf",
+                "type": "gatekeeper",
+                "prefix": "https://",
+                "host": "gatekeeper.swesrc.chalmers.se",
+                "port": 443,
+                "path": "/gatekeeper-echo",
+                "associated_storage_area_id": "377ccaa5-ddec-4caf-9fcb-502bc0526664",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "0a01ea6b-a180-4e12-94fe-1b7b2de80d01",
-                "type": "echo",
-                "prefix": "http://",
-                "host": "rc-src.canfar.net",
-                "path": "/echo",
+                "id": "453878d7-abf4-4f04-8de9-ae4a5eb1fa88",
+                "type": "jupyterhub",
+                "prefix": "https://",
+                "host": "services.swesrc.chalmers.se",
+                "path": "/jupyterhub/",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "b8e6fba5-6d89-46d5-9faa-133e28e85a4e",
-                "type": "soda_sync",
-                "prefix": "http://",
-                "host": "rc-src.canfar.net",
-                "path": "/soda",
-                "is_mandatory": true,
-                "other_attributes": {},
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "0dddb922-b67e-4629-9b6f-2349d04350fe",
-                "type": "echo",
-                "prefix": "http://",
-                "host": "src.canfar.net",
-                "path": "/echo",
+                "id": "4cf4d8c6-ddfc-4b53-84fe-c39f3a0992f2",
+                "type": "canfar",
+                "prefix": "https://",
+                "host": "services.swesrc.chalmers.se",
+                "path": "/science-portal",
                 "other_attributes": {},
                 "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "cfce5f46-f034-4dd8-adb9-5cc96cf63cc9",
+                "id": "2f5b834a-37e2-4859-9cbc-a93aa074f735",
                 "type": "soda_sync",
-                "prefix": "http://",
-                "host": "src.canfar.net",
+                "prefix": "https://",
+                "host": "gatekeeper.swesrc.chalmers.se",
+                "path": "/soda/soda/datasets/soda",
+                "associated_storage_area_id": "a0eae585-521b-4be2-86a2-d0ff8b33f38d",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "28783140-6b0c-4aa7-a707-2094931f9a2b",
+                "type": "perfsonar",
+                "prefix": "https://",
+                "host": "perfsonar-c.swesrc.chalmers.se",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "5b1a92f1-d630-409c-ae1d-9fbb428dd639",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.swesrc.chalmers.se",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "a0eae585-521b-4be2-86a2-d0ff8b33f38d",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          },
+          {
+            "id": "8a08988d-33c2-412f-ac2c-0208f3a1f052",
+            "compute_units": 3,
+            "hardware_type": "container",
+            "description": "Resources on our dev-k8s-cluster running in an Development OpenStack environment (DEVELOPMENT)",
+            "associated_local_services": [
+              {
+                "id": "6bd139f7-d846-4b6a-bfe8-f7006642472f",
+                "type": "gatekeeper",
+                "prefix": "https://",
+                "host": "dev-gatekeeper.swesrc.chalmers.se",
+                "port": 443,
+                "path": "/gatekeeper-echo",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "4fbb0cb8-5591-4300-a520-3eef0f9af14b",
+                "type": "soda_sync",
+                "prefix": "https://",
+                "host": "dev-gatekeeper.swesrc.chalmers.se",
                 "path": "/soda",
-                "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "c3d57134-7e7a-4504-80ed-c7dc9ac77f5e",
+                "id": "400eff67-d2ca-46a4-be01-bf37d46f31ad",
                 "type": "prepare_data",
-                "prefix": "http://",
-                "host": "cansrc.kawfee.ca",
-                "path": "/prepare-data",
-                "is_mandatory": true,
+                "prefix": "https",
+                "host": "dev-gatekeeper.swesrc.chalmers.se",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "02a0530b-43e7-49f7-b474-219d7cb58139",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "a42d589f-2e5d-4397-9186-4692b2d54422",
-                "type": "prepare_data",
-                "prefix": "http://",
-                "host": "rc-src.canfar.net",
-                "path": "/prepare-data",
-                "is_mandatory": true,
+                "id": "2ebf107d-cb26-4037-8ae6-9926f6e61793",
+                "type": "jupyterhub",
+                "prefix": "https://",
+                "host": "dev-services.swesrc.chalmers.se",
+                "path": "/jupyterhub/",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               },
               {
-                "id": "2b9f8215-9aec-4554-9a1d-ed87bd0e9cf7",
-                "type": "prepare_data",
-                "prefix": "http://",
-                "host": "src.canfar.net",
-                "path": "/prepare-data",
-                "is_mandatory": true,
+                "id": "72deb918-adab-4702-8ec5-32551ed31093",
+                "type": "canfar",
+                "prefix": "https://",
+                "host": "dev-services.swesrc.chalmers.se",
+                "path": "/science-portal",
                 "other_attributes": {},
-                "downtime": [],
+                "is_mandatory": false,
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-04-04T17:34:51.447388",
-        "created_by_username": "jenkinsd",
-        "id": "be13724c-3623-46b3-bc12-a7dd537a27cd",
-        "downtime": [],
         "is_force_disabled": false
       }
-    ]
+    ],
+    "last_updated_at": "2025-10-15T11:52:52.434587",
+    "last_updated_by_username": "vitlacil",
+    "version": 1
   },
   {
-    "name": "ESPSRC",
-    "description": "Spanish SRC",
+    "name": "UKSRC",
+    "description": "UKSRC Node",
     "comments": "",
-    "version": 1,
     "sites": [
       {
-        "name": "ESPSRC",
-        "comments": "",
-        "description": "Spanish SRC",
-        "country": "ES",
-        "primary_contact_email": "mparra@iaa.es",
-        "secondary_contact_email": "sse@iaa.es",
+        "id": "19e6c2fe-bd10-4a18-a9ce-209efb02ec09",
+        "name": "UKSRC RAL (Production)",
+        "description": "Rutherford Appleton Laboratory",
+        "country": "GB",
+        "latitude": 51.5707,
+        "longitude": -1.3088,
+        "primary_contact_email": "sm2921@cam.ac.uk",
+        "secondary_contact_email": "sm2921@cam.ac.uk",
         "storages": [
           {
-            "id": "43505e6c-7ee7-4182-8f01-7adb5ff6f7aa",
-            "host": "spsrc14.iaa.csic.es",
-            "base_path": "/disk",
-            "srm": "storm",
-            "device_type": "",
-            "size_in_terabytes": 8,
-            "name": "SPSRC",
+            "id": "a86d5c1e-5495-4971-9131-fc5a2631d99c",
+            "host": "xrootd03.uksrc.rl.ac.uk",
+            "base_path": "/denebdev/testbed/",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 200,
+            "name": "UKSRC_RAL_XRD_DEVCEPHFS",
             "supported_protocols": [
               {
                 "prefix": "https",
-                "port": 18027
+                "port": 1094
               }
             ],
             "areas": [
               {
-                "id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+                "id": "ce04d165-4d5f-4380-a674-2a9ae4aba75e",
                 "type": "rse",
-                "relative_path": "/dev/deterministic",
-                "name": "SPSRC_STORM",
+                "relative_path": "/",
+                "name": "UKSRC_RAL_XRD_DEVCEPHFS",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
+            "is_force_disabled": false
+          },
+          {
+            "id": "43ddeb33-8f6b-417a-a9b1-4e5f5d2542a8",
+            "host": "xrootd01.uksrc.rl.ac.uk",
+            "base_path": "/",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 4000,
+            "name": "UKSRC-RAL-T1-TEST",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "4cf87335-c534-4e8f-b79b-f952bdf5c2c1",
+                "type": "rse",
+                "relative_path": "/uksrc-ral-t1-test",
+                "name": "UKSRC-RAL-T1-TEST",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
-            "id": "f2ec82a1-6e81-4386-a838-2a57ac808430",
-            "compute_units": 0,
+            "id": "c178c55d-d245-4aee-97ae-cde76fede737",
+            "compute_units": 6,
+            "hardware_type": "vm",
+            "description": "UKSRC K8s Cluster at RAL",
             "associated_local_services": [
               {
-                "id": "93dffde3-1db0-44df-9379-60c546c16ff8",
-                "type": "soda_sync",
-                "version": "1.7.3",
-                "prefix": "https",
-                "host": "soda.espsrc.iaa.csic.es",
-                "port": 443,
-                "path": "/ska/datasets/soda",
-                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
-                "other_attributes": {
-                  "resourceIdentifier": {
-                    "value": "ivo://skao.src/spsrc-soda/"
-                  }
-                },
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "12cb64ee-df09-4e84-b304-aaed3a8ba8da",
-                "type": "soda_async",
-                "prefix": "https",
-                "host": "soda.espsrc.iaa.csic.es",
-                "port": 443,
-                "path": "/soda_uws/soda_cuts/",
-                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
-                "other_attributes": {
-                  "resourceIdentifier": {
-                    "value": "ivo://skao.src/spsrc-soda/"
-                  }
-                },
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "09387096-a392-4f66-9c02-1688138f5c05",
+                "id": "96509c6a-7868-4ddf-8cbb-24d2bdd236d0",
                 "type": "jupyterhub",
-                "version": "3.1.0",
                 "prefix": "https",
-                "host": "notebook.espsrc.iaa.csic.es",
+                "host": "jupyterhub.ral.uksrc.org",
                 "port": 443,
-                "name": "Notebook-Production",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "4a5f6d43-50dc-4062-9379-581a8946888f",
-                "type": "monitoring",
-                "version": "3.9.1",
-                "prefix": "https",
-                "host": "monitor.espsrc.iaa.csic.es",
-                "port": 443,
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "45e18a82-edee-4f6b-896a-52acf9f9c6c9",
-                "type": "perfsonar",
-                "prefix": "https",
-                "host": "perfsonar.espsrc.iaa.csic.es",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "ca866537-2efa-4fba-8d7d-4fd54c06a631",
-                "type": "canfar",
-                "prefix": "https",
-                "host": "canfar.espsrc.iaa.csic.es",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "dec441c5-6e64-4c47-a385-99543994c1d6",
+                "id": "5031f4d4-3a26-46e4-88f2-65e852eb1177",
                 "type": "echo",
                 "prefix": "https",
-                "host": "echo.espsrc.iaa.csic.es",
+                "host": "gatekeeper.ral.uksrc.org",
                 "port": 443,
+                "path": "/echo",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "d4785977-9f93-4e21-94f6-9dd408b40cec",
+                "id": "12b4d684-26d5-4c6b-8514-1ce2c5be6963",
                 "type": "gatekeeper",
                 "prefix": "https",
-                "host": "gatekeeper.espsrc.iaa.csic.es",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "6f046e8e-cb94-4b67-89f5-87f7e3815603",
-                "type": "carta",
-                "version": "4.0",
-                "prefix": "https",
-                "host": "canfar.espsrc.iaa.csic.es",
+                "host": "gatekeeper.ral.uksrc.org",
                 "port": 443,
-                "path": "/session/carta/http/v8fzmh4c/",
-                "name": "ESP Carta Service",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "670d440a-3fc1-49d0-8a53-ef197830c691",
-                "type": "prepare_data",
-                "version": "0.1",
+                "id": "6797e6d4-a64d-4cfa-878a-b6d15cf5fd3c",
+                "type": "soda_sync",
                 "prefix": "https",
-                "host": "gatekeeper.espsrc.iaa.csic.es",
+                "host": "gatekeeper.ral.uksrc.org",
+                "port": 443,
+                "path": "soda",
+                "associated_storage_area_id": "ce04d165-4d5f-4380-a674-2a9ae4aba75e",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "87bc5e1f-9672-49a2-8725-d089656a3a5c",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.ral.uksrc.org",
+                "port": 443,
+                "path": "/science-portal",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "9b4525eb-22bb-4406-be68-338762823c43",
+                "type": "perfsonar",
+                "prefix": "https",
+                "host": "perfsonar01.jc.rl.ac.uk",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "1746f4e6-d829-42aa-be9c-af776427f78d",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.ral.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "f09ca755-a3dd-4549-9a17-ad850ef355c0",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.ral.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "dcb9671c-2712-4343-983d-9c61ba7af160",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.ral.uksrc.org",
                 "port": 443,
                 "path": "/preparedata",
+                "associated_storage_area_id": "ce04d165-4d5f-4380-a674-2a9ae4aba75e",
+                "name": "preparedata",
+                "is_mandatory": true,
                 "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "2de8d680-f2b1-4c44-b8b3-2af5baf3a084",
-                "type": "jupyterhub",
-                "version": "3.1.3",
-                "prefix": "https",
-                "host": "cicd.notebook.espsrc.iaa.csic.es",
-                "port": 443,
-                "name": "Notebook-Development",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "ec31f0aa-3b80-4980-a8c9-08d2120c3034",
-                "type": "echo",
-                "version": "1.0.1",
-                "prefix": "https",
-                "host": "dev.gatekeeper.espsrc.iaa.csic.es",
-                "port": 443,
-                "path": "/echo",
-                "name": "echo-development",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
-                "is_force_disabled": false
-              },
-              {
-                "id": "bad7edcd-a0f7-415d-8d9d-0977c6d501b5",
-                "type": "soda_sync",
-                "version": "1.6.2",
-                "prefix": "https",
-                "host": "dev.gatekeeper.espsrc.iaa.csic.es",
-                "port": 443,
-                "path": "/ska/datasets/soda",
-                "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
-                "name": "soda-dev",
-                "other_attributes": {},
-                "is_mandatory": false,
-                "downtime": [],
                 "is_force_disabled": false
               }
             ],
             "hardware_capabilities": [],
-            "hardware_type": null,
-            "downtime": [],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-03-20T09:39:11.786686",
-        "created_by_username": "mparra",
-        "latitude": 37.1342,
-        "longitude": -3.613,
-        "id": "74b0fdd8-9ab3-4ece-b6ea-48af026bbdf5",
-        "downtime": [],
         "is_force_disabled": false
-      }
-    ]
-  },
-  {
-    "name": "ITSRC",
-    "description": null,
-    "comments": "",
-    "version": 1,
-    "sites": [
+      },
       {
-        "name": "ITSRC",
-        "comments": "",
-        "country": "IT",
-        "primary_contact_email": "matteo.stagni@inaf.it",
-        "secondary_contact_email": "giuseppe.tudisco@inaf.it",
+        "id": "2bf0670b-30e0-4c57-b61a-7b43a9909295",
+        "name": "UKSRC RAL (Pre-Production)",
+        "description": "Rutherford Appleton Laboratory",
+        "country": "GB",
+        "latitude": 51.5709,
+        "longitude": -1.3085,
+        "primary_contact_email": "sm2921@cam.ac.uk",
+        "secondary_contact_email": "sm2921@cam.ac.uk",
         "storages": [
           {
-            "id": "161dc1f7-6a7b-4315-9fab-4056bb5a9091",
-            "host": "itrse.oact.inaf.it",
-            "base_path": "/storage01/xrootd",
+            "id": "437956fd-1877-466f-aae9-0950a7e5ea73",
+            "host": " xrootd-dev.ral.uksrc.org",
+            "base_path": "/denebdev/testbed/",
             "srm": "xrd",
-            "device_type": "",
-            "size_in_terabytes": 27,
+            "device_type": "hdd",
+            "size_in_terabytes": 200,
+            "name": "UKSRC-RAL",
             "supported_protocols": [
               {
-                "prefix": "http",
-                "port": 80
+                "prefix": "https",
+                "port": 1094
               }
             ],
             "areas": [
               {
-                "id": "cfb6f1c9-5004-4ef9-b0fd-9fab3beafcce",
+                "id": "85caccc1-44ff-4bb6-a3ed-914a8d30a5a4",
                 "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_RAL_XRD_DEVCEPHFS",
                 "tier": 1,
                 "other_attributes": {},
-                "downtime": [],
+                "is_force_disabled": true
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "compute": [
+          {
+            "id": "32ede0f6-df52-4793-bec3-a5d7518075bb",
+            "compute_units": 1,
+            "hardware_capabilities": [
+              "high-mem"
+            ],
+            "hardware_type": "vm",
+            "description": "UKSRC RAL Staging Cluster",
+            "name": "uksrc-ral-stage",
+            "associated_local_services": [
+              {
+                "id": "9ba84e5b-a45f-409f-b9be-b866b0613844",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.ral-stage.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "62453a51-bdc2-4394-8d4a-77e52feed39b",
+                "type": "echo",
+                "prefix": "https",
+                "host": "gatekeeper.ral-stage.uksrc.org",
+                "port": 443,
+                "path": "/echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "a48705ed-39c0-4afc-a1d3-c0aa34de2289",
+                "type": "gatekeeper",
+                "prefix": "https",
+                "host": "gatekeeper.ral-stage.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "c73fabd8-a633-44a5-b730-b90f9aa9a051",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.ral-stage.uksrc.org",
+                "port": 443,
+                "path": "/soda",
+                "associated_storage_area_id": "85caccc1-44ff-4bb6-a3ed-914a8d30a5a4",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "bcb5bdca-732e-47ac-9165-178d673fcc2a",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.ral-stage.uksrc.org",
+                "port": 443,
+                "path": "/science-portal",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "815d39f4-0c19-4e96-b335-cdc088ab6547",
+                "type": "perfsonar",
+                "prefix": "https",
+                "host": "perfsonar01.jc.rl.ac.uk",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "16052116-7d18-421e-bc72-bc22df09b291",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.ral-stage.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "c1ab1983-a4ff-4b21-8a34-c2867f40b4bc",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.ral-stage.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "3b7435c5-81a8-48b4-aa29-e72ea9ce77c9",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.ral-stage.uksrc.org",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "85caccc1-44ff-4bb6-a3ed-914a8d30a5a4",
+                "name": "UKSRC_RAL_XRD_PROD",
+                "other_attributes": {},
+                "is_mandatory": false,
                 "is_force_disabled": false
               }
             ],
-            "downtime": [],
+            "is_force_disabled": true
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": true
+      },
+      {
+        "id": "68f1d6b8-7389-4d3a-ac90-2d3c3db42735",
+        "name": "UKSRC Cambridge (Production)",
+        "description": "University of Cambridge",
+        "country": "GB",
+        "latitude": 52.211052,
+        "longitude": 0.093062,
+        "primary_contact_email": "sm2921@cam.ac.uk",
+        "secondary_contact_email": "",
+        "storages": [
+          {
+            "id": "1c69b06c-7afa-48e5-9c15-97b30c45d50d",
+            "host": "xrootd01.uksrc.cam.ac.uk",
+            "base_path": "/skadata",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 0.5,
+            "name": "UKSRC_CAM_XRD",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "7a86a1f8-ef1d-4465-aeed-1c1755b58794",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_CAM_RSE",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": true
+              }
+            ],
+            "is_force_disabled": true
+          },
+          {
+            "id": "cb24f5ea-691a-48de-a33c-d41f54e69a81",
+            "host": "xrootd01.uksrc.rl.ac.uk",
+            "base_path": "/denebdev/testbed/",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 500,
+            "name": "UKSRC-RAL-XRD",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "28d51514-71d1-45d4-951b-e873ff23666f",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_RAL_XRD_DEVCEPHFS",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
             "is_force_disabled": false
           }
         ],
         "compute": [
           {
-            "id": "b7e25bf4-d9dc-4430-9158-74f6db50df86",
-            "hardware_type": "bare-metal",
-            "compute_units": 0,
+            "id": "ada9aa15-f6ab-4117-b3fe-1f4b391cf069",
+            "compute_units": 3,
+            "hardware_capabilities": [
+              "high-mem"
+            ],
+            "hardware_type": "vm",
             "associated_local_services": [
               {
-                "id": "6f2e22b6-4304-401e-93ac-3db9958a445a",
-                "type": "soda_sync",
-                "version": "1.6.2",
-                "prefix": "https://",
-                "host": "dmapi.itsrc.oact.inaf.it",
+                "id": "12020f2d-14b4-4ee0-aa5d-ead0e968dc67",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.cam.uksrc.org",
                 "port": 443,
-                "path": "/soda",
-                "name": "ska-src-soda",
                 "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "ad3f13ea-abc1-491a-bffc-8e4abbf2ddfa",
+                "id": "7aae8c1d-d86b-4618-8d29-0df9badbf27b",
                 "type": "echo",
-                "prefix": "https://",
-                "host": "dmapi.itsrc.oact.inaf.it",
+                "prefix": "https",
+                "host": "gatekeeper.cam.uksrc.org",
                 "port": 443,
                 "path": "/echo",
-                "name": "ska-src-gatekeeper-echo",
                 "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
                 "is_force_disabled": false
               },
               {
-                "id": "ac74610f-e20a-41f3-87cb-88111eea493f",
-                "type": "prepare_data",
-                "prefix": "https://",
-                "host": "dmapi.itsrc.oact.inaf.it",
+                "id": "7a5f3f29-cd5e-471f-ac66-1009764928b9",
+                "type": "gatekeeper",
+                "prefix": "https",
+                "host": "gatekeeper.cam.uksrc.org",
                 "port": 443,
-                "path": "/preparedata",
-                "associated_storage_area_id": "ITSRC_OACT_XRD",
                 "is_mandatory": true,
                 "other_attributes": {},
-                "downtime": [],
+                "is_force_disabled": false
+              },
+              {
+                "id": "c35983d2-fe3d-468b-9f48-412b56ed8bcf",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.cam.uksrc.org",
+                "port": 443,
+                "path": "/soda",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "a06a856e-7134-45ed-b2f3-5a67e97c17d2",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.cam.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "04cdb9ef-0f81-4b38-af89-92432c49f442",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.cam.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "9f955ff6-767f-45d4-88ae-dfce389be380",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.cam.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "5f327963-c9f3-4e1a-8a0c-2b6cbfdf5548",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.cam.uksrc.org",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "7a86a1f8-ef1d-4465-aeed-1c1755b58794",
+                "is_mandatory": true,
+                "other_attributes": {},
                 "is_force_disabled": false
               }
             ],
-            "hardware_capabilities": [],
-            "downtime": [],
+            "is_force_disabled": true
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": true
+      },
+      {
+        "id": "968d5c36-0362-45d1-9bab-073d8899aeff",
+        "name": "UKSRC Cambridge (Pre-Production)",
+        "country": "GB",
+        "latitude": 52.211052,
+        "longitude": 0.093062,
+        "primary_contact_email": "sm2921@cam.ac.uk",
+        "secondary_contact_email": "",
+        "downtime": [
+          {
+            "date_range": "2025-09-16T23:00:00.000Z to 2025-09-18T23:00:00.000Z",
+            "type": "Planned",
+            "reason": "Power work at Cambridge Data Centre."
+          }
+        ],
+        "storages": [
+          {
+            "id": "d34a9a63-37ba-4f10-bf88-a7bb3e9c8328",
+            "host": "xrootd01.cam.uksrc.org",
+            "base_path": "/skadata",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 0.5,
+            "name": "UKSRC-CAM-T0",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "2a73d212-8793-4011-a687-cad99841c269",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC-CAM-T0",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": false
+          },
+          {
+            "id": "82602c36-bcd0-4aa5-abd6-f50a469f7bf8",
+            "host": "xrootd03.uksrc.rl.ac.uk",
+            "base_path": "/denebdev/testbed/",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 200,
+            "name": "UKSRC_RAL_XRD_DEVCEPHFS",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "7c82e0b2-d133-4771-8693-a288da1bcb78",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_RAL_XRD_DEVCEPHFS",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": true
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "compute": [
+          {
+            "id": "70c96211-1147-49c3-b783-50ae7a9d80e5",
+            "compute_units": 1,
+            "hardware_capabilities": [
+              "high-mem"
+            ],
+            "hardware_type": "vm",
+            "downtime": [
+              {
+                "date_range": "2025-09-22T23:00:00.000Z to 2025-09-23T23:00:00.000Z",
+                "type": "Unplanned",
+                "reason": "Issues with Octavia service in OpenStack during preproduction resizing."
+              }
+            ],
+            "associated_local_services": [
+              {
+                "id": "24262910-585c-4bc0-ac15-55e70779c1fc",
+                "type": "echo",
+                "prefix": "https",
+                "host": "gatekeeper.cam-preprod.uksrc.org",
+                "port": 443,
+                "path": "/echo",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "29766702-1a65-444d-aba9-90c40e49100e",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.cam-preprod.uksrc.org",
+                "port": 443,
+                "associated_storage_area_id": "2a73d212-8793-4011-a687-cad99841c269",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "6822dcf5-f928-4147-b7d6-cb12c4becb7e",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.cam-preprod.uksrc.org",
+                "port": 443,
+                "path": "/soda",
+                "associated_storage_area_id": "2a73d212-8793-4011-a687-cad99841c269",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "de71714c-888f-4187-8405-2d29fc0b036e",
+                "type": "gatekeeper",
+                "prefix": "https",
+                "host": "gatekeeper.cam-preprod.uksrc.org",
+                "port": 443,
+                "associated_storage_area_id": "2a73d212-8793-4011-a687-cad99841c269",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "2b0504ef-6314-462d-a273-5327b5834cf7",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.cam-preprod.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "cf3e1128-1264-4c26-be9b-da72558f4f23",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.cam-preprod.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "deeba4f7-69c2-4abd-a05c-696977ab9306",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.cam-preprod.uksrc.org",
+                "port": 443,
+                "path": "/science-portal",
+                "associated_storage_area_id": "2a73d212-8793-4011-a687-cad99841c269",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "239e1db4-7f13-4402-a0b2-30f73f6b8cf4",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.cam-preprod.uksrc.org",
+                "port": 443,
+                "path": "/preparedata",
+                "associated_storage_area_id": "2a73d212-8793-4011-a687-cad99841c269",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              }
+            ],
             "is_force_disabled": false
           }
         ],
         "other_attributes": {},
-        "created_at": "2025-04-05T15:02:26.547391",
-        "created_by_username": "gtudisco",
-        "latitude": 37.52,
-        "longitude": 15.07,
-        "id": "86660409-92c6-4d7b-bd56-fc0115fa61a6",
-        "downtime": [],
         "is_force_disabled": false
+      },
+      {
+        "id": "d2fa1566-96e6-47cb-8ef0-888ad8107c27",
+        "name": "UKSRC Jodrell (Production)",
+        "description": "University of Manchester",
+        "country": "GB",
+        "latitude": 53.22818,
+        "longitude": -2.30742,
+        "primary_contact_email": "ian.leigh@manchester.ac.uk",
+        "secondary_contact_email": "anthony.holloway@manchester.ac.uk",
+        "storages": [
+          {
+            "id": "ef233376-829c-4bbb-bb13-61b380ae480a",
+            "host": "dtn01.man.uksrc.ac.uk",
+            "base_path": "/skadata",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 100,
+            "name": "UKSRC_JBO_XRD",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "e7a1bd58-ed08-4d2d-956b-6ed538586dbb",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_JBO_XRD",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": true
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "compute": [
+          {
+            "id": "51a96791-0901-4271-886b-0cb6ffdeeb5d",
+            "compute_units": 3,
+            "hardware_capabilities": [
+              "high-mem"
+            ],
+            "hardware_type": "vm",
+            "description": "UKSRC K8s Production Cluster at Jodrell",
+            "associated_local_services": [
+              {
+                "id": "f078cbac-8618-4fa5-b6d6-d72652a98ac7",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.man.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "fb2ccba9-c07f-461d-acde-6e5f94b9f067",
+                "type": "echo",
+                "prefix": "https",
+                "host": "gatekeeper.man.uksrc.org",
+                "port": 443,
+                "path": "/echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "fbca321c-7bce-4020-8cee-d5c87498b939",
+                "type": "gatekeeper",
+                "prefix": "https",
+                "host": "gatekeeper.man.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "0a95dde6-19a5-47d4-88ba-84d2be8dd6b4",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.man.uksrc.org",
+                "port": 443,
+                "path": "/soda",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "642d5ce7-1fa4-49a6-b033-1bfc95f975fd",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.man.uksrc.org",
+                "port": 443,
+                "path": "/science-portal",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "d156a875-a0ce-4f9f-b0c2-dc374da28478",
+                "type": "perfsonar",
+                "prefix": "https",
+                "host": "perfsonar01.man.uksrc.org",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "e086e441-4ea2-4f60-830f-4bcad68ff82d",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.man.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "225607ed-2b56-4420-af2d-c10970ab7b48",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.man.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "39f3cf7b-ec7e-4136-8466-1cab4e17eaf2",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.man.uksrc.org",
+                "port": 443,
+                "path": "/preparedata",
+                "name": "preparedata",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": true
+      },
+      {
+        "id": "88c9039a-7c63-4242-8d7d-b2dd617544a0",
+        "name": "UKSRC Jodrell (Pre-Production)",
+        "description": "University of Manchester",
+        "country": "GB",
+        "latitude": 53.22818,
+        "longitude": -2.30742,
+        "primary_contact_email": "ian.leigh@manchester.ac.uk",
+        "secondary_contact_email": "anthony.holloway@manchester.ac.uk",
+        "storages": [
+          {
+            "id": "e4948660-158e-4ab8-a96f-52c9af8ecd6a",
+            "host": "dtn02.man.uksrc.ac.uk",
+            "base_path": "/skadata",
+            "srm": "xrd",
+            "device_type": "hdd",
+            "size_in_terabytes": 100,
+            "name": "UKSRC_JBO_XRD",
+            "supported_protocols": [
+              {
+                "prefix": "https",
+                "port": 1094
+              }
+            ],
+            "areas": [
+              {
+                "id": "fe3a639f-c8a2-42f3-af67-eb68c9d5e5fa",
+                "type": "rse",
+                "relative_path": "/",
+                "name": "UKSRC_JBO_XRD",
+                "tier": 1,
+                "other_attributes": {},
+                "is_force_disabled": true
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "compute": [
+          {
+            "id": "722740dc-aeb9-44f5-89b2-cf04c4679555",
+            "compute_units": 1,
+            "hardware_capabilities": [
+              "high-mem"
+            ],
+            "hardware_type": "vm",
+            "description": "UKSRC K8s Pre-production Cluster at Jodrell",
+            "associated_local_services": [
+              {
+                "id": "5c280c75-a572-4d28-a797-1ad8f7f01e74",
+                "type": "echo",
+                "prefix": "https",
+                "host": "gatekeeper.man-preprod.uksrc.org",
+                "port": 443,
+                "path": "/echo",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "8469f76b-45e2-474d-a54e-97bd22e9065e",
+                "type": "jupyterhub",
+                "prefix": "https",
+                "host": "jupyterhub.man-preprod.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "21b30cc7-0633-43f7-8b4f-bf81ae543927",
+                "type": "gatekeeper",
+                "prefix": "https",
+                "host": "gatekeeper.man-preprod.uksrc.org",
+                "port": 443,
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "38997b34-81eb-4951-8a7b-f9b63db6e01e",
+                "type": "soda_sync",
+                "prefix": "https",
+                "host": "gatekeeper.man-preprod.uksrc.org",
+                "port": 443,
+                "path": "/soda",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "48035690-b030-4c74-b14a-79916467af36",
+                "type": "canfar",
+                "prefix": "https",
+                "host": "canfar.man-preprod.uksrc.org",
+                "port": 443,
+                "path": "/science-portal",
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "91d79a9e-ecfe-4141-adc6-15c125532814",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "prometheus.man-preprod.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "d701e921-723a-4309-90ab-64da6501e13b",
+                "type": "monitoring",
+                "prefix": "https",
+                "host": "grafana.man-preprod.uksrc.org",
+                "port": 443,
+                "other_attributes": {},
+                "is_mandatory": false,
+                "is_force_disabled": false
+              },
+              {
+                "id": "25476688-fad6-41d8-ae89-9cce1f65fd51",
+                "type": "prepare_data",
+                "prefix": "https",
+                "host": "gatekeeper.man-preprod.uksrc.org",
+                "port": 443,
+                "path": "/preparedata",
+                "is_mandatory": true,
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
+            "is_force_disabled": true
+          }
+        ],
+        "other_attributes": {},
+        "is_force_disabled": true
       }
-    ]
+    ],
+    "last_updated_at": "2025-10-09T11:34:11.280470",
+    "last_updated_by_username": "sm2921",
+    "version": 1
   }
 ]
