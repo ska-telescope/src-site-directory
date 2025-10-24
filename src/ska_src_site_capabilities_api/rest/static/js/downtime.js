@@ -1,3 +1,7 @@
+function getShortUuid(uuid) {
+    return uuid.replace(/-/g, "").slice(0, 6);
+}
+
 function loadDynamicOptions(resourceType, values) {
     const siteSelected = $('select[name="site"]').val();
     const site = values.sites.find(site => site.name === siteSelected);
@@ -5,24 +9,27 @@ function loadDynamicOptions(resourceType, values) {
 
     switch (resourceType) {
         case 'sites':
-            options[site.id] = site.name;
+            options[site.id] = `urn:srcnet:site:${site.name}:${getShortUuid(site.id)}`
             break;
         case 'compute': {
             site?.compute?.forEach(compute => {
-                options[compute.id] = compute.name || compute.description;
+                options[compute.id] =
+                    `urn:srcnet:compute:${compute.name || compute.description}:${getShortUuid(compute.id)}`
             });
             break;
         }
         case 'storages': {
             site?.storages?.forEach(storage => {
-                options[storage.id] = storage.host;
+                options[storage.id] =
+                    `urn:srcnet:storage:${storage.srm}:${storage.host}:${storage.base_path}:${getShortUuid(storage.id)}`
             });
             break;
         }
         case 'storage_areas': {
             site?.storages?.forEach(storage => {
                 storage.areas?.forEach(area => {
-                    options[area.id] = `${storage.host} - ${area.name}`;
+                    options[area.id] =
+                        `urn:srcnet:storage-area:${area.name}:${area.type}:${area.relative_path}:${getShortUuid(area.id)}`
                 });
             });
             break;
@@ -30,7 +37,8 @@ function loadDynamicOptions(resourceType, values) {
         case 'compute_local_services': {
             site?.compute?.forEach(compute => {
                 compute.associated_local_services?.forEach(service => {
-                    options[service.id] = `${compute.name || compute.description} - ${service.type} - ${service.host}`;
+                    options[service.id] =
+                        `urn:srcnet:local-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`
                 });
             });
             break;
@@ -38,7 +46,8 @@ function loadDynamicOptions(resourceType, values) {
         case 'compute_global_services': {
             site?.compute?.forEach(compute => {
                 compute.associated_global_services?.forEach(service => {
-                    options[service.id] = `${compute.name || compute.description} - ${service.type} - ${service.host}`;
+                    options[service.id] =
+                        `urn:srcnet:global-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`;
                 });
             });
             break;
@@ -47,15 +56,15 @@ function loadDynamicOptions(resourceType, values) {
     return options;
 }
 
-function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl) {
+function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, downtimeFormUi, token, editNodeEndpointUrl) {
     const options = loadDynamicOptions(resourceType, node_values);
     const updatedSchema = {...downtime_schema};
 
     const currentFormValues = downtime_form.jsonFormValue();
-    updatedSchema.properties.specificResource.enum = Object.keys(options);
+    updatedSchema.properties.resourceName.enum = Object.keys(options);
 
     const updatedFormUi = downtimeFormUi.map(item => {
-        if (item.key === "specificResource") {
+        if (item.key === "resourceName") {
             return {...item, titleMap: options};
         }
         return item;
@@ -104,7 +113,7 @@ function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, do
                 });
             }
         }
-        });
+    });
 }
 
 function parseOtherAttributes(obj, parentPath = '') {
@@ -147,7 +156,7 @@ function addDowntime(resources, id, downtime) {
 }
 
 function updateNodeJson(node_values, form_values) {
-    const {site, resourceType, specificResource, type, date_range, reason} = form_values;
+    const {site, resourceType, resourceName, type, date_range, reason} = form_values;
 
     const affectedSite = node_values.sites.find(s => s.name === site);
     const downtime = {
@@ -162,24 +171,24 @@ function updateNodeJson(node_values, form_values) {
             affectedSite?.downtime.push(downtime);
             break;
         case 'compute' :
-            addDowntime(affectedSite?.compute, specificResource, downtime)
+            addDowntime(affectedSite?.compute, resourceName, downtime)
             break;
         case 'storages'  :
-            addDowntime(affectedSite?.storages, specificResource, downtime)
+            addDowntime(affectedSite?.storages, resourceName, downtime)
             break;
         case 'storage_areas'  :
             affectedSite?.storages.forEach(storage => {
-                addDowntime(storage.areas, specificResource, downtime)
+                addDowntime(storage.areas, resourceName, downtime)
             })
             break;
         case 'compute_local_services'  :
             affectedSite?.compute.forEach(compute => {
-                addDowntime(compute.associated_local_services, specificResource, downtime)
+                addDowntime(compute.associated_local_services, resourceName, downtime)
             })
             break;
         case 'compute_global_services'   :
             affectedSite?.compute.forEach(compute => {
-                addDowntime(compute.associated_global_services, specificResource, downtime)
+                addDowntime(compute.associated_global_services, resourceName, downtime)
             })
             break;
     }
