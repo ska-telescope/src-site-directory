@@ -20,9 +20,9 @@
         "compute_global_services"
       ]
     },
-    "specificResource": {
+    "resourceName": {
       "type": "string",
-      "title": "Specific Resource",
+      "title": "Resource Name",
       "default": null
     },
     "type": {
