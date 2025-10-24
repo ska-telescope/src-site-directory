@@ -21,7 +21,7 @@
         }
     },
     {
-        "key": "specificResource",
+        "key": "resourceName",
         "titleMap": {}
     },
     {
