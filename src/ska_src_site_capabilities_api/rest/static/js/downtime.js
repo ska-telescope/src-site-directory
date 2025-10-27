@@ -61,10 +61,10 @@ function reinitialiseWithNewOptions(resourceType, node_values, downtime_form, do
     const updatedSchema = {...downtime_schema};
 
     const currentFormValues = downtime_form.jsonFormValue();
-    updatedSchema.properties.resourceName.enum = Object.keys(options);
+    updatedSchema.properties.uniqueResourceName.enum = Object.keys(options);
 
     const updatedFormUi = downtimeFormUi.map(item => {
-        if (item.key === "resourceName") {
+        if (item.key === "uniqueResourceName") {
             return {...item, titleMap: options};
         }
         return item;
@@ -156,7 +156,7 @@ function addDowntime(resources, id, downtime) {
 }
 
 function updateNodeJson(node_values, form_values) {
-    const {site, resourceType, resourceName, type, date_range, reason} = form_values;
+    const {site, resourceType, uniqueResourceName, type, date_range, reason} = form_values;
 
     const affectedSite = node_values.sites.find(s => s.name === site);
     const downtime = {
@@ -171,24 +171,24 @@ function updateNodeJson(node_values, form_values) {
             affectedSite?.downtime.push(downtime);
             break;
         case 'compute' :
-            addDowntime(affectedSite?.compute, resourceName, downtime)
+            addDowntime(affectedSite?.compute, uniqueResourceName, downtime)
             break;
         case 'storages'  :
-            addDowntime(affectedSite?.storages, resourceName, downtime)
+            addDowntime(affectedSite?.storages, uniqueResourceName, downtime)
             break;
         case 'storage_areas'  :
             affectedSite?.storages.forEach(storage => {
-                addDowntime(storage.areas, resourceName, downtime)
+                addDowntime(storage.areas, uniqueResourceName, downtime)
             })
             break;
         case 'compute_local_services'  :
             affectedSite?.compute.forEach(compute => {
-                addDowntime(compute.associated_local_services, resourceName, downtime)
+                addDowntime(compute.associated_local_services, uniqueResourceName, downtime)
             })
             break;
         case 'compute_global_services'   :
             affectedSite?.compute.forEach(compute => {
-                addDowntime(compute.associated_global_services, resourceName, downtime)
+                addDowntime(compute.associated_global_services, uniqueResourceName, downtime)
             })
             break;
     }
