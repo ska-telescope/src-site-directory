@@ -88,6 +88,90 @@ class MongoBackend(Backend):
 
         return labels
 
+    def _format_services_with_targets_for_prometheus(self, services):
+        """
+        Returns a list of services formatted for Prometheus Service Discovery.
+
+        Args:
+            services: List of service dictionaries.
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
+        formatted_services = []
+        for service in services:
+            if not service.get("host"):
+                continue
+            path = service.get("path", "")
+            path = path.strip() if path else ""
+            if path and not path.startswith("/"):
+                path = "/" + path
+
+            target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+            if service.get("port") is not None:
+                target += f':{service.get("port")}'
+
+            target += path
+
+            if service.get("type") == "gatekeeper":
+                target += "/ping"
+
+            labels = self._get_service_labels_for_prometheus(service=service)
+            formatted_services.append({"targets": [target], "labels": labels})
+
+        return formatted_services
+
+    def _get_storage_areas_with_host_for_prometheus(self, node_names=None, site_names=None, include_inactive=False):
+        """
+        Returns a list of storage areas with host information formatted for Prometheus Service Discovery.
+
+        Args:
+            node_names: List of node names to filter storage areas by. If None, no node filtering is applied.
+            site_names: List of site names to filter storage areas by. If None, no site filtering is applied.
+            include_inactive: Boolean to include inactive storage areas.
+
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
+        node_names = node_names or []
+        site_names = site_names or []
+        response = []
+        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+            supported_protocols = storage.get("supported_protocols", [])
+
+            if not supported_protocols:
+                supported_protocols = [{"prefix": "https", "port": 443}]
+
+            for storage_area in storage.get("areas", []):
+                for protocol in supported_protocols:
+                    response.append(
+                        {
+                            "parent_node_name": storage.get("parent_node_name"),
+                            "parent_site_name": storage.get("parent_site_name"),
+                            "parent_site_id": storage.get("parent_site_id"),
+                            "parent_storage_id": storage.get("id"),
+                            "host": storage.get("host"),
+                            "base_path": storage.get("base_path"),
+                            "prefix": protocol.get("prefix"),
+                            "port": protocol.get("port"),
+                            **storage_area,
+                            "type": f"{storage_area.get('type', '').upper()}-T{storage_area.get('tier', '0')}",
+                        }
+                    )
+
+        formatted = []
+        for storage_area in response:
+            target = f'{storage_area.get("prefix", "https").replace("://", "")}://{storage_area.get("host")}'
+            if storage_area.get("port") is not None:
+                target += f':{storage_area.get("port")}'
+            target += f'{storage_area.get("base_path")}'
+            relative_path = storage_area.get("relative_path") or ""
+            if relative_path.startswith(("http://", "https://")):
+                target = relative_path
+            else:
+                target += f'/{relative_path.lstrip("/")}'
+            formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(storage_area)})
+        return formatted
+
     def _is_element_in_downtime(self, downtime):
         """
         Checks if an element is in downtime.
@@ -501,26 +585,12 @@ class MongoBackend(Backend):
 
         if for_prometheus:
             formatted = []
-            for service in response:
-                if not service.get("host"):
-                    continue
-                path = service.get("path", "")
-                path = path.strip() if path else ""
-                if path and not path.startswith("/"):
-                    path = "/" + path
+            services = self._format_services_with_targets_for_prometheus(response)
+            formatted.extend(services)
+            # Add RSE(storage areas) with host information
+            storages = self._get_storage_areas_with_host_for_prometheus(node_names, site_names, include_inactive)
+            formatted.extend(storages)
 
-                target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
-                if service.get("port") is not None:
-                    target += f':{service.get("port")}'
-
-                target += path
-
-                if service.get("type") == "gatekeeper":
-                    target += "/ping"
-
-                labels = self._get_service_labels_for_prometheus(service=service)
-
-                formatted.append({"targets": [target], "labels": labels})
             return formatted
 
         return response
