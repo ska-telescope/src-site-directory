@@ -1,0 +1,57 @@
+
+body {
+    background: #f9fafb;
+}
+
+table {
+    font-size: .95rem;
+}
+
+:root {
+    --skao-gradient: linear-gradient(90deg, #181c45 13%, #811052 87%);
+}
+
+/* the entire header row gets the gradient once */
+nav.navbar {
+    background: var(--skao-gradient) !important;
+}
+
+/* individual header cells: transparent so the row shows through */
+thead tr {
+    background: var(--skao-gradient) !important;
+}
+
+/* individual header cells: transparent so the row shows through */
+thead th {
+    background: transparent !important;
+    color: #fff;
+}
+
+a.service-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a.service-link:hover {
+    text-decoration: underline;
+}
+
+.impact-badge {
+    font-size: .8rem;
+}
+
+.impact-NoImpact {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.impact-Degraded {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.impact-Downtime {
+    background: #f8d7da;
+    color: #842029;
+}
