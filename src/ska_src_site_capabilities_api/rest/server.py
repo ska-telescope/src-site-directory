@@ -1624,6 +1624,74 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
         )
 
 
+@api_version(1)
+@app.get(
+    "/www/downtime/{node_name}",
+    responses={200: {}, 401: {}, 403: {}},
+    include_in_schema=False,
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    tags=["Nodes"],
+    summary="Edit existing node form",
+)
+@handle_exceptions
+async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
+    """Web form to edit an existing node with JSON schema validation."""
+    if request.session.get("access_token"):
+        # Check access permissions.
+        # if not DEBUG:
+        #     try:
+        #         rtn = PERMISSIONS.authorise_service_route(
+        #             service=PERMISSIONS_SERVICE_NAME,
+        #             version=PERMISSIONS_SERVICE_VERSION,
+        #             route=request.scope["route"].path,
+        #             method=request.method,
+        #             token=request.session.get("access_token"),
+        #             body=request.path_params,
+        #         ).json()
+        #     except Exception as err:
+        #         raise err
+        #     if not rtn.get("is_authorised", False):
+        #         raise PermissionDenied
+
+        # Load schema.
+        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
+        # Get latest values for requested node.
+        node = BACKEND.get_node(node_name=node_name)
+        if not node:
+            raise NodeVersionNotFound(node_name=node_name, node_version="latest")
+
+        # Pop comments from version.
+        try:
+            node.pop("comments")
+        except KeyError:
+            pass
+
+        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as
+        # [Object object].
+        node = recursive_stringify(node)
+
+        return TEMPLATES.TemplateResponse(
+            "downtime-statusboard.html",
+            {
+                "request": request,
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "title": "Edit SRCNet Node ({})".format(node_name),
+                "sign_out_url": get_url_for_app_from_request(
+                    "www_logout",
+                    request,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
+                "access_token": request.session.get("access_token"),
+                "values": node,
+            },
+        )
+    else:
+        return HTMLResponse(
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+        )
+
+
+
 # TODO
 @api_version(1)
 @app.get(
