@@ -1653,8 +1653,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
         #     if not rtn.get("is_authorised", False):
         #         raise PermissionDenied
 
-        # Load schema.
-        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
         # Get latest values for requested node.
         node = BACKEND.get_node(node_name=node_name)
         if not node:
@@ -1689,7 +1687,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
         return HTMLResponse(
             "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
         )
-
 
 
 # TODO
