@@ -194,3 +194,102 @@ function updateNodeJson(node_values, form_values) {
     }
 
 }
+
+function getStartEndDates(downtime) {
+    const [start, end] = downtime.date_range.split(' to ')
+        .map(dateStr => new Date(dateStr.trim()).toLocaleString());
+
+    return {start, end};
+}
+
+function getDowntimes(node_values) {
+    const sites = node_values.sites.flatMap(site => {
+        return (site.downtime || []).map(downtime => {
+            const {start, end} = getStartEndDates(downtime);
+            return {
+                resourceType: 'sites',
+                resourceName: `${site.name}`,
+                resourceId: site.id,
+                start, end, ...downtime
+            }
+        });
+    })
+
+    const compute = node_values.sites.flatMap(site => {
+        return (site.compute || []).flatMap(compute => {
+            return (compute.downtime || []).map(downtime => {
+                const {start, end} = getStartEndDates(downtime);
+                return {
+                    resourceType: 'compute',
+                    resourceName: `${compute.name || compute.description}`,
+                    resourceId: compute.id,
+                    start, end, ...downtime
+                }
+            });
+        });
+    });
+
+    const storages = node_values.sites.flatMap(site => {
+        return (site.storages || []).flatMap(storage => {
+            return (storage.downtime || []).map(downtime => {
+                const {start, end} = getStartEndDates(downtime);
+                return {
+                    resourceType: 'storages',
+                    resourceName: `${storage.host}`,
+                    resourceId: storage.id,
+                    start, end, ...downtime
+                }
+            });
+        });
+    });
+
+    const storage_areas = node_values.sites.flatMap(site => {
+        return (site.storages || []).flatMap(storage => {
+            return (storage.areas || []).flatMap(area => {
+                return (area.downtime || []).map(downtime => {
+                    const {start, end} = getStartEndDates(downtime);
+                    return {
+                        resourceType: 'storage_areas',
+                        resourceName: `${area.name} ${area.type}`,
+                        resourceId: area.id,
+                        start, end, ...downtime
+                    }
+                });
+            });
+        });
+    })
+
+
+    const compute_local_services = node_values.sites.flatMap(site => {
+        return (site.compute || []).flatMap(compute => {
+            return (compute.associated_local_services || []).flatMap(service => {
+                return (service.downtime || []).map(downtime => {
+                    const {start, end} = getStartEndDates(downtime);
+                    return {
+                        resourceType: 'compute_local_services',
+                        resourceName: `${service.name} ${service.host}`,
+                        resourceId: service.id,
+                        start, end, ...downtime
+                    }
+                });
+            });
+        });
+    });
+
+    const compute_global_services = node_values.sites.flatMap(site => {
+        return (site.compute || []).flatMap(compute => {
+            return (compute.associated_global_services || []).flatMap(service => {
+                return (service.downtime || []).map(downtime => {
+                    const {start, end} = getStartEndDates(downtime);
+                    return {
+                        resourceType: 'compute_global_services',
+                        resourceName: `${service.name} ${service.host}`,
+                        resourceId: service.id,
+                        start, end, ...downtime
+                    }
+                });
+            });
+        });
+    });
+    return [...sites, ...compute, ...storages, ...storage_areas, ...compute_local_services, ...compute_global_services];
+}
