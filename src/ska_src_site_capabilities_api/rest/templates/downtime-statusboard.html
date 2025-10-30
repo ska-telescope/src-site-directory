@@ -33,7 +33,7 @@
               <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor:pointer" title="${downtime.reason}">${downtime.reason}</td>
               <td>${downtime.start}</td>
               <td>${downtime.end}</td>
-              <td><span class="delete-btn" role="button" style="cursor:pointer" aria-label="Delete Downtime"><i
+              <td><span class="delete-btn text-danger" role="button" style="cursor:pointer" aria-label="Delete Downtime"><i
                         class="bi bi-trash me-1"></i><span> Delete</span></span></td>
         `;
             table.appendChild(row);
@@ -45,11 +45,18 @@
     document.addEventListener('DOMContentLoaded', function () {
         const filterDropdown = document.getElementById('interventionTypeFilter');
         const tableBody = document.querySelector('#upcomingDowntimesTable');
-        console.log(tableBody, "this is the table body")
-        createDowntimeRows(getDowntimes(values), tableBody);
-        const rows = tableBody.querySelectorAll('tr');
+        createDowntimeRows(getDowntimes(values).upcoming, tableBody);
+
+        const ongoingTableBody = document.querySelector('#ongoingDowntimesTable');
+        createDowntimeRows(getDowntimes(values).ongoing, ongoingTableBody);
+
+        const completedTableBody = document.querySelector('#completedDowntimesTable');
+        createDowntimeRows(getDowntimes(values).completed, completedTableBody);
+
+        const rows = document.querySelectorAll('tbody tr')
 
         filterDropdown.addEventListener('change', function () {
+            console.log('Filter changed to:', this.value, rows);
             const selectedType = this.value;
             rows.forEach(row => {
                 const rowType = row.getAttribute('data-type');
@@ -80,6 +87,25 @@
         </select>
     </div>
     <div class="table-responsive">
+        <h2>Ongoing Downtimes</h2>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Resource Type</th>
+                <th>Resource Name</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="ongoingDowntimesTable">
+            </tbody>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <h2>Upcoming Downtimes</h2>
         <table class="table table-striped table-hover">
             <thead class="table-dark">
             <tr>
@@ -93,6 +119,24 @@
             </tr>
             </thead>
             <tbody id="upcomingDowntimesTable">
+            </tbody>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <h2>Completed Downtimes</h2>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Resource Type</th>
+                <th>Resource Name</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="completedDowntimesTable">
             </tbody>
         </table>
     </div>
