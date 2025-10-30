@@ -20,7 +20,7 @@
         "permissions-api",
         "auth-api",
         "gms",
-        "compute-api",
+        "global-execution-api",
         "accounting-api"
       ],
       "default": null,
