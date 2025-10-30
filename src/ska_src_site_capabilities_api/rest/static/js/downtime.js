@@ -202,16 +202,33 @@ function getStartEndDates(downtime) {
     return {start, end};
 }
 
+function getStatus(start, end) {
+    const now = new Date();
+    if (now < new Date(start)) {
+        return "upcoming";
+    } else if (now >= new Date(start) && now <= new Date(end)) {
+        return "ongoing";
+    } else {
+        return "completed";
+    }
+}
+
 function getDowntimes(node_values) {
+    const downtimes = {
+        upcoming: [],
+        ongoing: [],
+        completed: []
+    }
     const sites = node_values.sites.flatMap(site => {
         return (site.downtime || []).map(downtime => {
             const {start, end} = getStartEndDates(downtime);
-            return {
+            const status = getStatus(start, end);
+            downtimes[status].push({
                 resourceType: 'sites',
                 resourceName: `${site.name}`,
                 resourceId: site.id,
                 start, end, ...downtime
-            }
+            })
         });
     })
 
@@ -219,13 +236,15 @@ function getDowntimes(node_values) {
         return (site.compute || []).flatMap(compute => {
             return (compute.downtime || []).map(downtime => {
                 const {start, end} = getStartEndDates(downtime);
-                return {
+                const status = getStatus(start, end);
+                downtimes[status].push({
                     resourceType: 'compute',
                     resourceName: `${compute.name || compute.description}`,
                     resourceId: compute.id,
                     start, end, ...downtime
-                }
-            });
+                })
+            })
+
         });
     });
 
@@ -233,14 +252,15 @@ function getDowntimes(node_values) {
         return (site.storages || []).flatMap(storage => {
             return (storage.downtime || []).map(downtime => {
                 const {start, end} = getStartEndDates(downtime);
-                return {
+                const status = getStatus(start, end);
+                downtimes[status].push({
                     resourceType: 'storages',
                     resourceName: `${storage.host}`,
                     resourceId: storage.id,
                     start, end, ...downtime
-                }
+                })
             });
-        });
+        })
     });
 
     const storage_areas = node_values.sites.flatMap(site => {
@@ -248,29 +268,30 @@ function getDowntimes(node_values) {
             return (storage.areas || []).flatMap(area => {
                 return (area.downtime || []).map(downtime => {
                     const {start, end} = getStartEndDates(downtime);
-                    return {
+                    const status = getStatus(start, end);
+                    downtimes[status].push({
                         resourceType: 'storage_areas',
                         resourceName: `${area.name} ${area.type}`,
                         resourceId: area.id,
                         start, end, ...downtime
-                    }
+                    })
                 });
             });
         });
-    })
-
+    });
 
     const compute_local_services = node_values.sites.flatMap(site => {
         return (site.compute || []).flatMap(compute => {
             return (compute.associated_local_services || []).flatMap(service => {
                 return (service.downtime || []).map(downtime => {
                     const {start, end} = getStartEndDates(downtime);
-                    return {
+                    const status = getStatus(start, end);
+                    downtimes[status].push({
                         resourceType: 'compute_local_services',
                         resourceName: `${service.name} ${service.host}`,
                         resourceId: service.id,
                         start, end, ...downtime
-                    }
+                    })
                 });
             });
         });
@@ -281,15 +302,16 @@ function getDowntimes(node_values) {
             return (compute.associated_global_services || []).flatMap(service => {
                 return (service.downtime || []).map(downtime => {
                     const {start, end} = getStartEndDates(downtime);
-                    return {
+                    const status = getStatus(start, end);
+                    downtimes[status].push({
                         resourceType: 'compute_global_services',
                         resourceName: `${service.name} ${service.host}`,
                         resourceId: service.id,
                         start, end, ...downtime
-                    }
+                    })
                 });
             });
         });
     });
-    return [...sites, ...compute, ...storages, ...storage_areas, ...compute_local_services, ...compute_global_services];
+    return downtimes;
 }
