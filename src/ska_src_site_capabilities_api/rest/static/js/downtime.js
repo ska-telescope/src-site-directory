@@ -192,7 +192,6 @@ function updateNodeJson(node_values, form_values) {
             })
             break;
     }
-
 }
 
 function getStartEndDates(downtime) {
@@ -218,100 +217,58 @@ function getDowntimes(node_values) {
         upcoming: [],
         ongoing: [],
         completed: []
+    };
+
+    function collect(resourceType, items, getName, getId) {
+        (items || []).forEach(item => {
+            (item.downtime || []).forEach(downtime => {
+                const {start, end} = getStartEndDates(downtime);
+                const status = getStatus(start, end);
+                downtimes[status].push({
+                    resourceType,
+                    resourceName: getName(item),
+                    resourceId: getId(item),
+                    start,
+                    end,
+                    ...downtime
+                });
+            });
+        });
     }
-    const sites = node_values.sites.flatMap(site => {
-        return (site.downtime || []).map(downtime => {
-            const {start, end} = getStartEndDates(downtime);
-            const status = getStatus(start, end);
-            downtimes[status].push({
-                resourceType: 'sites',
-                resourceName: `${site.name}`,
-                resourceId: site.id,
-                start, end, ...downtime
-            })
+
+    node_values.sites.forEach(site => {
+        collect('sites', [site], s => s.name, s => s.id);
+        collect('compute', site.compute, c => c.name || c.description, c => c.id);
+        collect('storages', site.storages, s => s.host, s => s.id);
+
+        (site.storages || []).forEach(storage => {
+            collect('storage_areas', storage.areas, a => `${a.name} ${a.type}`, a => a.id);
         });
-    })
 
-    const compute = node_values.sites.flatMap(site => {
-        return (site.compute || []).flatMap(compute => {
-            return (compute.downtime || []).map(downtime => {
-                const {start, end} = getStartEndDates(downtime);
-                const status = getStatus(start, end);
-                downtimes[status].push({
-                    resourceType: 'compute',
-                    resourceName: `${compute.name || compute.description}`,
-                    resourceId: compute.id,
-                    start, end, ...downtime
-                })
-            })
-
+        (site.compute || []).forEach(compute => {
+            collect('compute_local_services', compute.associated_local_services, s => `${s.name} ${s.host}`, s => s.id);
+            collect('compute_global_services', compute.associated_global_services, s => `${s.name} ${s.host}`, s => s.id);
         });
     });
 
-    const storages = node_values.sites.flatMap(site => {
-        return (site.storages || []).flatMap(storage => {
-            return (storage.downtime || []).map(downtime => {
-                const {start, end} = getStartEndDates(downtime);
-                const status = getStatus(start, end);
-                downtimes[status].push({
-                    resourceType: 'storages',
-                    resourceName: `${storage.host}`,
-                    resourceId: storage.id,
-                    start, end, ...downtime
-                })
-            });
-        })
-    });
-
-    const storage_areas = node_values.sites.flatMap(site => {
-        return (site.storages || []).flatMap(storage => {
-            return (storage.areas || []).flatMap(area => {
-                return (area.downtime || []).map(downtime => {
-                    const {start, end} = getStartEndDates(downtime);
-                    const status = getStatus(start, end);
-                    downtimes[status].push({
-                        resourceType: 'storage_areas',
-                        resourceName: `${area.name} ${area.type}`,
-                        resourceId: area.id,
-                        start, end, ...downtime
-                    })
-                });
-            });
-        });
-    });
-
-    const compute_local_services = node_values.sites.flatMap(site => {
-        return (site.compute || []).flatMap(compute => {
-            return (compute.associated_local_services || []).flatMap(service => {
-                return (service.downtime || []).map(downtime => {
-                    const {start, end} = getStartEndDates(downtime);
-                    const status = getStatus(start, end);
-                    downtimes[status].push({
-                        resourceType: 'compute_local_services',
-                        resourceName: `${service.name} ${service.host}`,
-                        resourceId: service.id,
-                        start, end, ...downtime
-                    })
-                });
-            });
-        });
-    });
-
-    const compute_global_services = node_values.sites.flatMap(site => {
-        return (site.compute || []).flatMap(compute => {
-            return (compute.associated_global_services || []).flatMap(service => {
-                return (service.downtime || []).map(downtime => {
-                    const {start, end} = getStartEndDates(downtime);
-                    const status = getStatus(start, end);
-                    downtimes[status].push({
-                        resourceType: 'compute_global_services',
-                        resourceName: `${service.name} ${service.host}`,
-                        resourceId: service.id,
-                        start, end, ...downtime
-                    })
-                });
-            });
-        });
-    });
     return downtimes;
+}
+
+function createDowntimeRows(values, table) {
+    values.forEach(downtime => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-type', downtime.resourceType);
+        const impactClass = downtime.type === 'Planned' ? 'impact-Degraded' : 'impact-Downtime';
+        row.innerHTML = `
+              <td>${downtime.resourceType}</td>
+              <td>${downtime.resourceName}</td>
+              <td><span class="badge impact-badge ${impactClass}">${downtime.type}</span></td>
+              <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor:pointer" title="${downtime.reason}">${downtime.reason}</td>
+              <td>${downtime.start}</td>
+              <td>${downtime.end}</td>
+              <td><span class="delete-btn text-danger" role="button" style="cursor:pointer" aria-label="Delete Downtime"><i
+                        class="bi bi-trash me-1"></i><span> Delete</span></span></td>
+        `;
+        table.appendChild(row);
+    })
 }

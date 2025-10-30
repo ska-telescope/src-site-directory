@@ -12,6 +12,7 @@
 
 </head>
 <body>
+
 <script type="text/javascript" src="{{ base_url }}static/js/downtime.js"></script>
 <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
@@ -20,28 +21,7 @@
 </nav>
 
 <script type="text/javascript">
-    function createDowntimeRows(values, table) {
-        values.forEach(downtime => {
-            const row = document.createElement('tr');
-            console.log(downtime)
-            row.setAttribute('data-type', downtime.resourceType);
-            const impactClass = downtime.type === 'Planned' ? 'impact-Degraded' : 'impact-Downtime';
-            row.innerHTML = `
-              <td>${downtime.resourceType}</td>
-              <td>${downtime.resourceName}</td>
-              <td><span class="badge impact-badge ${impactClass}">${downtime.type}</span></td>
-              <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor:pointer" title="${downtime.reason}">${downtime.reason}</td>
-              <td>${downtime.start}</td>
-              <td>${downtime.end}</td>
-              <td><span class="delete-btn text-danger" role="button" style="cursor:pointer" aria-label="Delete Downtime"><i
-                        class="bi bi-trash me-1"></i><span> Delete</span></span></td>
-        `;
-            table.appendChild(row);
-        })
-    }
-
     const values = {{ values | tojson }};
-    console.log(getDowntimes(values))
     document.addEventListener('DOMContentLoaded', function () {
         const filterDropdown = document.getElementById('interventionTypeFilter');
         const tableBody = document.querySelector('#upcomingDowntimesTable');
@@ -56,7 +36,6 @@
         const rows = document.querySelectorAll('tbody tr')
 
         filterDropdown.addEventListener('change', function () {
-            console.log('Filter changed to:', this.value, rows);
             const selectedType = this.value;
             rows.forEach(row => {
                 const rowType = row.getAttribute('data-type');
@@ -140,6 +119,11 @@
             </tbody>
         </table>
     </div>
+    <p class="text-muted small">
+        Last updated: {{ values.last_updated_at }}
+        <br>
+        Last updates by: {{ values.last_updated_by_username }}
+    </p>
 </main>
 
 </body>
