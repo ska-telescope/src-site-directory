@@ -1635,7 +1635,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
 )
 @handle_exceptions
 async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
-    """Web form to edit an existing node with JSON schema validation."""
+    """Dashboard to get all the downtimes for node."""
     if request.session.get("access_token"):
         # Check access permissions.
         # if not DEBUG:
@@ -1664,8 +1664,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
         except KeyError:
             pass
 
-        # Quote nested JSON "other_attribute" dictionaries otherwise JSONForm parses as
-        # [Object object].
         node = recursive_stringify(node)
 
         return TEMPLATES.TemplateResponse(
@@ -1673,7 +1671,7 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
             {
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
-                "title": "Edit SRCNet Node ({})".format(node_name),
+                "title": "Downtimes SRCNet Node ({})".format(node_name),
                 "sign_out_url": get_url_for_app_from_request(
                     "www_logout",
                     request,
