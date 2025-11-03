@@ -54,6 +54,11 @@
   <script type="text/javascript" src="{{ base_url }}static/js/downtime.js"></script>
   <script type="text/javascript">
     const downtime_schema = {{ downtime_schema | tojson }};
+    downtime_schema.properties.site ={
+      "type": "select",
+      "title": "Site",
+      "default": null
+    }
     const values = {{ values | tojson }};
   </script>
   <script type="text/javascript">
