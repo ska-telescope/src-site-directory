@@ -1638,27 +1638,25 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
     """Dashboard to get all the downtimes for node."""
     if request.session.get("access_token"):
         # Check access permissions.
-        # if not DEBUG:
-        #     try:
-        #         rtn = PERMISSIONS.authorise_service_route(
-        #             service=PERMISSIONS_SERVICE_NAME,
-        #             version=PERMISSIONS_SERVICE_VERSION,
-        #             route=request.scope["route"].path,
-        #             method=request.method,
-        #             token=request.session.get("access_token"),
-        #             body=request.path_params,
-        #         ).json()
-        #     except Exception as err:
-        #         raise err
-        #     if not rtn.get("is_authorised", False):
-        #         raise PermissionDenied
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
 
-        # Get latest values for requested node.
         node = BACKEND.get_node(node_name=node_name)
         if not node:
             raise NodeVersionNotFound(node_name=node_name, node_version="latest")
 
-        # Pop comments from version.
         try:
             node.pop("comments")
         except KeyError:
