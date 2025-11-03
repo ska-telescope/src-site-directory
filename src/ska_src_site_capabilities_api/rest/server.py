@@ -1630,8 +1630,8 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
-    tags=["Nodes"],
-    summary="Edit existing node form",
+    tags=["Nodes", "Downtimes"],
+    summary="Get the downtime statusboard for a node",
 )
 @handle_exceptions
 async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
