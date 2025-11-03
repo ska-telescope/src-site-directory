@@ -36,8 +36,7 @@
     },
     "reason": {
       "type": "string",
-      "title": "Reason",
-      "required": true
+      "title": "Reason"
     }
   }
 }
