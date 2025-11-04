@@ -308,6 +308,12 @@
               "items": {
                 "type": "section",
                 "items": [
+                   {
+                    "key": "sites[].downtime[].id",
+                    "type": "text",
+                    "placeholder": "To be assigned",
+                    "readOnly": true
+                  },
                   {
                     "key": "sites[].downtime[].date_range",
                     "type": "text",
@@ -393,6 +399,12 @@
                           "items": {
                             "type": "section",
                             "items": [
+                                {
+                                "key": "sites[].storages[].downtime[].id",
+                                "type": "text",
+                                "placeholder": "To be assigned",
+                                "readOnly": true
+                              },
                               {
                                 "key": "sites[].storages[].downtime[].date_range",
                                 "type": "text",
@@ -447,6 +459,12 @@
                                   "items": {
                                     "type": "section",
                                     "items": [
+                                      {
+                                        "key": "sites[].storages[].areas[].downtime[].id",
+                                        "type": "text",
+                                        "placeholder": "To be assigned",
+                                        "readOnly": true
+                                      },
                                       {
                                         "key": "sites[].storages[].areas[].downtime[].date_range",
                                         "type": "text",
@@ -542,6 +560,12 @@
                           "items": {
                             "type": "section",
                             "items": [
+                                {
+                                "key": "sites[].compute[].downtime[].id",
+                                "type": "text",
+                                "placeholder": "To be assigned",
+                                "readOnly": true
+                              },
                               {
                                 "key": "sites[].compute[].downtime[].date_range",
                                 "type": "text",
@@ -616,6 +640,12 @@
                                   "items": {
                                     "type": "section",
                                     "items": [
+                                      {
+                                        "key": "sites[].compute[].associated_local_services[].downtime[].id",
+                                        "type": "text",
+                                        "placeholder": "To be assigned",
+                                        "readOnly": true
+                                      },
                                       {
                                         "key": "sites[].compute[].associated_local_services[].downtime[].date_range",
                                         "type": "text",
@@ -702,6 +732,12 @@
                                     "type": "section",
                                     "legend": "{{value}} ({{idx-1}})",
                                     "items": [
+                                      {
+                                        "key": "sites[].compute[].associated_global_services[].downtime[].id",
+                                        "type": "text",
+                                        "placeholder": "To be assigned",
+                                        "readOnly": true
+                                      },
                                       {
                                         "key": "sites[].compute[].associated_global_services[].downtime[].date_range",
                                         "type": "text",

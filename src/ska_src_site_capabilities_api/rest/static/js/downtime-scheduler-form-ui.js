@@ -4,6 +4,12 @@
         "title": "Downtime Management Form"
     },
     {
+        "key": "id",
+        "type": "text",
+        "placeholder": "To be assigned",
+        "readOnly": true
+    },
+    {
         "key": "site",
         "title": "Affected Site",
         "type": "select",

@@ -3,6 +3,12 @@
   "type": "object",
   "description": "Downtime scheduler schema.",
   "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": "to be assigned"
+    },
     "resourceType": {
       "type": "string",
       "title": "Resource Type",
