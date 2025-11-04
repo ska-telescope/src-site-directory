@@ -29,6 +29,7 @@ class Downtime(BaseModel):
     reason: str = Field(examples=["Network issues."])
     id: UUID = Field(default_factory=uuid4)
 
+
 class Service(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["SKAOSRC"])
