@@ -162,7 +162,8 @@ function updateNodeJson(node_values, form_values) {
     const downtime = {
         type: type,
         reason: reason,
-        date_range: date_range
+        date_range: date_range,
+        id: "to be assigned"
     };
 
     switch (resourceType) {
@@ -258,6 +259,8 @@ function createDowntimeRows(values, table) {
     values.forEach(downtime => {
         const row = document.createElement('tr');
         row.setAttribute('data-type', downtime.resourceType);
+        row.setAttribute('data-resource-id', downtime.resourceId);
+        row.setAttribute('data-downtime-id', downtime.id);
         const impactClass = downtime.type === 'Planned' ? 'impact-Degraded' : 'impact-Downtime';
         row.innerHTML = `
               <td>${downtime.resourceType}</td>
@@ -273,3 +276,85 @@ function createDowntimeRows(values, table) {
     })
 }
 
+function deleteDowntimeEntry(node_values, resourceType, resourceId, downtimeId) {
+    function removeDowntimeFromList(items) {
+        items.forEach(item => {
+            if (item.id === resourceId) {
+                item.downtime = item.downtime.filter(downtime => downtime.id !== downtimeId);
+            }
+        });
+    }
+
+    node_values.sites.forEach(site => {
+        switch (resourceType) {
+            case 'sites':
+                if (site.id === resourceId) {
+                    site.downtime = site.downtime.filter(downtime => downtime.id !== downtimeId);
+                }
+                break;
+            case 'compute':
+                removeDowntimeFromList(site.compute || []);
+                break;
+            case 'storages':
+                removeDowntimeFromList(site.storages || []);
+                break;
+            case 'storage_areas':
+                (site.storages || []).forEach(storage => {
+                    removeDowntimeFromList(storage.areas || []);
+                });
+                break;
+            case 'compute_local_services':
+                (site.compute || []).forEach(compute => {
+                    removeDowntimeFromList(compute.associated_local_services || []);
+                });
+                break;
+            case 'compute_global_services':
+                (site.compute || []).forEach(compute => {
+                    removeDowntimeFromList(compute.associated_global_services || []);
+                });
+                break;
+        }
+    });
+    return node_values;
+}
+
+
+function deleteDowntimeHandler(node_values, token, editNodeUrl, downtime) {
+    if (downtime.id === "undefined") {
+        console.log("in heree")
+        showAndDismissAlert('danger', 'Downtime ID is undefined. Cannot proceed with deletion.');
+        return;
+    }
+
+    const updatedNodeValues = deleteDowntimeEntry(node_values, downtime.resourceType, downtime.resourceId, downtime.id);
+    let jsonParsingErrors = parseOtherAttributes(updatedNodeValues);
+
+    if (jsonParsingErrors.length > 0) {
+        let message = `The field <b>${jsonParsingErrors[0].uri}</b> failed validation: ${jsonParsingErrors[0].message}.`;
+        showAndDismissAlert('danger', message);
+        return;
+    }
+
+    fetch(editNodeUrl, {
+        method: 'POST',
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedNodeValues)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(text => {
+                    throw new Error(text)
+                });
+            }
+            downtime.row.remove()
+        })
+        .then(data => {
+            showAndDismissAlert('success', 'Downtime successfully deleted.')
+        })
+        .catch(error => {
+            showAndDismissAlert('danger', error.message)
+        });
+}

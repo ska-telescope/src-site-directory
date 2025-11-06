@@ -1675,6 +1675,12 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
                     request,
                     scheme=config.get("API_SCHEME", default="http"),
                 ),
+                "submit_endpoint_url": get_url_for_app_from_request(
+                    "edit_node",
+                    request,
+                    path_params=request.path_params,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
                 "access_token": request.session.get("access_token"),
                 "values": node,
             },
