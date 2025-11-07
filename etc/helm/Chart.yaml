@@ -2,8 +2,8 @@ apiVersion: v2
 name: scapi
 description: A helm chart for scapi deployment
 type: application
-version: 0.3.78
-appVersion: 0.3.78
+version: 0.3.79
+appVersion: 0.3.79
 maintainers:
   - name: Rob Barnsley
     email: rob.barnsley@skao.int
