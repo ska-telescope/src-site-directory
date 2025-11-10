@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Downtime scheduler schema.",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": "to be assigned"
+    },
+    "resourceType": {
+      "type": "string",
+      "title": "Resource Type",
+      "enum": [
+        "sites",
+        "storages",
+        "storage_areas",
+        "compute",
+        "compute_local_services",
+        "compute_global_services"
+      ]
+    },
+    "uniqueResourceName": {
+      "type": "string",
+      "title": "Unique Resource Name",
+      "default": null
+    },
+    "type": {
+      "title": "Type",
+      "enum": [
+        "Planned",
+        "Unplanned"
+      ],
+      "required": true,
+      "default": "Planned"
+    },
+    "date_range": {
+      "type": "text",
+      "title": "Date Range",
+      "required": true
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason"
+    }
+  }
+}
+

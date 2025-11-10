@@ -2,6 +2,7 @@ import asyncio
 import copy
 import io
 import json
+import logging
 import os
 import pathlib
 import tempfile
@@ -1506,7 +1507,9 @@ async def add_node_form(
 
         # Load schema.
         schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
-
+        downtime_schema = load_and_dereference_schema(
+            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")).absolute()
+        )
         # Remove sites
         schema.get("properties", {}).pop("sites")
 
@@ -1518,6 +1521,9 @@ async def add_node_form(
                 "schema": schema,
                 "title": "Add SRCNet Node",
                 "form_name": "add-node-form-ui.js",
+                "downtime_schema": downtime_schema,
+                "downtime_scheduler_form": "downtime-scheduler-form-ui.js",
+                "downtime_values": {},
                 "submit_form_endpoint": get_url_for_app_from_request(
                     "add_node",
                     request,
@@ -1569,7 +1575,9 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
 
         # Load schema.
         schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
-
+        downtime_schema = load_and_dereference_schema(
+            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")).absolute()
+        )
         # Get latest values for requested node.
         node = BACKEND.get_node(node_name=node_name)
         if not node:
@@ -1591,8 +1599,10 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "schema": schema,
+                "downtime_schema": downtime_schema,
                 "title": "Edit SRCNet Node ({})".format(node_name),
                 "form_name": "edit-node-form-ui.js",
+                "downtime_scheduler_form": "downtime-scheduler-form-ui.js",
                 "submit_form_endpoint": get_url_for_app_from_request(
                     "edit_node",
                     request,
