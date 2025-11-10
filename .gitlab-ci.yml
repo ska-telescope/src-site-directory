@@ -5,8 +5,8 @@ services:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  GIT_DEPTH: 50
   
-
 cache:
   paths:
     - build

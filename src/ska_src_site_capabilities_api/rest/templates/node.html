@@ -12,11 +12,17 @@
      <img src="{{ base_url }}static/img/logo2.png"/>
      <h1>{{ title }}</h1>
      <button style="margin-bottom: 2rem;" type="button" onclick="window.location.href='{{ sign_out_url }}'">Log Out</button>
-      <div id="token-timer"></div>
+     <button style="margin-bottom: 2rem;" type="button" onclick="toggleDowntimeForm()">Schedule Downtime</button>
+     <div id="token-timer"></div>
   </div>
-  <form novalidate></form> <!-- novaldiate as issue with tabarrays/bootstrap: https://stackoverflow.com/questions/7168645/invalid-form-control-only-in-google-chrome# -->
+  <div id="edit-node">
+    <form novalidate></form>
+  </div>
+  <div id="downtime-form-wrapper" style="display: none;">
+    <form id="downtime-scheduler-form" novalidate></form>
+  </div>
   <div id="alert" class="alert" role="alert"></div>
-  <div id="values"/>
+  <div id="values"></div>
   <div id="footer"></div>
   <script type="text/javascript">
     function showAndDismissAlert(type, message) {
@@ -45,7 +51,17 @@
   <script type="text/javascript" src="{{ base_url }}static/js/easepick.min.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/token.js"></script>
   <script type="text/javascript" src="{{ base_url }}static/js/datepicker.js"></script>
-  <script>
+  <script type="text/javascript" src="{{ base_url }}static/js/downtime.js"></script>
+  <script type="text/javascript">
+    const downtime_schema = {{ downtime_schema | tojson }};
+    downtime_schema.properties.site ={
+      "type": "select",
+      "title": "Site",
+      "default": null
+    }
+    const values = {{ values | tojson }};
+  </script>
+  <script type="text/javascript">
     window.onload = function() {
         // start the token timer
         let token = "{{ access_token }}";
@@ -131,6 +147,56 @@
               }
           });
       });
+
+  </script>
+  <script type="text/javascript">
+    let schedule_downtime = false;
+    function toggleDowntimeForm() {
+      schedule_downtime = !schedule_downtime;
+      const wrapper = document.getElementById('downtime-form-wrapper');
+      const edit_node_form = document.getElementById('edit-node');
+      const downtime_button = document.querySelector('button[onclick="toggleDowntimeForm()"]');
+      if (schedule_downtime) {
+        wrapper.style.display = 'block';
+        edit_node_form.style.display = 'none';
+        showDowntimeForm();
+        downtime_button.textContent = 'Edit Node';
+      } else {
+        wrapper.style.display = 'none';
+        edit_node_form.style.display = 'block';
+        $('#downtime-scheduler-form').html('');
+        downtime_button.textContent = 'Schedule Downtime';
+      }
+    }
+
+    function showDowntimeForm(){
+      let token = `Bearer {{ access_token }}`
+      let editNodeEndpointUrl = "{{ submit_form_endpoint }}";
+
+      fetch('{{ base_url }}static/js/{{ downtime_scheduler_form }}')
+      .then(response => response.json())
+      .then(downtimeFormUi => {
+        downtime_schema.properties.site.enum = values.sites.map(site1 => site1.name);
+        const downtime_form = $('#downtime-scheduler-form')
+        downtime_form.jsonForm({
+          "schema": downtime_schema,
+          "form": downtimeFormUi,
+          "validate": true,
+          onSubmit: function (formErrors, values) {
+          }
+        });
+
+        reinitialiseWithNewOptions("sites", values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl);
+
+        downtime_form.on('change', 'select[name="resourceType"]', function() {
+            const resourceType = $(this).val();
+            reinitialiseWithNewOptions(resourceType, values, downtime_form, downtimeFormUi , token , editNodeEndpointUrl);
+        });
+      })
+      .catch(err => {
+        console.error('Failed to load downtime form UI:', err);
+      });
+    }
   </script>
 </body>
 </html>

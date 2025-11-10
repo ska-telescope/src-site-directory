@@ -51,28 +51,9 @@
       "type": "array",
       "title": "Downtime",
       "items": {
-        "type": "object",
-        "properties": {
-          "date_range": {
-            "type": "text",
-            "title": "Date Range",
-            "required": true
-          },
-          "type": {
-            "title": "Type",
-            "enum": [
-              "Planned",
-              "Unplanned"
-            ],
-            "default": "Planned",
-            "required": true
-          },
-          "reason": {
-            "type": "string",
-            "title": "Reason"
-          }
-        }
-      }
+        "$ref": "downtime.json"
+      },
+      "allowEmpty": true
     },
     "storages": {
       "type": "array",
