@@ -166,13 +166,6 @@ def test_enable_compute(load_nodes_data):
         compute_data = compute_response.json()
         if len(compute_data) > 0:
             compute_id = compute_data[0]["id"]
-            # Get initial state
-            initial_compute = send_get_request(f"{api_url}/compute/{compute_id}")
-            initial_state = None
-            if initial_compute.status_code == 200:
-                initial_data = initial_compute.json()
-                initial_state = initial_data.get("is_force_disabled", False)
-
             response = httpx.put(f"{api_url}/compute/{compute_id}/enable")  # noqa: E231
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
