@@ -673,14 +673,18 @@ class MongoBackend(Backend):
                         }
                     )
                 elif for_grafana:
-                    response.append(
-                        {
-                            "key": storage.get("identifier"),
-                            "latitude": site["latitude"],
-                            "longitude": site["longitude"],
-                            "name": storage.get("identifier"),
-                        }
-                    )
+                    # Skip sites without latitude/longitude (required for Grafana format)
+                    site_latitude = site.get("latitude")
+                    site_longitude = site.get("longitude")
+                    if site_latitude is not None and site_longitude is not None:
+                        response.append(
+                            {
+                                "key": storage.get("identifier"),
+                                "latitude": site_latitude,
+                                "longitude": site_longitude,
+                                "name": storage.get("identifier"),
+                            }
+                        )
                 else:
                     # Add parent information
                     response.append(

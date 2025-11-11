@@ -168,18 +168,18 @@ These primary data modification endpoints are now fully tested:
 
 **Status**: ✅ Complete - All additional query parameter combinations are now tested.
 
-#### Web UI Endpoints - **LOW PRIORITY** (Not typically tested in component tests)
+#### Web UI Endpoints - **COMPLETED**
 
-- ❌ `GET /www/docs/oper` - Operator documentation
-- ❌ `GET /www/docs/user` - User documentation
-- ❌ `GET /www/login` - Login page
-- ❌ `GET /www/logout` - Logout
-- ❌ `GET /www/nodes` - Node management UI
-- ❌ `GET /www/nodes/{node_name}` - Edit node UI
-- ❌ `GET /www/reports/services` - Services report
-- ❌ `GET /www/topology` - Topology view
+- ✅ `GET /www/docs/oper` - Operator documentation
+- ✅ `GET /www/docs/user` - User documentation
+- ✅ `GET /www/login` - Login page
+- ✅ `GET /www/logout` - Logout
+- ✅ `GET /www/nodes` - Node management UI
+- ✅ `GET /www/nodes/{node_name}` - Edit node UI
+- ✅ `GET /www/reports/services` - Services report
+- ✅ `GET /www/topology` - Topology view
 
-**Note**: Web UI endpoints are typically not tested in component tests as they are HTML responses, not API endpoints.
+**Note**: Web UI endpoints are tested to verify they return proper HTML responses (200 OK) with correct content-type headers.
 
 ---
 
