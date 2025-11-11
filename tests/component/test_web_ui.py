@@ -9,11 +9,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import (
-    DISABLE_AUTHENTICATION,
-    get_api_url,
-    send_get_request,
-)
+from tests.component.conftest import DISABLE_AUTHENTICATION, get_api_url, send_get_request
 
 
 @pytest.mark.component
@@ -59,11 +55,7 @@ def test_get_login_page():
     if response.status_code == 200:
         assert "text/html" in response.headers.get("content-type", "").lower()
         html_content = response.text
-        assert (
-            "<html" in html_content.lower()
-            or "<!doctype" in html_content.lower()
-            or "login" in html_content.lower()
-        )
+        assert "<html" in html_content.lower() or "<!doctype" in html_content.lower() or "login" in html_content.lower()
     elif response.status_code in (302, 307):
         # Redirect to authentication provider
         assert "location" in response.headers
@@ -96,18 +88,10 @@ def test_get_nodes_form(load_nodes_data):
 
     if DISABLE_AUTHENTICATION:
         # When auth is disabled, should show the form
-        assert (
-            "node" in html_content.lower()
-            or "form" in html_content.lower()
-            or "add" in html_content.lower()
-        )
+        assert "node" in html_content.lower() or "form" in html_content.lower() or "add" in html_content.lower()
     else:
         # When auth is enabled, may show login prompt or form depending on session
-        assert (
-            "login" in html_content.lower()
-            or "node" in html_content.lower()
-            or "form" in html_content.lower()
-        )
+        assert "login" in html_content.lower() or "node" in html_content.lower() or "form" in html_content.lower()
 
 
 @pytest.mark.component
@@ -127,18 +111,10 @@ def test_get_edit_node_form(load_nodes_data):
 
         if DISABLE_AUTHENTICATION:
             # When auth is disabled, should show the edit form
-            assert (
-                "node" in html_content.lower()
-                or "form" in html_content.lower()
-                or "edit" in html_content.lower()
-            )
+            assert "node" in html_content.lower() or "form" in html_content.lower() or "edit" in html_content.lower()
         else:
             # When auth is enabled, may show login prompt or form depending on session
-            assert (
-                "login" in html_content.lower()
-                or "node" in html_content.lower()
-                or "form" in html_content.lower()
-            )
+            assert "login" in html_content.lower() or "node" in html_content.lower() or "form" in html_content.lower()
     else:
         # If no nodes are loaded, test with a non-existent node
         response = send_get_request(f"{api_url}/www/nodes/nonexistent-node")
@@ -176,18 +152,10 @@ def test_get_services_report(load_nodes_data):
 
     if DISABLE_AUTHENTICATION:
         # When auth is disabled, should show the report
-        assert (
-            "services" in html_content.lower()
-            or "report" in html_content.lower()
-            or "srcnet" in html_content.lower()
-        )
+        assert "services" in html_content.lower() or "report" in html_content.lower() or "srcnet" in html_content.lower()
     else:
         # When auth is enabled, may show login prompt or report depending on session
-        assert (
-            "login" in html_content.lower()
-            or "services" in html_content.lower()
-            or "report" in html_content.lower()
-        )
+        assert "login" in html_content.lower() or "services" in html_content.lower() or "report" in html_content.lower()
 
 
 @pytest.mark.component

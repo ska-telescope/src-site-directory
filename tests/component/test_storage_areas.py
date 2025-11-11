@@ -33,9 +33,7 @@ def test_list_storage_areas_filter_by_node_names(load_nodes_data):
     api_url = get_api_url()
     if load_nodes_data and len(load_nodes_data) > 0:
         node_name = load_nodes_data[0]
-        response = httpx.get(
-            f"{api_url}/storage-areas?node_names={node_name}"
-        )  # noqa: E231
+        response = httpx.get(f"{api_url}/storage-areas?node_names={node_name}")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
             assert response.status_code == 200
             data = response.json()
@@ -51,9 +49,7 @@ def test_list_storage_areas_filter_by_multiple_node_names(load_nodes_data):
     if load_nodes_data and len(load_nodes_data) > 0:
         # Use the same node name twice to test comma-separated format
         node_name = load_nodes_data[0]
-        response = httpx.get(
-            f"{api_url}/storage-areas?node_names={node_name},{node_name}"
-        )  # noqa: E231
+        response = httpx.get(f"{api_url}/storage-areas?node_names={node_name},{node_name}")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
             assert response.status_code == 200
             data = response.json()
@@ -73,9 +69,7 @@ def test_list_storage_areas_filter_by_site_names(load_nodes_data):
             node_data = node_response.json()
             if "sites" in node_data and len(node_data["sites"]) > 0:
                 site_name = node_data["sites"][0]["name"]
-                response = httpx.get(
-                    f"{api_url}/storage-areas?site_names={site_name}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/storage-areas?site_names={site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -97,9 +91,7 @@ def test_list_storage_areas_filter_by_multiple_site_names(load_nodes_data):
                 # Get two site names
                 site_name_1 = node_data["sites"][0]["name"]
                 site_name_2 = node_data["sites"][1]["name"]
-                response = httpx.get(
-                    f"{api_url}/storage-areas?site_names={site_name_1},{site_name_2}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/storage-areas?site_names={site_name_1},{site_name_2}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -109,9 +101,7 @@ def test_list_storage_areas_filter_by_multiple_site_names(load_nodes_data):
             elif "sites" in node_data and len(node_data["sites"]) == 1:
                 # If only one site, use it twice to test comma-separated format
                 site_name = node_data["sites"][0]["name"]
-                response = httpx.get(
-                    f"{api_url}/storage-areas?site_names={site_name},{site_name}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/storage-areas?site_names={site_name},{site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -180,9 +170,7 @@ def test_get_storage_area_by_id(load_nodes_data):
         storage_areas_data = storage_areas_response.json()
         if len(storage_areas_data) > 0:
             storage_area_id = storage_areas_data[0]["id"]
-            response = httpx.get(
-                f"{api_url}/storage-areas/{storage_area_id}"
-            )  # noqa: E231
+            response = httpx.get(f"{api_url}/storage-areas/{storage_area_id}")  # noqa: E231
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
@@ -214,9 +202,7 @@ def test_enable_storage_area(load_nodes_data):
         storage_areas_data = storage_areas_response.json()
         if len(storage_areas_data) > 0:
             storage_area_id = storage_areas_data[0]["id"]
-            response = httpx.put(
-                f"{api_url}/storage-areas/{storage_area_id}/enable"
-            )  # noqa: E231
+            response = httpx.put(f"{api_url}/storage-areas/{storage_area_id}/enable")  # noqa: E231
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
@@ -227,9 +213,7 @@ def test_enable_storage_area(load_nodes_data):
                 assert data["is_force_disabled"] is False  # Enabled means False
 
                 # Verify state persisted by getting the resource again
-                verify_response = send_get_request(
-                    f"{api_url}/storage-areas/{storage_area_id}"
-                )
+                verify_response = send_get_request(f"{api_url}/storage-areas/{storage_area_id}")
                 if verify_response.status_code == 200:
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is False
@@ -247,9 +231,7 @@ def test_disable_storage_area(load_nodes_data):
         storage_areas_data = storage_areas_response.json()
         if len(storage_areas_data) > 0:
             storage_area_id = storage_areas_data[0]["id"]
-            response = httpx.put(
-                f"{api_url}/storage-areas/{storage_area_id}/disable"
-            )  # noqa: E231
+            response = httpx.put(f"{api_url}/storage-areas/{storage_area_id}/disable")  # noqa: E231
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
@@ -260,9 +242,7 @@ def test_disable_storage_area(load_nodes_data):
                 assert data["is_force_disabled"] is True  # Disabled means True
 
                 # Verify state persisted by getting the resource again
-                verify_response = send_get_request(
-                    f"{api_url}/storage-areas/{storage_area_id}"
-                )
+                verify_response = send_get_request(f"{api_url}/storage-areas/{storage_area_id}")
                 if verify_response.status_code == 200:
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is True
@@ -282,32 +262,24 @@ def test_enable_disable_storage_area_cycle(load_nodes_data):
             storage_area_id = storage_areas_data[0]["id"]
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 # 1. Disable the storage area
-                disable_response = httpx.put(
-                    f"{api_url}/storage-areas/{storage_area_id}/disable"
-                )  # noqa: E231
+                disable_response = httpx.put(f"{api_url}/storage-areas/{storage_area_id}/disable")  # noqa: E231
                 assert disable_response.status_code == 200
                 disable_data = disable_response.json()
                 assert disable_data.get("is_force_disabled") is True
 
                 # Verify disabled state
-                verify_disabled = send_get_request(
-                    f"{api_url}/storage-areas/{storage_area_id}"
-                )
+                verify_disabled = send_get_request(f"{api_url}/storage-areas/{storage_area_id}")
                 if verify_disabled.status_code == 200:
                     assert verify_disabled.json().get("is_force_disabled") is True
 
                 # 2. Re-enable the storage area
-                enable_response = httpx.put(
-                    f"{api_url}/storage-areas/{storage_area_id}/enable"
-                )  # noqa: E231
+                enable_response = httpx.put(f"{api_url}/storage-areas/{storage_area_id}/enable")  # noqa: E231
                 assert enable_response.status_code == 200
                 enable_data = enable_response.json()
                 assert enable_data.get("is_force_disabled") is False
 
                 # Verify enabled state
-                verify_enabled = send_get_request(
-                    f"{api_url}/storage-areas/{storage_area_id}"
-                )
+                verify_enabled = send_get_request(f"{api_url}/storage-areas/{storage_area_id}")
                 if verify_enabled.status_code == 200:
                     assert verify_enabled.json().get("is_force_disabled") is False
 
