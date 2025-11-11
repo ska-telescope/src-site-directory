@@ -194,7 +194,7 @@ def test_get_storage_not_found():
 
 @pytest.mark.component
 def test_enable_storage(load_nodes_data):
-    """Test to enable a storage"""
+    """Test to enable a storage and verify state change"""
     api_url = get_api_url()
     # First, get the list of storages to find a storage ID
     storages_response = send_get_request(f"{api_url}/storages")
@@ -206,15 +206,24 @@ def test_enable_storage(load_nodes_data):
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
-                # Verify response structure
+                # Verify response structure and state change
                 assert isinstance(data, dict)
+                assert "storage_id" in data
+                assert "is_force_disabled" in data
+                assert data["is_force_disabled"] is False  # Enabled means False
+                
+                # Verify state persisted by getting the resource again
+                verify_response = send_get_request(f"{api_url}/storages/{storage_id}")
+                if verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    assert verify_data.get("is_force_disabled") is False
             else:
                 assert response.status_code == 403
 
 
 @pytest.mark.component
 def test_disable_storage(load_nodes_data):
-    """Test to disable a storage"""
+    """Test to disable a storage and verify state change"""
     api_url = get_api_url()
     # First, get the list of storages to find a storage ID
     storages_response = send_get_request(f"{api_url}/storages")
@@ -226,15 +235,24 @@ def test_disable_storage(load_nodes_data):
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
-                # Verify response structure
+                # Verify response structure and state change
                 assert isinstance(data, dict)
+                assert "storage_id" in data
+                assert "is_force_disabled" in data
+                assert data["is_force_disabled"] is True  # Disabled means True
+                
+                # Verify state persisted by getting the resource again
+                verify_response = send_get_request(f"{api_url}/storages/{storage_id}")
+                if verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    assert verify_data.get("is_force_disabled") is True
             else:
                 assert response.status_code == 403
 
 
 @pytest.mark.component
 def test_enable_disable_storage_cycle(load_nodes_data):
-    """Test enable/disable cycle for storage"""
+    """Test enable/disable cycle for storage with state verification"""
     api_url = get_api_url()
     # First, get the list of storages to find a storage ID
     storages_response = send_get_request(f"{api_url}/storages")
@@ -243,13 +261,27 @@ def test_enable_disable_storage_cycle(load_nodes_data):
         if len(storages_data) > 0:
             storage_id = storages_data[0]["id"]
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-                # Disable the storage
+                # 1. Disable the storage
                 disable_response = httpx.put(f"{api_url}/storages/{storage_id}/disable")  # noqa: E231
                 assert disable_response.status_code == 200
+                disable_data = disable_response.json()
+                assert disable_data.get("is_force_disabled") is True
                 
-                # Re-enable the storage
+                # Verify disabled state
+                verify_disabled = send_get_request(f"{api_url}/storages/{storage_id}")
+                if verify_disabled.status_code == 200:
+                    assert verify_disabled.json().get("is_force_disabled") is True
+                
+                # 2. Re-enable the storage
                 enable_response = httpx.put(f"{api_url}/storages/{storage_id}/enable")  # noqa: E231
                 assert enable_response.status_code == 200
+                enable_data = enable_response.json()
+                assert enable_data.get("is_force_disabled") is False
+                
+                # Verify enabled state
+                verify_enabled = send_get_request(f"{api_url}/storages/{storage_id}")
+                if verify_enabled.status_code == 200:
+                    assert verify_enabled.json().get("is_force_disabled") is False
 
 
 @pytest.mark.component

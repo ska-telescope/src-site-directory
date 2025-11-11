@@ -258,7 +258,7 @@ def test_get_service_not_found():
 
 @pytest.mark.component
 def test_enable_service(load_nodes_data):
-    """Test to enable a service"""
+    """Test to enable a service and verify state change"""
     api_url = get_api_url()
     # First, get the list of services to find a service ID
     services_response = send_get_request(f"{api_url}/services")
@@ -270,15 +270,24 @@ def test_enable_service(load_nodes_data):
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
-                # Verify response structure
+                # Verify response structure and state change
                 assert isinstance(data, dict)
+                assert "service_id" in data
+                assert "is_force_disabled" in data
+                assert data["is_force_disabled"] is False  # Enabled means False
+                
+                # Verify state persisted by getting the resource again
+                verify_response = send_get_request(f"{api_url}/services/{service_id}")
+                if verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    assert verify_data.get("is_force_disabled") is False
             else:
                 assert response.status_code == 403
 
 
 @pytest.mark.component
 def test_disable_service(load_nodes_data):
-    """Test to disable a service"""
+    """Test to disable a service and verify state change"""
     api_url = get_api_url()
     # First, get the list of services to find a service ID
     services_response = send_get_request(f"{api_url}/services")
@@ -290,15 +299,24 @@ def test_disable_service(load_nodes_data):
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
-                # Verify response structure
+                # Verify response structure and state change
                 assert isinstance(data, dict)
+                assert "service_id" in data
+                assert "is_force_disabled" in data
+                assert data["is_force_disabled"] is True  # Disabled means True
+                
+                # Verify state persisted by getting the resource again
+                verify_response = send_get_request(f"{api_url}/services/{service_id}")
+                if verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    assert verify_data.get("is_force_disabled") is True
             else:
                 assert response.status_code == 403
 
 
 @pytest.mark.component
 def test_enable_disable_service_cycle(load_nodes_data):
-    """Test enable/disable cycle for service"""
+    """Test enable/disable cycle for service with state verification"""
     api_url = get_api_url()
     # First, get the list of services to find a service ID
     services_response = send_get_request(f"{api_url}/services")
@@ -307,13 +325,27 @@ def test_enable_disable_service_cycle(load_nodes_data):
         if len(services_data) > 0:
             service_id = services_data[0]["id"]
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-                # Disable the service
+                # 1. Disable the service
                 disable_response = httpx.put(f"{api_url}/services/{service_id}/disable")  # noqa: E231
                 assert disable_response.status_code == 200
+                disable_data = disable_response.json()
+                assert disable_data.get("is_force_disabled") is True
                 
-                # Re-enable the service
+                # Verify disabled state
+                verify_disabled = send_get_request(f"{api_url}/services/{service_id}")
+                if verify_disabled.status_code == 200:
+                    assert verify_disabled.json().get("is_force_disabled") is True
+                
+                # 2. Re-enable the service
                 enable_response = httpx.put(f"{api_url}/services/{service_id}/enable")  # noqa: E231
                 assert enable_response.status_code == 200
+                enable_data = enable_response.json()
+                assert enable_data.get("is_force_disabled") is False
+                
+                # Verify enabled state
+                verify_enabled = send_get_request(f"{api_url}/services/{service_id}")
+                if verify_enabled.status_code == 200:
+                    assert verify_enabled.json().get("is_force_disabled") is False
 
 
 @pytest.mark.component
