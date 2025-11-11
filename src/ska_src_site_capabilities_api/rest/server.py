@@ -1670,11 +1670,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TE
                 "request": request,
                 "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
                 "title": "Downtimes SRCNet Node ({})".format(node_name),
-                "sign_out_url": get_url_for_app_from_request(
-                    "www_logout",
-                    request,
-                    scheme=config.get("API_SCHEME", default="http"),
-                ),
                 "submit_endpoint_url": get_url_for_app_from_request(
                     "edit_node",
                     request,
