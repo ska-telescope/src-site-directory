@@ -89,6 +89,99 @@ def test_list_services_filter_by_service_scope(load_nodes_data):
 
 
 @pytest.mark.component
+def test_list_services_filter_by_service_scope_global(load_nodes_data):
+    """Test to list services filtered by global service scope"""
+    api_url = get_api_url()
+    response = httpx.get(f"{api_url}/services?service_scope=global")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_list_services_filter_by_associated_storage_area_id(load_nodes_data):
+    """Test to list services filtered by associated storage area ID"""
+    api_url = get_api_url()
+    # First, get a storage area ID from the storage areas
+    storage_areas_response = send_get_request(f"{api_url}/storage-areas")
+    if storage_areas_response.status_code == 200:
+        storage_areas_data = storage_areas_response.json()
+        if len(storage_areas_data) > 0:
+            storage_area_id = storage_areas_data[0]["id"]
+            response = httpx.get(f"{api_url}/services?associated_storage_area_id={storage_area_id}")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                assert isinstance(data, list)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_list_services_filter_by_multiple_node_names(load_nodes_data):
+    """Test to list services filtered by multiple node names (comma-separated)"""
+    api_url = get_api_url()
+    if load_nodes_data and len(load_nodes_data) > 0:
+        # Use the same node name twice to test comma-separated format
+        node_name = load_nodes_data[0]
+        response = httpx.get(f"{api_url}/services?node_names={node_name},{node_name}")  # noqa: E231
+        if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+            assert response.status_code == 200
+            data = response.json()
+            assert isinstance(data, list)
+        else:
+            assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_list_services_filter_by_multiple_site_names(load_nodes_data):
+    """Test to list services filtered by multiple site names (comma-separated)"""
+    api_url = get_api_url()
+    if load_nodes_data and len(load_nodes_data) > 0:
+        node_name = load_nodes_data[0]
+        node_response = send_get_request(f"{api_url}/nodes/{node_name}")
+        if node_response.status_code == 200:
+            node_data = node_response.json()
+            if "sites" in node_data and len(node_data["sites"]) >= 2:
+                # Get two site names
+                site_name_1 = node_data["sites"][0]["name"]
+                site_name_2 = node_data["sites"][1]["name"]
+                response = httpx.get(f"{api_url}/services?site_names={site_name_1},{site_name_2}")  # noqa: E231
+                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                    assert response.status_code == 200
+                    data = response.json()
+                    assert isinstance(data, list)
+                else:
+                    assert response.status_code == 403
+            elif "sites" in node_data and len(node_data["sites"]) == 1:
+                # If only one site, use it twice to test comma-separated format
+                site_name = node_data["sites"][0]["name"]
+                response = httpx.get(f"{api_url}/services?site_names={site_name},{site_name}")  # noqa: E231
+                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                    assert response.status_code == 200
+                    data = response.json()
+                    assert isinstance(data, list)
+                else:
+                    assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_list_services_filter_by_multiple_service_types(load_nodes_data):
+    """Test to list services filtered by multiple service types (comma-separated)"""
+    api_url = get_api_url()
+    response = httpx.get(f"{api_url}/services?service_types=ingest,echo")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
 def test_list_services_include_inactive(load_nodes_data):
     """Test to list services with include_inactive parameter"""
     api_url = get_api_url()
