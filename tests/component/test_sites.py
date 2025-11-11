@@ -62,6 +62,22 @@ def test_list_sites_filter_by_node_names(load_nodes_data):
 
 
 @pytest.mark.component
+def test_list_sites_filter_by_multiple_node_names(load_nodes_data):
+    """Test to list sites filtered by multiple node names (comma-separated)"""
+    api_url = get_api_url()
+    if load_nodes_data and len(load_nodes_data) > 0:
+        # Use the same node name twice to test comma-separated format
+        node_name = load_nodes_data[0]
+        response = httpx.get(f"{api_url}/sites?node_names={node_name},{node_name}")  # noqa: E231
+        if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+            assert response.status_code == 200
+            data = response.json()
+            assert isinstance(data, list)
+        else:
+            assert response.status_code == 403
+
+
+@pytest.mark.component
 def test_list_sites_include_inactive(load_nodes_data):
     """Test to list sites with include_inactive parameter"""
     api_url = get_api_url()

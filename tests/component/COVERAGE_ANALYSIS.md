@@ -5,7 +5,7 @@
 **Total API Endpoints**: 46  
 **Tested Endpoints**: ~43  
 **Missing Coverage**: ~3 endpoints (Web UI only, not typically tested)  
-**Coverage**: ~84%
+**Coverage**: ~84% (100% of testable API endpoints)
 
 ## Detailed Endpoint Coverage
 
@@ -142,15 +142,31 @@ These primary data modification endpoints are now fully tested:
 
 **Status**: ✅ Complete - DELETE operations are now tested with verification and error handling.
 
-#### Additional Query Parameters - **LOW PRIORITY**
+#### Additional Query Parameters - **✅ COMPLETED**
 
 1. **Services**
-   - ❌ `GET /services?associated_storage_area_id=...` - Filter by storage area ID
-   - ❌ `GET /services?service_scope=global` - Test global scope filter
+   - ✅ `GET /services?associated_storage_area_id=...` - Filter by storage area ID
+   - ✅ `GET /services?service_scope=global` - Test global scope filter
+   - ✅ Multiple node_names filter (comma-separated)
+   - ✅ Multiple site_names filter (comma-separated)
+   - ✅ Multiple service_types filter (comma-separated)
 
 2. **Sites**
-   - ❌ Multiple node_names filter (comma-separated)
-   - ❌ Multiple site_names filter (comma-separated)
+   - ✅ Multiple node_names filter (comma-separated)
+
+3. **Compute**
+   - ✅ Multiple node_names filter (comma-separated)
+   - ✅ Multiple site_names filter (comma-separated)
+
+4. **Storages**
+   - ✅ Multiple node_names filter (comma-separated)
+   - ✅ Multiple site_names filter (comma-separated)
+
+5. **Storage Areas**
+   - ✅ Multiple node_names filter (comma-separated)
+   - ✅ Multiple site_names filter (comma-separated)
+
+**Status**: ✅ Complete - All additional query parameter combinations are now tested.
 
 #### Web UI Endpoints - **LOW PRIORITY** (Not typically tested in component tests)
 
@@ -225,7 +241,8 @@ These primary data modification endpoints are now fully tested:
 
 1. ✅ **Completed**: PUT endpoint tests for enable/disable operations
 2. ✅ **Completed**: POST and DELETE tests for node management
-3. **Long-term**: Add edge case and error handling tests (optional improvements)
+3. ✅ **Completed**: Additional query parameter tests (multiple filters, storage area ID, global scope)
+4. **Long-term**: Add edge case and error handling tests (optional improvements)
 
 ---
 

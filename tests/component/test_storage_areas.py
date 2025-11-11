@@ -43,6 +43,22 @@ def test_list_storage_areas_filter_by_node_names(load_nodes_data):
 
 
 @pytest.mark.component
+def test_list_storage_areas_filter_by_multiple_node_names(load_nodes_data):
+    """Test to list storage areas filtered by multiple node names (comma-separated)"""
+    api_url = get_api_url()
+    if load_nodes_data and len(load_nodes_data) > 0:
+        # Use the same node name twice to test comma-separated format
+        node_name = load_nodes_data[0]
+        response = httpx.get(f"{api_url}/storage-areas?node_names={node_name},{node_name}")  # noqa: E231
+        if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+            assert response.status_code == 200
+            data = response.json()
+            assert isinstance(data, list)
+        else:
+            assert response.status_code == 403
+
+
+@pytest.mark.component
 def test_list_storage_areas_filter_by_site_names(load_nodes_data):
     """Test to list storage areas filtered by site names"""
     api_url = get_api_url()
@@ -54,6 +70,38 @@ def test_list_storage_areas_filter_by_site_names(load_nodes_data):
             if "sites" in node_data and len(node_data["sites"]) > 0:
                 site_name = node_data["sites"][0]["name"]
                 response = httpx.get(f"{api_url}/storage-areas?site_names={site_name}")  # noqa: E231
+                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                    assert response.status_code == 200
+                    data = response.json()
+                    assert isinstance(data, list)
+                else:
+                    assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_list_storage_areas_filter_by_multiple_site_names(load_nodes_data):
+    """Test to list storage areas filtered by multiple site names (comma-separated)"""
+    api_url = get_api_url()
+    if load_nodes_data and len(load_nodes_data) > 0:
+        node_name = load_nodes_data[0]
+        node_response = send_get_request(f"{api_url}/nodes/{node_name}")
+        if node_response.status_code == 200:
+            node_data = node_response.json()
+            if "sites" in node_data and len(node_data["sites"]) >= 2:
+                # Get two site names
+                site_name_1 = node_data["sites"][0]["name"]
+                site_name_2 = node_data["sites"][1]["name"]
+                response = httpx.get(f"{api_url}/storage-areas?site_names={site_name_1},{site_name_2}")  # noqa: E231
+                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                    assert response.status_code == 200
+                    data = response.json()
+                    assert isinstance(data, list)
+                else:
+                    assert response.status_code == 403
+            elif "sites" in node_data and len(node_data["sites"]) == 1:
+                # If only one site, use it twice to test comma-separated format
+                site_name = node_data["sites"][0]["name"]
+                response = httpx.get(f"{api_url}/storage-areas?site_names={site_name},{site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
