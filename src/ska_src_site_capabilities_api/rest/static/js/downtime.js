@@ -2,8 +2,10 @@ function getShortUuid(uuid) {
     return uuid.replace(/-/g, "").slice(0, 6);
 }
 
-function sanitizeURN(str) {
-    return str.replace("undefined:", "");
+function getURN(resourceName, id) {
+    const uuid = getShortUuid(id);
+    const urn = `urn:srcnet:${resourceName}:${uuid}`;
+    return urn.replaceAll("undefined:", "");
 }
 
 function loadDynamicOptions(resourceType, values) {
@@ -13,19 +15,19 @@ function loadDynamicOptions(resourceType, values) {
 
     switch (resourceType) {
         case 'sites':
-            options[site.id] = sanitizeURN(`urn:srcnet:site:${site.name}:${getShortUuid(site.id)}`);
+            options[site.id] = getURN(`site:${site.name}`, site.id);
             break;
         case 'compute': {
             site?.compute?.forEach(compute => {
                 options[compute.id] =
-                    sanitizeURN(`urn:srcnet:compute:${compute.name || compute.description}:${getShortUuid(compute.id)}`);
+                    getURN(`compute:${compute.name || compute.description}`, compute.id);
             });
             break;
         }
         case 'storages': {
             site?.storages?.forEach(storage => {
                 options[storage.id] =
-                    sanitizeURN(`urn:srcnet:storage:${storage.srm}:${storage.host}:${storage.base_path}:${getShortUuid(storage.id)}`);
+                    getURN(`storage:${storage.srm}:${storage.host}:${storage.base_path}`, storage.id);
             });
             break;
         }
@@ -33,7 +35,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.storages?.forEach(storage => {
                 storage.areas?.forEach(area => {
                     options[area.id] =
-                        sanitizeURN(`urn:srcnet:storage-area:${area.name}:${area.type}:${area.relative_path}:${getShortUuid(area.id)}`);
+                        getURN(`storage-area:${area.name}:${area.type}:${area.relative_path}`, area.id);
                 });
             });
             break;
@@ -42,7 +44,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.compute?.forEach(compute => {
                 compute.associated_local_services?.forEach(service => {
                     options[service.id] =
-                        sanitizeURN(`urn:srcnet:local-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`);
+                        getURN(`local-service:${service.name}:${service.type}:${service.host}`, service.id);
                 });
             });
             break;
@@ -51,7 +53,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.compute?.forEach(compute => {
                 compute.associated_global_services?.forEach(service => {
                     options[service.id] =
-                        sanitizeURN(`urn:srcnet:global-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`);
+                        getURN(`global-service:${service.name}:${service.type}:${service.host}`, service.id);
                 });
             });
             break;
