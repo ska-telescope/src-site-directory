@@ -179,81 +179,95 @@ def test_create_duplicate_node(load_nodes_data):
     depending on implementation. The test accepts both behaviors.
     """
     api_url = get_api_url()
-    if load_nodes_data and len(load_nodes_data) > 0:
-        # Try to create a node with the same name as an existing one
-        existing_node_name = load_nodes_data[0]
+    if not load_nodes_data or len(load_nodes_data) == 0:
+        return
 
-        # First, verify the node exists
-        node_check = send_get_request(f"{api_url}/nodes/{existing_node_name}")
-        if node_check.status_code == 200:
-            node_data = node_check.json()
-            if node_data:  # Node exists
-                # Store original comments to restore later
-                original_comments = node_data.get("comments", "")
+    # Try to create a node with the same name as an existing one
+    existing_node_name = load_nodes_data[0]
 
-                duplicate_node = {
-                    "name": existing_node_name,
-                    "comments": "Duplicate node test",
-                    "sites": [],
-                }
+    # First, verify the node exists
+    node_check = send_get_request(f"{api_url}/nodes/{existing_node_name}")
+    if node_check.status_code != 200:
+        return
 
-                response = send_post_request(f"{api_url}/nodes", duplicate_node)
-                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-                    # API may return 409 Conflict or 200 (if it creates a new version)
-                    # Both behaviors are acceptable depending on implementation
-                    assert response.status_code in (200, 409)
+    node_data = node_check.json()
+    if not node_data:  # Node doesn't exist
+        return
 
-                    # If it returns 200, it might have created a new version
-                    # If it returns 409, the duplicate was properly rejected
-                    if response.status_code == 200:
-                        # Verify the node still exists (might be updated or new version)
-                        verify_check = send_get_request(f"{api_url}/nodes/{existing_node_name}")
-                        assert verify_check.status_code == 200
+    # Store original comments to restore later
+    original_comments = node_data.get("comments", "")
 
-                        # Restore original state if needed
-                        if original_comments:
-                            restore_node = node_data.copy()
-                            restore_node["comments"] = original_comments
-                            send_post_request(f"{api_url}/nodes/{existing_node_name}", restore_node)
-                else:
-                    assert response.status_code == 403
+    duplicate_node = {
+        "name": existing_node_name,
+        "comments": "Duplicate node test",
+        "sites": [],
+    }
+
+    response = send_post_request(f"{api_url}/nodes", duplicate_node)
+    if os.getenv("DISABLE_AUTHENTICATION") != "yes":
+        assert response.status_code == 403
+        return
+
+    # API may return 409 Conflict or 200 (if it creates a new version)
+    # Both behaviors are acceptable depending on implementation
+    assert response.status_code in (200, 409)
+
+    # If it returns 200, it might have created a new version
+    # If it returns 409, the duplicate was properly rejected
+    if response.status_code == 200:
+        # Verify the node still exists (might be updated or new version)
+        verify_check = send_get_request(f"{api_url}/nodes/{existing_node_name}")
+        assert verify_check.status_code == 200
+
+        # Restore original state if needed
+        if original_comments:
+            restore_node = node_data.copy()
+            restore_node["comments"] = original_comments
+            send_post_request(f"{api_url}/nodes/{existing_node_name}", restore_node)
 
 
 @pytest.mark.component
 def test_edit_node(load_nodes_data):
     """Test to edit an existing node"""
     api_url = get_api_url()
-    if load_nodes_data and len(load_nodes_data) > 0:
-        node_name = load_nodes_data[0]
-        # Get the existing node data
-        node_response = send_get_request(f"{api_url}/nodes/{node_name}")
-        if node_response.status_code == 200:
-            node_data = node_response.json()
-            if node_data:  # Node exists
-                # Update the comments field
-                original_comments = node_data.get("comments", "")
-                updated_node = node_data.copy()
-                updated_node["comments"] = "Updated by test_edit_node"
+    if not load_nodes_data or len(load_nodes_data) == 0:
+        return
 
-                response = send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
-                if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-                    assert response.status_code == 200
-                    # POST returns HTMLResponse with the node ID
-                    response_text = response.text
-                    assert response_text  # Should contain the ID
+    node_name = load_nodes_data[0]
+    # Get the existing node data
+    node_response = send_get_request(f"{api_url}/nodes/{node_name}")
+    if node_response.status_code != 200:
+        return
 
-                    # Verify the update by getting the node again
-                    verify_response = send_get_request(f"{api_url}/nodes/{node_name}")
-                    if verify_response.status_code == 200:
-                        updated_data = verify_response.json()
-                        if updated_data:
-                            assert updated_data.get("comments") == "Updated by test_edit_node"
+    node_data = node_response.json()
+    if not node_data:  # Node doesn't exist
+        return
 
-                            # Restore original comments
-                            updated_node["comments"] = original_comments
-                            send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
-                else:
-                    assert response.status_code == 403
+    # Update the comments field
+    original_comments = node_data.get("comments", "")
+    updated_node = node_data.copy()
+    updated_node["comments"] = "Updated by test_edit_node"
+
+    response = send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
+    if os.getenv("DISABLE_AUTHENTICATION") != "yes":
+        assert response.status_code == 403
+        return
+
+    assert response.status_code == 200
+    # POST returns HTMLResponse with the node ID
+    response_text = response.text
+    assert response_text  # Should contain the ID
+
+    # Verify the update by getting the node again
+    verify_response = send_get_request(f"{api_url}/nodes/{node_name}")
+    if verify_response.status_code == 200:
+        updated_data = verify_response.json()
+        if updated_data:
+            assert updated_data.get("comments") == "Updated by test_edit_node"
+
+            # Restore original comments
+            updated_node["comments"] = original_comments
+            send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
 
 
 @pytest.mark.component

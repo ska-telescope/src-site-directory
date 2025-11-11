@@ -7,7 +7,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import get_api_url
+from tests.component.conftest import DISABLE_AUTHENTICATION, get_api_url
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
@@ -26,8 +26,6 @@ def test_check_ping():
 @pytest.mark.component
 def test_check_health():
     """Test to check health API"""
-    from tests.component.conftest import DISABLE_AUTHENTICATION
-
     api_url = get_api_url()
     response = httpx.get(f"{api_url}/health")  # noqa: E231
 
