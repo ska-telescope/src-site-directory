@@ -27,16 +27,16 @@ def test_check_ping():
 def test_check_health():
     """Test to check health API"""
     from tests.component.conftest import DISABLE_AUTHENTICATION
-    
+
     api_url = get_api_url()
     response = httpx.get(f"{api_url}/health")  # noqa: E231
-    
+
     # When authentication is disabled, health check should pass (200)
     # When authentication is enabled but dependencies are down, expect 500
     if DISABLE_AUTHENTICATION:
         assert response.status_code == 200
     else:
         assert response.status_code == 500  # permissions and auth API will be down
-    
+
     response_data = response.json()
     assert response_data["uptime"] > 0
