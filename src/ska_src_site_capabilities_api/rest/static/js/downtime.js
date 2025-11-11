@@ -2,6 +2,10 @@ function getShortUuid(uuid) {
     return uuid.replace(/-/g, "").slice(0, 6);
 }
 
+function sanitizeURN(str) {
+    return str.replace("undefined:", "");
+}
+
 function loadDynamicOptions(resourceType, values) {
     const siteSelected = $('select[name="site"]').val();
     const site = values.sites.find(site => site.name === siteSelected);
@@ -9,19 +13,19 @@ function loadDynamicOptions(resourceType, values) {
 
     switch (resourceType) {
         case 'sites':
-            options[site.id] = `urn:srcnet:site:${site.name}:${getShortUuid(site.id)}`
+            options[site.id] = sanitizeURN(`urn:srcnet:site:${site.name}:${getShortUuid(site.id)}`);
             break;
         case 'compute': {
             site?.compute?.forEach(compute => {
                 options[compute.id] =
-                    `urn:srcnet:compute:${compute.name || compute.description}:${getShortUuid(compute.id)}`
+                    sanitizeURN(`urn:srcnet:compute:${compute.name || compute.description}:${getShortUuid(compute.id)}`);
             });
             break;
         }
         case 'storages': {
             site?.storages?.forEach(storage => {
                 options[storage.id] =
-                    `urn:srcnet:storage:${storage.srm}:${storage.host}:${storage.base_path}:${getShortUuid(storage.id)}`
+                    sanitizeURN(`urn:srcnet:storage:${storage.srm}:${storage.host}:${storage.base_path}:${getShortUuid(storage.id)}`);
             });
             break;
         }
@@ -29,7 +33,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.storages?.forEach(storage => {
                 storage.areas?.forEach(area => {
                     options[area.id] =
-                        `urn:srcnet:storage-area:${area.name}:${area.type}:${area.relative_path}:${getShortUuid(area.id)}`
+                        sanitizeURN(`urn:srcnet:storage-area:${area.name}:${area.type}:${area.relative_path}:${getShortUuid(area.id)}`);
                 });
             });
             break;
@@ -38,7 +42,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.compute?.forEach(compute => {
                 compute.associated_local_services?.forEach(service => {
                     options[service.id] =
-                        `urn:srcnet:local-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`
+                        sanitizeURN(`urn:srcnet:local-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`);
                 });
             });
             break;
@@ -47,7 +51,7 @@ function loadDynamicOptions(resourceType, values) {
             site?.compute?.forEach(compute => {
                 compute.associated_global_services?.forEach(service => {
                     options[service.id] =
-                        `urn:srcnet:global-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`;
+                        sanitizeURN(`urn:srcnet:global-service:${service.name}:${service.type}:${service.host}:${getShortUuid(service.id)}`);
                 });
             });
             break;
