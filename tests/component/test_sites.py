@@ -68,9 +68,7 @@ def test_list_sites_filter_by_multiple_node_names(load_nodes_data):
     if load_nodes_data and len(load_nodes_data) > 0:
         # Use the same node name twice to test comma-separated format
         node_name = load_nodes_data[0]
-        response = httpx.get(
-            f"{api_url}/sites?node_names={node_name},{node_name}"
-        )  # noqa: E231
+        response = httpx.get(f"{api_url}/sites?node_names={node_name},{node_name}")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
             assert response.status_code == 200
             data = response.json()
@@ -194,9 +192,7 @@ def test_enable_disable_site_cycle(load_nodes_data):
             site_id = sites_data[0]["id"]
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 # 1. Disable the site
-                disable_response = httpx.put(
-                    f"{api_url}/sites/{site_id}/disable"
-                )  # noqa: E231
+                disable_response = httpx.put(f"{api_url}/sites/{site_id}/disable")  # noqa: E231
                 assert disable_response.status_code == 200
                 disable_data = disable_response.json()
                 assert disable_data.get("is_force_disabled") is True
@@ -207,9 +203,7 @@ def test_enable_disable_site_cycle(load_nodes_data):
                     assert verify_disabled.json().get("is_force_disabled") is True
 
                 # 2. Re-enable the site
-                enable_response = httpx.put(
-                    f"{api_url}/sites/{site_id}/enable"
-                )  # noqa: E231
+                enable_response = httpx.put(f"{api_url}/sites/{site_id}/enable")  # noqa: E231
                 assert enable_response.status_code == 200
                 enable_data = enable_response.json()
                 assert enable_data.get("is_force_disabled") is False

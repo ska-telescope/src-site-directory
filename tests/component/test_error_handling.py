@@ -9,11 +9,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import (
-    DISABLE_AUTHENTICATION,
-    get_api_url,
-    send_get_request,
-)
+from tests.component.conftest import DISABLE_AUTHENTICATION, get_api_url, send_get_request
 
 
 @pytest.mark.component
@@ -30,10 +26,7 @@ def test_invalid_node_version_format(load_nodes_data):
             assert response.status_code == 404
             data = response.json()
             assert "detail" in data
-            assert (
-                "version" in data["detail"].lower()
-                or "integer" in data["detail"].lower()
-            )
+            assert "version" in data["detail"].lower() or "integer" in data["detail"].lower()
         else:
             assert response.status_code == 403
 
@@ -51,19 +44,14 @@ def test_invalid_node_version_format_site_endpoint(load_nodes_data):
             if node_data and "sites" in node_data and len(node_data["sites"]) > 0:
                 site_name = node_data["sites"][0]["name"]
                 # Test with non-numeric, non-"latest" version
-                response = send_get_request(
-                    f"{api_url}/nodes/{node_name}/sites/{site_name}?node_version=not_a_number"
-                )
+                response = send_get_request(f"{api_url}/nodes/{node_name}/sites/{site_name}?node_version=not_a_number")
 
                 if DISABLE_AUTHENTICATION:
                     # API should return 404 with IncorrectNodeVersionType error
                     assert response.status_code == 404
                     data = response.json()
                     assert "detail" in data
-                    assert (
-                        "version" in data["detail"].lower()
-                        or "integer" in data["detail"].lower()
-                    )
+                    assert "version" in data["detail"].lower() or "integer" in data["detail"].lower()
                 else:
                     assert response.status_code == 403
 
@@ -156,9 +144,7 @@ def test_malformed_query_parameter_node_names():
     """Test that malformed node_names query parameter is handled gracefully"""
     api_url = get_api_url()
     # Test with special characters that might cause issues
-    response = send_get_request(
-        f"{api_url}/compute?node_names=node%20with%20spaces,another"
-    )
+    response = send_get_request(f"{api_url}/compute?node_names=node%20with%20spaces,another")
 
     if DISABLE_AUTHENTICATION:
         # Should handle URL-encoded spaces or return appropriate error
@@ -256,9 +242,7 @@ def test_invalid_uuid_format_enable_disable():
         assert enable_response.status_code == 403
 
     # Test disable endpoint
-    disable_response = httpx.put(
-        f"{api_url}/compute/{invalid_uuid}/disable", timeout=30
-    )
+    disable_response = httpx.put(f"{api_url}/compute/{invalid_uuid}/disable", timeout=30)
     if DISABLE_AUTHENTICATION:
         # API may return 200 (with empty response) or 404/422
         assert disable_response.status_code in (200, 404, 422)

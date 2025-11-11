@@ -7,12 +7,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import (
-    get_api_url,
-    send_delete_request,
-    send_get_request,
-    send_post_request,
-)
+from tests.component.conftest import get_api_url, send_delete_request, send_get_request, send_post_request
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
@@ -88,9 +83,7 @@ def test_get_node_by_name_latest_version(load_nodes_data):
     api_url = get_api_url()
     if load_nodes_data and len(load_nodes_data) > 0:
         node_name = load_nodes_data[0]
-        response = httpx.get(
-            f"{api_url}/nodes/{node_name}?node_version=latest"
-        )  # noqa: E231
+        response = httpx.get(f"{api_url}/nodes/{node_name}?node_version=latest")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
             assert response.status_code == 200
             data = response.json()
@@ -140,9 +133,7 @@ def test_get_site_from_node_and_site_name(load_nodes_data):
             node_data = node_response.json()
             if "sites" in node_data and len(node_data["sites"]) > 0:
                 site_name = node_data["sites"][0]["name"]
-                response = httpx.get(
-                    f"{api_url}/nodes/{node_name}/sites/{site_name}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/nodes/{node_name}/sites/{site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -216,18 +207,14 @@ def test_create_duplicate_node(load_nodes_data):
                     # If it returns 409, the duplicate was properly rejected
                     if response.status_code == 200:
                         # Verify the node still exists (might be updated or new version)
-                        verify_check = send_get_request(
-                            f"{api_url}/nodes/{existing_node_name}"
-                        )
+                        verify_check = send_get_request(f"{api_url}/nodes/{existing_node_name}")
                         assert verify_check.status_code == 200
 
                         # Restore original state if needed
                         if original_comments:
                             restore_node = node_data.copy()
                             restore_node["comments"] = original_comments
-                            send_post_request(
-                                f"{api_url}/nodes/{existing_node_name}", restore_node
-                            )
+                            send_post_request(f"{api_url}/nodes/{existing_node_name}", restore_node)
                 else:
                     assert response.status_code == 403
 
@@ -248,9 +235,7 @@ def test_edit_node(load_nodes_data):
                 updated_node = node_data.copy()
                 updated_node["comments"] = "Updated by test_edit_node"
 
-                response = send_post_request(
-                    f"{api_url}/nodes/{node_name}", updated_node
-                )
+                response = send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     # POST returns HTMLResponse with the node ID
@@ -262,16 +247,11 @@ def test_edit_node(load_nodes_data):
                     if verify_response.status_code == 200:
                         updated_data = verify_response.json()
                         if updated_data:
-                            assert (
-                                updated_data.get("comments")
-                                == "Updated by test_edit_node"
-                            )
+                            assert updated_data.get("comments") == "Updated by test_edit_node"
 
                             # Restore original comments
                             updated_node["comments"] = original_comments
-                            send_post_request(
-                                f"{api_url}/nodes/{node_name}", updated_node
-                            )
+                            send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
                 else:
                     assert response.status_code == 403
 
@@ -312,10 +292,7 @@ def test_delete_node():
 
     # Create the node
     create_response = send_post_request(f"{api_url}/nodes", test_node)
-    if (
-        os.getenv("DISABLE_AUTHENTICATION") == "yes"
-        and create_response.status_code == 200
-    ):
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes" and create_response.status_code == 200:
         # Now delete it
         delete_response = send_delete_request(f"{api_url}/nodes/{test_node['name']}")
         assert delete_response.status_code == 200
@@ -375,9 +352,7 @@ def test_create_edit_delete_node_cycle():
         # 3. Edit node
         updated_node = node_data.copy()
         updated_node["comments"] = "Updated comment"
-        edit_response = send_post_request(
-            f"{api_url}/nodes/{test_node_name}", updated_node
-        )
+        edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
         assert edit_response.status_code == 200
 
         # 4. Verify edit

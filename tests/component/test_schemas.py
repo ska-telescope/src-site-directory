@@ -68,9 +68,7 @@ def test_render_schema():
         schemas_data = schemas_response.json()
         if len(schemas_data) > 0:
             schema_name = schemas_data[0]
-            response = httpx.get(
-                f"{api_url}/schemas/render/{schema_name}"
-            )  # noqa: E231
+            response = httpx.get(f"{api_url}/schemas/render/{schema_name}")  # noqa: E231
             # Schema render endpoint doesn't require authentication
             # Note: This might fail if PlantUML service is not available
             # In that case, we expect either 200 (success) or 500 (PlantUML error)

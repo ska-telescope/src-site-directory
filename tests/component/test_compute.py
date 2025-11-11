@@ -49,9 +49,7 @@ def test_list_compute_filter_by_multiple_node_names(load_nodes_data):
     if load_nodes_data and len(load_nodes_data) > 0:
         # Use the same node name twice to test comma-separated format
         node_name = load_nodes_data[0]
-        response = httpx.get(
-            f"{api_url}/compute?node_names={node_name},{node_name}"
-        )  # noqa: E231
+        response = httpx.get(f"{api_url}/compute?node_names={node_name},{node_name}")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
             assert response.status_code == 200
             data = response.json()
@@ -72,9 +70,7 @@ def test_list_compute_filter_by_site_names(load_nodes_data):
             node_data = node_response.json()
             if "sites" in node_data and len(node_data["sites"]) > 0:
                 site_name = node_data["sites"][0]["name"]
-                response = httpx.get(
-                    f"{api_url}/compute?site_names={site_name}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/compute?site_names={site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -96,9 +92,7 @@ def test_list_compute_filter_by_multiple_site_names(load_nodes_data):
                 # Get two site names
                 site_name_1 = node_data["sites"][0]["name"]
                 site_name_2 = node_data["sites"][1]["name"]
-                response = httpx.get(
-                    f"{api_url}/compute?site_names={site_name_1},{site_name_2}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/compute?site_names={site_name_1},{site_name_2}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -108,9 +102,7 @@ def test_list_compute_filter_by_multiple_site_names(load_nodes_data):
             elif "sites" in node_data and len(node_data["sites"]) == 1:
                 # If only one site, use it twice to test comma-separated format
                 site_name = node_data["sites"][0]["name"]
-                response = httpx.get(
-                    f"{api_url}/compute?site_names={site_name},{site_name}"
-                )  # noqa: E231
+                response = httpx.get(f"{api_url}/compute?site_names={site_name},{site_name}")  # noqa: E231
                 if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                     assert response.status_code == 200
                     data = response.json()
@@ -210,9 +202,7 @@ def test_disable_compute(load_nodes_data):
         compute_data = compute_response.json()
         if len(compute_data) > 0:
             compute_id = compute_data[0]["id"]
-            response = httpx.put(
-                f"{api_url}/compute/{compute_id}/disable"
-            )  # noqa: E231
+            response = httpx.put(f"{api_url}/compute/{compute_id}/disable")  # noqa: E231
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 assert response.status_code == 200
                 data = response.json()
@@ -243,9 +233,7 @@ def test_enable_disable_compute_cycle(load_nodes_data):
             compute_id = compute_data[0]["id"]
             if os.getenv("DISABLE_AUTHENTICATION") == "yes":
                 # 1. Disable the compute
-                disable_response = httpx.put(
-                    f"{api_url}/compute/{compute_id}/disable"
-                )  # noqa: E231
+                disable_response = httpx.put(f"{api_url}/compute/{compute_id}/disable")  # noqa: E231
                 assert disable_response.status_code == 200
                 disable_data = disable_response.json()
                 assert disable_data.get("is_force_disabled") is True
@@ -256,9 +244,7 @@ def test_enable_disable_compute_cycle(load_nodes_data):
                     assert verify_disabled.json().get("is_force_disabled") is True
 
                 # 2. Re-enable the compute
-                enable_response = httpx.put(
-                    f"{api_url}/compute/{compute_id}/enable"
-                )  # noqa: E231
+                enable_response = httpx.put(f"{api_url}/compute/{compute_id}/enable")  # noqa: E231
                 assert enable_response.status_code == 200
                 enable_data = enable_response.json()
                 assert enable_data.get("is_force_disabled") is False
