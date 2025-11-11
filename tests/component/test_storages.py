@@ -129,3 +129,89 @@ def test_get_storage_not_found():
         assert response.status_code == 404
     else:
         assert response.status_code in (403, 404)
+
+
+@pytest.mark.component
+def test_enable_storage(load_nodes_data):
+    """Test to enable a storage"""
+    api_url = get_api_url()
+    # First, get the list of storages to find a storage ID
+    storages_response = send_get_request(f"{api_url}/storages")
+    if storages_response.status_code == 200:
+        storages_data = storages_response.json()
+        if len(storages_data) > 0:
+            storage_id = storages_data[0]["id"]
+            response = httpx.put(f"{api_url}/storages/{storage_id}/enable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_storage(load_nodes_data):
+    """Test to disable a storage"""
+    api_url = get_api_url()
+    # First, get the list of storages to find a storage ID
+    storages_response = send_get_request(f"{api_url}/storages")
+    if storages_response.status_code == 200:
+        storages_data = storages_response.json()
+        if len(storages_data) > 0:
+            storage_id = storages_data[0]["id"]
+            response = httpx.put(f"{api_url}/storages/{storage_id}/disable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_enable_disable_storage_cycle(load_nodes_data):
+    """Test enable/disable cycle for storage"""
+    api_url = get_api_url()
+    # First, get the list of storages to find a storage ID
+    storages_response = send_get_request(f"{api_url}/storages")
+    if storages_response.status_code == 200:
+        storages_data = storages_response.json()
+        if len(storages_data) > 0:
+            storage_id = storages_data[0]["id"]
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                # Disable the storage
+                disable_response = httpx.put(f"{api_url}/storages/{storage_id}/disable")  # noqa: E231
+                assert disable_response.status_code == 200
+                
+                # Re-enable the storage
+                enable_response = httpx.put(f"{api_url}/storages/{storage_id}/enable")  # noqa: E231
+                assert enable_response.status_code == 200
+
+
+@pytest.mark.component
+def test_enable_storage_not_found():
+    """Test to enable a non-existent storage"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/storages/{fake_id}/enable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_storage_not_found():
+    """Test to disable a non-existent storage"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/storages/{fake_id}/disable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403
