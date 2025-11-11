@@ -30,7 +30,9 @@ def get_api_url() -> str:
     return BASE_API_URL
 
 
-def send_post_request(url: str, json_body: dict, headers: dict = None) -> httpx.Response:
+def send_post_request(
+    url: str, json_body: dict, headers: dict = None
+) -> httpx.Response:
     """Send POST request with JSON body."""
     if headers is None:
         headers = {"Content-Type": "application/json"}
@@ -107,7 +109,9 @@ def load_nodes_data(nodes_data):
                 send_delete_request(delete_url)
                 logger.info("Deleted existing node: %s", node_name)
             except Exception as e:
-                logger.debug("Could not delete node %s (may not exist): %s", node_name, e)
+                logger.debug(
+                    "Could not delete node %s (may not exist): %s", node_name, e
+                )
 
     # Load each node
     loaded_nodes = []
@@ -152,4 +156,3 @@ def load_nodes_data(nodes_data):
     #         logger.info("Cleaned up node: %s", node_name)
     #     except Exception as e:
     #         logger.warning("Could not cleanup node %s: %s", node_name, e)
-
