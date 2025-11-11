@@ -128,7 +128,7 @@ function deleteDowntimeEntry(node_values, resourceType, resourceId, downtimeId) 
 
 
 function deleteDowntimeHandler(node_values, token, editNodeUrl, downtime) {
-    if (downtime.id == "undefined") {
+    if (downtime.id === "undefined") {
         console.log("in heree")
         showAndDismissAlert('danger', 'Downtime ID is undefined. Cannot proceed with deletion.');
         return;
