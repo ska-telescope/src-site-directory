@@ -118,13 +118,59 @@ Testing is done via the `pytest` module, with code coverage provided by the `pyt
 
 ### Component testing
 
-Component testing is conducted inside a k8s deployment environment using mocked responses to external services.
+Component testing uses the integration environment to spin up local services for testing. The component tests 
+implemented for this repository are stored under the `/tests/component` directory. These component tests are executed 
+during the ``test`` stage of the CI/CD pipeline under the ``k8s-test-api-with-disabled-auth`` and 
+``k8s-test-api-with-enabled-auth`` jobs.
 
-The component tests implemented for this repository are stored under the `/tests/component` directory. These 
-component tests are executed during the ``test`` stage of the CI/CD pipeline under the
-``k8s-test-api-with-disabled-auth`` and ``k8s-test-api-with-enabled-auth`` jobs.
+#### Running component tests locally with the Integration Environment
 
-For local testing, an environment can be installed via minikube/helm with:
+To run component tests against a local instance using the integration environment:
+
+1. **Start the API with authentication disabled:**
+   ```bash
+   # Set the Integration Environment to start SC_API and uncomment DISABLE_AUTHENTICATION: "yes" in scapi-docker-compose.yanml
+   bash scripts/stack/start-stack.
+   ```
+2. **Set environment variables for the tests:**
+   ```bash
+   export DISABLE_AUTHENTICATION=yes
+   export API_URL=http://localhost:8081/v1  
+   ```
+
+3. **Run the tests using Poetry:**
+   ```bash
+   # Run all component tests
+   poetry run pytest tests/component -m component -v --override-ini="addopts="
+   
+   # Run a specific test file
+   poetry run pytest tests/component/test_compute.py -m component -v --override-ini="addopts="
+   
+   # Run with logging
+   poetry run pytest tests/component -m component -v -s --log-cli-level=INFO --override-ini="addopts="
+   ```
+
+**Note:** The `--override-ini="addopts="` flag is needed to override pytest.ini default options that may cause issues 
+in local testing.
+
+#### Test data
+
+The tests automatically load test data from `tests/assets/component/nodes.json` before running. This data is loaded via 
+the `load_nodes_data` fixture defined in `conftest.py`. The fixture:
+- Deletes existing nodes with the same names (if they exist)
+- Loads all nodes from the JSON file
+- Makes the data available for all component tests
+
+#### Environment variables
+
+- `API_URL`: Base API URL (default: `http://localhost:8080/v1` if not in Kubernetes)
+  - **Important:** Adjust the port if your Docker container maps to a different port (e.g., `http://localhost:8081/v1`)
+- `DISABLE_AUTHENTICATION`: Set to `yes` to disable authentication checks
+  - **Important:** This must also be set in the Docker container environment (`DISABLE_AUTHENTICATION=yes`)
+
+#### Running component tests locally with Kubernetes
+
+For local testing in a Kubernetes environment, an environment can be installed via minikube/helm with:
 
 ```bash
 ska-src-site-capabilities-api$ minikube start
