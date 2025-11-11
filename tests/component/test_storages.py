@@ -125,13 +125,26 @@ def test_list_storages_include_inactive(load_nodes_data):
 
 @pytest.mark.component
 def test_list_storages_grafana(load_nodes_data):
-    """Test to list storages in Grafana format"""
+    """Test to list storages in Grafana format
+    
+    Note: Sites without latitude/longitude are automatically skipped by the backend.
+    """
     api_url = get_api_url()
     response = httpx.get(f"{api_url}/storages/grafana")  # noqa: E231
     # Grafana endpoint doesn't require authentication
     assert response.status_code == 200
+    
     data = response.json()
     assert isinstance(data, list)
+    
+    # Verify that all entries have required Grafana fields
+    for entry in data:
+        assert "key" in entry
+        assert "latitude" in entry
+        assert "longitude" in entry
+        assert "name" in entry
+        assert isinstance(entry["latitude"], (int, float))
+        assert isinstance(entry["longitude"], (int, float))
 
 
 @pytest.mark.component
