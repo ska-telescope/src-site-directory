@@ -105,3 +105,89 @@ def test_get_site_not_found():
     else:
         assert response.status_code in (403, 404)
 
+
+@pytest.mark.component
+def test_enable_site(load_nodes_data):
+    """Test to enable a site"""
+    api_url = get_api_url()
+    # First, get the list of sites to find a site ID
+    sites_response = send_get_request(f"{api_url}/sites")
+    if sites_response.status_code == 200:
+        sites_data = sites_response.json()
+        if len(sites_data) > 0:
+            site_id = sites_data[0]["id"]
+            response = httpx.put(f"{api_url}/sites/{site_id}/enable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_site(load_nodes_data):
+    """Test to disable a site"""
+    api_url = get_api_url()
+    # First, get the list of sites to find a site ID
+    sites_response = send_get_request(f"{api_url}/sites")
+    if sites_response.status_code == 200:
+        sites_data = sites_response.json()
+        if len(sites_data) > 0:
+            site_id = sites_data[0]["id"]
+            response = httpx.put(f"{api_url}/sites/{site_id}/disable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_enable_disable_site_cycle(load_nodes_data):
+    """Test enable/disable cycle for site"""
+    api_url = get_api_url()
+    # First, get the list of sites to find a site ID
+    sites_response = send_get_request(f"{api_url}/sites")
+    if sites_response.status_code == 200:
+        sites_data = sites_response.json()
+        if len(sites_data) > 0:
+            site_id = sites_data[0]["id"]
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                # Disable the site
+                disable_response = httpx.put(f"{api_url}/sites/{site_id}/disable")  # noqa: E231
+                assert disable_response.status_code == 200
+                
+                # Re-enable the site
+                enable_response = httpx.put(f"{api_url}/sites/{site_id}/enable")  # noqa: E231
+                assert enable_response.status_code == 200
+
+
+@pytest.mark.component
+def test_enable_site_not_found():
+    """Test to enable a non-existent site"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/sites/{fake_id}/enable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API returns 404 when site not found (based on server.py line 880)
+        assert response.status_code == 404
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_site_not_found():
+    """Test to disable a non-existent site"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/sites/{fake_id}/disable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API returns 404 when site not found (based on server.py line 912)
+        assert response.status_code == 404
+    else:
+        assert response.status_code == 403
+

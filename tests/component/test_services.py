@@ -161,3 +161,89 @@ def test_get_service_not_found():
         assert response.status_code == 404
     else:
         assert response.status_code in (403, 404)
+
+
+@pytest.mark.component
+def test_enable_service(load_nodes_data):
+    """Test to enable a service"""
+    api_url = get_api_url()
+    # First, get the list of services to find a service ID
+    services_response = send_get_request(f"{api_url}/services")
+    if services_response.status_code == 200:
+        services_data = services_response.json()
+        if len(services_data) > 0:
+            service_id = services_data[0]["id"]
+            response = httpx.put(f"{api_url}/services/{service_id}/enable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_service(load_nodes_data):
+    """Test to disable a service"""
+    api_url = get_api_url()
+    # First, get the list of services to find a service ID
+    services_response = send_get_request(f"{api_url}/services")
+    if services_response.status_code == 200:
+        services_data = services_response.json()
+        if len(services_data) > 0:
+            service_id = services_data[0]["id"]
+            response = httpx.put(f"{api_url}/services/{service_id}/disable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_enable_disable_service_cycle(load_nodes_data):
+    """Test enable/disable cycle for service"""
+    api_url = get_api_url()
+    # First, get the list of services to find a service ID
+    services_response = send_get_request(f"{api_url}/services")
+    if services_response.status_code == 200:
+        services_data = services_response.json()
+        if len(services_data) > 0:
+            service_id = services_data[0]["id"]
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                # Disable the service
+                disable_response = httpx.put(f"{api_url}/services/{service_id}/disable")  # noqa: E231
+                assert disable_response.status_code == 200
+                
+                # Re-enable the service
+                enable_response = httpx.put(f"{api_url}/services/{service_id}/enable")  # noqa: E231
+                assert enable_response.status_code == 200
+
+
+@pytest.mark.component
+def test_enable_service_not_found():
+    """Test to enable a non-existent service"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/services/{fake_id}/enable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_service_not_found():
+    """Test to disable a non-existent service"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/services/{fake_id}/disable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403

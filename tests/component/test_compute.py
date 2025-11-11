@@ -106,3 +106,89 @@ def test_get_compute_not_found():
         assert response.status_code == 404
     else:
         assert response.status_code in (403, 404)
+
+
+@pytest.mark.component
+def test_enable_compute(load_nodes_data):
+    """Test to enable a compute resource"""
+    api_url = get_api_url()
+    # First, get the list of compute to find a compute ID
+    compute_response = send_get_request(f"{api_url}/compute")
+    if compute_response.status_code == 200:
+        compute_data = compute_response.json()
+        if len(compute_data) > 0:
+            compute_id = compute_data[0]["id"]
+            response = httpx.put(f"{api_url}/compute/{compute_id}/enable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_compute(load_nodes_data):
+    """Test to disable a compute resource"""
+    api_url = get_api_url()
+    # First, get the list of compute to find a compute ID
+    compute_response = send_get_request(f"{api_url}/compute")
+    if compute_response.status_code == 200:
+        compute_data = compute_response.json()
+        if len(compute_data) > 0:
+            compute_id = compute_data[0]["id"]
+            response = httpx.put(f"{api_url}/compute/{compute_id}/disable")  # noqa: E231
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                assert response.status_code == 200
+                data = response.json()
+                # Verify response structure
+                assert isinstance(data, dict)
+            else:
+                assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_enable_disable_compute_cycle(load_nodes_data):
+    """Test enable/disable cycle for compute resource"""
+    api_url = get_api_url()
+    # First, get the list of compute to find a compute ID
+    compute_response = send_get_request(f"{api_url}/compute")
+    if compute_response.status_code == 200:
+        compute_data = compute_response.json()
+        if len(compute_data) > 0:
+            compute_id = compute_data[0]["id"]
+            if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+                # Disable the compute
+                disable_response = httpx.put(f"{api_url}/compute/{compute_id}/disable")  # noqa: E231
+                assert disable_response.status_code == 200
+                
+                # Re-enable the compute
+                enable_response = httpx.put(f"{api_url}/compute/{compute_id}/enable")  # noqa: E231
+                assert enable_response.status_code == 200
+
+
+@pytest.mark.component
+def test_enable_compute_not_found():
+    """Test to enable a non-existent compute"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/compute/{fake_id}/enable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403
+
+
+@pytest.mark.component
+def test_disable_compute_not_found():
+    """Test to disable a non-existent compute"""
+    api_url = get_api_url()
+    fake_id = "00000000-0000-0000-0000-000000000000"
+    response = httpx.put(f"{api_url}/compute/{fake_id}/disable")  # noqa: E231
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes":
+        # API may return 200 with empty response or 404
+        assert response.status_code in (200, 404)
+    else:
+        assert response.status_code == 403
