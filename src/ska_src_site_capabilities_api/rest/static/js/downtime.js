@@ -272,3 +272,4 @@ function createDowntimeRows(values, table) {
         table.appendChild(row);
     })
 }
+
