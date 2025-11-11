@@ -3,9 +3,9 @@
 ## Summary
 
 **Total API Endpoints**: 46  
-**Tested Endpoints**: ~40  
-**Missing Coverage**: ~6 endpoints (POST/DELETE only)  
-**Coverage**: ~78%
+**Tested Endpoints**: ~43  
+**Missing Coverage**: ~3 endpoints (Web UI only, not typically tested)  
+**Coverage**: ~84%
 
 ## Detailed Endpoint Coverage
 
@@ -120,21 +120,27 @@ These important state management endpoints are now fully tested:
 
 **Status**: ✅ Complete - All enable/disable operations are now tested with state transition and error handling tests.
 
-#### POST Endpoints (Create/Edit Operations) - **HIGH PRIORITY**
+#### POST Endpoints (Create/Edit Operations) - **✅ COMPLETED**
+
+These primary data modification endpoints are now fully tested:
 
 1. **Nodes**
-   - ❌ `POST /nodes` - Create new node
-   - ❌ `POST /nodes/{node_name}` - Edit existing node
-   - ❌ `POST /nodes` - Duplicate node (409 conflict)
+   - ✅ `POST /nodes` - Create new node
+   - ✅ `POST /nodes/{node_name}` - Edit existing node
+   - ✅ `POST /nodes` - Duplicate node (409 conflict)
+   - ✅ Edit non-existent node handling
+   - ✅ Complete CRUD cycle test
 
-**Impact**: High - These are the primary data modification endpoints.
+**Status**: ✅ Complete - All POST operations are now tested with error handling and state verification.
 
-#### DELETE Endpoints - **MEDIUM PRIORITY**
+#### DELETE Endpoints - **✅ COMPLETED**
 
 1. **Nodes**
-   - ❌ `DELETE /nodes/{node_name}` - Delete node by name
+   - ✅ `DELETE /nodes/{node_name}` - Delete node by name
+   - ✅ Delete non-existent node handling
+   - ✅ Delete verification (node no longer exists after deletion)
 
-**Impact**: Medium - Important for cleanup and data management.
+**Status**: ✅ Complete - DELETE operations are now tested with verification and error handling.
 
 #### Additional Query Parameters - **LOW PRIORITY**
 
@@ -208,18 +214,18 @@ These important state management endpoints are now fully tested:
 |----------|----------------|--------|--------|----------|
 | GET (Read) | 30 | 30 | 0 | 100% ✅ |
 | PUT (Enable/Disable) | 10 | 10 | 0 | 100% ✅ |
-| POST (Create/Edit) | 2 | 0 | 2 | 0% ❌ |
-| DELETE | 1 | 0 | 1 | 0% ❌ |
+| POST (Create/Edit) | 2 | 2 | 0 | 100% ✅ |
+| DELETE | 1 | 1 | 0 | 100% ✅ |
 | Web UI | 8 | 0 | 0 | N/A ⚠️ |
-| **TOTAL** | **51** | **40** | **3** | **~78%** |
+| **TOTAL** | **51** | **43** | **0** | **~84%** |
 
 ---
 
 ## Next Steps
 
 1. ✅ **Completed**: PUT endpoint tests for enable/disable operations
-2. **Short-term**: Add POST and DELETE tests for node management
-3. **Long-term**: Add edge case and error handling tests
+2. ✅ **Completed**: POST and DELETE tests for node management
+3. **Long-term**: Add edge case and error handling tests (optional improvements)
 
 ---
 
