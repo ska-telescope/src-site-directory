@@ -63,21 +63,24 @@ class MongoBackend(Backend):
                     for dt in value:
                         try:
                             start_str, end_str = dt.get("date_range", "").split(" to ")
+                            print(start_str, end_str, dt)
                             start = dateutil.parser.parse(start_str)
                             end = dateutil.parser.parse(end_str)
                             upcoming_downtimes.append((start, end, dt))
                         except Exception:
+                            print("Failed to parse date range:", dt)
                             continue
                     upcoming_downtimes.sort(key=lambda x: x[0])
                     for start, end, dt in upcoming_downtimes:
                         if start <= now <= end:
                             is_down = True
                             nearest_downtime = dt
+                            print(nearest_downtime)
                             break
                         if start > now and nearest_downtime is None:
                             nearest_downtime = dt
-                    labels["in_downtime"] = str(is_down).lower()
                     if nearest_downtime:
+                        labels["in_downtime"] = str(is_down).lower()
                         labels["downtime_type"] = nearest_downtime.get("type", "")
                         labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
                         labels["downtime_reason"] = nearest_downtime.get("reason", "")
@@ -120,14 +123,13 @@ class MongoBackend(Backend):
 
         return formatted_services
 
-    def _get_storage_areas_with_host_for_prometheus(self, node_names=None, site_names=None, include_inactive=False):
+    def _get_storage_areas_with_host_for_prometheus(self, node_names=None, site_names=None):
         """
         Returns a list of storage areas with host information formatted for Prometheus Service Discovery.
 
         Args:
             node_names: List of node names to filter storage areas by. If None, no node filtering is applied.
             site_names: List of site names to filter storage areas by. If None, no site filtering is applied.
-            include_inactive: Boolean to include inactive storage areas.
 
         Returns:
             A list of dictionaries formatted for Prometheus Service Discovery.
@@ -135,7 +137,7 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         response = []
-        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=True):
             supported_protocols = storage.get("supported_protocols", [])
 
             if not supported_protocols:
@@ -158,19 +160,100 @@ class MongoBackend(Backend):
                         }
                     )
 
+        return self.format_label_response(response)
+
+    def format_label_response(self, response: list) -> list:
+        """
+        Formats a list of resources for Prometheus Service Discovery.
+
+        Args:
+            response: List of resource dictionaries.
+
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
         formatted = []
-        for storage_area in response:
-            target = f'{storage_area.get("prefix", "https").replace("://", "")}://{storage_area.get("host")}'
-            if storage_area.get("port") is not None:
-                target += f':{storage_area.get("port")}'
-            target += f'{storage_area.get("base_path")}'
-            relative_path = storage_area.get("relative_path") or ""
+        for resource in response:
+            target = f'{resource.get("prefix", "https").replace("://", "")}://{resource.get("host")}'
+            if resource.get("port") is not None:
+                target += f':{resource.get("port")}'
+            target += f'{resource.get("base_path")}'
+            relative_path = resource.get("relative_path") or ""
             if relative_path.startswith(("http://", "https://")):
                 target = relative_path
             else:
                 target += f'/{relative_path.lstrip("/")}'
-            formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(storage_area)})
+            formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(resource)})
         return formatted
+
+    def _get_storage_with_labels_for_prometheus(self, node_names=None, site_names=None):
+        """
+        Returns a list of storage resources formatted for Prometheus Service Discovery.
+        Args:
+            node_names: List of node names to filter storage resources by. If None, no node filtering is applied.
+            site_names: List of site names to filter storage resources by. If None, no site filtering is applied.
+            include_inactive: Boolean to include inactive storage resources.
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
+
+        storages = self.list_storages(node_names=node_names, site_names=site_names, include_inactive=True)
+        response = []
+
+        for storage in storages:
+            supported_protocols = storage.get("supported_protocols", [])
+
+            if not supported_protocols:
+                supported_protocols = [{"prefix": "https", "port": 443}]
+
+            for protocol in supported_protocols:
+                response.append(
+                    {
+                        "parent_node_name": storage.get("parent_node_name"),
+                        "parent_site_name": storage.get("parent_site_name"),
+                        "parent_site_id": storage.get("parent_site_id"),
+                        "parent_storage_id": storage.get("id"),
+                        "host": storage.get("host"),
+                        "base_path": storage.get("base_path"),
+                        "prefix": protocol.get("prefix"),
+                        "port": protocol.get("port"),
+                        "downtime": storage.get("downtime"),
+                    }
+                )
+
+        return self.format_label_response(response)
+
+    def _get_sites_with_labels_for_prometheus(self, node_names=None):
+        """
+        Returns a list of sites formatted for Prometheus Service Discovery.
+
+        Args:
+            node_names: List of node names to filter sites by. If None, no node filtering is applied.
+            include_inactive: Boolean to include inactive sites.
+
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
+        sites = self.list_sites(node_names=node_names, include_inactive=True)
+        print(sites)
+        response = []
+
+        for site in sites:
+            response.append(
+                {
+                    "site_name": site.get("name"),
+                    "country": site.get("country"),
+                    "latitude": site.get("latitude"),
+                    "longitude": site.get("longitude"),
+                    "downtime": site.get("downtime"),
+                })
+
+        formatted_sites = []
+
+        for site in response:
+            formatted_sites.append({"targets": [f'site_{site.get("site_name")}'], "labels": self._get_service_labels_for_prometheus(site)})
+            print(formatted_sites)
+        return formatted_sites
 
     def _is_element_in_downtime(self, downtime):
         """
@@ -540,11 +623,16 @@ class MongoBackend(Backend):
         site_names = site_names or []
         service_types = service_types or []
 
-        for compute in self.list_compute(
+        include_inactive = for_prometheus == True or include_inactive
+
+        print(include_inactive)
+        computes = self.list_compute(
             node_names=node_names,
             site_names=site_names,
             include_inactive=include_inactive,
-        ):
+        )
+
+        for compute in computes:
             if service_scope in ["all", "local"]:
                 for service in compute.get("associated_local_services", []):
                     # Apply filters for service type and associated storage area ID
@@ -587,9 +675,15 @@ class MongoBackend(Backend):
             formatted = []
             services = self._format_services_with_targets_for_prometheus(response)
             formatted.extend(services)
-            # Add RSE(storage areas) with host information
-            storages = self._get_storage_areas_with_host_for_prometheus(node_names, site_names, include_inactive)
+
+            storage_areas = self._get_storage_areas_with_host_for_prometheus(node_names, site_names)
+            formatted.extend(storage_areas)
+
+            storages = self._get_storage_with_labels_for_prometheus(node_names, site_names)
             formatted.extend(storages)
+
+            sites = self._get_sites_with_labels_for_prometheus(node_names)
+            formatted.extend(sites)
 
             return formatted
 
