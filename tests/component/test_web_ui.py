@@ -180,3 +180,35 @@ def test_get_topology_view(load_nodes_data):
     else:
         # When auth is enabled, may show login prompt or topology depending on session
         assert "login" in html_content.lower() or "topology" in html_content.lower()
+
+
+@pytest.mark.component
+def test_get_downtime_dashboard(load_nodes_data):
+    """Test to get downtime dashboard page."""
+
+    api_url = get_api_url()
+
+    if load_nodes_data and len(load_nodes_data) > 0:
+        node_name = load_nodes_data[0]
+        response = send_get_request(f"{api_url}/www/downtime/{node_name}")
+
+        assert response.status_code == 200
+        assert "text/html" in response.headers.get("content-type", "").lower()
+
+        html_content = response.text
+
+        if DISABLE_AUTHENTICATION:
+            # When auth is disabled, should show the downtime dashboard
+            assert "downtime" in html_content.lower() or "resource type" in html_content.lower() or "ongoing downtimes" in html_content.lower()
+        else:
+            # When auth is enabled, may show login prompt or dashboard depending on session
+            assert "login" in html_content.lower() or "downtimes srcnet node" in html_content.lower() or "resource type" in html_content.lower()
+    else:
+        # If no nodes are loaded, test with a non-existent node
+        response = send_get_request(f"{api_url}/www/downtime/nonexistent-node")
+
+        # Should return 200 (with error message or login prompt) or 404/500
+        assert response.status_code in (200, 404, 500)
+
+        if response.status_code == 200:
+            assert "text/html" in response.headers.get("content-type", "").lower()

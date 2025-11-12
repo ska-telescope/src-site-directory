@@ -61,6 +61,8 @@ config = Config(".env")
 #
 DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
+print(DEBUG, "this is DEBUG")
+
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
 app = FastAPI()
@@ -1636,6 +1638,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
 @handle_exceptions
 async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
     """Dashboard to get all the downtimes for node."""
+    print(node_name, request.session.get("access_token"))
     if request.session.get("access_token"):
         # Check access permissions.
         if not DEBUG:

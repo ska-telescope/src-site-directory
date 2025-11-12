@@ -59,6 +59,8 @@ def send_get_request(url: str, headers: dict = None) -> httpx.Response:
         # if token:
         #     headers["Authorization"] = f"Bearer {token}"
         pass
+    else:
+        headers["Authorization"] = "Bearer disabled"
 
     response = httpx.get(url, headers=headers, timeout=30)
     logger.info("GET %s -> %s", url, response.status_code)
