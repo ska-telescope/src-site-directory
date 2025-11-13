@@ -61,6 +61,8 @@ config = Config(".env")
 #
 DEBUG = True if config.get("DISABLE_AUTHENTICATION", default=None) == "yes" else False
 
+print(DEBUG, "this is DEBUG")
+
 # Instantiate FastAPI() allowing CORS. Static mounts must be added later after the versionize() call.
 #
 app = FastAPI()
@@ -1612,6 +1614,69 @@ async def edit_node_form(request: Request, node_name: str) -> Union[TEMPLATES.Te
                 "sign_out_url": get_url_for_app_from_request(
                     "www_logout",
                     request,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
+                "access_token": request.session.get("access_token"),
+                "values": node,
+            },
+        )
+    else:
+        return HTMLResponse(
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+        )
+
+
+@api_version(1)
+@app.get(
+    "/www/downtime/{node_name}",
+    responses={200: {}, 401: {}, 403: {}},
+    include_in_schema=False,
+    dependencies=[Depends(increment_request_counter)] if DEBUG else [Depends(increment_request_counter)],
+    tags=["Nodes", "Downtimes"],
+    summary="Get the downtime statusboard for a node",
+)
+@handle_exceptions
+async def get_downtime_statusboard(request: Request, node_name: str) -> Union[TEMPLATES.TemplateResponse, HTMLResponse]:
+    """Dashboard to get all the downtimes for node."""
+    print(node_name, request.session.get("access_token"))
+    if request.session.get("access_token"):
+        # Check access permissions.
+        if not DEBUG:
+            try:
+                rtn = PERMISSIONS.authorise_service_route(
+                    service=PERMISSIONS_SERVICE_NAME,
+                    version=PERMISSIONS_SERVICE_VERSION,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
+
+        node = BACKEND.get_node(node_name=node_name)
+        if not node:
+            raise NodeVersionNotFound(node_name=node_name, node_version="latest")
+
+        try:
+            node.pop("comments")
+        except KeyError:
+            pass
+
+        node = recursive_stringify(node)
+
+        return TEMPLATES.TemplateResponse(
+            "downtime-statusboard.html",
+            {
+                "request": request,
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "title": "Downtimes SRCNet Node ({})".format(node_name),
+                "submit_endpoint_url": get_url_for_app_from_request(
+                    "edit_node",
+                    request,
+                    path_params=request.path_params,
                     scheme=config.get("API_SCHEME", default="http"),
                 ),
                 "access_token": request.session.get("access_token"),
