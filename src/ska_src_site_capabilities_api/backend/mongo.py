@@ -246,7 +246,8 @@ class MongoBackend(Backend):
                     "latitude": site.get("latitude"),
                     "longitude": site.get("longitude"),
                     "downtime": site.get("downtime"),
-                })
+                }
+            )
 
         formatted_sites = []
 
@@ -255,8 +256,7 @@ class MongoBackend(Backend):
             print(formatted_sites)
         return formatted_sites
 
-
-    def _get_compute_with_labels_for_prometheus(self , node_names=None, site_names=None):
+    def _get_compute_with_labels_for_prometheus(self, node_names=None, site_names=None):
         """
         Returns a list of compute resources formatted for Prometheus Service Discovery.
 
@@ -279,7 +279,8 @@ class MongoBackend(Backend):
                     "parent_site_name": compute.get("parent_site_name"),
                     "parent_site_id": compute.get("parent_site_id"),
                     "downtime": compute.get("downtime"),
-                })
+                }
+            )
 
         formatted_computes = []
 
@@ -655,7 +656,7 @@ class MongoBackend(Backend):
         site_names = site_names or []
         service_types = service_types or []
 
-        include_inactive = for_prometheus == True or include_inactive
+        include_inactive = for_prometheus or include_inactive
 
         print(include_inactive)
         computes = self.list_compute(
@@ -717,7 +718,7 @@ class MongoBackend(Backend):
             sites = self._get_sites_with_labels_for_prometheus(node_names)
             formatted.extend(sites)
 
-            computes = self._get_compute_with_labels_for_prometheus(node_names,site_names)
+            computes = self._get_compute_with_labels_for_prometheus(node_names, site_names)
             formatted.extend(computes)
 
             return formatted
