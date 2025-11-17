@@ -284,7 +284,7 @@ class MongoBackend(Backend):
         formatted_computes = []
 
         for compute in response:
-            formatted_computes.append({"targets": [f'compute_{compute.get("compute_name")}'], "labels": self._get_service_labels_for_prometheus(compute)})
+            formatted_computes.append({"targets": [], "labels": self._get_service_labels_for_prometheus(compute)})
         return formatted_computes
 
     def _is_element_in_downtime(self, downtime):
