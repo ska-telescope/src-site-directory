@@ -255,6 +255,38 @@ class MongoBackend(Backend):
             print(formatted_sites)
         return formatted_sites
 
+
+    def _get_compute_with_labels_for_prometheus(self , node_names=None, site_names=None):
+        """
+        Returns a list of compute resources formatted for Prometheus Service Discovery.
+
+        Args:
+            node_names: List of node names to filter compute resources by. If None, no node filtering is applied.
+            site_names: List of site names to filter compute resources by. If None, no site filtering is applied.
+
+        Returns:
+            A list of dictionaries formatted for Prometheus Service Discovery.
+        """
+        computes = self.list_compute(node_names=node_names, site_names=site_names, include_inactive=True)
+        print(computes)
+        response = []
+
+        for compute in computes:
+            response.append(
+                {
+                    "compute_name": compute.get("name"),
+                    "parent_node_name": compute.get("parent_node_name"),
+                    "parent_site_name": compute.get("parent_site_name"),
+                    "parent_site_id": compute.get("parent_site_id"),
+                    "downtime": compute.get("downtime"),
+                })
+
+        formatted_computes = []
+
+        for compute in response:
+            formatted_computes.append({"targets": [f'compute_{compute.get("compute_name")}'], "labels": self._get_service_labels_for_prometheus(compute)})
+        return formatted_computes
+
     def _is_element_in_downtime(self, downtime):
         """
         Checks if an element is in downtime.
@@ -684,6 +716,9 @@ class MongoBackend(Backend):
 
             sites = self._get_sites_with_labels_for_prometheus(node_names)
             formatted.extend(sites)
+
+            computes = self._get_compute_with_labels_for_prometheus(node_names,site_names)
+            formatted.extend(computes)
 
             return formatted
 
