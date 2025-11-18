@@ -1,6 +1,6 @@
 function getStartEndDates(downtime) {
     const [start, end] = downtime.date_range.split(' to ')
-        .map(dateStr => new Date(dateStr.trim()).toLocaleString());
+        .map(dateStr => new Date(dateStr.trim()));
 
     return {start, end};
 }
@@ -33,8 +33,8 @@ function getDowntimes(node_values) {
                     resourceType,
                     resourceName: getName(item),
                     resourceId: getId(item),
-                    start,
-                    end,
+                    start: start.toLocaleString(),
+                    end: end.toLocaleString(),
                     ...downtime
                 });
             });
