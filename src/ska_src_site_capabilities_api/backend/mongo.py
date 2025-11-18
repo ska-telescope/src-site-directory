@@ -186,7 +186,6 @@ class MongoBackend(Backend):
             formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(resource)})
         return formatted
 
-
     def _is_element_in_downtime(self, downtime):
         """
         Checks if an element is in downtime.
@@ -1051,7 +1050,6 @@ class MongoBackend(Backend):
 
         return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
 
-
     def _get_downtimes_for_element(self, downtimes):
         """
         Helper method to extract downtime information from a given element.
@@ -1067,7 +1065,7 @@ class MongoBackend(Backend):
                 start_date_str_utc, end_date_str_utc = dt.get("date_range").split(" to ")
                 downtime_to = dateutil.parser.isoparse(start_date_str_utc)
                 downtime_from = dateutil.parser.isoparse(end_date_str_utc)
-                
+
                 detailed_downtimes.append(
                     {
                         "downtime_from": str(downtime_from),
@@ -1139,7 +1137,6 @@ class MongoBackend(Backend):
                 **self._add_downtime_details(service),
             }
             downtime_metrics.append(service_downtime_metric)
-
 
         for storage in self.list_storages(node_names=node_names, include_inactive=True):
             storage_downtime_metric = {
