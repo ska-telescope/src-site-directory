@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, NonNegativeInt
 
 from ska_src_site_capabilities_api.models.compute import Compute
+from ska_src_site_capabilities_api.models.downtime import DowntimeMetric
 from ska_src_site_capabilities_api.models.node import Node
 from ska_src_site_capabilities_api.models.schema import Schema
 from ska_src_site_capabilities_api.models.service import GlobalService, GlobalServiceType, LocalService, LocalServiceType
@@ -201,6 +202,7 @@ class DeleteNodeByNameResponse(Response):
     deleted_from_nodes_archived_count: int = Field(examples=[1])
 
 
+DowntimeMetricsResponse = List[DowntimeMetric]
 # =======================
 # Schema Responses
 # =======================

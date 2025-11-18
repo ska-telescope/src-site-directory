@@ -186,107 +186,6 @@ class MongoBackend(Backend):
             formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(resource)})
         return formatted
 
-    def _get_storage_with_labels_for_prometheus(self, node_names=None, site_names=None):
-        """
-        Returns a list of storage resources formatted for Prometheus Service Discovery.
-        Args:
-            node_names: List of node names to filter storage resources by. If None, no node filtering is applied.
-            site_names: List of site names to filter storage resources by. If None, no site filtering is applied.
-            include_inactive: Boolean to include inactive storage resources.
-        Returns:
-            A list of dictionaries formatted for Prometheus Service Discovery.
-        """
-
-        storages = self.list_storages(node_names=node_names, site_names=site_names, include_inactive=True)
-        response = []
-
-        for storage in storages:
-            supported_protocols = storage.get("supported_protocols", [])
-
-            if not supported_protocols:
-                supported_protocols = [{"prefix": "https", "port": 443}]
-
-            for protocol in supported_protocols:
-                response.append(
-                    {
-                        "parent_node_name": storage.get("parent_node_name"),
-                        "parent_site_name": storage.get("parent_site_name"),
-                        "parent_site_id": storage.get("parent_site_id"),
-                        "parent_storage_id": storage.get("id"),
-                        "host": storage.get("host"),
-                        "base_path": storage.get("base_path"),
-                        "prefix": protocol.get("prefix"),
-                        "port": protocol.get("port"),
-                        "downtime": storage.get("downtime"),
-                    }
-                )
-
-        return self.format_label_response(response)
-
-    def _get_sites_with_labels_for_prometheus(self, node_names=None):
-        """
-        Returns a list of sites formatted for Prometheus Service Discovery.
-
-        Args:
-            node_names: List of node names to filter sites by. If None, no node filtering is applied.
-            include_inactive: Boolean to include inactive sites.
-
-        Returns:
-            A list of dictionaries formatted for Prometheus Service Discovery.
-        """
-        sites = self.list_sites(node_names=node_names, include_inactive=True)
-        print(sites)
-        response = []
-
-        for site in sites:
-            response.append(
-                {
-                    "site_name": site.get("name"),
-                    "country": site.get("country"),
-                    "latitude": site.get("latitude"),
-                    "longitude": site.get("longitude"),
-                    "downtime": site.get("downtime"),
-                }
-            )
-
-        formatted_sites = []
-
-        for site in response:
-            formatted_sites.append({"targets": [f'site_{site.get("site_name")}'], "labels": self._get_service_labels_for_prometheus(site)})
-            print(formatted_sites)
-        return formatted_sites
-
-    def _get_compute_with_labels_for_prometheus(self, node_names=None, site_names=None):
-        """
-        Returns a list of compute resources formatted for Prometheus Service Discovery.
-
-        Args:
-            node_names: List of node names to filter compute resources by. If None, no node filtering is applied.
-            site_names: List of site names to filter compute resources by. If None, no site filtering is applied.
-
-        Returns:
-            A list of dictionaries formatted for Prometheus Service Discovery.
-        """
-        computes = self.list_compute(node_names=node_names, site_names=site_names, include_inactive=True)
-        print(computes)
-        response = []
-
-        for compute in computes:
-            response.append(
-                {
-                    "compute_name": compute.get("name"),
-                    "parent_node_name": compute.get("parent_node_name"),
-                    "parent_site_name": compute.get("parent_site_name"),
-                    "parent_site_id": compute.get("parent_site_id"),
-                    "downtime": compute.get("downtime"),
-                }
-            )
-
-        formatted_computes = []
-
-        for compute in response:
-            formatted_computes.append({"targets": [], "labels": self._get_service_labels_for_prometheus(compute)})
-        return formatted_computes
 
     def _is_element_in_downtime(self, downtime):
         """
@@ -656,9 +555,6 @@ class MongoBackend(Backend):
         site_names = site_names or []
         service_types = service_types or []
 
-        include_inactive = for_prometheus or include_inactive
-
-        print(include_inactive)
         computes = self.list_compute(
             node_names=node_names,
             site_names=site_names,
@@ -711,15 +607,6 @@ class MongoBackend(Backend):
 
             storage_areas = self._get_storage_areas_with_host_for_prometheus(node_names, site_names)
             formatted.extend(storage_areas)
-
-            storages = self._get_storage_with_labels_for_prometheus(node_names, site_names)
-            formatted.extend(storages)
-
-            sites = self._get_sites_with_labels_for_prometheus(node_names)
-            formatted.extend(sites)
-
-            computes = self._get_compute_with_labels_for_prometheus(node_names, site_names)
-            formatted.extend(computes)
 
             return formatted
 
@@ -1163,3 +1050,118 @@ class MongoBackend(Backend):
         self.add_edit_node(updated_node, node_name=parent_node_name)
 
         return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
+
+
+    def _get_downtimes_for_element(self, downtimes):
+        """
+        Helper method to extract downtime information from a given element.
+
+        Args:
+            downtimes: A dictionary representing a site, compute, service, storage, or storage area.
+        Returns:
+            A list of downtime dictionaries.
+        """
+        detailed_downtimes = []
+        for dt in downtimes:
+            if dt.get("date_range"):
+                start_date_str_utc, end_date_str_utc = dt.get("date_range").split(" to ")
+                downtime_to = dateutil.parser.isoparse(start_date_str_utc)
+                downtime_from = dateutil.parser.isoparse(end_date_str_utc)
+                
+                detailed_downtimes.append(
+                    {
+                        "downtime_from": str(downtime_from),
+                        "downtime_to": str(downtime_to),
+                        "downtime_reason": dt.get("reason"),
+                        "downtime_type": dt.get("type"),
+                    }
+                )
+        return detailed_downtimes
+
+    def _add_downtime_details(self, resource):
+        """
+        Helper method to add downtime details to a resource.
+
+        Args:
+            resource: A dictionary representing a site, compute, service, storage, or storage area.
+
+        Returns:
+            The resource dictionary with added downtime details.
+        """
+        downtime = resource.get("downtime") or []
+        details = {
+            "in_downtime": self._is_element_in_downtime(downtime),
+            "downtimes": self._get_downtimes_for_element(downtime),
+            "node_name": resource.get("parent_node_name"),
+            "site_name": resource.get("parent_site_name"),
+        }
+
+        return details
+
+    def get_downtime_metrics(self, node_names=None):
+        """
+        Retrieves downtime metrics for sites, compute, services, storages and storage areas.
+
+        Args:
+            node_names: List of node names to filter downtime metrics by. If None, no node filtering is applied.
+
+        Returns:
+            A list of downtime metric dictionaries.
+        """
+
+        node_names = node_names or []
+        downtime_metrics = []
+
+        sites = self.list_sites(node_names=node_names, include_inactive=True)
+
+        for site in sites:
+            site_downtime_metric = {
+                "event_type": "site_downtime",
+                **self._add_downtime_details(site),
+            }
+            downtime_metrics.append(site_downtime_metric)
+            print(downtime_metrics)
+
+        for compute in self.list_compute(node_names=node_names, include_inactive=True):
+            compute_downtime_metric = {
+                "event_type": "compute_downtime",
+                "compute_id": str(compute.get("id")),
+                **self._add_downtime_details(compute),
+            }
+            downtime_metrics.append(compute_downtime_metric)
+
+        for service in self.list_services(node_names=node_names, include_inactive=True):
+            service_downtime_metric = {
+                "event_type": "service_downtime",
+                "compute_id": str(service.get("parent_compute_id")),
+                "service_name": service.get("name"),
+                "service_type": service.get("type"),
+                **self._add_downtime_details(service),
+            }
+            downtime_metrics.append(service_downtime_metric)
+
+
+        for storage in self.list_storages(node_names=node_names, include_inactive=True):
+            storage_downtime_metric = {
+                "event_type": "storage_downtime",
+                "storage_id": str(storage.get("id")),
+                **self._add_downtime_details(storage),
+            }
+            downtime_metrics.append(storage_downtime_metric)
+
+            for storage_area in storage.get("areas", []):
+                storage_area_downtime_metric = {
+                    "event_type": "storage_area_downtime",
+                    "storage_id": str(storage.get("id")),
+                    "storage_area_id": str(storage_area.get("id")),
+                    "storage_area_name": storage_area.get("identifier"),
+                    "storage_area_type": storage_area.get("type"),
+                    "storage_area_tier": storage_area.get("tier"),
+                    "node_name": storage.get("parent_node_name"),
+                    "site_name": storage.get("parent_site_name"),
+                    "in_downtime": self._is_element_in_downtime(storage_area.get("downtime") or []),
+                    "downtimes": self._get_downtimes_for_element(storage_area.get("downtime") or []),
+                }
+                downtime_metrics.append(storage_area_downtime_metric)
+
+        return downtime_metrics

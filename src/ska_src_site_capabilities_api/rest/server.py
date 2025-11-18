@@ -1331,6 +1331,34 @@ async def set_storage_area_disabled(
     response = BACKEND.set_storage_area_force_disabled_flag(storage_area_id, True)
     return JSONResponse(response)
 
+@api_version(1)
+@app.get(
+    "/downtime-metrics",
+    responses={
+        200: {"model": models.response.DowntimeMetricsResponse},
+        401: {},
+        403: {},
+        404: {"model": models.response.GenericErrorResponse},
+    },
+    dependencies=(
+            [Depends(increment_request_counter)]
+            if DEBUG
+            else [
+                Depends(increment_request_counter),
+                # Depends(permission_dependencies.verify_permission_for_service_route),
+            ]
+    ),
+    tags=["Metrics"],
+    summary="Get downtime metrics",
+)
+@handle_exceptions
+async def get_downtime_metrics(
+        request: Request,
+        node_names: str = Query(default=None, description="Filter by node names (comma-separated)")
+) -> Union[JSONResponse, HTTPException]:
+    """Get downtime metrics."""
+    rtn = BACKEND.get_downtime_metrics(node_names)
+    return JSONResponse(rtn)
 
 @api_version(1)
 @app.get(
