@@ -196,16 +196,16 @@ function updateNodeJson(node_values, form_values) {
 
 function getStartEndDates(downtime) {
     const [start, end] = downtime.date_range.split(' to ')
-        .map(dateStr => new Date(dateStr.trim()).toLocaleString());
+        .map(dateStr => new Date(dateStr.trim()));
 
     return {start, end};
 }
 
 function getStatus(start, end) {
     const now = new Date();
-    if (now < new Date(start)) {
+    if (now < start) {
         return "upcoming";
-    } else if (now >= new Date(start) && now <= new Date(end)) {
+    } else if (now >= start && now <= end) {
         return "ongoing";
     } else {
         return "completed";
@@ -228,8 +228,8 @@ function getDowntimes(node_values) {
                     resourceType,
                     resourceName: getName(item),
                     resourceId: getId(item),
-                    start,
-                    end,
+                    start: start.toLocaleString(),
+                    end: end.toLocaleString(),
                     ...downtime
                 });
             });
