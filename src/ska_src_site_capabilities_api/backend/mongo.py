@@ -186,6 +186,25 @@ class MongoBackend(Backend):
             formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(resource)})
         return formatted
 
+    def _is_downtime_active(self, downtime):
+        """
+        Checks if any downtime entry is currently active.
+
+        Args:
+            downtime: A list of downtime entries, each containing a date range.
+        Returns:
+            Boolean indicating whether any downtime is currently active.
+        """
+        now_utc = datetime.now(timezone.utc)
+        if downtime.get("date_range"):
+            start_date_str_utc, end_date_str_utc = downtime.get("date_range").split(" to ")
+            start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
+            end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
+
+            if start_date_utc < now_utc < end_date_utc:
+                return True
+        return False
+
     def _is_element_in_downtime(self, downtime):
         """
         Checks if an element is in downtime.
@@ -197,14 +216,8 @@ class MongoBackend(Backend):
             Boolean indicating whether the element is in downtime.
         """
         for entry in downtime:
-            if entry.get("date_range"):
-                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
-                start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
-                end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
-                now_utc = datetime.now(timezone.utc)
-
-                if start_date_utc < now_utc < end_date_utc:
-                    return True
+            if self._is_downtime_active(entry):
+                return True
         return False
 
     def _remove_inactive_elements(self, element):
@@ -1050,51 +1063,26 @@ class MongoBackend(Backend):
 
         return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
 
-    def _get_downtimes_for_element(self, downtimes):
+    def _get_downtimes_for_element(self, downtime):
         """
         Helper method to extract downtime information from a given element.
 
         Args:
-            downtimes: A dictionary representing a site, compute, service, storage, or storage area.
+            downtime: A dictionary representing a site, compute, service, storage, or storage area.
         Returns:
-            A list of downtime dictionaries.
+            A dictionary with downtime details.
         """
-        detailed_downtimes = []
-        for dt in downtimes:
-            if dt.get("date_range"):
-                start_date_str_utc, end_date_str_utc = dt.get("date_range").split(" to ")
-                downtime_to = dateutil.parser.isoparse(start_date_str_utc)
-                downtime_from = dateutil.parser.isoparse(end_date_str_utc)
 
-                detailed_downtimes.append(
-                    {
-                        "downtime_from": str(downtime_from),
-                        "downtime_to": str(downtime_to),
-                        "downtime_reason": dt.get("reason"),
-                        "downtime_type": dt.get("type"),
-                    }
-                )
-        return detailed_downtimes
+        start_date_str_utc, end_date_str_utc = downtime.get("date_range").split(" to ")
+        downtime_from = dateutil.parser.isoparse(start_date_str_utc)
+        downtime_to = dateutil.parser.isoparse(end_date_str_utc)
 
-    def _add_downtime_details(self, resource):
-        """
-        Helper method to add downtime details to a resource.
-
-        Args:
-            resource: A dictionary representing a site, compute, service, storage, or storage area.
-
-        Returns:
-            The resource dictionary with added downtime details.
-        """
-        downtime = resource.get("downtime") or []
-        details = {
-            "in_downtime": self._is_element_in_downtime(downtime),
-            "downtimes": self._get_downtimes_for_element(downtime),
-            "node_name": resource.get("parent_node_name"),
-            "site_name": resource.get("parent_site_name"),
+        return {
+            "downtime_from": str(downtime_from),
+            "downtime_to": str(downtime_to),
+            "downtime_reason": downtime.get("reason"),
+            "downtime_type": downtime.get("type"),
         }
-
-        return details
 
     def get_downtime_metrics(self, node_names=None):
         """
@@ -1112,53 +1100,76 @@ class MongoBackend(Backend):
 
         sites = self.list_sites(node_names=node_names, include_inactive=True)
 
-        for site in sites:
-            site_downtime_metric = {
-                "event_type": "site_downtime",
-                **self._add_downtime_details(site),
-            }
-            downtime_metrics.append(site_downtime_metric)
-            print(downtime_metrics)
+        resource_types = [
+            (
+                sites,
+                "site_downtime_event",
+                lambda r: {
+                    "node_name": r.get("parent_node_name"),
+                    "site_name": r.get("name"),
+                },
+            ),
+            (
+                self.list_compute(node_names=node_names, include_inactive=True),
+                "compute_downtime_event",
+                lambda r: {
+                    "compute_id": str(r.get("id")),
+                    "node_name": r.get("parent_node_name"),
+                    "site_name": r.get("parent_site_name"),
+                },
+            ),
+            (
+                self.list_services(node_names=node_names, include_inactive=True),
+                "service_downtime_event",
+                lambda r: {
+                    "compute_id": str(r.get("parent_compute_id")),
+                    "service_name": r.get("name"),
+                    "service_type": r.get("type"),
+                    "node_name": r.get("parent_node_name"),
+                    "site_name": r.get("parent_site_name"),
+                },
+            ),
+            (
+                self.list_storages(node_names=node_names, include_inactive=True),
+                "storage_downtime_event",
+                lambda r: {
+                    "storage_id": str(r.get("id")),
+                    "node_name": r.get("parent_node_name"),
+                    "site_name": r.get("parent_site_name"),
+                },
+            ),
+        ]
 
-        for compute in self.list_compute(node_names=node_names, include_inactive=True):
-            compute_downtime_metric = {
-                "event_type": "compute_downtime",
-                "compute_id": str(compute.get("id")),
-                **self._add_downtime_details(compute),
-            }
-            downtime_metrics.append(compute_downtime_metric)
-
-        for service in self.list_services(node_names=node_names, include_inactive=True):
-            service_downtime_metric = {
-                "event_type": "service_downtime",
-                "compute_id": str(service.get("parent_compute_id")),
-                "service_name": service.get("name"),
-                "service_type": service.get("type"),
-                **self._add_downtime_details(service),
-            }
-            downtime_metrics.append(service_downtime_metric)
+        for resources, event_type, extra_fields in resource_types:
+            for resource in resources:
+                for dt in resource.get("downtime") or []:
+                    if dt.get("date_range"):
+                        details = self._get_downtimes_for_element(dt)
+                        event = {
+                            "event_type": event_type,
+                            "in_downtime": self._is_downtime_active(dt),
+                            **extra_fields(resource),
+                            **details,
+                        }
+                        downtime_metrics.append(event)
 
         for storage in self.list_storages(node_names=node_names, include_inactive=True):
-            storage_downtime_metric = {
-                "event_type": "storage_downtime",
-                "storage_id": str(storage.get("id")),
-                **self._add_downtime_details(storage),
-            }
-            downtime_metrics.append(storage_downtime_metric)
-
             for storage_area in storage.get("areas", []):
-                storage_area_downtime_metric = {
-                    "event_type": "storage_area_downtime",
-                    "storage_id": str(storage.get("id")),
-                    "storage_area_id": str(storage_area.get("id")),
-                    "storage_area_name": storage_area.get("identifier"),
-                    "storage_area_type": storage_area.get("type"),
-                    "storage_area_tier": storage_area.get("tier"),
-                    "node_name": storage.get("parent_node_name"),
-                    "site_name": storage.get("parent_site_name"),
-                    "in_downtime": self._is_element_in_downtime(storage_area.get("downtime") or []),
-                    "downtimes": self._get_downtimes_for_element(storage_area.get("downtime") or []),
-                }
-                downtime_metrics.append(storage_area_downtime_metric)
+                for dt in storage_area.get("downtime") or []:
+                    if dt.get("date_range"):
+                        details = self._get_downtimes_for_element(dt)
+                        event = {
+                            "event_type": "storage_area_downtime_event",
+                            "storage_id": str(storage.get("id")),
+                            "storage_area_id": str(storage_area.get("id")),
+                            "storage_area_name": storage_area.get("name"),
+                            "storage_area_type": storage_area.get("type"),
+                            "storage_area_tier": storage_area.get("tier"),
+                            "node_name": storage.get("parent_node_name"),
+                            "site_name": storage.get("parent_site_name"),
+                            "in_downtime": self._is_downtime_active(dt),
+                            **details,
+                        }
+                        downtime_metrics.append(event)
 
         return downtime_metrics
