@@ -276,3 +276,10 @@ def test_set_storage_area_enabled_disabled(is_force_disabled_flag, mock_backend,
     assert result.get("is_force_disabled") is is_force_disabled_flag
     # test document update
     assert mock_backend.get_storage_area(storage_area_id=id).get("is_force_disabled") is is_force_disabled_flag
+
+
+@pytest.mark.unit
+def test_get_downtime_metrics(mock_backend):
+    downtime_metrics = mock_backend.get_downtime_metrics()
+    assert len(downtime_metrics) == 1
+    assert downtime_metrics[0].get("event_type") == "service_downtime_event"
