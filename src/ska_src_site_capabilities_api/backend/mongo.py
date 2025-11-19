@@ -63,19 +63,16 @@ class MongoBackend(Backend):
                     for dt in value:
                         try:
                             start_str, end_str = dt.get("date_range", "").split(" to ")
-                            print(start_str, end_str, dt)
                             start = dateutil.parser.parse(start_str)
                             end = dateutil.parser.parse(end_str)
                             upcoming_downtimes.append((start, end, dt))
                         except Exception:
-                            print("Failed to parse date range:", dt)
                             continue
                     upcoming_downtimes.sort(key=lambda x: x[0])
                     for start, end, dt in upcoming_downtimes:
                         if start <= now <= end:
                             is_down = True
                             nearest_downtime = dt
-                            print(nearest_downtime)
                             break
                         if start > now and nearest_downtime is None:
                             nearest_downtime = dt
