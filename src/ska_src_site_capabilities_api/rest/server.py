@@ -1345,7 +1345,7 @@ async def set_storage_area_disabled(
         if DEBUG
         else [
             Depends(increment_request_counter),
-            # Depends(permission_dependencies.verify_permission_for_service_route),
+            Depends(permission_dependencies.verify_permission_for_service_route),
         ]
     ),
     tags=["Metrics"],
