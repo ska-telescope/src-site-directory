@@ -33,8 +33,8 @@ function getDowntimes(node_values) {
                     resourceType,
                     resourceName: getName(item),
                     resourceId: getId(item),
-                    start: start.toLocaleString(),
-                    end: end.toLocaleString(),
+                    start:new Date(start).toLocaleString(),
+                    end: new Date(end).toLocaleString(),
                     ...downtime
                 });
             });
