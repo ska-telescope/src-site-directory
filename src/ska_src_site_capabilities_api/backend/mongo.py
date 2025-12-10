@@ -669,16 +669,16 @@ class MongoBackend(Backend):
                                 site.get("longitude"),
                                 site.get("latitude"),
                             ],
-                            "properties": {"name": storage.get("identifier")},
+                            "properties": {"name": storage.get("name")},
                         }
                     )
                 elif for_grafana:
                     response.append(
                         {
-                            "key": storage.get("identifier"),
+                            "key": storage.get("name"),
                             "latitude": site["latitude"],
                             "longitude": site["longitude"],
-                            "name": storage.get("identifier"),
+                            "name": storage.get("name"),
                         }
                     )
                 else:
@@ -733,16 +733,16 @@ class MongoBackend(Backend):
                         {
                             "type": "Point",
                             "coordinates": [site_longitude, site_latitude],
-                            "properties": {"name": storage_area.get("identifier")},
+                            "properties": {"name": storage_area.get("name")},
                         }
                     )
                 elif for_grafana:
                     response.append(
                         {
-                            "key": storage_area.get("identifier"),
+                            "key": storage_area.get("name"),
                             "latitude": site_latitude,
                             "longitude": site_longitude,
-                            "name": storage_area.get("identifier"),
+                            "name": storage_area.get("name"),
                         }
                     )
                 else:

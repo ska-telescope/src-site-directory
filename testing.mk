@@ -7,6 +7,7 @@ PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503,W0212
 
 # Configuration items for k8s deployment testing (k8s.mk)
 PROJECT=scapi
+PROJECT_NAME=scapi-core
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 K8S_TEST_IMAGE_TO_TEST=python:3.8-slim-buster	# the image used by the test runner inside the deployment environment
 

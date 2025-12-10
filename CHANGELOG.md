@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.80]
 
+### Changed
+
+- Refactored for routes
+
+### Fixed
+
+- grafana/topojson identifiers deprecated, now uses name attribute for element
+
+## [0.3.80]
+
 ### Added
 
 - Downtime form (credit Neon)
