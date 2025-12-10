@@ -59,7 +59,7 @@ uvicorn = "0.20.0"
 ska-src-permissions-api = "^0.1.73"
 ska-src-authn-api = "^0.4.22"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 isort = "^5.10.1"
 flake8 = "^5.0.4"
