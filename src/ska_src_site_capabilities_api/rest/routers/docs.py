@@ -116,6 +116,68 @@ async def user_docs(request: Request):
 
 @api_version(1)
 @docs_router.get(
+    "/www/downtime/{node_name}",
+    responses={200: {}, 401: {}, 403: {}},
+    include_in_schema=False,
+    dependencies=[Depends(Common.increment_requests_counter_depends)],
+    tags=["Nodes", "Downtimes"],
+    summary="Get the downtime statusboard for a node",
+)
+@handle_exceptions
+async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HTMLResponse, RedirectResponse]:
+    """Dashboard to get all the downtimes for node."""
+    if request.session.get("access_token"):
+        # Check access permissions.
+        if not request.app.state.debug:
+            try:
+                rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
+                    service=request.app.state.permissions_service_name,
+                    version=request.app.state.permissions_service_version,
+                    route=request.scope["route"].path,
+                    method=request.method,
+                    token=request.session.get("access_token"),
+                    body=request.path_params,
+                ).json()
+            except Exception as err:
+                raise err
+            if not rtn.get("is_authorised", False):
+                raise PermissionDenied
+
+        node = request.app.state.backend.get_node(node_name=node_name)
+        if not node:
+            raise NodeVersionNotFound(node_name=node_name, node_version="latest")
+
+        try:
+            node.pop("comments")
+        except KeyError:
+            pass
+
+        node = recursive_stringify(node)
+
+        return request.app.state.templates.TemplateResponse(
+            "downtime-statusboard.html",
+            {
+                "request": request,
+                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "title": "Downtimes SRCNet Node ({})".format(node_name),
+                "submit_endpoint_url": get_url_for_app_from_request(
+                    "edit_node",
+                    request,
+                    path_params=request.path_params,
+                    scheme=config.get("API_SCHEME", default="http"),
+                ),
+                "access_token": request.session.get("access_token"),
+                "values": node,
+            },
+        )
+    else:
+        return HTMLResponse(
+            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+        )
+
+
+@api_version(1)
+@docs_router.get(
     "/www/login",
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
