@@ -16,15 +16,15 @@ from starlette.middleware.sessions import SessionMiddleware
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.rest import dependencies
+from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
 from ska_src_site_capabilities_api.rest.routers.nodes import nodes_router
-from ska_src_site_capabilities_api.rest.routers.sites import sites_router
-from ska_src_site_capabilities_api.rest.routers.compute import compute_router
-from ska_src_site_capabilities_api.rest.routers.storages import storages_router
-from ska_src_site_capabilities_api.rest.routers.storage_areas import storage_areas_router
-from ska_src_site_capabilities_api.rest.routers.services import services_router
 from ska_src_site_capabilities_api.rest.routers.schemas import schemas_router
+from ska_src_site_capabilities_api.rest.routers.services import services_router
+from ska_src_site_capabilities_api.rest.routers.sites import sites_router
 from ska_src_site_capabilities_api.rest.routers.status import status_router
+from ska_src_site_capabilities_api.rest.routers.storage_areas import storage_areas_router
+from ska_src_site_capabilities_api.rest.routers.storages import storages_router
 
 config = Config(".env")
 
@@ -90,7 +90,7 @@ app.add_middleware(
 app.include_router(docs_router)
 app.include_router(nodes_router)
 app.include_router(sites_router)
-app.include_router(compute_router)  
+app.include_router(compute_router)
 app.include_router(storages_router)
 app.include_router(storage_areas_router)
 app.include_router(services_router)

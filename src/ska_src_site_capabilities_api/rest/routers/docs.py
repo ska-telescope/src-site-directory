@@ -11,7 +11,6 @@ from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 
-from ska_src_site_capabilities_api.rest.dependencies import Common
 from ska_src_site_capabilities_api.common.exceptions import NodeVersionNotFound, PermissionDenied, handle_exceptions
 from ska_src_site_capabilities_api.common.utility import (
     convert_readme_to_html_docs,
@@ -21,6 +20,7 @@ from ska_src_site_capabilities_api.common.utility import (
     load_and_dereference_schema,
     recursive_stringify,
 )
+from ska_src_site_capabilities_api.rest.dependencies import Common
 
 docs_router = APIRouter()
 config = Config(".env")
