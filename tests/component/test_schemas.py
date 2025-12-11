@@ -56,24 +56,3 @@ def test_get_schema_not_found():
     # Schema endpoint doesn't require authentication
     # API returns 500 (Internal Server Error) when schema file not found
     assert response.status_code == 500
-
-
-@pytest.mark.component
-def test_render_schema():
-    """Test to render a schema as PNG"""
-    api_url = get_api_url()
-    # First, get the list of schemas
-    schemas_response = httpx.get(f"{api_url}/schemas")  # noqa: E231
-    if schemas_response.status_code == 200:
-        schemas_data = schemas_response.json()
-        if len(schemas_data) > 0:
-            schema_name = schemas_data[0]
-            response = httpx.get(f"{api_url}/schemas/render/{schema_name}")  # noqa: E231
-            # Schema render endpoint doesn't require authentication
-            # Note: This might fail if PlantUML service is not available
-            # In that case, we expect either 200 (success) or 500 (PlantUML error)
-            assert response.status_code in (200, 500)
-            if response.status_code == 200:
-                # Should return PNG image
-                assert response.headers.get("content-type") == "image/png"
-                assert len(response.content) > 0

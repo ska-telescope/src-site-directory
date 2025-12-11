@@ -669,22 +669,18 @@ class MongoBackend(Backend):
                                 site.get("longitude"),
                                 site.get("latitude"),
                             ],
-                            "properties": {"name": storage.get("identifier")},
+                            "properties": {"name": storage.get("name")},
                         }
                     )
                 elif for_grafana:
-                    # Skip sites without latitude/longitude (required for Grafana format)
-                    site_latitude = site.get("latitude")
-                    site_longitude = site.get("longitude")
-                    if site_latitude is not None and site_longitude is not None:
-                        response.append(
-                            {
-                                "key": storage.get("identifier"),
-                                "latitude": site_latitude,
-                                "longitude": site_longitude,
-                                "name": storage.get("identifier"),
-                            }
-                        )
+                    response.append(
+                        {
+                            "key": storage.get("name"),
+                            "latitude": site["latitude"],
+                            "longitude": site["longitude"],
+                            "name": storage.get("name"),
+                        }
+                    )
                 else:
                     # Add parent information
                     response.append(
@@ -737,16 +733,16 @@ class MongoBackend(Backend):
                         {
                             "type": "Point",
                             "coordinates": [site_longitude, site_latitude],
-                            "properties": {"name": storage_area.get("identifier")},
+                            "properties": {"name": storage_area.get("name")},
                         }
                     )
                 elif for_grafana:
                     response.append(
                         {
-                            "key": storage_area.get("identifier"),
+                            "key": storage_area.get("name"),
                             "latitude": site_latitude,
                             "longitude": site_longitude,
-                            "name": storage_area.get("identifier"),
+                            "name": storage_area.get("name"),
                         }
                     )
                 else:

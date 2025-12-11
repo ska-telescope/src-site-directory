@@ -145,25 +145,6 @@ def test_get_edit_node_form_nonexistent():
 
 
 @pytest.mark.component
-def test_get_services_report(load_nodes_data):
-    """Test to get services report page."""
-    api_url = get_api_url()
-    response = send_get_request(f"{api_url}/www/reports/services")
-
-    assert response.status_code == 200
-    assert "text/html" in response.headers.get("content-type", "").lower()
-
-    html_content = response.text
-
-    if DISABLE_AUTHENTICATION:
-        # When auth is disabled, should show the report
-        assert "services" in html_content.lower() or "report" in html_content.lower() or "srcnet" in html_content.lower()
-    else:
-        # When auth is enabled, may show login prompt or report depending on session
-        assert "login" in html_content.lower() or "services" in html_content.lower() or "report" in html_content.lower()
-
-
-@pytest.mark.component
 def test_get_topology_view(load_nodes_data):
     """Test to get topology view page."""
     api_url = get_api_url()

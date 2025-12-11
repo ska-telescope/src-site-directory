@@ -2,7 +2,7 @@ import asyncio
 from typing import Union
 
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
 
 from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
@@ -21,6 +21,11 @@ class Common:
     async def increment_request_counter(self):
         async with self.requests_counter_lock:
             self.requests_counter += 1
+
+    @staticmethod
+    async def increment_requests_counter_depends(request: Request):
+        """Dependendency for increment_request_counter()."""
+        await request.app.state.common_dependencies.increment_request_counter()
 
 
 class Permissions:
@@ -57,6 +62,15 @@ class Permissions:
             return
         raise PermissionDenied
 
+    @staticmethod
+    async def conditional_verify_permission_for_service_route_depends(
+        request: Request,
+        authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    ):
+        """Dependendency for verify_permission_for_service_route()."""
+        if not request.app.state.debug:
+            await request.app.state.permissions_dependencies.verify_permission_for_service_route(request, authorization)
+
     @handle_exceptions
     async def verify_permission_for_service_route_query_params(self, request: Request, token: str = None) -> Union[HTTPException, bool]:
         if token is None:
@@ -72,3 +86,14 @@ class Permissions:
         if rtn.get("is_authorised", False):
             return
         raise PermissionDenied
+
+    @staticmethod
+    async def verify_permission_for_service_route_query_params_depends(
+        request: Request,
+        token: str = None,
+    ):
+        """Dependency for verify_permission_for_service_route_query_params()."""
+        await request.app.state.permissions_dependencies.verify_permission_for_service_route_query_params(
+            request,
+            token,
+        )
