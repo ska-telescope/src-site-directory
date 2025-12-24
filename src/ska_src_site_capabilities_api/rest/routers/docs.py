@@ -117,6 +117,7 @@ async def user_docs(request: Request):
 @api_version(1)
 @docs_router.get(
     "/www/downtime/{node_name}",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -179,6 +180,7 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
 @api_version(1)
 @docs_router.get(
     "/www/login",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -219,6 +221,7 @@ async def www_login(
 @api_version(1)
 @docs_router.get(
     "/www/logout",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -234,6 +237,7 @@ async def www_logout(request: Request) -> Union[HTMLResponse]:
 @api_version(1)
 @docs_router.get(
     "/www/nodes",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -304,6 +308,7 @@ async def add_node_form(
 @api_version(1)
 @docs_router.get(
     "/www/nodes/{node_name}",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -384,6 +389,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
 @api_version(1)
 @docs_router.get(
     "/www/topology",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],

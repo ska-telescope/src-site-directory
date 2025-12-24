@@ -5,7 +5,10 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
 
-from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import (
+    PermissionDenied,
+    handle_exceptions,
+)
 
 
 class Common:
@@ -42,7 +45,9 @@ class Permissions:
         self.permissions_service_version = permissions_service_version
 
     @handle_exceptions
-    async def verify_permission_for_service_route(self, request: Request, authorization: str = Depends(HTTPBearer())) -> Union[HTTPException, bool]:
+    async def verify_permission_for_service_route(
+        self, request: Request, authorization: str = Depends(HTTPBearer())
+    ) -> Union[HTTPException, bool]:
         """Dependency to verify permission for a service's route using the bearer token from the request's headers.
 
         This is the default authz route. Parameters for the verification are passed from the request path parameters.
@@ -50,10 +55,17 @@ class Permissions:
         if authorization.credentials is None:
             raise PermissionDenied
         access_token = authorization.credentials
+        # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
+        route_path = request.scope["route"].path
+        if route_path.startswith("/v"):
+            # Remove /v{version}/ prefix
+            parts = route_path.split("/", 2)
+            if len(parts) >= 3:
+                route_path = "/" + parts[2]
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
-            route=request.scope["route"].path,
+            route=route_path,
             method=request.method,
             token=access_token,
             body=request.path_params,
@@ -69,16 +81,27 @@ class Permissions:
     ):
         """Dependendency for verify_permission_for_service_route()."""
         if not request.app.state.debug:
-            await request.app.state.permissions_dependencies.verify_permission_for_service_route(request, authorization)
+            await request.app.state.permissions_dependencies.verify_permission_for_service_route(
+                request, authorization
+            )
 
     @handle_exceptions
-    async def verify_permission_for_service_route_query_params(self, request: Request, token: str = None) -> Union[HTTPException, bool]:
+    async def verify_permission_for_service_route_query_params(
+        self, request: Request, token: str = None
+    ) -> Union[HTTPException, bool]:
         if token is None:
             raise PermissionDenied
+        # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
+        route_path = request.scope["route"].path
+        if route_path.startswith("/v"):
+            # Remove /v{version}/ prefix
+            parts = route_path.split("/", 2)
+            if len(parts) >= 3:
+                route_path = "/" + parts[2]
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
-            route=request.scope["route"].path,
+            route=route_path,
             method=request.method,
             token=token,
             body=request.path_params,

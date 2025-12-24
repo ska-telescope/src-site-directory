@@ -4,7 +4,7 @@ from typing import List, Literal
 from uuid import UUID, uuid4
 
 import jsonref
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, Field
 
 # get local services from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "local-service"))).absolute()
@@ -36,7 +36,7 @@ class Service(BaseModel):
     version: str = Field(examples=["1.0.0"])
     prefix: str = Field(examples=["https"])
     host: str = Field(examples=["rucio.srcdev.skao.int"])
-    port: NonNegativeInt = Field(examples=[443])
+    port: int = Field(ge=0, examples=[443])
     path: str = Field(examples=["/path/to/service"])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]

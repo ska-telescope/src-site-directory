@@ -1,3 +1,4 @@
+import json
 import traceback
 from functools import wraps
 
@@ -23,7 +24,9 @@ def handle_client_exceptions(func):
         except CustomHTTPException as e:
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
+            detail = "General error occurred: {}, traceback: {}".format(
+                repr(e), "".join(traceback.format_tb(e.__traceback__))
+            )
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper
@@ -47,7 +50,9 @@ def handle_exceptions(func):
         except CustomHTTPException as e:
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
+            detail = "General error occurred: {}, traceback: {}".format(
+                repr(e), "".join(traceback.format_tb(e.__traceback__))
+            )
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper
@@ -63,7 +68,9 @@ class CustomException(Exception):
 
 class IAMEndpointNotFoundInWellKnown(CustomException):
     def __init__(self, endpoint):
-        self.message = "Error setting IAM {} endpoint, not found in .well_known".format(endpoint)
+        self.message = "Error setting IAM {} endpoint, not found in .well_known".format(
+            endpoint
+        )
         super().__init__(self.message)
 
 
@@ -91,7 +98,9 @@ class PermissionDenied(CustomHTTPException):
 
 class ComputeNotFound(CustomHTTPException):
     def __init__(self, compute_id):
-        self.message = "Compute element with identifier '{}' could not be found".format(compute_id)
+        self.message = "Compute element with identifier '{}' could not be found".format(
+            compute_id
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -112,7 +121,9 @@ class NodeAlreadyExists(CustomHTTPException):
 
 class NodeVersionNotFound(CustomHTTPException):
     def __init__(self, node_name, node_version):
-        self.message = "Node with name '{}' and version '{}' could not be found".format(node_name, node_version)
+        self.message = "Node with name '{}' and version '{}' could not be found".format(
+            node_name, node_version
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
@@ -122,7 +133,9 @@ class RetryRequestError(CustomHTTPException):
         error_type = type(last_error).__name__ if last_error else ""
         error_message = str(last_error) if last_error else ""
         try:
-            response_content = last_response.json() if last_response is not None else None
+            response_content = (
+                last_response.json() if last_response is not None else None
+            )
         except Exception:
             response_content = last_response.text if last_response else ""
 
@@ -144,34 +157,44 @@ class SchemaNotFound(CustomHTTPException):
 
 class ServiceNotFound(CustomHTTPException):
     def __init__(self, service_id):
-        self.message = "Service with identifier '{}' could not be found".format(service_id)
+        self.message = "Service with identifier '{}' could not be found".format(
+            service_id
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class SiteNotFound(CustomHTTPException):
     def __init__(self, site_id):
-        self.message = "Site element with identifier '{}' could not be found".format(site_id)
+        self.message = "Site element with identifier '{}' could not be found".format(
+            site_id
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class SiteNotFoundInNodeVersion(CustomHTTPException):
     def __init__(self, node_name, node_version, site_name):
-        self.message = "No site '{}' found at node '{}' with version '{}'".format(site_name, node_name, node_version)
+        self.message = "No site '{}' found at node '{}' with version '{}'".format(
+            site_name, node_name, node_version
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class StorageNotFound(CustomHTTPException):
     def __init__(self, storage_id):
-        self.message = "Storage with identifier '{}' could not be found".format(storage_id)
+        self.message = "Storage with identifier '{}' could not be found".format(
+            storage_id
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)
 
 
 class StorageAreaNotFound(CustomHTTPException):
     def __init__(self, storage_area_id):
-        self.message = "Storage area with identifier '{}' could not be found".format(storage_area_id)
+        self.message = "Storage area with identifier '{}' could not be found".format(
+            storage_area_id
+        )
         self.http_error_status = status.HTTP_404_NOT_FOUND
         super().__init__(self.message)

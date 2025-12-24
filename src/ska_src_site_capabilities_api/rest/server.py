@@ -7,8 +7,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi_versionizer.versionizer import versionize
-from ska_src_authn_api.client.authentication import AuthenticationClient
+from fastapi_versionizer import Versionizer
+from ska_src_auth_api.client.authentication import AuthenticationClient
 from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
@@ -23,7 +23,9 @@ from ska_src_site_capabilities_api.rest.routers.schemas import schemas_router
 from ska_src_site_capabilities_api.rest.routers.services import services_router
 from ska_src_site_capabilities_api.rest.routers.sites import sites_router
 from ska_src_site_capabilities_api.rest.routers.status import status_router
-from ska_src_site_capabilities_api.rest.routers.storage_areas import storage_areas_router
+from ska_src_site_capabilities_api.rest.routers.storage_areas import (
+    storage_areas_router,
+)
 from ska_src_site_capabilities_api.rest.routers.storages import storages_router
 
 config = Config(".env")
@@ -62,9 +64,13 @@ app.state.permissions_dependencies = dependencies.Permissions(
     permissions_service_version=app.state.permissions_service_version,
 )
 app.state.api_iam_client = OAuth2Session(
-    config.get("API_IAM_CLIENT_ID"), config.get("API_IAM_CLIENT_SECRET"), scope=config.get("API_IAM_CLIENT_SCOPES", default="")
+    config.get("API_IAM_CLIENT_ID"),
+    config.get("API_IAM_CLIENT_SECRET"),
+    scope=config.get("API_IAM_CLIENT_SCOPES", default=""),
 )
-app.state.iam_endpoints = constants.IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
+app.state.iam_endpoints = constants.IAM(
+    client_conf_url=config.get("IAM_CLIENT_CONF_URL")
+)
 app.state.backend = MongoBackend(
     mongo_username=config.get("MONGO_USERNAME"),
     mongo_password=config.get("MONGO_PASSWORD"),
@@ -77,7 +83,12 @@ app.state.service_start_time = time.time()
 
 # Add CORS middleware. Static mounts must be added later after the versionize() call.
 #
-CORSMiddleware_params = {"allow_origins": ["*"], "allow_credentials": True, "allow_methods": ["*"], "allow_headers": ["*"]}
+CORSMiddleware_params = {
+    "allow_origins": ["*"],
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+}
 app.add_middleware(CORSMiddleware, **CORSMiddleware_params)
 app.add_middleware(
     SessionMiddleware,
@@ -99,7 +110,8 @@ app.include_router(status_router)
 
 # Versionise the API.
 #
-versions = versionize(app=app, prefix_format="/v{major}", docs_url=None, redoc_url=None)
+versionizer = Versionizer(app=app, prefix_format="/v{major}")
+versions = versionizer.versionize()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Customise openapi.json.
@@ -109,10 +121,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # - Remove 422 responses.
 #
 for route in app.routes:
-    if isinstance(route.app, FastAPI):  # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
+    if isinstance(
+        route.app, FastAPI
+    ):  # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
         subapp = route.app
         subapp.state = app.state  # copy original app state to all subapps
-        subapp_base_path = "{}{}".format(os.environ.get("API_ROOT_PATH", default=""), route.path)
+        subapp_base_path = "{}{}".format(
+            os.environ.get("API_ROOT_PATH", default=""), route.path
+        )
         subapp.openapi()
         subapp.openapi_schema["servers"] = [{"url": subapp_base_path}]
         subapp.openapi_schema["info"]["title"] = "Site Capabilities API Overview"
@@ -166,11 +182,17 @@ for route in app.routes:
                     if attr.get("responses", {}).get("422"):
                         del attr.get("responses")["422"]
                     method = method.strip("/")
-                    sample_template_filename = "{}-{}-{}.j2".format(language, path, method).replace("/", "-")
-                    sample_template_path = os.path.join("request-code-samples", sample_template_filename)
+                    sample_template_filename = "{}-{}-{}.j2".format(
+                        language, path, method
+                    ).replace("/", "-")
+                    sample_template_path = os.path.join(
+                        "request-code-samples", sample_template_filename
+                    )
                     if os.path.exists(sample_template_path):
                         with open(sample_template_path, "r", encoding="utf-8") as f:
                             sample_source_template = f.read()
                         code_samples = attr.get("x-code-samples", [])
-                        code_samples.append({"lang": language, "source": str(sample_source_template)})
+                        code_samples.append(
+                            {"lang": language, "source": str(sample_source_template)}
+                        )
                         attr["x-code-samples"] = code_samples

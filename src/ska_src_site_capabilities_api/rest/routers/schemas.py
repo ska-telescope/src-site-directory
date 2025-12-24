@@ -13,7 +13,10 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, StreamingResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import SchemaNotFound, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import (
+    SchemaNotFound,
+    handle_exceptions,
+)
 from ska_src_site_capabilities_api.common.utility import load_and_dereference_schema
 from ska_src_site_capabilities_api.rest.dependencies import Common
 
@@ -36,13 +39,19 @@ config = Config(".env")
 @handle_exceptions
 async def list_schemas(request: Request) -> JSONResponse:
     """Get a list of schema names used to define entities."""
-    schema_basenames = sorted(["".join(fi.split(".")[:-1]) for fi in os.listdir(config.get("SCHEMAS_RELPATH"))])
+    schema_basenames = sorted(
+        [
+            "".join(fi.split(".")[:-1])
+            for fi in os.listdir(config.get("SCHEMAS_RELPATH"))
+        ]
+    )
     return JSONResponse(schema_basenames)
 
 
 @api_version(1)
 @schemas_router.get(
     "/schemas/{schema}",
+    response_model=None,
     responses={
         200: {"model": models.response.SchemaGetResponse},
         401: {},
@@ -54,13 +63,19 @@ async def list_schemas(request: Request) -> JSONResponse:
     summary="Get schema",
 )
 @handle_exceptions
-async def get_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
+async def get_schema(
+    request: Request, schema: str = Path(description="Schema name")
+) -> JSONResponse:
     """Get a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
+            schema_path=pathlib.Path(
+                "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))
+            ).absolute()
         )
-        return JSONResponse(dereferenced_schema)  # some issue with jsonref return != dict
+        return JSONResponse(
+            dereferenced_schema
+        )  # some issue with jsonref return != dict
     except FileNotFoundError:
         raise SchemaNotFound
 
@@ -68,6 +83,7 @@ async def get_schema(request: Request, schema: str = Path(description="Schema na
 @api_version(1)
 @schemas_router.get(
     "/schemas/render/{schema}",
+    response_model=None,
     responses={
         200: {},
         401: {},
@@ -79,21 +95,31 @@ async def get_schema(request: Request, schema: str = Path(description="Schema na
     summary="Render a schema",
 )
 @handle_exceptions
-async def render_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
+async def render_schema(
+    request: Request, schema: str = Path(description="Schema name")
+) -> JSONResponse:
     """Render a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path("{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))).absolute()
+            schema_path=pathlib.Path(
+                "{}.json".format(os.path.join(config.get("SCHEMAS_RELPATH"), schema))
+            ).absolute()
         )
     except FileNotFoundError:
         raise SchemaNotFound
 
     # pop countries enum for readability
-    dereferenced_schema.get("properties").get("sites", {}).get("items", {}).get("properties", {}).get("country", {}).pop("enum", None)
+    dereferenced_schema.get("properties").get("sites", {}).get("items", {}).get(
+        "properties", {}
+    ).get("country", {}).pop("enum", None)
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/img/")
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as schema_file:
-        schema_file.write("@startjson\n{}\n@endjson\n".format(json.dumps(dereferenced_schema, indent=2)))
+        schema_file.write(
+            "@startjson\n{}\n@endjson\n".format(
+                json.dumps(dereferenced_schema, indent=2)
+            )
+        )
         schema_file.flush()
 
         image_temp_file_descriptor, image_temp_file_name = tempfile.mkstemp()

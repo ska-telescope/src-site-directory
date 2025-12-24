@@ -11,7 +11,15 @@ from ska_src_site_capabilities_api.backend.backend import Backend
 class MongoBackend(Backend):
     """Backend API for MongoDB."""
 
-    def __init__(self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None):
+    def __init__(
+        self,
+        mongo_database,
+        mongo_username=None,
+        mongo_password=None,
+        mongo_host=None,
+        mongo_port=None,
+        client=None,
+    ):
         """
         Initialises a MongoBackend instance.
 
@@ -25,7 +33,9 @@ class MongoBackend(Backend):
         """
         super().__init__()
         if mongo_database and mongo_username and mongo_password and mongo_host:
-            self.connection_string = "mongodb://{}:{}@{}:{}/".format(mongo_username, mongo_password, mongo_host, int(mongo_port))
+            self.connection_string = "mongodb://{}:{}@{}:{}/".format(
+                mongo_username, mongo_password, mongo_host, int(mongo_port)
+            )
         self.mongo_database = mongo_database
         self.client = client  # used for mocking
 
@@ -79,7 +89,9 @@ class MongoBackend(Backend):
                     labels["in_downtime"] = str(is_down).lower()
                     if nearest_downtime:
                         labels["downtime_type"] = nearest_downtime.get("type", "")
-                        labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
+                        labels["downtime_date_range"] = nearest_downtime.get(
+                            "date_range", ""
+                        )
                         labels["downtime_reason"] = nearest_downtime.get("reason", "")
                 else:
                     labels[key] = json.dumps(value)
@@ -106,9 +118,9 @@ class MongoBackend(Backend):
             if path and not path.startswith("/"):
                 path = "/" + path
 
-            target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+            target = f"{service.get('prefix', 'https').replace('://', '')}://{service.get('host')}"  # noqa: E231
             if service.get("port") is not None:
-                target += f':{service.get("port")}'
+                target += f":{service.get('port')}"  # noqa: E231
 
             target += path
 
@@ -120,7 +132,9 @@ class MongoBackend(Backend):
 
         return formatted_services
 
-    def _get_storage_areas_with_host_for_prometheus(self, node_names=None, site_names=None, include_inactive=False):
+    def _get_storage_areas_with_host_for_prometheus(
+        self, node_names=None, site_names=None, include_inactive=False
+    ):
         """
         Returns a list of storage areas with host information formatted for Prometheus Service Discovery.
 
@@ -135,7 +149,11 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         response = []
-        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+        for storage in self.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        ):
             supported_protocols = storage.get("supported_protocols", [])
 
             if not supported_protocols:
@@ -160,16 +178,21 @@ class MongoBackend(Backend):
 
         formatted = []
         for storage_area in response:
-            target = f'{storage_area.get("prefix", "https").replace("://", "")}://{storage_area.get("host")}'
+            target = f"{storage_area.get('prefix', 'https').replace('://', '')}://{storage_area.get('host')}"  # noqa: E231
             if storage_area.get("port") is not None:
-                target += f':{storage_area.get("port")}'
-            target += f'{storage_area.get("base_path")}'
+                target += f":{storage_area.get('port')}"  # noqa: E231
+            target += f"{storage_area.get('base_path')}"
             relative_path = storage_area.get("relative_path") or ""
             if relative_path.startswith(("http://", "https://")):
                 target = relative_path
             else:
-                target += f'/{relative_path.lstrip("/")}'
-            formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(storage_area)})
+                target += f"/{relative_path.lstrip('/')}"
+            formatted.append(
+                {
+                    "targets": [target],
+                    "labels": self._get_service_labels_for_prometheus(storage_area),
+                }
+            )
         return formatted
 
     def _is_element_in_downtime(self, downtime):
@@ -184,7 +207,9 @@ class MongoBackend(Backend):
         """
         for entry in downtime:
             if entry.get("date_range"):
-                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
+                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(
+                    " to "
+                )
                 start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
                 end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
                 now_utc = datetime.now(timezone.utc)
@@ -204,7 +229,9 @@ class MongoBackend(Backend):
             The filtered structure with inactive elements removed.
         """
         if isinstance(element, dict):
-            if self._is_element_in_downtime(element.get("downtime", [])) or element.get("is_force_disabled", False):
+            if self._is_element_in_downtime(element.get("downtime", [])) or element.get(
+                "is_force_disabled", False
+            ):
                 return None
 
             # Recurse through the element, checking downtime at each level
@@ -254,7 +281,9 @@ class MongoBackend(Backend):
             # Only delete it from nodes if we successfully added the previous version
             # to nodes_archived
             if nodes_archived.insert_one(latest_node).inserted_id:
-                nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
+                nodes.delete_one(
+                    {"name": node_name, "version": latest_node.get("version")}
+                )
 
         return inserted_node.inserted_id
 
@@ -307,7 +336,12 @@ class MongoBackend(Backend):
             parent_site_name = compute.get("parent_site_name")
             parent_site_id = compute.get("parent_site_id")
             if compute.get("id") == compute_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **compute}
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
+                    **compute,
+                }
                 break
         return response
 
@@ -328,9 +362,13 @@ class MongoBackend(Backend):
         if node_version == "latest":
             this_node = db.nodes.find_one({"name": node_name})
         else:
-            this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
+            this_node = db.nodes.find_one(
+                {"name": node_name, "version": int(node_version)}
+            )
             if not this_node:
-                this_node = db.nodes_archived.find_one({"name": node_name, "version": int(node_version)})
+                this_node = db.nodes_archived.find_one(
+                    {"name": node_name, "version": int(node_version)}
+                )
 
         if this_node:
             this_node.pop("_id")
@@ -355,9 +393,15 @@ class MongoBackend(Backend):
 
             # get compute element to establish if local or global service
             compute = self.get_compute(parent_compute_id)
-            if any(s.get("id") == service_id for s in compute.get("associated_global_services", [])):
+            if any(
+                s.get("id") == service_id
+                for s in compute.get("associated_global_services", [])
+            ):
                 service_scope = "associated_global_services"
-            elif any(s.get("id") == service_id for s in compute.get("associated_local_services", [])):
+            elif any(
+                s.get("id") == service_id
+                for s in compute.get("associated_local_services", [])
+            ):
                 service_scope = "associated_local_services"
             else:
                 service_scope = None
@@ -429,7 +473,12 @@ class MongoBackend(Backend):
             parent_site_name = storage.get("parent_site_name")
             parent_site_id = storage.get("parent_site_id")
             if storage.get("id") == storage_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **storage}
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
+                    **storage,
+                }
                 break
         return response
 
@@ -475,7 +524,9 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         response = []
-        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
+        for site in self.list_sites(
+            node_names=node_names, include_inactive=include_inactive
+        ):
             parent_site_name = site.get("name")
             parent_site_id = site.get("id")
             for compute in site.get("compute", []):
@@ -550,7 +601,11 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id")
+                        != associated_storage_area_id
+                    ):
                         continue
                     # Add parent information
                     response.append(
@@ -569,7 +624,11 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
+                    if (
+                        associated_storage_area_id
+                        and service.get("associated_storage_area_id")
+                        != associated_storage_area_id
+                    ):
                         continue
                     # Add parent information
                     response.append(
@@ -588,7 +647,9 @@ class MongoBackend(Backend):
             services = self._format_services_with_targets_for_prometheus(response)
             formatted.extend(services)
             # Add RSE(storage areas) with host information
-            storages = self._get_storage_areas_with_host_for_prometheus(node_names, site_names, include_inactive)
+            storages = self._get_storage_areas_with_host_for_prometheus(
+                node_names, site_names, include_inactive
+            )
             formatted.extend(storages)
 
             return formatted
@@ -630,7 +691,14 @@ class MongoBackend(Backend):
                 response.append({"parent_node_name": parent_node_name, **site})
         return response
 
-    def list_storages(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storages(
+        self,
+        node_names=None,
+        site_names=None,
+        topojson=False,
+        for_grafana=False,
+        include_inactive=False,
+    ):
         """
         Lists storage resources based on specified filters.
 
@@ -654,7 +722,9 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
+        for site in self.list_sites(
+            node_names=node_names, include_inactive=include_inactive
+        ):
             parent_site_name = site.get("name")
             parent_site_id = site.get("id")
             for storage in site.get("storages", []):
@@ -693,7 +763,14 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storage_areas(
+        self,
+        node_names=None,
+        site_names=None,
+        topojson=False,
+        for_grafana=False,
+        include_inactive=False,
+    ):
         """
         Lists storage areas based on specified filters.
 
@@ -718,7 +795,11 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+        for storage in self.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        ):
             parent_storage = self.get_site_from_names(
                 node_name=storage.get("parent_node_name"),
                 node_version="latest",
@@ -809,7 +890,10 @@ class MongoBackend(Backend):
 
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=updated_node.get("name"))
-        return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
+        return {
+            "site_id": site_id,
+            "is_force_disabled": updated_site.get("is_force_disabled"),
+        }
 
     def set_compute_force_disabled_flag(self, compute_id: str, flag: bool):
         """
@@ -860,7 +944,10 @@ class MongoBackend(Backend):
 
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
-        return {"compute_id": compute_id, "is_force_disabled": updated_compute.get("is_force_disabled")}
+        return {
+            "compute_id": compute_id,
+            "is_force_disabled": updated_compute.get("is_force_disabled"),
+        }
 
     def set_service_force_disabled_flag(self, service_id: str, flag: bool):
         """
@@ -904,7 +991,9 @@ class MongoBackend(Backend):
             for compute in site.get("compute", []):
                 if compute.get("id") != parent_compute_id:
                     continue
-                for svc in compute.get("associated_{}_services".format(service_scope), []):
+                for svc in compute.get(
+                    "associated_{}_services".format(service_scope), []
+                ):
                     if svc.get("id") == service_id:
                         svc["is_force_disabled"] = flag
                         updated_service = svc
@@ -918,7 +1007,10 @@ class MongoBackend(Backend):
             return {}
 
         self.add_edit_node(updated_node, node_name=parent_node_name)
-        return {"service_id": service_id, "is_force_disabled": updated_service.get("is_force_disabled")}
+        return {
+            "service_id": service_id,
+            "is_force_disabled": updated_service.get("is_force_disabled"),
+        }
 
     def set_storage_force_disabled_flag(self, storage_id: str, flag: bool):
         """
@@ -970,7 +1062,10 @@ class MongoBackend(Backend):
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
 
-        return {"storage_id": storage_id, "is_force_disabled": updated_storage.get("is_force_disabled")}
+        return {
+            "storage_id": storage_id,
+            "is_force_disabled": updated_storage.get("is_force_disabled"),
+        }
 
     def set_storage_area_force_disabled_flag(self, storage_area_id: str, flag: bool):
         """
@@ -1028,4 +1123,7 @@ class MongoBackend(Backend):
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
 
-        return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
+        return {
+            "storage_area_id": storage_area_id,
+            "is_force_disabled": updated_storage_area.get("is_force_disabled"),
+        }
