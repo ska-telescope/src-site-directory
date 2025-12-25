@@ -17,7 +17,7 @@ KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
 
 if KUBE_NAMESPACE and CLUSTER_DOMAIN:
-    BASE_API_URL = f"http://core.{KUBE_NAMESPACE}.svc.{CLUSTER_DOMAIN}:8080/v1"
+    BASE_API_URL = "http://core.{}.svc.{}:8080/v1".format(KUBE_NAMESPACE, CLUSTER_DOMAIN)
 else:
     # Default to localhost for local development
     BASE_API_URL = os.getenv("API_URL", "http://localhost:8080/v1")

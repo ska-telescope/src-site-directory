@@ -144,7 +144,7 @@ def test_malformed_query_parameter_node_names():
     """Test that malformed node_names query parameter is handled gracefully"""
     api_url = get_api_url()
     # Test with special characters that might cause issues
-    response = send_get_request(f"{api_url}/compute?node_names=node%20with%20spaces,another")
+    response = send_get_request(f"{api_url}/compute?node_names=node%20with%20spaces, another")
 
     if DISABLE_AUTHENTICATION:
         # Should handle URL-encoded spaces or return appropriate error

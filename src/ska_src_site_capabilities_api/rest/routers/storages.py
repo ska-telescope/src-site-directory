@@ -8,10 +8,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import (
-    StorageNotFound,
-    handle_exceptions,
-)
+from ska_src_site_capabilities_api.common.exceptions import StorageNotFound, handle_exceptions
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
 
 storages_router = APIRouter()
@@ -29,9 +26,7 @@ storages_router = APIRouter()
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Storages"],
     summary="List all storages",
@@ -39,12 +34,8 @@ storages_router = APIRouter()
 @handle_exceptions
 async def list_storages(
     request: Request,
-    node_names: str = Query(
-        default=None, description="Filter by node names (comma-separated)"
-    ),
-    site_names: str = Query(
-        default=None, description="Filter by site names (comma-separated)"
-    ),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False,
         description="Include inactive resources? e.g. in downtime, force disabled",
@@ -56,9 +47,7 @@ async def list_storages(
     if site_names:
         site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = request.app.state.backend.list_storages(
-        node_names=node_names, site_names=site_names, include_inactive=include_inactive
-    )
+    rtn = request.app.state.backend.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
     return JSONResponse(rtn)
 
 
@@ -77,12 +66,8 @@ async def list_storages(
 @handle_exceptions
 async def list_storages_for_grafana(
     request: Request,
-    node_names: str = Query(
-        default=None, description="Filter by node names (comma-separated)"
-    ),
-    site_names: str = Query(
-        default=None, description="Filter by site names (comma-separated)"
-    ),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False,
         description="Include inactive resources? e.g. in downtime, force disabled",
@@ -118,12 +103,8 @@ async def list_storages_for_grafana(
 @handle_exceptions
 async def list_storages_in_topojson_format(
     request: Request,
-    node_names: str = Query(
-        default=None, description="Filter by node names (comma-separated)"
-    ),
-    site_names: str = Query(
-        default=None, description="Filter by site names (comma-separated)"
-    ),
+    node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
+    site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
     include_inactive: bool = Query(
         default=False,
         description="Include inactive resources? e.g. in downtime, force disabled",
@@ -158,9 +139,7 @@ async def list_storages_in_topojson_format(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Storages"],
     summary="Get storage from id",
@@ -191,9 +170,7 @@ async def get_storage_from_id(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Storages"],
     summary="Unset a storage from being force disabled",
@@ -204,9 +181,7 @@ async def set_storage_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(
-        storage_id, False
-    )
+    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
     return JSONResponse(response)
 
 
@@ -224,9 +199,7 @@ async def set_storage_enabled(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Storages"],
     summary="Set a storage to be force disabled",
@@ -237,7 +210,5 @@ async def set_storage_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(
-        storage_id, True
-    )
+    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
     return JSONResponse(response)

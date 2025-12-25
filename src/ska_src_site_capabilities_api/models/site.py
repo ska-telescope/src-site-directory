@@ -8,9 +8,7 @@ from ska_src_site_capabilities_api.models.storage import Storage
 
 
 class Downtime(BaseModel):
-    date_range: str = Field(
-        examples=["2025-03-04T00:00:00.000Z to 2025-03-30T00:00:00.000Z"]
-    )
+    date_range: str = Field(examples=["2025-03-04T00:00:00.000Z to 2025-03-30T00:00:00.000Z"])
     type: Literal["Planned", "Unplanned"]
     reason: str = Field(examples=["Network issues."])
     id: UUID = Field(default_factory=uuid4)

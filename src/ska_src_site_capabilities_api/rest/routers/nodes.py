@@ -11,12 +11,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import (
-    IncorrectNodeVersionType,
-    NodeAlreadyExists,
-    SiteNotFoundInNodeVersion,
-    handle_exceptions,
-)
+from ska_src_site_capabilities_api.common.exceptions import IncorrectNodeVersionType, NodeAlreadyExists, SiteNotFoundInNodeVersion, handle_exceptions
 from ska_src_site_capabilities_api.common.utility import recursive_autogen_id
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
 
@@ -35,9 +30,7 @@ nodes_router = APIRouter()
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="List all nodes",
@@ -52,9 +45,7 @@ async def list_nodes(
     ),
 ) -> JSONResponse:
     """List nodes with an option to return only node names."""
-    rtn = request.app.state.backend.list_nodes(
-        include_archived=False, include_inactive=include_inactive
-    )
+    rtn = request.app.state.backend.list_nodes(include_archived=False, include_inactive=include_inactive)
     if only_names:
         names = [node["name"] for node in rtn if "name" in node]
         return JSONResponse(names)
@@ -72,9 +63,7 @@ async def list_nodes(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="Add a node",
@@ -99,9 +88,7 @@ async def add_node(
     if request.app.state.debug and not authorization:
         values["created_by_username"] = "admin"
     else:
-        access_token_decoded = jwt.decode(
-            authorization.credentials, options={"verify_signature": False}
-        )
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
         values["created_by_username"] = access_token_decoded.get("preferred_username")
 
     # autogenerate ids for id keys
@@ -121,9 +108,7 @@ async def add_node(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="Edit a node",
@@ -144,12 +129,8 @@ async def edit_node(
     if request.app.state.debug and not authorization:
         values["last_updated_by_username"] = "admin"
     else:
-        access_token_decoded = jwt.decode(
-            authorization.credentials, options={"verify_signature": False}
-        )
-        values["last_updated_by_username"] = access_token_decoded.get(
-            "preferred_username"
-        )
+        access_token_decoded = jwt.decode(authorization.credentials, options={"verify_signature": False})
+        values["last_updated_by_username"] = access_token_decoded.get("preferred_username")
 
     # autogenerate ids for id keys
     values = recursive_autogen_id(values)
@@ -171,9 +152,7 @@ async def edit_node(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="Delete a node by name",
@@ -200,9 +179,7 @@ async def delete_node_by_name(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="Dump all versions of all nodes",
@@ -228,9 +205,7 @@ async def dump_nodes(request: Request) -> HTMLResponse:
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Nodes"],
     summary="Get node from name",
@@ -239,9 +214,7 @@ async def dump_nodes(request: Request) -> HTMLResponse:
 async def get_node_version(
     request: Request,
     node_name: str = Path(description="Node name"),
-    node_version: str = Query(
-        default="latest", description="Version of node ({version}||latest"
-    ),
+    node_version: str = Query(default="latest", description="Version of node ({version}||latest"),
 ) -> JSONResponse:
     """Get a version of a node."""
     if node_version != "latest":
@@ -249,11 +222,7 @@ async def get_node_version(
             int(node_version)
         except ValueError:
             raise IncorrectNodeVersionType
-    return JSONResponse(
-        request.app.state.backend.get_node(
-            node_name=node_name, node_version=node_version
-        )
-    )
+    return JSONResponse(request.app.state.backend.get_node(node_name=node_name, node_version=node_version))
 
 
 @api_version(1)
@@ -270,9 +239,7 @@ async def get_node_version(
     + (
         []
         if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes"
-        else [
-            Depends(Permissions.conditional_verify_permission_for_service_route_depends)
-        ]
+        else [Depends(Permissions.conditional_verify_permission_for_service_route_depends)]
     ),
     tags=["Sites"],
     summary="Get site from node and site names",
@@ -282,9 +249,7 @@ async def get_site_from_node_version(
     request: Request,
     node_name: str = Path(description="Node name"),
     site_name: str = Path(description="Site name"),
-    node_version: str = Query(
-        default="latest", description="Version of node ({version}||latest"
-    ),
+    node_version: str = Query(default="latest", description="Version of node ({version}||latest"),
 ) -> JSONResponse:
     """Get site from node version."""
     if node_version != "latest":
@@ -292,11 +257,7 @@ async def get_site_from_node_version(
             int(node_version)
         except ValueError:
             raise IncorrectNodeVersionType
-    rtn = request.app.state.backend.get_site_from_names(
-        node_name=node_name, node_version=node_version, site_name=site_name
-    )
+    rtn = request.app.state.backend.get_site_from_names(node_name=node_name, node_version=node_version, site_name=site_name)
     if not rtn:
-        raise SiteNotFoundInNodeVersion(
-            node_name=node_name, node_version=node_version, site_name=site_name
-        )
+        raise SiteNotFoundInNodeVersion(node_name=node_name, node_version=node_version, site_name=site_name)
     return JSONResponse(rtn)

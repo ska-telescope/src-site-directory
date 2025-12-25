@@ -33,9 +33,7 @@ class MongoBackend(Backend):
         """
         super().__init__()
         if mongo_database and mongo_username and mongo_password and mongo_host:
-            self.connection_string = "mongodb://{}:{}@{}:{}/".format(
-                mongo_username, mongo_password, mongo_host, int(mongo_port)
-            )
+            self.connection_string = "mongodb://{}:{}@{}:{}/".format(mongo_username, mongo_password, mongo_host, int(mongo_port))
         self.mongo_database = mongo_database
         self.client = client  # used for mocking
 
@@ -89,9 +87,7 @@ class MongoBackend(Backend):
                     labels["in_downtime"] = str(is_down).lower()
                     if nearest_downtime:
                         labels["downtime_type"] = nearest_downtime.get("type", "")
-                        labels["downtime_date_range"] = nearest_downtime.get(
-                            "date_range", ""
-                        )
+                        labels["downtime_date_range"] = nearest_downtime.get("date_range", "")
                         labels["downtime_reason"] = nearest_downtime.get("reason", "")
                 else:
                     labels[key] = json.dumps(value)
@@ -132,9 +128,7 @@ class MongoBackend(Backend):
 
         return formatted_services
 
-    def _get_storage_areas_with_host_for_prometheus(
-        self, node_names=None, site_names=None, include_inactive=False
-    ):
+    def _get_storage_areas_with_host_for_prometheus(self, node_names=None, site_names=None, include_inactive=False):
         """
         Returns a list of storage areas with host information formatted for Prometheus Service Discovery.
 
@@ -207,9 +201,7 @@ class MongoBackend(Backend):
         """
         for entry in downtime:
             if entry.get("date_range"):
-                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(
-                    " to "
-                )
+                start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
                 start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
                 end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
                 now_utc = datetime.now(timezone.utc)
@@ -229,9 +221,7 @@ class MongoBackend(Backend):
             The filtered structure with inactive elements removed.
         """
         if isinstance(element, dict):
-            if self._is_element_in_downtime(element.get("downtime", [])) or element.get(
-                "is_force_disabled", False
-            ):
+            if self._is_element_in_downtime(element.get("downtime", [])) or element.get("is_force_disabled", False):
                 return None
 
             # Recurse through the element, checking downtime at each level
@@ -281,9 +271,7 @@ class MongoBackend(Backend):
             # Only delete it from nodes if we successfully added the previous version
             # to nodes_archived
             if nodes_archived.insert_one(latest_node).inserted_id:
-                nodes.delete_one(
-                    {"name": node_name, "version": latest_node.get("version")}
-                )
+                nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
 
         return inserted_node.inserted_id
 
@@ -362,13 +350,9 @@ class MongoBackend(Backend):
         if node_version == "latest":
             this_node = db.nodes.find_one({"name": node_name})
         else:
-            this_node = db.nodes.find_one(
-                {"name": node_name, "version": int(node_version)}
-            )
+            this_node = db.nodes.find_one({"name": node_name, "version": int(node_version)})
             if not this_node:
-                this_node = db.nodes_archived.find_one(
-                    {"name": node_name, "version": int(node_version)}
-                )
+                this_node = db.nodes_archived.find_one({"name": node_name, "version": int(node_version)})
 
         if this_node:
             this_node.pop("_id")
@@ -393,15 +377,9 @@ class MongoBackend(Backend):
 
             # get compute element to establish if local or global service
             compute = self.get_compute(parent_compute_id)
-            if any(
-                s.get("id") == service_id
-                for s in compute.get("associated_global_services", [])
-            ):
+            if any(s.get("id") == service_id for s in compute.get("associated_global_services", [])):
                 service_scope = "associated_global_services"
-            elif any(
-                s.get("id") == service_id
-                for s in compute.get("associated_local_services", [])
-            ):
+            elif any(s.get("id") == service_id for s in compute.get("associated_local_services", [])):
                 service_scope = "associated_local_services"
             else:
                 service_scope = None
@@ -524,9 +502,7 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         response = []
-        for site in self.list_sites(
-            node_names=node_names, include_inactive=include_inactive
-        ):
+        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             parent_site_id = site.get("id")
             for compute in site.get("compute", []):
@@ -601,11 +577,7 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if (
-                        associated_storage_area_id
-                        and service.get("associated_storage_area_id")
-                        != associated_storage_area_id
-                    ):
+                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     # Add parent information
                     response.append(
@@ -624,11 +596,7 @@ class MongoBackend(Backend):
                     # Apply filters for service type and associated storage area ID
                     if service_types and service.get("type") not in service_types:
                         continue
-                    if (
-                        associated_storage_area_id
-                        and service.get("associated_storage_area_id")
-                        != associated_storage_area_id
-                    ):
+                    if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     # Add parent information
                     response.append(
@@ -647,9 +615,7 @@ class MongoBackend(Backend):
             services = self._format_services_with_targets_for_prometheus(response)
             formatted.extend(services)
             # Add RSE(storage areas) with host information
-            storages = self._get_storage_areas_with_host_for_prometheus(
-                node_names, site_names, include_inactive
-            )
+            storages = self._get_storage_areas_with_host_for_prometheus(node_names, site_names, include_inactive)
             formatted.extend(storages)
 
             return formatted
@@ -722,9 +688,7 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for site in self.list_sites(
-            node_names=node_names, include_inactive=include_inactive
-        ):
+        for site in self.list_sites(node_names=node_names, include_inactive=include_inactive):
             parent_site_name = site.get("name")
             parent_site_id = site.get("id")
             for storage in site.get("storages", []):
@@ -991,9 +955,7 @@ class MongoBackend(Backend):
             for compute in site.get("compute", []):
                 if compute.get("id") != parent_compute_id:
                     continue
-                for svc in compute.get(
-                    "associated_{}_services".format(service_scope), []
-                ):
+                for svc in compute.get("associated_{}_services".format(service_scope), []):
                     if svc.get("id") == service_id:
                         svc["is_force_disabled"] = flag
                         updated_service = svc
