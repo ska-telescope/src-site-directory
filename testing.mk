@@ -9,7 +9,7 @@ PYTHON_SWITCHES_FOR_PYLINT=--ignore=W503,W0212
 PROJECT=scapi
 PROJECT_NAME=scapi-core
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
-K8S_TEST_IMAGE_TO_TEST=python:3.8-slim-buster	# the image used by the test runner inside the deployment environment
+K8S_TEST_IMAGE_TO_TEST=python:3.13-bookworm	# the image used by the test runner inside the deployment environment
 
 # Common configuration items for pytest (python.mk, k8s.mk)
 # The following sets the expected location of the package inside CI & sets the required variables for component testing.
