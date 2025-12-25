@@ -11,7 +11,11 @@ from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 
-from ska_src_site_capabilities_api.common.exceptions import NodeVersionNotFound, PermissionDenied, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import (
+    NodeVersionNotFound,
+    PermissionDenied,
+    handle_exceptions,
+)
 from ska_src_site_capabilities_api.common.utility import (
     convert_readme_to_html_docs,
     get_api_server_url_from_request,
@@ -40,17 +44,25 @@ async def oper_docs(request: Request):
         if not request.app.state.debug
         else open("../../../README.md", encoding="utf-8").read()  # pylint: disable=consider-using-with
     )
-    readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
-    openapi_schema = request.scope.get("app").openapi_schema
+    readme_text_html = convert_readme_to_html_docs(
+        readme_text_md, exclude_sections=["Deployment"]
+    )
+    openapi_schema = request.app.openapi()
     openapi_schema_template = Template(json.dumps(openapi_schema))
     return request.app.state.templates.TemplateResponse(
         "docs.html",
         {
             "request": request,
-            "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+            "base_url": get_base_url_from_request(
+                request, config.get("API_SCHEME", default="http")
+            ),
             "page_title": "Site Capabilities API Operator Documentation",
             "openapi_schema": openapi_schema_template.render(
-                {"api_server_url": get_api_server_url_from_request(request, config.get("API_SCHEME", default="http"))}
+                {
+                    "api_server_url": get_api_server_url_from_request(
+                        request, config.get("API_SCHEME", default="http")
+                    )
+                }
             ),
             "readme_text_md": readme_text_html,
             "version": "v{version}".format(version=os.environ.get("SERVICE_VERSION")),
@@ -88,7 +100,7 @@ async def user_docs(request: Request):
         "/ping": ["get"],
         "/health": ["get"],
     }
-    openapi_schema = copy.deepcopy(request.scope.get("app").openapi_schema)
+    openapi_schema = copy.deepcopy(request.app.openapi())
     included_paths = {}
     for path, methods in openapi_schema.get("paths", {}).items():
         for method, attr in methods.items():
@@ -103,10 +115,16 @@ async def user_docs(request: Request):
         "docs.html",
         {
             "request": request,
-            "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+            "base_url": get_base_url_from_request(
+                request, config.get("API_SCHEME", default="http")
+            ),
             "page_title": "Site Capabilities API User Documentation",
             "openapi_schema": openapi_schema_template.render(
-                {"api_server_url": get_api_server_url_from_request(request, config.get("API_SCHEME", default="http"))}
+                {
+                    "api_server_url": get_api_server_url_from_request(
+                        request, config.get("API_SCHEME", default="http")
+                    )
+                }
             ),
             "readme_text_md": readme_text_html,
             "version": "v{version}".format(version=os.environ.get("SERVICE_VERSION")),
@@ -125,7 +143,9 @@ async def user_docs(request: Request):
     summary="Get the downtime statusboard for a node",
 )
 @handle_exceptions
-async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HTMLResponse, RedirectResponse]:
+async def get_downtime_statusboard(
+    request: Request, node_name: str
+) -> Union[HTMLResponse, RedirectResponse]:
     """Dashboard to get all the downtimes for node."""
     if request.session.get("access_token"):
         # Check access permissions.
@@ -159,7 +179,9 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
             "downtime-statusboard.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "base_url": get_base_url_from_request(
+                    request, config.get("API_SCHEME", default="http")
+                ),
                 "title": "Downtimes SRCNet Node ({})".format(node_name),
                 "submit_endpoint_url": get_url_for_app_from_request(
                     "edit_node",
@@ -173,7 +195,9 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -188,7 +212,10 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
 )
 @handle_exceptions
 async def www_login(
-    request: Request, landing_page: str = Query(default=None, description="Landing page to redirect back to.")
+    request: Request,
+    landing_page: str = Query(
+        default=None, description="Landing page to redirect back to."
+    ),
 ) -> Union[HTMLResponse, RedirectResponse]:
     if request.session.get("access_token"):
         if request.session.get("landing_page"):
@@ -199,21 +226,29 @@ async def www_login(
         # get token from authorization code
         code = request.query_params.get("code")
         original_request_url = request.url.remove_query_params(keys=["code", "state"])
-        response = request.app.state.auth.token(code=code, redirect_uri=original_request_url)
+        response = request.app.state.auth.token(
+            code=code, redirect_uri=original_request_url
+        )
 
         # exchange token for site-capabilities-api
         access_token = response.json().get("token", {}).get("access_token")
         if access_token:
-            response = request.app.state.auth.exchange_token(service="site-capabilities-api", access_token=access_token)
+            response = request.app.state.auth.exchange_token(
+                service="site-capabilities-api", access_token=access_token
+            )
             request.session["access_token"] = response.json().get("access_token")
 
         # redirect back now we have a valid token
         return RedirectResponse(original_request_url)
     else:
         # start login process
-        request.session["landing_page"] = landing_page  # if being redirected from /www/sites
+        request.session["landing_page"] = (
+            landing_page  # if being redirected from /www/sites
+        )
         redirect_uri = request.url.remove_query_params(keys=["landing_page"])
-        response = request.app.state.auth.login(flow="legacy", redirect_uri=redirect_uri)
+        response = request.app.state.auth.login(
+            flow="legacy", redirect_uri=redirect_uri
+        )
         authorization_uri = response.json().get("authorization_uri")
         return RedirectResponse(authorization_uri)
 
@@ -231,7 +266,11 @@ async def www_login(
 async def www_logout(request: Request) -> Union[HTMLResponse]:
     if request.session.get("access_token"):
         request.session.pop("access_token")
-    return HTMLResponse("You are logged out. Click <a href=" + get_url_for_app_from_request("www_login", request) + ">here</a> to login.")
+    return HTMLResponse(
+        "You are logged out. Click <a href="
+        + get_url_for_app_from_request("www_login", request)
+        + ">here</a> to login."
+    )
 
 
 @api_version(1)
@@ -267,9 +306,15 @@ async def add_node_form(
                 raise PermissionDenied
 
         # Load schema.
-        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
+        schema = load_and_dereference_schema(
+            schema_path=pathlib.Path(
+                os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")
+            ).absolute()
+        )
         downtime_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")).absolute()
+            schema_path=pathlib.Path(
+                os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")
+            ).absolute()
         )
         # Remove sites
         schema.get("properties", {}).pop("sites")
@@ -278,7 +323,9 @@ async def add_node_form(
             "node.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "base_url": get_base_url_from_request(
+                    request, config.get("API_SCHEME", default="http")
+                ),
                 "schema": schema,
                 "title": "Add SRCNet Node",
                 "form_name": "add-node-form-ui.js",
@@ -301,7 +348,9 @@ async def add_node_form(
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -316,7 +365,9 @@ async def add_node_form(
     summary="Edit existing node form",
 )
 @handle_exceptions
-async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse, RedirectResponse]:
+async def edit_node_form(
+    request: Request, node_name: str
+) -> Union[HTMLResponse, RedirectResponse]:
     """Web form to edit an existing node with JSON schema validation."""
     if request.session.get("access_token"):
         # Check access permissions.
@@ -336,9 +387,15 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
                 raise PermissionDenied
 
         # Load schema.
-        schema = load_and_dereference_schema(schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")).absolute())
+        schema = load_and_dereference_schema(
+            schema_path=pathlib.Path(
+                os.path.join(config.get("SCHEMAS_RELPATH"), "node.json")
+            ).absolute()
+        )
         downtime_schema = load_and_dereference_schema(
-            schema_path=pathlib.Path(os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")).absolute()
+            schema_path=pathlib.Path(
+                os.path.join(config.get("SCHEMAS_RELPATH"), "downtime.json")
+            ).absolute()
         )
         # Get latest values for requested node.
         node = request.app.state.backend.get_node(node_name=node_name)
@@ -359,7 +416,9 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
             "node.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "base_url": get_base_url_from_request(
+                    request, config.get("API_SCHEME", default="http")
+                ),
                 "schema": schema,
                 "downtime_schema": downtime_schema,
                 "title": "Edit SRCNet Node ({})".format(node_name),
@@ -382,7 +441,9 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
         )
 
 
@@ -419,9 +480,13 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
             "topology.html",
             {
                 "request": request,
-                "base_url": get_base_url_from_request(request, config.get("API_SCHEME", default="http")),
+                "base_url": get_base_url_from_request(
+                    request, config.get("API_SCHEME", default="http")
+                ),
                 "title": "Topology of SRCNet",
-                "data": request.app.state.backend.list_nodes(include_archived=False, include_inactive=True),
+                "data": request.app.state.backend.list_nodes(
+                    include_archived=False, include_inactive=True
+                ),
                 "sign_out_url": get_url_for_app_from_request(
                     "www_logout",
                     request,
@@ -432,5 +497,7 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
         )
     else:
         return HTMLResponse(
-            "Please <a href=" + get_url_for_app_from_request("www_login", request) + "?landing_page={}>login</a> first.".format(request.url)
+            "Please <a href="
+            + get_url_for_app_from_request("www_login", request)
+            + "?landing_page={}>login</a> first.".format(request.url)
         )

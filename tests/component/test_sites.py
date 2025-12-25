@@ -27,7 +27,7 @@ def test_list_sites(load_nodes_data):
             assert "name" in data[0]
             assert "id" in data[0]
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -43,7 +43,7 @@ def test_list_sites_only_names(load_nodes_data):
         if len(data) > 0:
             assert isinstance(data[0], str)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -58,7 +58,7 @@ def test_list_sites_filter_by_node_names(load_nodes_data):
             data = response.json()
             assert isinstance(data, list)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -74,7 +74,7 @@ def test_list_sites_filter_by_multiple_node_names(load_nodes_data):
             data = response.json()
             assert isinstance(data, list)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -87,7 +87,7 @@ def test_list_sites_include_inactive(load_nodes_data):
         data = response.json()
         assert isinstance(data, list)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -107,7 +107,7 @@ def test_get_site_by_id(load_nodes_data):
                 assert "id" in data
                 assert data["id"] == site_id
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -119,7 +119,7 @@ def test_get_site_not_found():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 404
     else:
-        assert response.status_code in (403, 404)
+        assert response.status_code in (401, 404)
 
 
 @pytest.mark.component
@@ -148,7 +148,7 @@ def test_enable_site(load_nodes_data):
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is False
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -177,7 +177,7 @@ def test_disable_site(load_nodes_data):
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is True
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -224,7 +224,7 @@ def test_enable_site_not_found():
         # API returns 404 when site not found (based on server.py line 880)
         assert response.status_code == 404
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -237,4 +237,4 @@ def test_disable_site_not_found():
         # API returns 404 when site not found (based on server.py line 912)
         assert response.status_code == 404
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
