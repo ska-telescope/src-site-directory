@@ -7,12 +7,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import (
-    get_api_url,
-    send_delete_request,
-    send_get_request,
-    send_post_request,
-)
+from tests.component.conftest import get_api_url, send_delete_request, send_get_request, send_post_request
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")
@@ -34,30 +29,18 @@ def test_list_nodes(load_nodes_data):
 
         # If nodes were loaded by the fixture, verify they appear in the list
         if load_nodes_data and len(load_nodes_data) > 0:
-            node_names_in_list = [
-                node.get("name")
-                for node in data
-                if isinstance(node, dict) and "name" in node
-            ]
+            node_names_in_list = [node.get("name") for node in data if isinstance(node, dict) and "name" in node]
 
             # Check if any loaded nodes appear in the list
-            found_nodes = [
-                name for name in load_nodes_data if name in node_names_in_list
-            ]
+            found_nodes = [name for name in load_nodes_data if name in node_names_in_list]
 
             # If nodes don't appear, try with include_inactive (they might be marked inactive)
             if not found_nodes:
                 response_inactive = httpx.get(f"{api_url}/nodes?include_inactive=true")  # noqa: E231
                 if response_inactive.status_code == 200:
                     data_inactive = response_inactive.json()
-                    node_names_inactive = [
-                        node.get("name")
-                        for node in data_inactive
-                        if isinstance(node, dict) and "name" in node
-                    ]
-                    found_nodes = [
-                        name for name in load_nodes_data if name in node_names_inactive
-                    ]
+                    node_names_inactive = [node.get("name") for node in data_inactive if isinstance(node, dict) and "name" in node]
+                    found_nodes = [name for name in load_nodes_data if name in node_names_inactive]
     else:
         assert response.status_code == 401
 
@@ -340,10 +323,7 @@ def test_delete_node():
 
     # Create the node
     create_response = send_post_request(f"{api_url}/nodes", test_node)
-    if (
-        os.getenv("DISABLE_AUTHENTICATION") == "yes"
-        and create_response.status_code == 200
-    ):
+    if os.getenv("DISABLE_AUTHENTICATION") == "yes" and create_response.status_code == 200:
         # Now delete it
         delete_response = send_delete_request(f"{api_url}/nodes/{test_node['name']}")
         assert delete_response.status_code == 200
@@ -403,16 +383,12 @@ def test_create_edit_delete_node_cycle():
         # 3. Edit node
         updated_node = node_data.copy()
         updated_node["comments"] = "Updated comment"
-        edit_response = send_post_request(
-            f"{api_url}/nodes/{test_node_name}", updated_node
-        )
+        edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
 
         # 3. Edit node
         updated_node = node_data.copy()
         updated_node["comments"] = "Updated comment"
-        edit_response = send_post_request(
-            f"{api_url}/nodes/{test_node_name}", updated_node
-        )
+        edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
         assert edit_response.status_code == 200
 
         # 4. Verify edit
