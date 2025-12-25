@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ska-src-site-capabilities-api"
-version = "0.3.82"
+version = "0.3.83"
 description = "SRCNet Site Capabilities API"
-authors = ["Rob Barnsley"]
+authors = ["Rob Barnsley", "Michele Delli Veneri"]
 license = "BSD-3-Clause"
 packages = [
     { include = "ska_src_site_capabilities_api", from = "src" }
@@ -37,27 +37,27 @@ url = "https://gitlab.com/api/v4/projects/48060714/packages/pypi/simple"
 
 [tool.poetry.dependencies]
 python = "^3.13"
-Authlib = "1.2.0"
+Authlib = "^1.3.0"
 fastapi = "^0.124.0"
 fastapi-versionizer = "^4.0.0"
 httpx = "^0.28.0"
-itsdangerous = "2.0.1"
-Jinja2 = "3.0.1"
-jsonref = "1.1.0"
-jsonschema = "3.2.0"
-plantuml = "0.3.0"
-Markdown = "3.4.4"
-pydantic = "^2.10.5"
-pymongo = "4.3.3"
-Pygments = "2.16.1"
-PyJWT = "2.8.0"
-python-dateutil = "2.8.2"
-attrs = "^23.2.0"
-python-multipart = "0.0.6"
-requests = "2.32.3"
+itsdangerous = "^2.2.0"
+Jinja2 = "^3.1.0"
+jsonref = "^1.1.0"
+jsonschema = "^4.23.0"
+plantuml = "^0.3.0"
+Markdown = "^3.7.0"
+pydantic = "^2.10.0"
+pymongo = "^4.3.3"
+Pygments = "^2.18.0"
+PyJWT = "^2.10.0"
+python-dateutil = "^2.8.2"
+attrs = "^24.3.0"
+python-multipart = "^0.0.6"
+requests = "^2.32.3"
 uvicorn = {extras = ["standard"], version = "^0.34.0"}
-ska-src-permissions-api = "^0.1.93"
-ska-src-auth-api = "^0.6.1"
+ska-src-permissions-api = "^0.1.94"
+ska-src-auth-api = "^0.6.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
