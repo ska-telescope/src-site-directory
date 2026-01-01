@@ -3,9 +3,8 @@ import json
 import os
 import pathlib
 import tempfile
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, Path
 from fastapi_versionizer.versionizer import api_version
 from plantuml import PlantUML
 from starlette.config import Config

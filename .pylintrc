@@ -69,7 +69,7 @@ disable=consider-using-f-string,
         consider-using-enumerate,
         redefined-outer-name,
         no-else-return,
-        no-member, 
+        no-member,
         redefined-argument-from-local,
         missing-class-docstring,
         line-too-long,
@@ -84,7 +84,9 @@ disable=consider-using-f-string,
         unused-import,
         undefined-variable,
         function-redefined,
-        protected-access
+        protected-access,
+        too-many-arguments,
+        too-many-positional-arguments
 
 
 

@@ -1,7 +1,6 @@
 import os
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.requests import Request

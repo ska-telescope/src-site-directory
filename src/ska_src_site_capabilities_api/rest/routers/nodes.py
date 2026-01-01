@@ -1,10 +1,9 @@
 import json
 import os
 from datetime import datetime
-from typing import Union
 
 import jwt
-from fastapi import APIRouter, Body, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.requests import Request
