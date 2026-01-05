@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.82]
+
+
+### Changed 
+- Updated to python 3.13 and the following packages
+  * FastAPI 0.124.0
+  * Pydantic 2.10.0
+  * uvicorn 0.34.0
+  * httpx 0.28.0
+  * redis 5.2.0
+  * celery 5.6.0 (where applicable)
+  * PyJWT 2.10.0
+  * Authlib 1.3.0
+  * attrs 24.3.0
+  * poetry-core 2.0.0
+- Changed CI/CD Images to python 3.13
+- Changed Docker images from python:3.8-bullseye to python:3.13-slim-bookworm
+- Changed Node Basemodel Class to use the new pydantic ConfigDict and Field 
+- Changed Responses to use new pydantic ConfigDict
+- Updated responses of routers to JSONResponse or HTTPResponse whenever is appropriate. Union is deprecated and not used anymore
+- Updated to new 4.0 Versionizer class 
+- in /rest/dependencies addd routine to strip version prefix freom route path of nodes
+- Changed compute_storm2.json local data preparer endpoint to be /v1/stage and not root anymore 
+- Changed component tests to return 401s not 403s when the error is due to not being Authhorized
+
+### Added
+- Added reponse models equals to Nones and set response.models to various responses and errors
+- Added FastAPI Lifespan manager to initialize application state and resources at startup
+
 ## [0.3.81]
 
 ### Changed
@@ -290,7 +319,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Defined `PYTHON_LINE_LENGTH` in Makefile.
-
-
-
-
