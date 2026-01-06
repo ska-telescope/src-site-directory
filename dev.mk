@@ -26,10 +26,6 @@ bump-and-commit:
 		git commit \
 	'
 
-code-samples:
-	@cd tools && bash generate-code-samples.sh
-
-contributors:
 contributors:
 	@python3 tools/generate_contributors.py > CONTRIBUTORS.md
 
