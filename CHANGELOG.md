@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - in /rest/dependencies addd routine to strip version prefix freom route path of nodes
 - Changed compute_storm2.json local data preparer endpoint to be /v1/stage and not root anymore 
 - Changed component tests to return 401s not 403s when the error is due to not being Authhorized
+- Update code samples generation to be pure python using jinja2 templates
 
 ### Added
 - Added reponse models equals to Nones and set response.models to various responses and errors

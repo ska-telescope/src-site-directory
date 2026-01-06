@@ -1,9 +1,0 @@
-import requests
-
-url = "{{ api_server_url }}/services"
-
-querystring = {"include_associated_with_compute":"SOME_BOOLEAN_VALUE","include_disabled":"SOME_BOOLEAN_VALUE"}
-
-response = requests.request("GET", url, params=querystring)
-
-print(response.text)

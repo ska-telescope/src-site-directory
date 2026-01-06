@@ -16,6 +16,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
+from ska_src_site_capabilities_api.common.utility import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest import dependencies
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
@@ -85,7 +86,10 @@ async def lifespan(app: FastAPI):
 
 
 # Instantiate FastAPI app
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    title="Site CapabilitiesAPI Overview",
+)
 
 # Store app state (accessible through request.app.state)
 app.state.debug = config.get("DISABLE_AUTHENTICATION", default=None) == "yes"
@@ -123,6 +127,17 @@ app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
 
+# Customize OpenAPI schema generation (must be set before versionize)
+def custom_openapi():
+    """Custom OpenAPI schema generator compatible with FastAPI 0.124+."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    app.openapi_schema = create_custom_openapi_schema(app, logger)
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
+
 # Versionize the API
 versions = Versionizer(
     app=app,
@@ -131,77 +146,5 @@ versions = Versionizer(
 ).versionize()
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Customise openapi.json.
-#
-# - Add schema server, title and tags.
-# - Add request code samples to routes.
-# - Remove 422 responses.
-#
-for route in app.routes:
-    if isinstance(route.app, FastAPI):  # find any FastAPI subapplications (e.g. /v1/, /v2/, ...)
-        subapp = route.app
-        subapp.state = app.state  # copy original app state to all subapps
-        subapp_base_path = "{}{}".format(os.environ.get("API_ROOT_PATH", default=""), route.path)
-        subapp.openapi()
-        subapp.openapi_schema["servers"] = [{"url": subapp_base_path}]
-        subapp.openapi_schema["info"]["title"] = "Site Capabilities API Overview"
-        subapp.openapi_schema["tags"] = [
-            {
-                "name": "Nodes",
-                "description": "Operations on nodes.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Sites",
-                "description": "Operations on sites.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Compute",
-                "description": "Operations on site compute.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Storages",
-                "description": "Operations on site storages.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Storage Areas",
-                "description": "Operations on site storage areas.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Services",
-                "description": "Operations on site services.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Schemas",
-                "description": "Schema operations.",
-                "x-tag-expanded": False,
-            },
-            {
-                "name": "Status",
-                "description": "Operations describing the status of the API.",
-                "x-tag-expanded": False,
-            },
-        ]
-        # add request code samples and strip out 422s
-        for language in ["shell", "python", "go", "js"]:
-            for path, methods in subapp.openapi_schema["paths"].items():
-                path = path.strip("/")
-                for method, attr in methods.items():
-                    if attr.get("responses", {}).get("422"):
-                        del attr.get("responses")["422"]
-                    method = method.strip("/")
-                    sample_template_filename = "{}-{}-{}.j2".format(language, path, method).replace("/", "-")
-                    sample_template_path = os.path.join("request-code-samples", sample_template_filename)
-                    if os.path.exists(sample_template_path):
-                        with open(sample_template_path, "r", encoding="utf-8") as f:
-                            sample_source_template = f.read()
-                        code_samples = attr.get("x-code-samples", [])
-                        code_samples.append({"lang": language, "source": str(sample_source_template)})
-                        attr["x-code-samples"] = code_samples
+static_path = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")

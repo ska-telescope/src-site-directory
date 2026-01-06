@@ -1,9 +1,0 @@
-import requests
-
-url = "{{ api_server_url }}/storage-areas/{storage_area_id}/enable"
-
-headers = {"Authorization": "Bearer REPLACE_BEARER_TOKEN"}
-
-response = requests.request("PUT", url, headers=headers)
-
-print(response.text)
