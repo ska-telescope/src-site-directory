@@ -36,33 +36,29 @@ follows:
 
 2. Make your changes.
 
-3. Create new (OpenAPI) code samples if necessary (requires the service to be running):
-   ```bash
-   ska-src-site-capabilities-api$ make code-samples
-   ```
 
-4. Update `poetry.lock`
+3. Update `poetry.lock`
    ```bash
    ska-src-site-capabilities-api$ poetry lock --no-update
    ```
    
-5. Add your changes to the branch:
+4. Add your changes to the branch:
     ```bash
    ska-src-site-capabilities-api$ git add ...
     ```
    
-6. Bump the version and commit, entering a commit message when prompted:
+5. Bump the version and commit, entering a commit message when prompted:
     ```bash
    ska-src-site-capabilities-api$ make bump-and-commit
     ```
    This is essential to keep version numbers consistent across the helm chart and python package.
    
-7. Push the changes to your fork when ready:
+6. Push the changes to your fork when ready:
     ```bash
    ska-src-site-capabilities-api$ make push
     ```
 
-8. Create a merge request against upstream main.
+7. Create a merge request against upstream main.
 
 ## Development tricks
 
