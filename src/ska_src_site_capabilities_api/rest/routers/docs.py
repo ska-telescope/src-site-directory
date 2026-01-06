@@ -41,7 +41,7 @@ async def oper_docs(request: Request):
         else open("../../../README.md", encoding="utf-8").read()  # pylint: disable=consider-using-with
     )
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
-    openapi_schema = request.app.openapi()
+    openapi_schema = request.scope.get("app").openapi()
     openapi_schema_template = Template(json.dumps(openapi_schema))
     return request.app.state.templates.TemplateResponse(
         "docs.html",
@@ -88,7 +88,7 @@ async def user_docs(request: Request):
         "/ping": ["get"],
         "/health": ["get"],
     }
-    openapi_schema = copy.deepcopy(request.app.openapi())
+    openapi_schema = copy.deepcopy(request.scope.get("app").openapi())
     included_paths = {}
     for path, methods in openapi_schema.get("paths", {}).items():
         for method, attr in methods.items():
