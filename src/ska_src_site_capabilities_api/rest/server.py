@@ -127,6 +127,7 @@ app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
 
+
 # Customize OpenAPI schema generation (must be set before versionize)
 def custom_openapi():
     """Custom OpenAPI schema generator compatible with FastAPI 0.124+."""
