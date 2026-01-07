@@ -16,8 +16,8 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
-from ska_src_site_capabilities_api.common.utility import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest import dependencies
+from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
 from ska_src_site_capabilities_api.rest.routers.nodes import nodes_router

@@ -4,7 +4,7 @@ const options = {
   "method": "{{ method|upper }}",
   "hostname": "localhost",
   "port": "8080",
-  "path": "/v1{{ path }}{% if query_params %}?{{ query_params }}{% endif %}",
+  "path": "{{ path }}{% if query_params %}?{{ query_params }}{% endif %}",
   "headers": {}
 };
 
