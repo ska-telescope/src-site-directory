@@ -127,39 +127,58 @@ stop-k8s-test-api-with-enabled-auth:
 integration-test:
     stage: integration
     tags:
-        #- src-workloads-large  # Use existing k8srunner tag
         - integration-runner
-    #services:
-    #   - docker:dind
     variables:
         GIT_SUBMODULE_STRATEGY: recursive
         GIT_STRATEGY: clone
         GIT_CLEAN_FLAGS: -ffdx
-    #before_script:
-    # Install required tools (with conditional sudo for non-root containers)
-    # - if [ "$(id -u)" != "0" ]; then SUDO="sudo"; else SUDO=""; fi
-    # - $SUDO apt-get update -qq
-    # - $SUDO apt-get install -y -qq git curl jq
-    # - which docker-compose || $SUDO apt-get install -y -qq docker-compose-plugin
-    script:
+        SERVICE_NAME: PAPI # The service being tested (AAPI, CAVERN, DMAPI, etc.)
+    before_script:
         # Clean up any leftover integration environment from previous runs
         - rm -rf ska-src-api-integration-environment || true
+        # Clean up any old skaie installation
+        - rm -rf ~/.local/skaie ~/.local/bin/skaie || true
+        - rm -rf ~/.skaie/config.yaml || true
+    script:
         # Clone integration environment
         - git clone https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment.git
         - cd ska-src-api-integration-environment
         - git submodule update --init --recursive
-        # Start the stack
-        - bash scripts/stack/start-stack.sh
-        # Wait for tester container to finish
-        - echo "Waiting for tester container to finish..."
-        - docker wait tester
-        - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}')
-        - exit $EXIT_CODE
+        # Install skaie CLI
+        - make install-auto
+        - export PATH="$HOME/.local/bin:$PATH"
+        - skaie --version
+        - cp .env.template .env
+        - mkdir -p ./certificates
+        # Pull all submodules
+        - skaie submodule pull
+        # Update Docker images
+        - skaie images update
+        # Set the branch for the service being tested (current MR branch)
+        - skaie submodule set $SERVICE_NAME $CI_COMMIT_REF_NAME
+        - skaie submodule list
+        - skaie start $SERVICE_NAME --yes
+
+        # Check tester exit code
+        - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}' 2>/dev/null || echo "1")
+        - echo "Tester exit code is $EXIT_CODE"
+        - |
+            if [ "$EXIT_CODE" -eq "0" ]; then
+              echo "✅ Tests passed!"
+              exit 0
+            else
+              echo "❌ Tests failed with exit code: $EXIT_CODE"
+              echo "Showing final tester logs:"
+              docker logs tester 2>&1 | tail -100 || true
+              exit $EXIT_CODE
+            fi
     after_script:
-        # Clean up the integration environment directory (if it exists)
-        - cd ska-src-api-integration-environment
-        - bash scripts/stack/stop-stack.sh
-        - bash scripts/stack/cleanup-pycache.sh
+        - cd ska-src-api-integration-environment || true
+        # Stop all services
+        - export PATH="$HOME/.local/bin:$PATH"
+        - skaie stop all --yes || true
+        # Cleanup
+        - bash scripts/stack/cleanup-pycache.sh || true
         - cd ..
         - rm -rf ska-src-api-integration-environment || true
     allow_failure: false
