@@ -132,7 +132,7 @@ integration-test:
         GIT_SUBMODULE_STRATEGY: recursive
         GIT_STRATEGY: clone
         GIT_CLEAN_FLAGS: -ffdx
-        SERVICE_NAME: PAPI # The service being tested (AAPI, CAVERN, DMAPI, etc.)
+        SERVICE_NAME: SCAPI # The service being tested (AAPI, CAVERN, DMAPI, etc.)
     before_script:
         # Clean up any leftover integration environment from previous runs
         - rm -rf ska-src-api-integration-environment || true
