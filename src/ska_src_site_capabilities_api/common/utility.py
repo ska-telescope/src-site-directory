@@ -198,6 +198,3 @@ def retry_request(
                 raise err
         time.sleep(wait_for_s)
     raise RetryRequestError(last_error, last_response)
-
-
-
