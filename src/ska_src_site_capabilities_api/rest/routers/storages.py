@@ -3,12 +3,14 @@ import os
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
+from ska_src_logging import LogContext
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.exceptions import StorageNotFound, handle_exceptions
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
+from ska_src_site_capabilities_api.rest.logger import logger
 
 storages_router = APIRouter()
 
@@ -41,13 +43,15 @@ async def list_storages(
     ),
 ) -> JSONResponse:
     """List all storages."""
-    if node_names:
-        node_names = [name.strip() for name in node_names.split(",")]
-    if site_names:
-        site_names = [name.strip() for name in site_names.split(",")]
+    with LogContext(resource_id="storages", operation="list_storages"):
+        logger.info(f"Listing storages (include_inactive={include_inactive})")
+        if node_names:
+            node_names = [name.strip() for name in node_names.split(",")]
+        if site_names:
+            site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = request.app.state.backend.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
-    return JSONResponse(rtn)
+        rtn = request.app.state.backend.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -73,18 +77,20 @@ async def list_storages_for_grafana(
     ),
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
-    if node_names:
-        node_names = [name.strip() for name in node_names.split(",")]
-    if site_names:
-        site_names = [name.strip() for name in site_names.split(",")]
+    with LogContext(resource_id="storages", operation="list_storages_grafana"):
+        logger.info("Listing storages for Grafana")
+        if node_names:
+            node_names = [name.strip() for name in node_names.split(",")]
+        if site_names:
+            site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = request.app.state.backend.list_storages(
-        node_names=node_names,
-        site_names=site_names,
-        for_grafana=True,
-        include_inactive=include_inactive,
-    )
-    return JSONResponse(rtn)
+        rtn = request.app.state.backend.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            for_grafana=True,
+            include_inactive=include_inactive,
+        )
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -110,18 +116,20 @@ async def list_storages_in_topojson_format(
     ),
 ) -> JSONResponse:
     """List all storages in topojson format."""
-    if node_names:
-        node_names = [name.strip() for name in node_names.split(",")]
-    if site_names:
-        site_names = [name.strip() for name in site_names.split(",")]
+    with LogContext(resource_id="storages", operation="list_storages_topojson"):
+        logger.info("Listing storages in topojson format")
+        if node_names:
+            node_names = [name.strip() for name in node_names.split(",")]
+        if site_names:
+            site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = request.app.state.backend.list_storages(
-        node_names=node_names,
-        site_names=site_names,
-        topojson=True,
-        include_inactive=include_inactive,
-    )
-    return JSONResponse(rtn)
+        rtn = request.app.state.backend.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            topojson=True,
+            include_inactive=include_inactive,
+        )
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -149,10 +157,12 @@ async def get_storage_from_id(
     storage_id: str = Path(description="Unique storage identifier"),
 ) -> JSONResponse:
     """Get a storage description from a unique identifier."""
-    rtn = request.app.state.backend.get_storage(storage_id)
-    if not rtn:
-        raise StorageNotFound(storage_id)
-    return JSONResponse(rtn)
+    with LogContext(resource_id=storage_id, operation="get_storage"):
+        logger.info(f"Retrieving storage: {storage_id}")
+        rtn = request.app.state.backend.get_storage(storage_id)
+        if not rtn:
+            raise StorageNotFound(storage_id)
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -180,8 +190,10 @@ async def set_storage_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
-    return JSONResponse(response)
+    with LogContext(resource_id=storage_id, operation="enable_storage"):
+        logger.info(f"Enabling storage: {storage_id}")
+        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
+        return JSONResponse(response)
 
 
 @api_version(1)
@@ -209,5 +221,7 @@ async def set_storage_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
-    return JSONResponse(response)
+    with LogContext(resource_id=storage_id, operation="disable_storage"):
+        logger.info(f"Disabling storage: {storage_id}")
+        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
+        return JSONResponse(response)

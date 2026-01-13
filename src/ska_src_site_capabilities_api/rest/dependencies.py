@@ -3,6 +3,7 @@ from typing import Union
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from ska_src_logging import get_log_context
 from starlette.requests import Request
 
 from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
@@ -57,6 +58,8 @@ class Permissions:
             parts = route_path.split("/", 2)
             if len(parts) >= 3:
                 route_path = "/" + parts[2]
+        # Get correlation ID from log context for distributed tracing
+        correlation_id = get_log_context().get("correlation_id")
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
@@ -64,6 +67,7 @@ class Permissions:
             method=request.method,
             token=access_token,
             body=request.path_params,
+            correlation_id=correlation_id,
         ).json()
         if rtn.get("is_authorised", False):
             return
@@ -89,6 +93,8 @@ class Permissions:
             parts = route_path.split("/", 2)
             if len(parts) >= 3:
                 route_path = "/" + parts[2]
+        # Get correlation ID from log context for distributed tracing
+        correlation_id = get_log_context().get("correlation_id")
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
@@ -96,6 +102,7 @@ class Permissions:
             method=request.method,
             token=token,
             body=request.path_params,
+            correlation_id=correlation_id,
         ).json()
         if rtn.get("is_authorised", False):
             return

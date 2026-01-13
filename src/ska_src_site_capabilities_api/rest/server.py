@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -17,6 +16,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.rest import dependencies
+from ska_src_site_capabilities_api.rest.logger import LoggingContextMiddleware, logger, setup_logging
 from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
@@ -30,10 +30,6 @@ from ska_src_site_capabilities_api.rest.routers.storages import storages_router
 
 config = Config(".env")
 
-# Set logging to use uvicorn logger.
-#
-logger = logging.getLogger("uvicorn")
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,11 +37,14 @@ async def lifespan(app: FastAPI):
 
     Initializes application state and resources on startup.
     """
+    # Setup uvicorn logging to use ska-src-logging
+    setup_logging()
+
     # Get instance of IAM constants
     iam_endpoints = constants.IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
 
     # Instantiate a Permissions client
-    permissions = PermissionsClient(config.get("PERMISSIONS_API_URL"))
+    permissions = PermissionsClient(config.get("PERMISSIONS_API_URL"), calling_service="SCAPI")
     permissions_service_name = config.get("PERMISSIONS_SERVICE_NAME")
     permissions_service_version = config.get("PERMISSIONS_SERVICE_VERSION")
 
@@ -114,6 +113,8 @@ app.add_middleware(
     max_age=3600,
     secret_key=config.get("SESSIONS_SECRET_KEY"),
 )
+# Add logging context middleware to add request context to all logs
+app.add_middleware(LoggingContextMiddleware)
 
 # Add routers.
 #
