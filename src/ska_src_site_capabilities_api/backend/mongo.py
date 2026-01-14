@@ -535,6 +535,83 @@ class MongoBackend(Backend):
 
         return nodes or []
 
+    @staticmethod
+    def is_inactive(element: dict) -> bool:
+        """
+        Determines if an element is inactive (in downtime or force disabled).
+        :param element: dictionary representing the queue/compute/service or any generic element with downtime and is_force_disabled fields
+        :return:
+        """
+        if element.get("is_force_disabled", False):
+            return True
+        if "downtime" in element:
+            downtime = element.get("downtime", [])
+            for entry in downtime:
+                if entry.get("date_range"):
+                    start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
+                    start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
+                    end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
+                    now_utc = datetime.now(timezone.utc)
+
+                    if start_date_utc < now_utc < end_date_utc:
+                        return True
+        return False
+
+    def get_queue_by_id(
+        self,
+        queue_id: str,
+    ):
+        """
+        Get Queue details from ID
+        :param queue_id: Unique Queue ID
+        :return:
+        """
+        queues = self.list_queues(include_inactive=True)
+        for queue in queues:
+            if queue.get("id") == queue_id:
+                return queue
+        return None
+
+    def list_queues(
+        self,
+        node_names=None,
+        site_names=None,
+        include_inactive=False,
+    ):
+        """
+        Lists queues based on specified filters.
+        :param node_names: List of node names to filter services by. If None, no node filtering is applied.
+        :param site_names: ist of site names to filter services by. If None, no site filtering is applied.
+        :param include_inactive: Boolean to include inactive compute resources.
+        :return: list of queues with parent information
+        """
+        response = []
+
+        # Handle None cases for input lists
+        node_names = node_names or []
+        site_names = site_names or []
+
+        for compute in self.list_compute(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        ):
+            for queue in compute.get("queues", []):
+                # If include_inactive is false and the queue is inactive, then skip it
+                if not include_inactive and self.is_inactive(queue):
+                    continue
+                response.append(
+                    {
+                        "parent_node_name": compute.get("parent_node_name"),
+                        "parent_site_name": compute.get("parent_site_name"),
+                        "parent_site_id": compute.get("parent_site_id"),
+                        "parent_compute_id": compute.get("id"),
+                        "parent_compute_name": compute.get("name"),
+                        **queue,
+                    }
+                )
+        return response
+
     def list_services(
         self,
         node_names=None,
