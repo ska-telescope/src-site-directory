@@ -77,6 +77,14 @@
       },
       "allowEmpty": true
     },
+    "queues": {
+      "type": "array",
+      "title": "Queues to submit batch jobs",
+      "items": {
+        "$ref": "queues.json"
+      },
+      "allowEmpty": true
+    },
     "is_force_disabled": {
       "type": "boolean",
       "title": "Force disable?",

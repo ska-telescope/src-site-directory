@@ -54,3 +54,11 @@ class GlobalService(Service):
     type: GlobalServiceType = Field(examples=["rucio"])
     associated_compute_id: UUID = Field(default_factory=uuid4)
     associated_storage_area_id: UUID = Field(default_factory=uuid4)
+
+
+class Queue(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(examples=["default"])
+    other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+    downtime: List[Downtime]
+    is_force_disabled: bool = Field(examples=[True, False])

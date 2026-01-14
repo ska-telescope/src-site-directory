@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import jsonref
 from pydantic import BaseModel, Field
 
-from ska_src_site_capabilities_api.models.service import GlobalService, LocalService
+from ska_src_site_capabilities_api.models.service import GlobalService, LocalService, Queue
 
 # get hardware capabilities and types from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute"))).absolute()
@@ -37,5 +37,6 @@ class Compute(BaseModel):
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]
     associated_local_services: List[LocalService]
+    queues: List[Queue] = Field(default_factory=list)
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])
