@@ -34,7 +34,6 @@ config = Config(".env")
 #
 logger = logging.getLogger("uvicorn")
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager.
@@ -88,7 +87,7 @@ async def lifespan(app: FastAPI):
 # Instantiate FastAPI app
 app = FastAPI(
     lifespan=lifespan,
-    title="Site CapabilitiesAPI Overview",
+    title="Site Capabilities API Overview",
 )
 
 # Store app state (accessible through request.app.state)
@@ -144,6 +143,11 @@ versions = Versionizer(
     app=app,
     prefix_format="/v{major}",
     semantic_version_format="{major}",
+    include_main_docs=False,
+    include_main_openapi_route=True,
+    include_version_docs=False,
+    include_version_openapi_route=False,
+    include_versions_route=True,
 ).versionize()
 
 # Mount static files
