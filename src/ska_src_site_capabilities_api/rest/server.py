@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_versionizer import Versionizer
+from ska_src_logging.integrations.prometheus import MetricsMiddleware, setup_metrics_endpoint
 from ska_src_auth_api.client.authentication import AuthenticationClient
 from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
@@ -115,7 +116,8 @@ app.add_middleware(
 )
 # Add logging context middleware to add request context to all logs
 app.add_middleware(LoggingContextMiddleware)
-
+# Add metrics middleware to track HTTP requests
+app.add_middleware(MetricsMiddleware, app_name=os.environ.get("LOG_APP_NAME", "scapi"))
 # Add routers.
 #
 app.include_router(docs_router)
@@ -128,6 +130,8 @@ app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
 
+# Setup Prometheus metrics endpoint
+setup_metrics_endpoint(app)
 
 # Customize OpenAPI schema generation (must be set before versionize)
 def custom_openapi():
