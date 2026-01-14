@@ -3,9 +3,8 @@ import json
 import os
 import pathlib
 import tempfile
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, Path
 from fastapi_versionizer.versionizer import api_version
 from plantuml import PlantUML
 from starlette.config import Config
@@ -43,6 +42,7 @@ async def list_schemas(request: Request) -> JSONResponse:
 @api_version(1)
 @schemas_router.get(
     "/schemas/{schema}",
+    response_model=None,
     responses={
         200: {"model": models.response.SchemaGetResponse},
         401: {},
@@ -54,7 +54,7 @@ async def list_schemas(request: Request) -> JSONResponse:
     summary="Get schema",
 )
 @handle_exceptions
-async def get_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
+async def get_schema(request: Request, schema: str = Path(description="Schema name")) -> JSONResponse:
     """Get a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(
@@ -68,6 +68,7 @@ async def get_schema(request: Request, schema: str = Path(description="Schema na
 @api_version(1)
 @schemas_router.get(
     "/schemas/render/{schema}",
+    response_model=None,
     responses={
         200: {},
         401: {},
@@ -79,7 +80,7 @@ async def get_schema(request: Request, schema: str = Path(description="Schema na
     summary="Render a schema",
 )
 @handle_exceptions
-async def render_schema(request: Request, schema: str = Path(description="Schema name")) -> Union[JSONResponse, HTTPException]:
+async def render_schema(request: Request, schema: str = Path(description="Schema name")) -> JSONResponse:
     """Render a schema by name."""
     try:
         dereferenced_schema = load_and_dereference_schema(

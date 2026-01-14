@@ -9,7 +9,7 @@
             "prefix": "http",
             "host": "dpapi.local",
             "port": 8000,
-            "path": "/",
+            "path": "/v1/stage",
             "other_attributes": {},
             "is_mandatory": false,
             "downtime": [],

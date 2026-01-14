@@ -24,7 +24,7 @@ def test_list_storage_areas(load_nodes_data):
         data = response.json()
         assert isinstance(data, list)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -39,7 +39,7 @@ def test_list_storage_areas_filter_by_node_names(load_nodes_data):
             data = response.json()
             assert isinstance(data, list)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -55,7 +55,7 @@ def test_list_storage_areas_filter_by_multiple_node_names(load_nodes_data):
             data = response.json()
             assert isinstance(data, list)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -75,7 +75,7 @@ def test_list_storage_areas_filter_by_site_names(load_nodes_data):
                     data = response.json()
                     assert isinstance(data, list)
                 else:
-                    assert response.status_code == 403
+                    assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -97,7 +97,7 @@ def test_list_storage_areas_filter_by_multiple_site_names(load_nodes_data):
                     data = response.json()
                     assert isinstance(data, list)
                 else:
-                    assert response.status_code == 403
+                    assert response.status_code == 401
             elif "sites" in node_data and len(node_data["sites"]) == 1:
                 # If only one site, use it twice to test comma-separated format
                 site_name = node_data["sites"][0]["name"]
@@ -107,7 +107,7 @@ def test_list_storage_areas_filter_by_multiple_site_names(load_nodes_data):
                     data = response.json()
                     assert isinstance(data, list)
                 else:
-                    assert response.status_code == 403
+                    assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -120,7 +120,7 @@ def test_list_storage_areas_include_inactive(load_nodes_data):
         data = response.json()
         assert isinstance(data, list)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -177,7 +177,7 @@ def test_get_storage_area_by_id(load_nodes_data):
                 assert "id" in data
                 assert data["id"] == storage_area_id
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -189,7 +189,7 @@ def test_get_storage_area_not_found():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         assert response.status_code == 404
     else:
-        assert response.status_code in (403, 404)
+        assert response.status_code in (401, 404)
 
 
 @pytest.mark.component
@@ -218,7 +218,7 @@ def test_enable_storage_area(load_nodes_data):
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is False
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -247,7 +247,7 @@ def test_disable_storage_area(load_nodes_data):
                     verify_data = verify_response.json()
                     assert verify_data.get("is_force_disabled") is True
             else:
-                assert response.status_code == 403
+                assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -294,7 +294,7 @@ def test_enable_storage_area_not_found():
         # API may return 200 with empty response or 404
         assert response.status_code in (200, 404)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -307,4 +307,4 @@ def test_disable_storage_area_not_found():
         # API may return 200 with empty response or 404
         assert response.status_code in (200, 404)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401

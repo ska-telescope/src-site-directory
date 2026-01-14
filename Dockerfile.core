@@ -1,4 +1,4 @@
-FROM python:3.8-bullseye
+FROM python:3.13-bookworm
 
 USER root
 
@@ -12,7 +12,7 @@ RUN apt-get update -y && \
     apt-get clean
 
 # install and configure poetry so dependencies installed directly into system (not venv)
-RUN pip3 install poetry==1.7.1 && poetry config virtualenvs.create false
+RUN pip3 install poetry==2.1.4 && poetry config virtualenvs.create false
 
 # add non-root user and copy repository files
 RUN groupadd user && adduser --system --no-create-home --disabled-password --shell /bin/bash user
@@ -45,5 +45,7 @@ ENV PERMISSIONS_SERVICE_NAME ''
 ENV PERMISSIONS_SERVICE_VERSION ''
 ENV SCHEMAS_RELPATH ''
 ENV DISABLE_AUTHENTICATION ''
+
+USER user
 
 ENTRYPOINT ["/bin/bash", "etc/docker/init.sh"]

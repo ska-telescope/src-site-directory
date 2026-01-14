@@ -1,172 +1,217 @@
 image: $SKA_K8S_TOOLS_BUILD_DEPLOY
 
 services:
-- docker:dind
+    - docker:dind
 
 variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-  GIT_DEPTH: 50
-  
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: 50
+
 cache:
-  paths:
-    - build
+    paths:
+        - build
 
 stages:
-- lint
-- lint-post
-- build
-- test
-- publish
-- integration
-- pages
-- scan
+    - lint
+    - lint-post
+    - build
+    - test
+    - publish
+    - integration
+    - pages
+    - scan
 
 join_lint_reports:
-  stage: lint-post
-  tags:
-    - ${SKA_DEFAULT_RUNNER}
-  script:
-    - make join-lint-reports
-  artifacts:
-    paths:
-      - build/
-    when: always
+    stage: lint-post
+    tags:
+        - ${SKA_DEFAULT_RUNNER}
+    script:
+        - make join-lint-reports
+    artifacts:
+        paths:
+            - build/
+        when: always
 
 # Standardised SKAO jobs (see https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/)
 include:
-  # python formatting, linting and testing
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/python.gitlab-ci.yml'
-  # docs
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/docs.gitlab-ci.yml'
-  # OCI images build and publish
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/oci-image.gitlab-ci.yml'
-  # helm chart linting and publishing
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/helm-chart.gitlab-ci.yml'
-  # k8s
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/k8s.gitlab-ci.yml'
-  # badges
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/finaliser.gitlab-ci.yml'
-  # release automation
-  - project: 'ska-telescope/templates-repository'
-    file: 'gitlab-ci/includes/release.gitlab-ci.yml'
-
+    # python formatting, linting and testing
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/python.gitlab-ci.yml"
+    # docs
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/docs.gitlab-ci.yml"
+    # OCI images build and publish
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/oci-image.gitlab-ci.yml"
+    # helm chart linting and publishing
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/helm-chart.gitlab-ci.yml"
+    # k8s
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/k8s.gitlab-ci.yml"
+    # badges
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+    # release automation
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/release.gitlab-ci.yml"
 
 # Overrides for and extensions of SKAO jobs
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 
 # 1) Set base *k8s-test jobs to not run.
 k8s-test:
-  rules:
-  - when: never
+    rules:
+        - when: never
 
 stop-k8s-test:
-  rules:
-  - when: never
+    rules:
+        - when: never
 
 # 2) Create templates that extend *k8s-test jobs with some common parameters.
 .k8s-test-template:
-  extends:
-    - k8s-test
-  variables:
-    CI_KEEP_NAMESPACE: false    # delete namespace immediately rather than wait for clean-up (fixes issues with running the pipeline against the same commit hash).
-  before_script:
-    - echo "$CI_PROJECT_NAME"
-    - echo "$CI_COMMIT_SHORT_SHA"
-    - make k8s-namespace
-    - make k8s-namespace-credentials SERVICE_ACCOUNT=$SERVICE_ACCOUNT
-    - make k8s-install-chart
-    - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
-    - kubectl -n $KUBE_NAMESPACE get all
-    - kubectl -n $KUBE_NAMESPACE get services
-  rules:
-    - when: on_success
+    extends:
+        - k8s-test
+    variables:
+        CI_KEEP_NAMESPACE: false # delete namespace immediately rather than wait for clean-up (fixes issues with running the pipeline against the same commit hash).
+    before_script:
+        - echo "$CI_PROJECT_NAME"
+        - echo "$CI_COMMIT_SHORT_SHA"
+        - make k8s-namespace
+        - make k8s-namespace-credentials SERVICE_ACCOUNT=$SERVICE_ACCOUNT
+        - make k8s-install-chart
+        - kubectl -n $KUBE_NAMESPACE wait --for=condition=ready pod --all --timeout=360s
+        - kubectl -n $KUBE_NAMESPACE get all
+        - kubectl -n $KUBE_NAMESPACE get services
+    rules:
+        - when: on_success
 
 .stop-k8s-test-template:
-  extends:
-    - stop-k8s-test
-  rules:
-    - when: manual
+    extends:
+        - stop-k8s-test
+    rules:
+        - when: manual
 
 # 3) Define new *k8s-test jobs that extend off these templates but with specific configuration parameters for
 #    enabled and disabled auth environments.
 k8s-test-api-with-disabled-auth:
-  extends:
-    - .k8s-test-template
-  variables:
-    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
-    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
-    ADDMARK: ""
-    DISABLE_AUTHENTICATION: "yes"
+    extends:
+        - .k8s-test-template
+    variables:
+        KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+        SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+        ADDMARK: ""
+        DISABLE_AUTHENTICATION: "yes"
 
 k8s-test-api-with-enabled-auth:
-  extends:
-    - .k8s-test-template
-  variables:
-    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
-    SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
-    ADDMARK: ""
-    DISABLE_AUTHENTICATION: "no"
+    extends:
+        - .k8s-test-template
+    variables:
+        KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+        SERVICE_ACCOUNT: "ci-svc-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+        ADDMARK: ""
+        DISABLE_AUTHENTICATION: "no"
 
 stop-k8s-test-api-with-disabled-auth:
-  extends:
-    - .stop-k8s-test-template
-  variables:
-    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
+    extends:
+        - .stop-k8s-test-template
+    variables:
+        KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-disabled-auth"
 
 stop-k8s-test-api-with-enabled-auth:
-  extends:
-    - .stop-k8s-test-template
-  variables:
-    KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
+    extends:
+        - .stop-k8s-test-template
+    variables:
+        KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
 
 integration-test:
-  stage: integration
-  tags:
-    #- src-workloads-large  # Use existing k8srunner tag
-    - integration-runner
-  #services:
-  #   - docker:dind
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-    GIT_STRATEGY: clone
-    GIT_CLEAN_FLAGS: -ffdx
-  #before_script:
-    # Install required tools (with conditional sudo for non-root containers)
-   # - if [ "$(id -u)" != "0" ]; then SUDO="sudo"; else SUDO=""; fi
-   # - $SUDO apt-get update -qq
-   # - $SUDO apt-get install -y -qq git curl jq
-   # - which docker-compose || $SUDO apt-get install -y -qq docker-compose-plugin
-  script:
-    # Clean up any leftover integration environment from previous runs
-    - rm -rf ska-src-api-integration-environment || true
-    # Clone integration environment
-    - git clone https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment.git
-    - cd ska-src-api-integration-environment
-    - git submodule update --init --recursive
-    # Start the stack
-    - bash scripts/stack/start-stack.sh
-    # Wait for tester container to finish
-    - echo "Waiting for tester container to finish..."
-    - docker wait tester
-    - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}')
-    - exit $EXIT_CODE
-  after_script:
-    # Clean up the integration environment directory (if it exists)
-    - cd ska-src-api-integration-environment
-    - bash scripts/stack/stop-stack.sh
-    - bash scripts/stack/cleanup-pycache.sh
-    - cd ..
-    - rm -rf ska-src-api-integration-environment || true
-  allow_failure: false
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: always
-    - if: '$CI_COMMIT_BRANCH'
-      when: manual
-      allow_failure: true
+    stage: integration
+    tags:
+        - integration-runner
+    variables:
+        GIT_SUBMODULE_STRATEGY: recursive
+        GIT_STRATEGY: clone
+        GIT_CLEAN_FLAGS: -ffdx
+        SERVICE_NAME: SCAPI # The service being tested (AAPI, CAVERN, DMAPI, etc.)
+    before_script:
+        # Clean up any leftover integration environment from previous runs
+        - rm -rf ska-src-api-integration-environment || true
+        # Clean up any old skaie installation
+        - rm -rf ~/.local/skaie ~/.local/bin/skaie || true
+        - rm -rf ~/.skaie/config.yaml || true
+    script:
+        # Clone integration environment
+        - git clone https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment.git
+        - cd ska-src-api-integration-environment
+        - git submodule update --init --recursive
+        # Install skaie CLI
+        - make install-auto
+        - export PATH="$HOME/.local/bin:$PATH"
+        - skaie --version
+        - cp .env.template .env
+        - mkdir -p ./certificates
+        # Pull all submodules
+        - skaie submodule pull
+        # Update Docker images
+        - skaie images update
+        # Set the branch for the service being tested (current MR branch)
+        - skaie submodule set $SERVICE_NAME $CI_COMMIT_REF_NAME
+        - skaie submodule list
+        - skaie start $SERVICE_NAME --yes
+
+        # Check tester exit code
+        - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}' 2>/dev/null || echo "1")
+        - echo "Tester exit code is $EXIT_CODE"
+        - |
+            if [ "$EXIT_CODE" -eq "0" ]; then
+              echo "✅ Tests passed!"
+              exit 0
+            else
+              echo "❌ Tests failed with exit code: $EXIT_CODE"
+              echo "Showing final tester logs:"
+              docker logs tester 2>&1 | tail -100 || true
+              exit $EXIT_CODE
+            fi
+    after_script:
+        - cd ska-src-api-integration-environment || true
+        # Stop all services
+        - export PATH="$HOME/.local/bin:$PATH"
+        - skaie stop all --yes || true
+        # Cleanup
+        - bash scripts/stack/cleanup-pycache.sh || true
+        - cd ..
+        - rm -rf ska-src-api-integration-environment || true
+    allow_failure: false
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          when: always
+        - if: "$CI_COMMIT_BRANCH"
+          when: manual
+          allow_failure: true
+
+python-lint:
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    before_script:
+        - poetry config virtualenvs.in-project true
+        - poetry install --no-interaction --no-ansi
+    script:
+        - make python-lint PYTHON_RUNNER="poetry run"
+
+docs-build:
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+
+python-test:
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    before_script:
+        - poetry config virtualenvs.in-project true
+        - poetry install --no-interaction --no-ansi
+    script:
+        - make python-test PYTHON_RUNNER="poetry run"
+
+python-build-for-development:
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    before_script:
+        - poetry config virtualenvs.in-project true
+        - poetry install --no-interaction --no-ansi
+    script:
+        - make python-build PYTHON_RUNNER="poetry run"

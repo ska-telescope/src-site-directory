@@ -2,7 +2,7 @@ import os
 import pathlib
 from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.config import Config
@@ -44,7 +44,10 @@ async def list_services(
     service_scope: str = Query(default="all", description="Filter by scope of service (all||local||global)"),
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) services?"),
     associated_storage_area_id: str = Query(default=None, description="Filter by associated storage area ID"),
-    output: str = Query(default=None, description="Output format (e.g., 'prometheus' for Prometheus HTTP SD response)"),
+    output: str = Query(
+        default=None,
+        description="Output format (e.g., 'prometheus' for Prometheus HTTP SD response)",
+    ),
 ) -> JSONResponse:
     """List all services."""
     if node_names:
@@ -105,6 +108,7 @@ async def list_service_types(request: Request) -> JSONResponse:
 @api_version(1)
 @services_router.get(
     "/services/{service_id}",
+    response_model=None,
     responses={
         200: {
             "model": Union[
@@ -129,7 +133,7 @@ async def list_service_types(request: Request) -> JSONResponse:
 async def get_service_from_id(
     request: Request,
     service_id: str = Path(description="Unique service identifier"),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     """Get a service description from a unique identifier."""
     rtn = request.app.state.backend.get_service(service_id)
     if not rtn:
@@ -140,6 +144,7 @@ async def get_service_from_id(
 @api_version(1)
 @services_router.put(
     "/services/{service_id}/enable",
+    response_model=None,
     responses={
         200: {"model": models.response.ServiceEnableResponse},
         401: {},
@@ -160,7 +165,7 @@ async def set_service_enabled(
     request: Request,
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
     return JSONResponse(response)
 
@@ -168,6 +173,7 @@ async def set_service_enabled(
 @api_version(1)
 @services_router.put(
     "/services/{service_id}/disable",
+    response_model=None,
     responses={
         200: {"model": models.response.ServiceDisableResponse},
         401: {},
@@ -188,6 +194,6 @@ async def set_service_disabled(
     request: Request,
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
     return JSONResponse(response)

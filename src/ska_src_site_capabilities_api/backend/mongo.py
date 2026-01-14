@@ -11,7 +11,15 @@ from ska_src_site_capabilities_api.backend.backend import Backend
 class MongoBackend(Backend):
     """Backend API for MongoDB."""
 
-    def __init__(self, mongo_database, mongo_username=None, mongo_password=None, mongo_host=None, mongo_port=None, client=None):
+    def __init__(
+        self,
+        mongo_database,
+        mongo_username=None,
+        mongo_password=None,
+        mongo_host=None,
+        mongo_port=None,
+        client=None,
+    ):
         """
         Initialises a MongoBackend instance.
 
@@ -106,9 +114,9 @@ class MongoBackend(Backend):
             if path and not path.startswith("/"):
                 path = "/" + path
 
-            target = f'{service.get("prefix", "https").replace("://", "")}://{service.get("host")}'
+            target = f"{service.get('prefix', 'https').replace('://', '')}://{service.get('host')}"  # noqa: E231
             if service.get("port") is not None:
-                target += f':{service.get("port")}'
+                target += f":{service.get('port')}"  # noqa: E231
 
             target += path
 
@@ -135,7 +143,11 @@ class MongoBackend(Backend):
         node_names = node_names or []
         site_names = site_names or []
         response = []
-        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+        for storage in self.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        ):
             supported_protocols = storage.get("supported_protocols", [])
 
             if not supported_protocols:
@@ -160,16 +172,21 @@ class MongoBackend(Backend):
 
         formatted = []
         for storage_area in response:
-            target = f'{storage_area.get("prefix", "https").replace("://", "")}://{storage_area.get("host")}'
+            target = f"{storage_area.get('prefix', 'https').replace('://', '')}://{storage_area.get('host')}"  # noqa: E231
             if storage_area.get("port") is not None:
-                target += f':{storage_area.get("port")}'
-            target += f'{storage_area.get("base_path")}'
+                target += f":{storage_area.get('port')}"  # noqa: E231
+            target += f"{storage_area.get('base_path')}"
             relative_path = storage_area.get("relative_path") or ""
             if relative_path.startswith(("http://", "https://")):
                 target = relative_path
             else:
-                target += f'/{relative_path.lstrip("/")}'
-            formatted.append({"targets": [target], "labels": self._get_service_labels_for_prometheus(storage_area)})
+                target += f"/{relative_path.lstrip('/')}"
+            formatted.append(
+                {
+                    "targets": [target],
+                    "labels": self._get_service_labels_for_prometheus(storage_area),
+                }
+            )
         return formatted
 
     def _is_element_in_downtime(self, downtime):
@@ -307,7 +324,12 @@ class MongoBackend(Backend):
             parent_site_name = compute.get("parent_site_name")
             parent_site_id = compute.get("parent_site_id")
             if compute.get("id") == compute_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **compute}
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
+                    **compute,
+                }
                 break
         return response
 
@@ -429,7 +451,12 @@ class MongoBackend(Backend):
             parent_site_name = storage.get("parent_site_name")
             parent_site_id = storage.get("parent_site_id")
             if storage.get("id") == storage_id:
-                response = {"parent_node_name": parent_node_name, "parent_site_name": parent_site_name, "parent_site_id": parent_site_id, **storage}
+                response = {
+                    "parent_node_name": parent_node_name,
+                    "parent_site_name": parent_site_name,
+                    "parent_site_id": parent_site_id,
+                    **storage,
+                }
                 break
         return response
 
@@ -630,7 +657,14 @@ class MongoBackend(Backend):
                 response.append({"parent_node_name": parent_node_name, **site})
         return response
 
-    def list_storages(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storages(
+        self,
+        node_names=None,
+        site_names=None,
+        topojson=False,
+        for_grafana=False,
+        include_inactive=False,
+    ):
         """
         Lists storage resources based on specified filters.
 
@@ -693,7 +727,14 @@ class MongoBackend(Backend):
                     )
         return response
 
-    def list_storage_areas(self, node_names=None, site_names=None, topojson=False, for_grafana=False, include_inactive=False):
+    def list_storage_areas(
+        self,
+        node_names=None,
+        site_names=None,
+        topojson=False,
+        for_grafana=False,
+        include_inactive=False,
+    ):
         """
         Lists storage areas based on specified filters.
 
@@ -718,7 +759,11 @@ class MongoBackend(Backend):
             }
         else:
             response = []
-        for storage in self.list_storages(node_names=node_names, site_names=site_names, include_inactive=include_inactive):
+        for storage in self.list_storages(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        ):
             parent_storage = self.get_site_from_names(
                 node_name=storage.get("parent_node_name"),
                 node_version="latest",
@@ -809,7 +854,10 @@ class MongoBackend(Backend):
 
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=updated_node.get("name"))
-        return {"site_id": site_id, "is_force_disabled": updated_site.get("is_force_disabled")}
+        return {
+            "site_id": site_id,
+            "is_force_disabled": updated_site.get("is_force_disabled"),
+        }
 
     def set_compute_force_disabled_flag(self, compute_id: str, flag: bool):
         """
@@ -860,7 +908,10 @@ class MongoBackend(Backend):
 
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
-        return {"compute_id": compute_id, "is_force_disabled": updated_compute.get("is_force_disabled")}
+        return {
+            "compute_id": compute_id,
+            "is_force_disabled": updated_compute.get("is_force_disabled"),
+        }
 
     def set_service_force_disabled_flag(self, service_id: str, flag: bool):
         """
@@ -918,7 +969,10 @@ class MongoBackend(Backend):
             return {}
 
         self.add_edit_node(updated_node, node_name=parent_node_name)
-        return {"service_id": service_id, "is_force_disabled": updated_service.get("is_force_disabled")}
+        return {
+            "service_id": service_id,
+            "is_force_disabled": updated_service.get("is_force_disabled"),
+        }
 
     def set_storage_force_disabled_flag(self, storage_id: str, flag: bool):
         """
@@ -970,7 +1024,10 @@ class MongoBackend(Backend):
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
 
-        return {"storage_id": storage_id, "is_force_disabled": updated_storage.get("is_force_disabled")}
+        return {
+            "storage_id": storage_id,
+            "is_force_disabled": updated_storage.get("is_force_disabled"),
+        }
 
     def set_storage_area_force_disabled_flag(self, storage_area_id: str, flag: bool):
         """
@@ -1028,4 +1085,7 @@ class MongoBackend(Backend):
         # Pass the modified node to add_edit_node
         self.add_edit_node(updated_node, node_name=parent_node_name)
 
-        return {"storage_area_id": storage_area_id, "is_force_disabled": updated_storage_area.get("is_force_disabled")}
+        return {
+            "storage_area_id": storage_area_id,
+            "is_force_disabled": updated_storage_area.get("is_force_disabled"),
+        }

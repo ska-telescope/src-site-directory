@@ -1,15 +1,17 @@
-from typing import List, Literal
+from typing import List
 
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, Field
 
 from ska_src_site_capabilities_api.models.site import Site
 
 
 class Node(BaseModel):
-    _id: str = Field(examples=["651d7968ebc02f9f2d66b3df"])
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str = Field(alias="_id", examples=["651d7968ebc02f9f2d66b3df"])
     name: str = Field(examples=["SKAOSRC"])
     description: str = Field(examples=["Some description"])
     sites: List[Site]
     created_at: str = Field(examples=["2023-09-14T13:43:09.239513"])
     created_by_username: str = Field(examples=["username"])
-    version: NonNegativeInt = Field(examples=[1])
+    version: int = Field(ge=0, examples=[1])

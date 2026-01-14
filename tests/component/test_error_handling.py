@@ -28,7 +28,7 @@ def test_invalid_node_version_format(load_nodes_data):
             assert "detail" in data
             assert "version" in data["detail"].lower() or "integer" in data["detail"].lower()
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -53,7 +53,7 @@ def test_invalid_node_version_format_site_endpoint(load_nodes_data):
                     assert "detail" in data
                     assert "version" in data["detail"].lower() or "integer" in data["detail"].lower()
                 else:
-                    assert response.status_code == 403
+                    assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -69,7 +69,7 @@ def test_invalid_uuid_format_compute():
         # or the API might return 404 if it tries to process it
         assert response.status_code in (404, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -82,7 +82,7 @@ def test_invalid_uuid_format_service():
     if DISABLE_AUTHENTICATION:
         assert response.status_code in (404, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -95,7 +95,7 @@ def test_invalid_uuid_format_site():
     if DISABLE_AUTHENTICATION:
         assert response.status_code in (404, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -108,7 +108,7 @@ def test_invalid_uuid_format_storage():
     if DISABLE_AUTHENTICATION:
         assert response.status_code in (404, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -121,7 +121,7 @@ def test_invalid_uuid_format_storage_area():
     if DISABLE_AUTHENTICATION:
         assert response.status_code in (404, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -136,7 +136,7 @@ def test_malformed_query_parameter_include_inactive():
         # The API might default to False or return an error
         assert response.status_code in (200, 422, 400)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -144,13 +144,13 @@ def test_malformed_query_parameter_node_names():
     """Test that malformed node_names query parameter is handled gracefully"""
     api_url = get_api_url()
     # Test with special characters that might cause issues
-    response = send_get_request(f"{api_url}/compute?node_names=node%20with%20spaces,another")
+    response = send_get_request(f"{api_url}/compute?node_names=node%20with%20spaces, another")
 
     if DISABLE_AUTHENTICATION:
         # Should handle URL-encoded spaces or return appropriate error
         assert response.status_code in (200, 400, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -164,7 +164,7 @@ def test_malformed_query_parameter_empty_values():
         # Should handle empty values gracefully (treat as no filter or return error)
         assert response.status_code in (200, 400, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -178,7 +178,7 @@ def test_malformed_query_parameter_multiple_equals():
         # Should handle or reject malformed parameters
         assert response.status_code in (200, 400, 422)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -197,7 +197,7 @@ def test_invalid_node_version_numeric_string(load_nodes_data):
                 404,
             )  # 404 if version doesn't exist, 200 if it does
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -213,7 +213,7 @@ def test_invalid_node_version_negative_number(load_nodes_data):
             # Should accept as valid int format, but return 404 if version doesn't exist
             assert response.status_code in (200, 404)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -239,7 +239,7 @@ def test_invalid_uuid_format_enable_disable():
             # Empty dict or missing compute_id indicates resource not found
             assert not data or "compute_id" not in data
     else:
-        assert enable_response.status_code == 403
+        assert enable_response.status_code == 401
 
     # Test disable endpoint
     disable_response = httpx.put(f"{api_url}/compute/{invalid_uuid}/disable", timeout=30)
@@ -253,4 +253,4 @@ def test_invalid_uuid_format_enable_disable():
             # Empty dict or missing compute_id indicates resource not found
             assert not data or "compute_id" not in data
     else:
-        assert disable_response.status_code == 403
+        assert disable_response.status_code == 401

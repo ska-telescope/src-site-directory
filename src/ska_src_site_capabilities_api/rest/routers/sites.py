@@ -1,7 +1,6 @@
 import os
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.requests import Request
@@ -36,7 +35,10 @@ async def list_sites(
     request: Request,
     only_names: bool = Query(default=False, description="Return only site names"),
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
-    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    include_inactive: bool = Query(
+        default=False,
+        description="Include inactive resources? e.g. in downtime, force disabled",
+    ),
 ) -> JSONResponse:
     """List versions of all sites."""
     if node_names:
@@ -53,6 +55,7 @@ async def list_sites(
 @api_version(1)
 @sites_router.get(
     "/sites/{site_id}",
+    response_model=None,
     responses={
         200: {"model": models.response.SiteGetResponse},
         401: {},
@@ -72,7 +75,7 @@ async def list_sites(
 async def get_site_from_id(
     request: Request,
     site_id: str = Path(description="Unique site identifier"),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     """Get a site description from a unique identifier."""
     rtn = request.app.state.backend.get_site(site_id)
     if not rtn:
@@ -83,6 +86,7 @@ async def get_site_from_id(
 @api_version(1)
 @sites_router.put(
     "/sites/{site_id}/enable",
+    response_model=None,
     responses={
         200: {"model": models.response.SiteEnableResponse},
         401: {},
@@ -103,7 +107,7 @@ async def set_site_enabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_site_force_disabled_flag(site_id, False)
     if not response:
         raise SiteNotFound(site_id)
@@ -113,6 +117,7 @@ async def set_site_enabled(
 @api_version(1)
 @sites_router.put(
     "/sites/{site_id}/disable",
+    response_model=None,
     responses={
         200: {"model": models.response.SiteDisableResponse},
         401: {},
@@ -133,7 +138,7 @@ async def set_site_disabled(
     request: Request,
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_site_force_disabled_flag(site_id, True)
     if not response:
         raise SiteNotFound(site_id)

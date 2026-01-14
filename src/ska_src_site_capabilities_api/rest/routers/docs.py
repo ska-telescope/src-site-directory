@@ -41,7 +41,7 @@ async def oper_docs(request: Request):
         else open("../../../README.md", encoding="utf-8").read()  # pylint: disable=consider-using-with
     )
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
-    openapi_schema = request.scope.get("app").openapi_schema
+    openapi_schema = request.scope.get("app").openapi()
     openapi_schema_template = Template(json.dumps(openapi_schema))
     return request.app.state.templates.TemplateResponse(
         "docs.html",
@@ -88,7 +88,7 @@ async def user_docs(request: Request):
         "/ping": ["get"],
         "/health": ["get"],
     }
-    openapi_schema = copy.deepcopy(request.scope.get("app").openapi_schema)
+    openapi_schema = copy.deepcopy(request.scope.get("app").openapi())
     included_paths = {}
     for path, methods in openapi_schema.get("paths", {}).items():
         for method, attr in methods.items():
@@ -117,6 +117,7 @@ async def user_docs(request: Request):
 @api_version(1)
 @docs_router.get(
     "/www/downtime/{node_name}",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -179,6 +180,7 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
 @api_version(1)
 @docs_router.get(
     "/www/login",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -186,7 +188,8 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
 )
 @handle_exceptions
 async def www_login(
-    request: Request, landing_page: str = Query(default=None, description="Landing page to redirect back to.")
+    request: Request,
+    landing_page: str = Query(default=None, description="Landing page to redirect back to."),
 ) -> Union[HTMLResponse, RedirectResponse]:
     if request.session.get("access_token"):
         if request.session.get("landing_page"):
@@ -219,6 +222,7 @@ async def www_login(
 @api_version(1)
 @docs_router.get(
     "/www/logout",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -234,6 +238,7 @@ async def www_logout(request: Request) -> Union[HTMLResponse]:
 @api_version(1)
 @docs_router.get(
     "/www/nodes",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -304,6 +309,7 @@ async def add_node_form(
 @api_version(1)
 @docs_router.get(
     "/www/nodes/{node_name}",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],
@@ -384,6 +390,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
 @api_version(1)
 @docs_router.get(
     "/www/topology",
+    response_model=None,
     responses={200: {}, 401: {}, 403: {}, 409: {}},
     include_in_schema=False,
     dependencies=[Depends(Common.increment_requests_counter_depends)],

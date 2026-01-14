@@ -1,0 +1,11 @@
+import requests
+
+url = "__API_SERVER_URL__{{ path }}"
+{% if query_params %}
+querystring = {{ query_params_dict }}
+
+response = requests.request("{{ method|upper }}", url, params=querystring)
+{% else %}
+response = requests.request("{{ method|upper }}", url)
+{% endif %}
+print(response.text)

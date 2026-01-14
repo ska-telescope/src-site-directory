@@ -1,0 +1,2 @@
+curl --request {{ method|upper }} \
+  --url {% if query_params %}'__API_SERVER_URL__{{ path }}?{{ query_params }}'{% else %}__API_SERVER_URL__{{ path }}{% endif %}

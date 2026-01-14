@@ -1,9 +1,0 @@
-import requests
-
-url = "{{ api_server_url }}/storages/topojson"
-
-querystring = {"node_names":"SOME_STRING_VALUE","site_names":"SOME_STRING_VALUE","include_inactive":"SOME_BOOLEAN_VALUE"}
-
-response = requests.request("GET", url, params=querystring)
-
-print(response.text)

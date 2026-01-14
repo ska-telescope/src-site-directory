@@ -1,8 +1,7 @@
 import os
 import pathlib
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.config import Config
@@ -40,7 +39,10 @@ async def list_storage_areas(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    include_inactive: bool = Query(
+        default=False,
+        description="Include inactive resources? e.g. in downtime, force disabled",
+    ),
 ) -> JSONResponse:
     """List all storage areas."""
     if node_names:
@@ -69,7 +71,10 @@ async def list_storage_areas_for_grafana(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    include_inactive: bool = Query(
+        default=False,
+        description="Include inactive resources? e.g. in downtime, force disabled",
+    ),
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
     if node_names:
@@ -103,7 +108,10 @@ async def list_storage_areas_in_topojson_format(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    include_inactive: bool = Query(
+        default=False,
+        description="Include inactive resources? e.g. in downtime, force disabled",
+    ),
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
     if node_names:
@@ -148,6 +156,7 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
 @api_version(1)
 @storage_areas_router.get(
     "/storage-areas/{storage_area_id}",
+    response_model=None,
     responses={
         200: {"model": models.response.StorageAreaGetResponse},
         401: {},
@@ -167,7 +176,7 @@ async def list_storage_area_types(request: Request) -> JSONResponse:
 async def get_storage_area_from_id(
     request: Request,
     storage_area_id: str = Path(description="Unique storage area identifier"),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     """Get a storage area description from a unique identifier."""
     rtn = request.app.state.backend.get_storage_area(storage_area_id)
     if not rtn:
@@ -178,6 +187,7 @@ async def get_storage_area_from_id(
 @api_version(1)
 @storage_areas_router.put(
     "/storage-areas/{storage_area_id}/enable",
+    response_model=None,
     responses={
         200: {"model": models.response.StorageAreaEnableResponse},
         401: {},
@@ -198,7 +208,7 @@ async def set_storage_area_enabled(
     request: Request,
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
     return JSONResponse(response)
 
@@ -206,6 +216,7 @@ async def set_storage_area_enabled(
 @api_version(1)
 @storage_areas_router.put(
     "/storage-areas/{storage_area_id}/disable",
+    response_model=None,
     responses={
         200: {"model": models.response.StorageAreaDisableResponse},
         401: {},
@@ -226,6 +237,6 @@ async def set_storage_area_disabled(
     request: Request,
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
     return JSONResponse(response)

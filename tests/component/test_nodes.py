@@ -42,7 +42,7 @@ def test_list_nodes(load_nodes_data):
                     node_names_inactive = [node.get("name") for node in data_inactive if isinstance(node, dict) and "name" in node]
                     found_nodes = [name for name in load_nodes_data if name in node_names_inactive]
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -58,7 +58,7 @@ def test_list_nodes_only_names(load_nodes_data):
         if len(data) > 0:
             assert isinstance(data[0], str)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -71,7 +71,7 @@ def test_list_nodes_include_inactive(load_nodes_data):
         data = response.json()
         assert isinstance(data, list)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -91,7 +91,7 @@ def test_get_node_by_name(load_nodes_data):
                 assert data["name"] == node_name
             # If empty dict, node doesn't exist (but API still returns 200)
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -108,7 +108,7 @@ def test_get_node_by_name_latest_version(load_nodes_data):
             if data:  # If node exists
                 assert "name" in data
         else:
-            assert response.status_code == 403
+            assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -122,7 +122,7 @@ def test_get_node_not_found():
         data = response.json()
         assert data == {}  # Empty dict indicates node not found
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -135,7 +135,7 @@ def test_dump_nodes(load_nodes_data):
         data = response.json()
         assert isinstance(data, list)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -157,7 +157,7 @@ def test_get_site_from_node_and_site_name(load_nodes_data):
                     assert "name" in data
                     assert data["name"] == site_name
                 else:
-                    assert response.status_code == 403
+                    assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -181,7 +181,7 @@ def test_create_node():
         response_text = response.text
         assert response_text  # Should contain the ID
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     # Cleanup: delete the test node
     if os.getenv("DISABLE_AUTHENTICATION") == "yes" and response.status_code == 200:
@@ -222,7 +222,7 @@ def test_create_duplicate_node(load_nodes_data):
 
     response = send_post_request(f"{api_url}/nodes", duplicate_node)
     if os.getenv("DISABLE_AUTHENTICATION") != "yes":
-        assert response.status_code == 403
+        assert response.status_code == 401
         return
 
     # API may return 409 Conflict or 200 (if it creates a new version)
@@ -267,7 +267,7 @@ def test_edit_node(load_nodes_data):
 
     response = send_post_request(f"{api_url}/nodes/{node_name}", updated_node)
     if os.getenv("DISABLE_AUTHENTICATION") != "yes":
-        assert response.status_code == 403
+        assert response.status_code == 401
         return
 
     assert response.status_code == 200
@@ -302,9 +302,9 @@ def test_edit_nonexistent_node():
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
         # API may create the node or return an error
         # Based on server.py, it will try to edit, so it may succeed or fail
-        assert response.status_code in (200, 404, 403)
+        assert response.status_code in (200, 404)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -340,7 +340,7 @@ def test_delete_node():
     elif os.getenv("DISABLE_AUTHENTICATION") != "yes":
         # If auth is required, test that delete requires auth
         delete_response = send_delete_request(f"{api_url}/nodes/{test_node['name']}")
-        assert delete_response.status_code == 403
+        assert delete_response.status_code == 401
 
 
 @pytest.mark.component
@@ -355,7 +355,7 @@ def test_delete_nonexistent_node():
         # Based on backend behavior, it might return 200 with a result indicating no deletion
         assert response.status_code in (200, 404)
     else:
-        assert response.status_code == 403
+        assert response.status_code == 401
 
 
 @pytest.mark.component
@@ -379,6 +379,11 @@ def test_create_edit_delete_node_cycle():
         node_data = get_response.json()
         assert node_data != {}
         assert node_data.get("name") == test_node_name
+
+        # 3. Edit node
+        updated_node = node_data.copy()
+        updated_node["comments"] = "Updated comment"
+        edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
 
         # 3. Edit node
         updated_node = node_data.copy()

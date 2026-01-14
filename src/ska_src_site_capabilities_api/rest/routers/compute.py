@@ -1,7 +1,6 @@
 import os
-from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from starlette.requests import Request
@@ -36,7 +35,10 @@ async def list_compute(
     request: Request,
     node_names: str = Query(default=None, description="Filter by node names (comma-separated)"),
     site_names: str = Query(default=None, description="Filter by site names (comma-separated)"),
-    include_inactive: bool = Query(default=False, description="Include inactive resources? e.g. in downtime, force disabled"),
+    include_inactive: bool = Query(
+        default=False,
+        description="Include inactive resources? e.g. in downtime, force disabled",
+    ),
 ) -> JSONResponse:
     """List all compute."""
     if node_names:
@@ -51,6 +53,7 @@ async def list_compute(
 @api_version(1)
 @compute_router.get(
     "/compute/{compute_id}",
+    response_model=None,
     responses={
         200: {"model": models.response.ComputeGetResponse},
         401: {},
@@ -70,7 +73,7 @@ async def list_compute(
 async def get_compute_from_id(
     request: Request,
     compute_id: str = Path(description="Unique compute identifier"),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     """Get description of a compute element from a unique identifier."""
     rtn = request.app.state.backend.get_compute(compute_id)
     if not rtn:
@@ -81,6 +84,7 @@ async def get_compute_from_id(
 @api_version(1)
 @compute_router.put(
     "/compute/{compute_id}/enable",
+    response_model=None,
     responses={
         200: {"model": models.response.ComputeEnableResponse},
         401: {},
@@ -101,7 +105,7 @@ async def set_compute_enabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
     return JSONResponse(response)
 
@@ -109,6 +113,7 @@ async def set_compute_enabled(
 @api_version(1)
 @compute_router.put(
     "/compute/{compute_id}/disable",
+    response_model=None,
     responses={
         200: {"model": models.response.ComputeDisableResponse},
         401: {},
@@ -129,6 +134,6 @@ async def set_compute_disabled(
     request: Request,
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
-) -> Union[JSONResponse, HTTPException]:
+) -> JSONResponse:
     response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, True)
     return JSONResponse(response)

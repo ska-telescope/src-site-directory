@@ -1,7 +1,7 @@
-from typing import Dict, List, Literal, Union
+from typing import List, Literal, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.node import Node
@@ -110,6 +110,8 @@ class ServiceDisableResponse(Response):
 
 
 class ServicesTypesResponse(Response):
+    model_config = ConfigDict(populate_by_name=True)
+
     global_: List[GlobalServiceType] = Field(..., alias="global")
     local: List[LocalServiceType]
 
@@ -221,13 +223,16 @@ class GenericOperationResponse(Response):
 
 class HealthResponse(Response):
     class DependentServices(BaseModel):
+        model_config = ConfigDict(populate_by_name=True)
+
         class DependentServiceStatus(BaseModel):
             status: Literal["UP", "DOWN"] = Field(examples=["UP"])
 
         permissions_api: DependentServiceStatus = Field(alias="permissions-api")
+        auth_api: DependentServiceStatus = Field(alias="auth-api")
 
-    uptime: NonNegativeInt = Field(examples=[1000])
-    number_of_managed_requests: NonNegativeInt = Field(examples=[50])
+    uptime: int = Field(ge=0, examples=[1000])
+    number_of_managed_requests: int = Field(ge=0, examples=[50])
     dependent_services: DependentServices
 
 

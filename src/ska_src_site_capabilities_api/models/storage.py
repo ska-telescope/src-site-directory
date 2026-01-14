@@ -1,10 +1,10 @@
 import os
 import pathlib
-from typing import Dict, List, Literal
+from typing import List, Literal
 from uuid import UUID, uuid4
 
 import jsonref
-from pydantic import BaseModel, Field, NonNegativeInt
+from pydantic import BaseModel, Field
 
 # get storage area type from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "storage-area"))).absolute()
@@ -36,7 +36,7 @@ class StorageArea(BaseModel):
 
 class StorageProtocol(BaseModel):
     prefix: str = Field(examples=["https"])
-    port: NonNegativeInt = Field(examples=[443])
+    port: int = Field(ge=0, examples=[443])
 
 
 class Storage(BaseModel):

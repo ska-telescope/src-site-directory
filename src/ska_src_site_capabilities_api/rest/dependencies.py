@@ -50,10 +50,17 @@ class Permissions:
         if authorization.credentials is None:
             raise PermissionDenied
         access_token = authorization.credentials
+        # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
+        route_path = request.scope["route"].path
+        if route_path.startswith("/v"):
+            # Remove /v{version}/ prefix
+            parts = route_path.split("/", 2)
+            if len(parts) >= 3:
+                route_path = "/" + parts[2]
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
-            route=request.scope["route"].path,
+            route=route_path,
             method=request.method,
             token=access_token,
             body=request.path_params,
@@ -75,10 +82,17 @@ class Permissions:
     async def verify_permission_for_service_route_query_params(self, request: Request, token: str = None) -> Union[HTTPException, bool]:
         if token is None:
             raise PermissionDenied
+        # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
+        route_path = request.scope["route"].path
+        if route_path.startswith("/v"):
+            # Remove /v{version}/ prefix
+            parts = route_path.split("/", 2)
+            if len(parts) >= 3:
+                route_path = "/" + parts[2]
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
-            route=request.scope["route"].path,
+            route=route_path,
             method=request.method,
             token=token,
             body=request.path_params,
