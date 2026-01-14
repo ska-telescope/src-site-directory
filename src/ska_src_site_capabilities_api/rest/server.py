@@ -34,6 +34,7 @@ config = Config(".env")
 #
 logger = logging.getLogger("uvicorn")
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager.
