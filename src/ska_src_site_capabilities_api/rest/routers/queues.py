@@ -60,7 +60,7 @@ async def list_queues(
 @queues_router.get(
     "/queues/{queue_id}",
     responses={
-        200: {"model": models.response.QueuesListResponse},
+        200: {"model": models.response.QueueResponse},
         401: {},
         403: {},
         404: {"model": models.response.GenericErrorResponse},
