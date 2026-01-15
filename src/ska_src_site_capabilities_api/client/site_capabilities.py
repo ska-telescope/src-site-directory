@@ -227,12 +227,7 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def list_queues(
-            self,
-            node_names: str | None = None,
-            site_names: str | None= None,
-            include_inactive: bool = False
-    ):
+    def list_queues(self, node_names: str | None = None, site_names: str | None = None, include_inactive: bool = False):
         """List queues.
 
         :param node_names: Filter by node names (comma-separated string).
@@ -253,10 +248,7 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
-    def get_queue_from_id(
-            self,
-            queue_id: str
-    ):
+    def get_queue_from_id(self, queue_id: str):
         """Get Queue from ID.
 
         :param str queue_id: Unique queue identifier
@@ -268,7 +260,6 @@ class SiteCapabilitiesClient:
         resp = self.session.get(get_queue_by_id_endpoint)
         resp.raise_for_status()
         return resp
-
 
     @handle_client_exceptions
     def list_services(
