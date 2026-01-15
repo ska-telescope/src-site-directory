@@ -535,28 +535,6 @@ class MongoBackend(Backend):
 
         return nodes or []
 
-    @staticmethod
-    def is_inactive(element: dict) -> bool:
-        """
-        Determines if an element is inactive (in downtime or force disabled).
-        :param element: dictionary representing the queue/compute/service or any generic element with downtime and is_force_disabled fields
-        :return:
-        """
-        if element.get("is_force_disabled", False):
-            return True
-        if "downtime" in element:
-            downtime = element.get("downtime", [])
-            for entry in downtime:
-                if entry.get("date_range"):
-                    start_date_str_utc, end_date_str_utc = entry.get("date_range").split(" to ")
-                    start_date_utc = dateutil.parser.isoparse(start_date_str_utc)
-                    end_date_utc = dateutil.parser.isoparse(end_date_str_utc)
-                    now_utc = datetime.now(timezone.utc)
-
-                    if start_date_utc < now_utc < end_date_utc:
-                        return True
-        return False
-
     def get_queue_by_id(
         self,
         queue_id: str,
@@ -597,9 +575,6 @@ class MongoBackend(Backend):
             include_inactive=include_inactive,
         ):
             for queue in compute.get("queues", []):
-                # If include_inactive is false and the queue is inactive, then skip it
-                if not include_inactive and self.is_inactive(queue):
-                    continue
                 response.append(
                     {
                         "parent_node_name": compute.get("parent_node_name"),
