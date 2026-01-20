@@ -3,10 +3,10 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from ska_src_site_capabilities_api.models.compute import Compute
+from ska_src_site_capabilities_api.models.compute import Compute, Queue
 from ska_src_site_capabilities_api.models.node import Node
 from ska_src_site_capabilities_api.models.schema import Schema
-from ska_src_site_capabilities_api.models.service import GlobalService, GlobalServiceType, LocalService, LocalServiceType, Queue
+from ska_src_site_capabilities_api.models.service import GlobalService, GlobalServiceType, LocalService, LocalServiceType
 from ska_src_site_capabilities_api.models.site import Site
 from ska_src_site_capabilities_api.models.storage import (
     Storage,

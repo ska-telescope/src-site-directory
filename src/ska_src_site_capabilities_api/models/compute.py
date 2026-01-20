@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import jsonref
 from pydantic import BaseModel, Field
 
-from ska_src_site_capabilities_api.models.service import GlobalService, LocalService, Queue
+from ska_src_site_capabilities_api.models.service import GlobalService, LocalService
 
 # get hardware capabilities and types from schema
 schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "compute"))).absolute()
@@ -24,6 +24,14 @@ class Downtime(BaseModel):
     type: Literal["Planned", "Unplanned"]
     reason: str = Field(examples=["Network issues."])
     id: UUID = Field(default_factory=uuid4)
+
+
+class Queue(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(examples=["default"])
+    other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+    downtime: List[Downtime]
+    is_force_disabled: bool = Field(examples=[True, False])
 
 
 class Compute(BaseModel):
