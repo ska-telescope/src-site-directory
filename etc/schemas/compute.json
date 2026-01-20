@@ -81,7 +81,7 @@
       "type": "array",
       "title": "Queues to submit batch jobs",
       "items": {
-        "$ref": "queues.json"
+        "$ref": "queue.json"
       },
       "allowEmpty": true
     },
