@@ -25,5 +25,3 @@ def test_list_queues(load_nodes_data):
         assert isinstance(data, list)
     else:
         assert response.status_code == 401
-
-
