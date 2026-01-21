@@ -58,13 +58,13 @@ def test_get_queue_by_id(load_nodes_data):
     for queue_id, expected_exists in inputs:
         response = httpx.get(f"{api_url}/queues/{queue_id}")  # noqa: E231
         if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-            assert response.status_code == 200
-            # Verify we got services data
-            data = response.json()
             if expected_exists:
                 assert response.status_code == 200
+                data = response.json()
                 assert data.get("id") == queue_id
             else:
                 assert response.status_code == 404
+                data = response.json()
+                assert "detail" in data
         else:
             assert response.status_code == 401
