@@ -107,6 +107,8 @@ async def set_compute_enabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
+    if not response:
+        raise ComputeNotFound(compute_id)
     return JSONResponse(response)
 
 
@@ -136,4 +138,6 @@ async def set_compute_disabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, True)
+    if not response:
+        raise ComputeNotFound(compute_id)
     return JSONResponse(response)

@@ -167,6 +167,8 @@ async def set_service_enabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
+    if not response:
+        raise ServiceNotFound(service_id)
     return JSONResponse(response)
 
 
@@ -196,4 +198,6 @@ async def set_service_disabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
+    if not response:
+        raise ServiceNotFound(service_id)
     return JSONResponse(response)

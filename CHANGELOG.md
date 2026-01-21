@@ -5,8 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.82]
+## [0.3.83]
 
+### Added 
+- Added Queue Schema to site capabilities
+- Added new APIs to fetch list of queue and queue by ID
+- Updated site capabilities client
+
+### Changed 
+- get_node_version now raises `NodeVersionNotFound` when node not found
+- set_storage_enabled and set_storage_disabled now raise `NodeVersionNotFound` when node not found
+- set_storage_areas_enabled and set_storage_areas_disabled now raise `StorageAreaNotFound` when node not found
+- set_compute_enabled and set_compute_disabled now raise `ComputeNotFound` when node not found
+- set_service_enabled and set_service_disabled now raise `ServiceNotFound` when node not found
+
+## [0.3.82]
 
 ### Changed 
 - Updated to python 3.13 and the following packages
