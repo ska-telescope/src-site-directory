@@ -210,6 +210,8 @@ async def set_storage_area_enabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
+    if not response:
+        raise StorageAreaNotFound(storage_area_id)
     return JSONResponse(response)
 
 
@@ -239,4 +241,6 @@ async def set_storage_area_disabled(
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
     response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
+    if not response:
+        raise StorageAreaNotFound(storage_area_id)
     return JSONResponse(response)

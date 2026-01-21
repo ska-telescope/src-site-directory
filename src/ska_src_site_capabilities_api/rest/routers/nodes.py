@@ -10,7 +10,13 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import IncorrectNodeVersionType, NodeAlreadyExists, SiteNotFoundInNodeVersion, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import (
+    IncorrectNodeVersionType,
+    NodeAlreadyExists,
+    NodeVersionNotFound,
+    SiteNotFoundInNodeVersion,
+    handle_exceptions,
+)
 from ska_src_site_capabilities_api.common.utility import recursive_autogen_id
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
 
@@ -221,7 +227,10 @@ async def get_node_version(
             int(node_version)
         except ValueError:
             raise IncorrectNodeVersionType
-    return JSONResponse(request.app.state.backend.get_node(node_name=node_name, node_version=node_version))
+    node = request.app.state.backend.get_node(node_name=node_name, node_version=node_version)
+    if not node:
+        raise NodeVersionNotFound(node_name=node_name, node_version=node_version)
+    return JSONResponse(node)
 
 
 @api_version(1)

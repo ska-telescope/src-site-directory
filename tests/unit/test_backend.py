@@ -99,6 +99,26 @@ def test_get_service(id, expected_exists, mock_backend):
 
 
 @pytest.mark.unit
+@pytest.mark.parametrize(
+    "node_names,site_names,include_inactive,result_count",
+    [(None, None, False, 3), (None, None, True, 6), ("TEST", "TEST_A", True, 5), ("TEST", "TEST_A", False, 2), ("TEST", "TEST_B", True, 1)],
+)
+def test_get_queues(node_names, site_names, include_inactive, result_count, mock_backend):
+    queues = mock_backend.list_queues(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
+    assert len(queues) == result_count
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("queue_id,expected_exists", [("a1b2c3d4-e5f6-4789-abcd-1234567890ab", True), ("INVALID_QUEUE_ID", False)])
+def test_get_queue_by_id(queue_id, expected_exists, mock_backend):
+    queue = mock_backend.get_queue_by_id(queue_id=queue_id)
+    if expected_exists:
+        assert queue.get("id") == queue_id
+    else:
+        assert not queue
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize("id,expected_exists", [("8b008348-0d8d-4505-a625-1e6e8df56e8a", True), ("0", False)])
 def test_get_site(id, expected_exists, mock_backend):
     result = mock_backend.get_site(site_id=id)

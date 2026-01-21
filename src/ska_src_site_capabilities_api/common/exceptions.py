@@ -150,6 +150,13 @@ class ServiceNotFound(CustomHTTPException):
         super().__init__(self.message)
 
 
+class QueueNotFound(CustomHTTPException):
+    def __init__(self, queue_id):
+        self.message = "Queue with identifier '{}' could not be found".format(queue_id)
+        self.http_error_status = status.HTTP_404_NOT_FOUND
+        super().__init__(self.message)
+
+
 class SiteNotFound(CustomHTTPException):
     def __init__(self, site_id):
         self.message = "Site element with identifier '{}' could not be found".format(site_id)

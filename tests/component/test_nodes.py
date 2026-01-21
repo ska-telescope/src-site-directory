@@ -117,10 +117,11 @@ def test_get_node_not_found():
     api_url = get_api_url()
     response = httpx.get(f"{api_url}/nodes/NONEXISTENT_NODE")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-        # API returns 200 with empty dict {} when node not found
-        assert response.status_code == 200
+        # API returns 404 when node not found
+        assert response.status_code == 404
         data = response.json()
-        assert data == {}  # Empty dict indicates node not found
+        assert "detail" in data
+        assert "NONEXISTENT_NODE" in data["detail"]
     else:
         assert response.status_code == 401
 
@@ -333,10 +334,8 @@ def test_delete_node():
 
         # Verify the node is deleted
         get_response = send_get_request(f"{api_url}/nodes/{test_node['name']}")
-        if get_response.status_code == 200:
-            node_data = get_response.json()
-            # Should return empty dict if node is deleted
-            assert node_data == {}
+        # Should return 404 if node is deleted
+        assert get_response.status_code == 404
     elif os.getenv("DISABLE_AUTHENTICATION") != "yes":
         # If auth is required, test that delete requires auth
         delete_response = send_delete_request(f"{api_url}/nodes/{test_node['name']}")
@@ -404,6 +403,5 @@ def test_create_edit_delete_node_cycle():
 
         # 6. Verify deletion
         final_get_response = send_get_request(f"{api_url}/nodes/{test_node_name}")
-        assert final_get_response.status_code == 200
-        final_data = final_get_response.json()
-        assert final_data == {}  # Should be empty after deletion
+        # Should return 404 after deletion
+        assert final_get_response.status_code == 404

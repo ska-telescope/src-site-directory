@@ -21,6 +21,7 @@ from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_sch
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
 from ska_src_site_capabilities_api.rest.routers.nodes import nodes_router
+from ska_src_site_capabilities_api.rest.routers.queues import queues_router
 from ska_src_site_capabilities_api.rest.routers.schemas import schemas_router
 from ska_src_site_capabilities_api.rest.routers.services import services_router
 from ska_src_site_capabilities_api.rest.routers.sites import sites_router
@@ -126,6 +127,7 @@ app.include_router(storage_areas_router)
 app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
+app.include_router(queues_router)
 
 
 # Customize OpenAPI schema generation (must be set before versionize)

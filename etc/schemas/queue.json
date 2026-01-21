@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "type": "object",
+  "description": "Queues to Submit Batch Jobs",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "ID",
+      "format": "uuid",
+      "default": "to be assigned"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name of the Queue",
+      "default": null
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "default": null
+    },
+    "downtime": {
+      "type": "array",
+      "title": "Downtime",
+      "items": {
+        "$ref": "downtime.json"
+      },
+      "allowEmpty": true
+    },
+    "other_attributes": {
+      "type": "textarea",
+      "title": "Other service attributes (as json)",
+      "allowEmpty": true
+    },
+    "is_force_disabled": {
+      "type": "boolean",
+      "title": "Force disable?",
+      "default": false
+    }
+  }
+}

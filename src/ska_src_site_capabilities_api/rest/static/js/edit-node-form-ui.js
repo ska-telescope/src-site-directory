@@ -585,6 +585,73 @@
                           }
                         },
                         {
+                          "title": "Queues to Submit Batch Jobs",
+                          "type": "tabarray",
+                          "items": {
+                            "type": "section",
+                            "items": [
+                                {
+                                  "key": "sites[].compute[].queues[].id",
+                                  "type": "text",
+                                  "placeholder": "To be assigned",
+                                  "readOnly": true
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].name",
+                                  "type": "text",
+                                  "placeholder": "Unique Queue name for this site",
+                                  "valueInLegend": true
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].description",
+                                  "placeholder": "Site description"
+                                },
+                                {
+                                  "title": "Downtime (Queues)",
+                                  "type": "tabarray",
+                                  "items": {
+                                    "type": "section",
+                                    "items": [
+                                      {
+                                        "key": "sites[].compute[].queues[].downtime[].id",
+                                        "type": "text",
+                                        "placeholder": "To be assigned",
+                                        "readOnly": true
+                                      },
+                                      {
+                                        "key": "sites[].compute[].queues[].downtime[].date_range",
+                                        "type": "text",
+                                        "placeholder": "Select date range",
+                                        "htmlClass": "datepicker"
+                                      },
+                                      {
+                                        "key": "sites[].compute[].queues[].downtime[].type",
+                                        "placeholder": "Type of downtime"
+                                      },
+                                      {
+                                        "key": "sites[].compute[].queues[].downtime[].reason",
+                                        "type": "textarea",
+                                        "placeholder": "Reason for downtime"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].other_attributes",
+                                  "type": "ace",
+                                  "aceMode": "json",
+                                  "aceTheme": "twilight"
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].is_force_disabled",
+                                  "notitle": true,
+                                  "inlinetitle": "Force disable service?",
+                                  "htmlClass": "highlight-disable"
+                                }
+                             ]
+                          }
+                        },
+                        {
                           "type": "tabarray",
                           "title": "Associated local services",
                           "expandable": false,

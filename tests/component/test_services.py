@@ -355,8 +355,11 @@ def test_enable_service_not_found():
     fake_id = "00000000-0000-0000-0000-000000000000"
     response = httpx.put(f"{api_url}/services/{fake_id}/enable")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-        # API may return 200 with empty response or 404
-        assert response.status_code in (200, 404)
+        # API returns 404 when service not found
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert fake_id in data["detail"]
     else:
         assert response.status_code == 401
 
@@ -368,7 +371,10 @@ def test_disable_service_not_found():
     fake_id = "00000000-0000-0000-0000-000000000000"
     response = httpx.put(f"{api_url}/services/{fake_id}/disable")  # noqa: E231
     if os.getenv("DISABLE_AUTHENTICATION") == "yes":
-        # API may return 200 with empty response or 404
-        assert response.status_code in (200, 404)
+        # API returns 404 when service not found
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert fake_id in data["detail"]
     else:
         assert response.status_code == 401

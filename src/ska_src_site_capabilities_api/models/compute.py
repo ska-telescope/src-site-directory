@@ -26,6 +26,14 @@ class Downtime(BaseModel):
     id: UUID = Field(default_factory=uuid4)
 
 
+class Queue(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(examples=["default"])
+    other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
+    downtime: List[Downtime]
+    is_force_disabled: bool = Field(examples=[True, False])
+
+
 class Compute(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["SKAOSRC"])
@@ -37,5 +45,6 @@ class Compute(BaseModel):
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]
     associated_local_services: List[LocalService]
+    queues: List[Queue] = Field(default_factory=list)
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])

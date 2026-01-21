@@ -59,6 +59,14 @@ class Backend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_queues(self, node_names, site_names, include_inactive):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_queue_by_id(self, queue_id):
+        raise NotImplementedError
+
+    @abstractmethod
     def list_service_types_from_schema(self, schema):
         raise NotImplementedError
 
