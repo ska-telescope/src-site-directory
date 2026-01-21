@@ -10,7 +10,13 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import IncorrectNodeVersionType, NodeAlreadyExists, NodeVersionNotFound, SiteNotFoundInNodeVersion, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import (
+    IncorrectNodeVersionType,
+    NodeAlreadyExists,
+    NodeVersionNotFound,
+    SiteNotFoundInNodeVersion,
+    handle_exceptions,
+)
 from ska_src_site_capabilities_api.common.utility import recursive_autogen_id
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
 
