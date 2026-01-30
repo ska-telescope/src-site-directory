@@ -19,6 +19,7 @@ from ska_src_site_capabilities_api.common.utility import (
     get_url_for_app_from_request,
     load_and_dereference_schema,
     recursive_stringify,
+    strip_version_prefix,
 )
 from ska_src_site_capabilities_api.rest.dependencies import Common
 
@@ -134,7 +135,7 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -257,7 +258,7 @@ async def add_node_form(
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -326,7 +327,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -407,7 +408,7 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,

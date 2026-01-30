@@ -5,16 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.86]
+
+### Changed
+- strip-version-prefix moved to common/utils.py
+- added strip-version-prefix calls to docs routes
+
 ## [0.3.85]
 
 ### Changed
-- Bumped to align app and Helm chart versions
+- Bumped to include new client
 
 ## [0.3.84]
 
 ### Changed
 - Bumped to include the new ska-src-permissions-api client functionality included in  version 0.1.95
-- 
+ 
 ## [0.3.83]
 
 ### Added 

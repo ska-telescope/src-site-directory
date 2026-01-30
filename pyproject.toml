@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska-src-site-capabilities-api"
-version = "0.3.85"
+version = "0.3.86"
 description = "SRCNet Site Capabilities API"
 authors = ["Rob Barnsley", "Michele Delli Veneri"]
 license = "BSD-3-Clause"
@@ -56,8 +56,8 @@ attrs = "^24.3.0"
 python-multipart = "^0.0.6"
 requests = "^2.32.3"
 uvicorn = {extras = ["standard"], version = "^0.34.0"}
-ska-src-permissions-api = "^0.1.96"
-ska-src-auth-api = "^0.6.2"
+ska-src-permissions-api = "^0.2.1"
+ska-src-auth-api = "^0.6.5"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.14.0"

@@ -198,3 +198,12 @@ def retry_request(
                 raise err
         time.sleep(wait_for_s)
     raise RetryRequestError(last_error, last_response)
+
+
+def strip_version_prefix(route_path: str) -> str:
+    """Strip version prefix from route path (e.g., /v1/nodes -> /nodes)."""
+    if route_path.startswith("/v"):
+        parts = route_path.split("/", 2)
+        if len(parts) >= 3:
+            return "/" + parts[2]
+    return route_path

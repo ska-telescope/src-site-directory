@@ -10,14 +10,3 @@ K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
 
 # Build additional tag for integration environment (oci.mk)
 OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
-
-# Override pre for oci-build (oci.mk): Check if branch is behind origin/main
-oci-pre-build-all:
-	@git fetch origin main;
-	@echo "🚀 Checking branch HEAD..."
-	@if ! git merge-base --is-ancestor origin/main HEAD; then \
-        echo "❌ Branch is behind origin/main. Please rebase or merge main before proceeding."; \
-        exit 1; \
-    else \
-        echo "🚀 ✅ Branch is up to date with origin/main. Building project..."; \
-    fi

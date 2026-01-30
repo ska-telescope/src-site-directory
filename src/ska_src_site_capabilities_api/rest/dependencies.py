@@ -6,6 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
 
 from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
+from ska_src_site_capabilities_api.common.utility import strip_version_prefix
 
 
 class Common:
@@ -51,12 +52,7 @@ class Permissions:
             raise PermissionDenied
         access_token = authorization.credentials
         # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
-        route_path = request.scope["route"].path
-        if route_path.startswith("/v"):
-            # Remove /v{version}/ prefix
-            parts = route_path.split("/", 2)
-            if len(parts) >= 3:
-                route_path = "/" + parts[2]
+        route_path = strip_version_prefix(request.scope["route"].path)
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
@@ -83,12 +79,7 @@ class Permissions:
         if token is None:
             raise PermissionDenied
         # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
-        route_path = request.scope["route"].path
-        if route_path.startswith("/v"):
-            # Remove /v{version}/ prefix
-            parts = route_path.split("/", 2)
-            if len(parts) >= 3:
-                route_path = "/" + parts[2]
+        route_path = strip_version_prefix(request.scope["route"].path)
         rtn = self.permissions.authorise_service_route(
             service=self.permissions_service_name,
             version=self.permissions_service_version,
