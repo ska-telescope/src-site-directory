@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.86]
+### Changed
+- strip-version-prefix moved to common/utils.py
+- added stip-version-prefix calls to docs routes
+
+### Changed
+## [0.3.85]
+### Changed
+- Bumped to include new client
+
+### Changed
 ## [0.3.84]
 
 ### Changed
