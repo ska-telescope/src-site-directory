@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.87]
+
+### Changed
+- Updated docs to use env variable for README path or /opt/ska-src-site-capabilities-api/README.md
+- Generated poetry lock file with poetry 2.3.1 and updated to latest versions of AAPI and PAPI
+
 ## [0.3.86]
 
 ### Changed
