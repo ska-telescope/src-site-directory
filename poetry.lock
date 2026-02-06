@@ -3362,14 +3362,14 @@ reference = "ska-nexus"
 
 [[package]]
 name = "ska-src-auth-api"
-version = "0.6.6+dev.cd4d43e49"
+version = "0.6.7+dev.ccfc866ce"
 description = "SRCNet Auth API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_auth_api-0.6.6+dev.cd4d43e49-py3-none-any.whl", hash = "sha256:d78b918551f75281efc915d2cd7823acad2241c9e348d047f69a329701205f98"},
-    {file = "ska_src_auth_api-0.6.6+dev.cd4d43e49.tar.gz", hash = "sha256:6cccd1d11c994d1af15424df65cbe812219a510fb938dbc4362d7f29c445dfb7"},
+    {file = "ska_src_auth_api-0.6.7+dev.ccfc866ce-py3-none-any.whl", hash = "sha256:394ac746f2b2bcb793bc7ced85376ec54ae2ead89338a0d783c0554c78487a09"},
+    {file = "ska_src_auth_api-0.6.7+dev.ccfc866ce.tar.gz", hash = "sha256:e75e3e1ecfc2ca49c6df239c2922afb7758b6ddd7385c18b745dc9f52f32a18e"},
 ]
 
 [package.dependencies]
@@ -3392,7 +3392,7 @@ python-dateutil = ">=2.8.2,<3.0.0"
 python-multipart = ">=0.0.6,<0.0.7"
 redis = ">=5.2.0,<6.0.0"
 requests = ">=2.32.3,<3.0.0"
-ska-src-permissions-api = ">=0.2.4,<0.3.0"
+ska-src-permissions-api = ">=0.2.5,<0.3.0"
 uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
 
 [package.source]
@@ -3402,14 +3402,14 @@ reference = "authn_api"
 
 [[package]]
 name = "ska-src-permissions-api"
-version = "0.2.4+dev.c9cb6a13d"
+version = "0.2.5+dev.cc148d7c1"
 description = "SKA SRC Permissions API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_permissions_api-0.2.4+dev.c9cb6a13d-py3-none-any.whl", hash = "sha256:7d8b517dcab9ab06e46ce8b642fd125d05ea811360f3c4103a0d8a4f8db41647"},
-    {file = "ska_src_permissions_api-0.2.4+dev.c9cb6a13d.tar.gz", hash = "sha256:38ae2d325dd7a39fe4739a5cb816c66ff4302e312fa86ca383c51f4c0a2c77b7"},
+    {file = "ska_src_permissions_api-0.2.5+dev.cc148d7c1-py3-none-any.whl", hash = "sha256:c7c470b896a97533384228e786bcd616df900abf1c7fefbf95040cfb6974b017"},
+    {file = "ska_src_permissions_api-0.2.5+dev.cc148d7c1.tar.gz", hash = "sha256:286278b088023367bbdcfd9693383c922ca27f228df3bae66c5409ac2ac75bb3"},
 ]
 
 [package.dependencies]
@@ -4308,4 +4308,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "21603f30c40d43936f032c845768cbf87994a892ea865c4ca6367d0ea8b699f1"
+content-hash = "088511a4b8dcd6133ab653675ad44e8508c9340cccfe8c258f892d007a7a8175"
