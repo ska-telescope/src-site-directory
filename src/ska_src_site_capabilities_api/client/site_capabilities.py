@@ -9,37 +9,20 @@ class SiteCapabilitiesClient:
     def __init__(self, api_url, session=None, calling_service=None):
         self.api_url = api_url
         self.calling_service = calling_service or "unknown"
-        self.correlation_id = None  # Will be set when propagating traces
         if session:
             self.session = session
         else:
             self.session = requests.Session()
 
-    def set_correlation_id(self, correlation_id: str):
-        """Set the correlation ID for distributed tracing.
+    def _get_headers(self):
+        """Build common headers for requests including calling service.
 
-        This should be called with the X-Correlation-ID from the incoming request
-        to propagate the trace through all subsequent service calls.
-
-        :param str correlation_id: The correlation ID to propagate.
-        """
-        self.correlation_id = correlation_id
-
-    def _get_headers(self, correlation_id=None):
-        """Build common headers for requests including calling service and correlation ID.
-
-        :param str correlation_id: Optional correlation ID for distributed tracing.
-                                   If provided, overrides the instance correlation_id.
         :return: Dictionary of headers.
         :rtype: dict
         """
         headers = {
             "X-Calling-Service": self.calling_service,
         }
-        # Use provided correlation_id, or fall back to instance correlation_id
-        corr_id = correlation_id or self.correlation_id
-        if corr_id:
-            headers["X-Correlation-ID"] = corr_id
         return headers
 
     @handle_client_exceptions
