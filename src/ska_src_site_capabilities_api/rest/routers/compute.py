@@ -112,10 +112,10 @@ async def set_compute_enabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=compute_id, operation="enable_compute"):
-        logger.info(f"Enabling compute: {compute_id}")
-        response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
+    if not response:
+        raise ComputeNotFound(compute_id)
+    return JSONResponse(response)
 
 
 @api_version(1)

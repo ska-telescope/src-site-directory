@@ -5,13 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.88]
+
+### Changed
+- Changed Dockerfilesymlinks to copies to fix oci-image-build step 
+- PAPI updated to 0.2.5 and AAPI to 0.6.7
+
+## [0.3.87]
+
+### Changed
+- Updated docs to use env variable for README path or /opt/ska-src-site-capabilities-api/README.md
+- Generated poetry lock file with poetry 2.3.1 and updated to latest versions of AAPI and PAPI
+
+## [0.3.86]
+
+### Changed
+- strip-version-prefix moved to common/utils.py
+- added strip-version-prefix calls to docs routes
+
 ## [0.3.85]
 
-- Added metrics middleware to track HTTP requests
+### Changed
+- Bumped to include new client
 
 ## [0.3.84]
 
-- Addded logging package
+### Changed
+- Bumped to include the new ska-src-permissions-api client functionality included in  version 0.1.95
+ 
+## [0.3.83]
+
+### Added 
+- Added Queue Schema to site capabilities
+- Added new APIs to fetch list of queue and queue by ID
+- Updated site capabilities client
+
+### Changed 
+- get_node_version now raises `NodeVersionNotFound` when node not found
+- set_storage_enabled and set_storage_disabled now raise `NodeVersionNotFound` when node not found
+- set_storage_areas_enabled and set_storage_areas_disabled now raise `StorageAreaNotFound` when node not found
+- set_compute_enabled and set_compute_disabled now raise `ComputeNotFound` when node not found
+- set_service_enabled and set_service_disabled now raise `ServiceNotFound` when node not found
 
 ## [0.3.82]
 

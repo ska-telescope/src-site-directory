@@ -73,6 +73,54 @@
                 ]
               }
             ],
+            "queues": [
+              {
+                "id": "a1b2c3d4-e5f6-4789-abcd-1234567890ab",
+                "name": "test-queue-1",
+                "description": "A test queue for batch jobs",
+                "downtime": [],
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "b2c3d4e5-f678-49ab-bcde-2345678901bc",
+                "name": "test-queue-2",
+                "description": "A test queue for batch jobs",
+                "downtime": [],
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "c3d4e5f6-789a-4bcd-cdef-3456789012cd",
+                "name": "test-queue-3",
+                "description": "A test queue for batch jobs",
+                "downtime": [],
+                "other_attributes": {},
+                "is_force_disabled": true
+              },
+              {
+                "id": "d4e5f678-9abc-4def-ef01-4567890123de",
+                "name": "test-queue-4",
+                "description": "A test queue for batch jobs",
+                "downtime": [
+                  {
+                    "date_range": "2025-12-01T00:00:00.000Z to 2300-12-02T00:00:00.000Z",
+                    "type": "Planned",
+                    "reason": "System upgrade"
+                  }
+                ],
+                "other_attributes": {},
+                "is_force_disabled": false
+              },
+              {
+                "id": "e5f6789a-abcd-4ef0-0123-5678901234ef",
+                "name": "test-queue-5",
+                "description": "A test queue for batch jobs",
+                "downtime": [],
+                "other_attributes": {},
+                "is_force_disabled": true
+              }
+            ],
             "associated_global_services": [
               {
                 "id": "dd200c23-60f4-49c0-a987-3e11f06a4c8c",
@@ -140,6 +188,16 @@
             "latitude": 51.4964,
             "longitude": -0.1224,
             "middleware_version": "1",
+            "queues": [
+              {
+                "id": "a1b2c3d4-e5f6-4789-abcd-1234567890ab",
+                "name": "test-b-queue-1",
+                "description": "A test queue for batch jobs",
+                "downtime": [],
+                "other_attributes": {},
+                "is_force_disabled": false
+              }
+            ],
             "associated_local_services": [
               {
                 "id": "4f57724b-aa73-4c6c-bf0c-3fb95677cc91",

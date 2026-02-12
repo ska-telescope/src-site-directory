@@ -269,6 +269,41 @@ class SiteCapabilitiesClient:
         return resp
 
     @handle_client_exceptions
+    def list_queues(self, node_names: str | None = None, site_names: str | None = None, include_inactive: bool = False):
+        """List queues.
+
+        :param node_names: Filter by node names (comma-separated string).
+        :param site_names: Filter by site names (comma-separated string).
+        :param include_inactive: Include inactive queues.
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        queues_endpoint = "{api_url}/queues".format(api_url=self.api_url)
+        params = {
+            "node_names": node_names,
+            "site_names": site_names,
+            "include_inactive": include_inactive,
+        }
+        resp = self.session.get(queues_endpoint, params=params)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
+    def get_queue_from_id(self, queue_id: str):
+        """Get Queue from ID.
+
+        :param str queue_id: Unique queue identifier
+
+        :return: A requests response.
+        :rtype: requests.models.Response
+        """
+        get_queue_by_id_endpoint = "{api_url}/queues/{queue_id}".format(api_url=self.api_url, queue_id=queue_id)
+        resp = self.session.get(get_queue_by_id_endpoint)
+        resp.raise_for_status()
+        return resp
+
+    @handle_client_exceptions
     def list_services(
         self,
         include_inactive: bool = False,

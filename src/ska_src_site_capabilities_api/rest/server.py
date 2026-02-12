@@ -22,6 +22,7 @@ from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_sch
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
 from ska_src_site_capabilities_api.rest.routers.nodes import nodes_router
+from ska_src_site_capabilities_api.rest.routers.queues import queues_router
 from ska_src_site_capabilities_api.rest.routers.schemas import schemas_router
 from ska_src_site_capabilities_api.rest.routers.services import services_router
 from ska_src_site_capabilities_api.rest.routers.sites import sites_router
@@ -88,7 +89,7 @@ async def lifespan(app: FastAPI):
 # Instantiate FastAPI app
 app = FastAPI(
     lifespan=lifespan,
-    title="Site CapabilitiesAPI Overview",
+    title="Site Capabilities API Overview",
 )
 
 # Store app state (accessible through request.app.state)
@@ -129,6 +130,7 @@ app.include_router(storage_areas_router)
 app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
+app.include_router(queues_router)
 
 # Setup Prometheus metrics endpoint
 setup_metrics_endpoint(app)
@@ -150,6 +152,11 @@ versions = Versionizer(
     app=app,
     prefix_format="/v{major}",
     semantic_version_format="{major}",
+    include_main_docs=False,
+    include_main_openapi_route=True,
+    include_version_docs=False,
+    include_version_openapi_route=False,
+    include_versions_route=True,
 ).versionize()
 
 # Mount static files

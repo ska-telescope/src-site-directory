@@ -20,11 +20,14 @@ from ska_src_site_capabilities_api.common.utility import (
     get_url_for_app_from_request,
     load_and_dereference_schema,
     recursive_stringify,
+    strip_version_prefix,
 )
 from ska_src_site_capabilities_api.rest.dependencies import Common
 
 docs_router = APIRouter()
 config = Config(".env")
+
+README_PATH = os.environ.get("README_PATH", "/opt/ska-src-site-capabilities-api/README.md")
 
 
 @api_version(1)
@@ -36,11 +39,8 @@ config = Config(".env")
 @handle_exceptions
 async def oper_docs(request: Request):
     # Read and parse README.md, omitting excluded sections.
-    readme_text_md = (
-        os.environ.get("README_MD", "")
-        if not request.app.state.debug
-        else open("../../../README.md", encoding="utf-8").read()  # pylint: disable=consider-using-with
-    )
+    with open(README_PATH, encoding="utf-8") as f:
+        readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
     openapi_schema = request.scope.get("app").openapi()
     openapi_schema_template = Template(json.dumps(openapi_schema))
@@ -68,11 +68,8 @@ async def oper_docs(request: Request):
 @handle_exceptions
 async def user_docs(request: Request):
     # Read and parse README.md, omitting excluded sections.
-    readme_text_md = (
-        os.environ.get("README_MD", "")
-        if not request.app.state.debug
-        else open("../../../README.md", encoding="utf-8").read()  # pylint: disable=consider-using-with
-    )
+    with open(README_PATH, encoding="utf-8") as f:
+        readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(
         readme_text_md,
         exclude_sections=["Authorisation", "Schemas", "Deployment"],
@@ -137,7 +134,7 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -263,7 +260,7 @@ async def add_node_form(
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -335,7 +332,7 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
@@ -419,7 +416,7 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
-                    route=request.scope["route"].path,
+                    route=strip_version_prefix(request.scope["route"].path),
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,

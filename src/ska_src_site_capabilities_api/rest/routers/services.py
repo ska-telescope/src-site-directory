@@ -174,10 +174,10 @@ async def set_service_enabled(
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=service_id, operation="enable_service"):
-        logger.info(f"Enabling service: {service_id}")
-        response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
+    if not response:
+        raise ServiceNotFound(service_id)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -205,7 +205,7 @@ async def set_service_disabled(
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=service_id, operation="disable_service"):
-        logger.info(f"Disabling service: {service_id}")
-        response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
+    if not response:
+        raise ServiceNotFound(service_id)
+    return JSONResponse(response)

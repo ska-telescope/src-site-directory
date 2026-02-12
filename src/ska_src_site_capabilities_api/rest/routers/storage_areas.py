@@ -221,10 +221,10 @@ async def set_storage_area_enabled(
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=storage_area_id, operation="enable_storage_area"):
-        logger.info(f"Enabling storage area: {storage_area_id}")
-        response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
+    if not response:
+        raise StorageAreaNotFound(storage_area_id)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -252,7 +252,7 @@ async def set_storage_area_disabled(
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=storage_area_id, operation="disable_storage_area"):
-        logger.info(f"Disabling storage area: {storage_area_id}")
-        response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
+    if not response:
+        raise StorageAreaNotFound(storage_area_id)
+    return JSONResponse(response)

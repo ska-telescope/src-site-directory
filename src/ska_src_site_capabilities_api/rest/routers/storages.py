@@ -190,10 +190,10 @@ async def set_storage_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=storage_id, operation="enable_storage"):
-        logger.info(f"Enabling storage: {storage_id}")
-        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
+    if not response:
+        raise StorageNotFound(storage_id)
+    return JSONResponse(response)
 
 
 @api_version(1)
@@ -221,7 +221,7 @@ async def set_storage_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=storage_id, operation="disable_storage"):
-        logger.info(f"Disabling storage: {storage_id}")
-        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
-        return JSONResponse(response)
+    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
+    if not response:
+        raise StorageNotFound(storage_id)
+    return JSONResponse(response)
