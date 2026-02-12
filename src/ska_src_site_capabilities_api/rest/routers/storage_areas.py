@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -47,7 +48,9 @@ async def list_storage_areas(
     ),
 ) -> JSONResponse:
     """List all storage areas."""
-    with LogContext(resource_id="storage_areas", operation="list_storage_areas"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storage_areas", operation="list_storage_areas", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Listing storage areas (include_inactive={include_inactive})")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -81,7 +84,9 @@ async def list_storage_areas_for_grafana(
     ),
 ) -> JSONResponse:
     """List all storage areas in a format digestible by Grafana world map panels."""
-    with LogContext(resource_id="storage_areas", operation="list_storage_areas_grafana"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storage_areas", operation="list_storage_areas_grafana", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing storage areas for Grafana")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -120,7 +125,9 @@ async def list_storage_areas_in_topojson_format(
     ),
 ) -> JSONResponse:
     """List all storage areas in topojson format."""
-    with LogContext(resource_id="storage_areas", operation="list_storage_areas_topojson"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storage_areas", operation="list_storage_areas_topojson", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing storage areas in topojson format")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -151,7 +158,9 @@ async def list_storage_areas_in_topojson_format(
 @handle_exceptions
 async def list_storage_area_types(request: Request) -> JSONResponse:
     """List storage area types."""
-    with LogContext(resource_id="storage_area_types", operation="list_storage_area_types"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storage_area_types", operation="list_storage_area_types", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing storage area types")
         try:
             dereferenced_storage_area_schema = load_and_dereference_schema(
@@ -188,7 +197,9 @@ async def get_storage_area_from_id(
     storage_area_id: str = Path(description="Unique storage area identifier"),
 ) -> JSONResponse:
     """Get a storage area description from a unique identifier."""
-    with LogContext(resource_id=storage_area_id, operation="get_storage_area"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=storage_area_id, operation="get_storage_area", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving storage area: {storage_area_id}")
         rtn = request.app.state.backend.get_storage_area(storage_area_id)
         if not rtn:
@@ -221,10 +232,13 @@ async def set_storage_area_enabled(
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
-    if not response:
-        raise StorageAreaNotFound(storage_area_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=storage_area_id, operation="enable_storage_area", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Enabling storage area: {storage_area_id}")
+        response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, False)
+        if not response:
+            raise StorageAreaNotFound(storage_area_id)
+        return JSONResponse(response)
 
 
 @api_version(1)
@@ -252,7 +266,10 @@ async def set_storage_area_disabled(
     storage_area_id: str = Path(description="Storage Area ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
-    if not response:
-        raise StorageAreaNotFound(storage_area_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=storage_area_id, operation="disable_storage_area", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Disabling storage area: {storage_area_id}")
+        response = request.app.state.backend.set_storage_area_force_disabled_flag(storage_area_id, True)
+        if not response:
+            raise StorageAreaNotFound(storage_area_id)
+        return JSONResponse(response)

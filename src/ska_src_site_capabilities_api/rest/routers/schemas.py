@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, Path
 from fastapi_versionizer.versionizer import api_version
 from plantuml import PlantUML
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import JSONResponse, StreamingResponse
@@ -37,7 +38,9 @@ config = Config(".env")
 @handle_exceptions
 async def list_schemas(request: Request) -> JSONResponse:
     """Get a list of schema names used to define entities."""
-    with LogContext(resource_id="schemas", operation="list_schemas"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="schemas", operation="list_schemas", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing schemas")
         schema_basenames = sorted(["".join(fi.split(".")[:-1]) for fi in os.listdir(config.get("SCHEMAS_RELPATH"))])
         return JSONResponse(schema_basenames)
@@ -60,7 +63,9 @@ async def list_schemas(request: Request) -> JSONResponse:
 @handle_exceptions
 async def get_schema(request: Request, schema: str = Path(description="Schema name")) -> JSONResponse:
     """Get a schema by name."""
-    with LogContext(resource_id=schema, operation="get_schema"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=schema, operation="get_schema", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving schema: {schema}")
         try:
             dereferenced_schema = load_and_dereference_schema(
@@ -88,7 +93,9 @@ async def get_schema(request: Request, schema: str = Path(description="Schema na
 @handle_exceptions
 async def render_schema(request: Request, schema: str = Path(description="Schema name")) -> JSONResponse:
     """Render a schema by name."""
-    with LogContext(resource_id=schema, operation="render_schema"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=schema, operation="render_schema", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Rendering schema: {schema}")
         try:
             dereferenced_schema = load_and_dereference_schema(

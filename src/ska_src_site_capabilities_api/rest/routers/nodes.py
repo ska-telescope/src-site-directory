@@ -7,6 +7,7 @@ from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
 
@@ -52,7 +53,9 @@ async def list_nodes(
     ),
 ) -> JSONResponse:
     """List nodes with an option to return only node names."""
-    with LogContext(resource_id="nodes", operation="list_nodes"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="nodes", operation="list_nodes", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Listing nodes (only_names={only_names}, include_inactive={include_inactive})")
         rtn = request.app.state.backend.list_nodes(include_archived=False, include_inactive=include_inactive)
         if only_names:
@@ -89,8 +92,9 @@ async def add_node(
 
     # check node doesn't already exist
     node_name = values.get("name")
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
 
-    with LogContext(resource_id=node_name, operation="add_node"):
+    with LogContext(resource_id=node_name, operation="add_node", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Adding node: {node_name}")
         if request.app.state.backend.get_node(node_name, node_version="latest"):
             raise NodeAlreadyExists(node_name=node_name)
@@ -132,7 +136,8 @@ async def edit_node(
     values=Body(default="Site JSON."),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> HTMLResponse:
-    with LogContext(resource_id=node_name, operation="edit_node"):
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=node_name, operation="edit_node", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Editing node: {node_name}")
         # load json values
         if isinstance(values, (bytes, bytearray)):
@@ -176,7 +181,9 @@ async def delete_node_by_name(
     request: Request,
     node_name: str = Path(description="Node name"),
 ) -> JSONResponse:
-    with LogContext(resource_id=node_name, operation="delete_node"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=node_name, operation="delete_node", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Deleting node: {node_name}")
         result = request.app.state.backend.delete_node_by_name(node_name)
         return JSONResponse(result)
@@ -203,7 +210,9 @@ async def delete_node_by_name(
 @handle_exceptions
 async def dump_nodes(request: Request) -> HTMLResponse:
     """Dump all versions of all nodes."""
-    with LogContext(resource_id="nodes", operation="dump_nodes"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="nodes", operation="dump_nodes", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Dumping all node versions")
         rtn = request.app.state.backend.list_nodes(include_archived=True)
         return JSONResponse(rtn)
@@ -235,15 +244,19 @@ async def get_node_version(
     node_version: str = Query(default="latest", description="Version of node ({version}||latest"),
 ) -> JSONResponse:
     """Get a version of a node."""
-    if node_version != "latest":
-        try:
-            int(node_version)
-        except ValueError:
-            raise IncorrectNodeVersionType
-    node = request.app.state.backend.get_node(node_name=node_name, node_version=node_version)
-    if not node:
-        raise NodeVersionNotFound(node_name=node_name, node_version=node_version)
-    return JSONResponse(node)
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=node_name, operation="get_node", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Retrieving node: {node_name}, version: {node_version}")
+        if node_version != "latest":
+            try:
+                int(node_version)
+            except ValueError:
+                raise IncorrectNodeVersionType
+        node = request.app.state.backend.get_node(node_name=node_name, node_version=node_version)
+        if not node:
+            raise NodeVersionNotFound(node_name=node_name, node_version=node_version)
+        return JSONResponse(node)
 
 
 @api_version(1)
@@ -273,7 +286,9 @@ async def get_site_from_node_version(
     node_version: str = Query(default="latest", description="Version of node ({version}||latest"),
 ) -> JSONResponse:
     """Get site from node version."""
-    with LogContext(resource_id=f"{node_name}/{site_name}", operation="get_site_from_node"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=f"{node_name}/{site_name}", operation="get_site_from_node", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving site: {site_name} from node: {node_name}, version: {node_version}")
         if node_version != "latest":
             try:

@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_versionizer import Versionizer
 from ska_src_auth_api.client.authentication import AuthenticationClient
-from ska_src_logging.integrations.prometheus import MetricsMiddleware, setup_metrics_endpoint
+from ska_src_logging.integrations.prometheus import setup_metrics_endpoint
 from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
@@ -17,7 +17,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.rest import dependencies
-from ska_src_site_capabilities_api.rest.logger import LoggingContextMiddleware, logger, setup_logging
+from ska_src_site_capabilities_api.rest.logger import logger, setup_logging, setup_otel_fastapi
 from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
@@ -115,10 +115,8 @@ app.add_middleware(
     max_age=3600,
     secret_key=config.get("SESSIONS_SECRET_KEY"),
 )
-# Add logging context middleware to add request context to all logs
-app.add_middleware(LoggingContextMiddleware)
-# Add metrics middleware to track HTTP requests
-app.add_middleware(MetricsMiddleware, app_name=os.environ.get("LOG_APP_NAME", "scapi"))
+# Setup OTel instrumentation for logging, tracing and metrics
+setup_otel_fastapi(app, service_name=os.environ.get("LOG_APP_NAME", "scapi"))
 # Add routers.
 #
 app.include_router(docs_router)

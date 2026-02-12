@@ -60,8 +60,9 @@ attrs = "^24.3.0"
 python-multipart = "^0.0.6"
 requests = "^2.32.3"
 uvicorn = {extras = ["standard"], version = "^0.34.0"}
-ska-src-permissions-api = "^0.2.5"
-ska-src-auth-api = "^0.6.7"
+ska-src-permissions-api = "^0.2.13"
+ska-src-auth-api = "^0.6.9"
+ska-src-logging = "^0.5.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.14.0"

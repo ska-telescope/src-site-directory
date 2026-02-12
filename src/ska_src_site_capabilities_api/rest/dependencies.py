@@ -3,7 +3,6 @@ from typing import Union
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from ska_src_logging import get_log_context
 from starlette.requests import Request
 
 from ska_src_site_capabilities_api.common.exceptions import PermissionDenied, handle_exceptions
@@ -61,7 +60,6 @@ class Permissions:
             method=request.method,
             token=access_token,
             body=request.path_params,
-            correlation_id=correlation_id,
         ).json()
         if rtn.get("is_authorised", False):
             return
@@ -89,7 +87,6 @@ class Permissions:
             method=request.method,
             token=token,
             body=request.path_params,
-            correlation_id=correlation_id,
         ).json()
         if rtn.get("is_authorised", False):
             return

@@ -1,9 +1,12 @@
 import json
+import logging
 import traceback
 from functools import wraps
 
 import requests
 from fastapi import HTTPException, status
+
+logger = logging.getLogger(__name__)
 
 
 def handle_client_exceptions(func):
@@ -16,15 +19,19 @@ def handle_client_exceptions(func):
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             detail = f"HTTP error occurred: {e}, response: {e.response.text}"
+            logger.error(detail, exc_info=True)
             raise HTTPException(status_code=status_code, detail=detail)
         except HTTPException as e:
             raise e
         except CustomException as e:
+            logger.error("Custom exception: %s", e.message, exc_info=True)
             raise Exception(message=e.message)
         except CustomHTTPException as e:
+            logger.error("HTTP exception [%s]: %s", e.http_error_status, e.message, exc_info=True)
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
+            logger.error(detail, exc_info=True)
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper
@@ -40,15 +47,19 @@ def handle_exceptions(func):
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             detail = f"HTTP error occurred: {e}, response: {e.response.text}"
+            logger.error(detail, exc_info=True)
             raise HTTPException(status_code=status_code, detail=detail)
         except HTTPException as e:
             raise e
         except CustomException as e:
+            logger.error("Custom exception: %s", e.message, exc_info=True)
             raise Exception(message=e.message)
         except CustomHTTPException as e:
+            logger.error("HTTP exception [%s]: %s", e.http_error_status, e.message, exc_info=True)
             raise HTTPException(status_code=e.http_error_status, detail=e.message)
         except Exception as e:
             detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
+            logger.error(detail, exc_info=True)
             raise HTTPException(status_code=500, detail=detail)
 
     return wrapper

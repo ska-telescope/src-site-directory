@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -52,7 +53,9 @@ async def list_services(
     ),
 ) -> JSONResponse:
     """List all services."""
-    with LogContext(resource_id="services", operation="list_services"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="services", operation="list_services", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Listing services (scope={service_scope}, output={output}, include_inactive={include_inactive})")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -90,7 +93,9 @@ async def list_services(
 @handle_exceptions
 async def list_service_types(request: Request) -> JSONResponse:
     """List service types."""
-    with LogContext(resource_id="service_types", operation="list_service_types"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="service_types", operation="list_service_types", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing service types")
         try:
             # local
@@ -141,7 +146,9 @@ async def get_service_from_id(
     service_id: str = Path(description="Unique service identifier"),
 ) -> JSONResponse:
     """Get a service description from a unique identifier."""
-    with LogContext(resource_id=service_id, operation="get_service"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=service_id, operation="get_service", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving service: {service_id}")
         rtn = request.app.state.backend.get_service(service_id)
         if not rtn:
@@ -174,10 +181,13 @@ async def set_service_enabled(
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
-    if not response:
-        raise ServiceNotFound(service_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=service_id, operation="enable_service", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Enabling service: {service_id}")
+        response = request.app.state.backend.set_service_force_disabled_flag(service_id, False)
+        if not response:
+            raise ServiceNotFound(service_id)
+        return JSONResponse(response)
 
 
 @api_version(1)
@@ -205,7 +215,10 @@ async def set_service_disabled(
     service_id: str = Path(description="Service ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
-    if not response:
-        raise ServiceNotFound(service_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=service_id, operation="disable_service", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Disabling service: {service_id}")
+        response = request.app.state.backend.set_service_force_disabled_flag(service_id, True)
+        if not response:
+            raise ServiceNotFound(service_id)
+        return JSONResponse(response)

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -43,7 +44,9 @@ async def list_sites(
     ),
 ) -> JSONResponse:
     """List versions of all sites."""
-    with LogContext(resource_id="sites", operation="list_sites"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="sites", operation="list_sites", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Listing sites (only_names={only_names}, include_inactive={include_inactive})")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -81,7 +84,9 @@ async def get_site_from_id(
     site_id: str = Path(description="Unique site identifier"),
 ) -> JSONResponse:
     """Get a site description from a unique identifier."""
-    with LogContext(resource_id=site_id, operation="get_site"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=site_id, operation="get_site", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving site: {site_id}")
         rtn = request.app.state.backend.get_site(site_id)
         if not rtn:
@@ -114,7 +119,8 @@ async def set_site_enabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=site_id, operation="enable_site"):
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=site_id, operation="enable_site", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Enabling site: {site_id}")
         response = request.app.state.backend.set_site_force_disabled_flag(site_id, False)
         if not response:
@@ -147,7 +153,8 @@ async def set_site_disabled(
     site_id: str = Path(description="Site ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    with LogContext(resource_id=site_id, operation="disable_site"):
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=site_id, operation="disable_site", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Disabling site: {site_id}")
         response = request.app.state.backend.set_site_force_disabled_flag(site_id, True)
         if not response:

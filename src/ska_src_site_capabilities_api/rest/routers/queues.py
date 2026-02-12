@@ -2,6 +2,8 @@ import os
 
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi_versionizer.versionizer import api_version
+from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -9,6 +11,7 @@ from starlette.responses import JSONResponse
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.exceptions import QueueNotFound, handle_exceptions
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
+from ska_src_site_capabilities_api.rest.logger import logger
 
 queues_router = APIRouter()
 config = Config(".env")
@@ -43,17 +46,21 @@ async def list_queues(
     include_inactive: bool = Query(default=False, description="Include inactive (down/disabled) Queues?"),
 ) -> JSONResponse:
     """List all Queues."""
-    if node_names:
-        node_names = [name.strip() for name in node_names.split(",")]
-    if site_names:
-        site_names = [name.strip() for name in site_names.split(",")]
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="queues", operation="list_queues", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Listing queues (include_inactive={include_inactive})")
+        if node_names:
+            node_names = [name.strip() for name in node_names.split(",")]
+        if site_names:
+            site_names = [name.strip() for name in site_names.split(",")]
 
-    queue_list_response = request.app.state.backend.list_queues(
-        node_names=node_names,
-        site_names=site_names,
-        include_inactive=include_inactive,
-    )
-    return JSONResponse(queue_list_response)
+        queue_list_response = request.app.state.backend.list_queues(
+            node_names=node_names,
+            site_names=site_names,
+            include_inactive=include_inactive,
+        )
+        return JSONResponse(queue_list_response)
 
 
 @api_version(1)
@@ -75,10 +82,13 @@ async def get_queue_from_id(
     queue_id: str = Path(description="Unique queue identifier"),
 ) -> JSONResponse:
     """Get Queue from ID."""
-
-    queue = request.app.state.backend.get_queue_by_id(
-        queue_id=queue_id,
-    )
-    if not queue:
-        raise QueueNotFound(queue_id=queue_id)
-    return JSONResponse(queue)
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=queue_id, operation="get_queue", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Retrieving queue: {queue_id}")
+        queue = request.app.state.backend.get_queue_by_id(
+            queue_id=queue_id,
+        )
+        if not queue:
+            raise QueueNotFound(queue_id=queue_id)
+        return JSONResponse(queue)

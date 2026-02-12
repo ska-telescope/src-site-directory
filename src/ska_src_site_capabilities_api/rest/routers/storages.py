@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
 from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -43,7 +44,9 @@ async def list_storages(
     ),
 ) -> JSONResponse:
     """List all storages."""
-    with LogContext(resource_id="storages", operation="list_storages"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storages", operation="list_storages", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Listing storages (include_inactive={include_inactive})")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -77,7 +80,9 @@ async def list_storages_for_grafana(
     ),
 ) -> JSONResponse:
     """List all storages in a format digestible by Grafana world map panels."""
-    with LogContext(resource_id="storages", operation="list_storages_grafana"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storages", operation="list_storages_grafana", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing storages for Grafana")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -116,7 +121,9 @@ async def list_storages_in_topojson_format(
     ),
 ) -> JSONResponse:
     """List all storages in topojson format."""
-    with LogContext(resource_id="storages", operation="list_storages_topojson"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="storages", operation="list_storages_topojson", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info("Listing storages in topojson format")
         if node_names:
             node_names = [name.strip() for name in node_names.split(",")]
@@ -157,7 +164,9 @@ async def get_storage_from_id(
     storage_id: str = Path(description="Unique storage identifier"),
 ) -> JSONResponse:
     """Get a storage description from a unique identifier."""
-    with LogContext(resource_id=storage_id, operation="get_storage"):
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=storage_id, operation="get_storage", **({"enduser_id": enduser_id} if enduser_id else {})):
         logger.info(f"Retrieving storage: {storage_id}")
         rtn = request.app.state.backend.get_storage(storage_id)
         if not rtn:
@@ -190,10 +199,13 @@ async def set_storage_enabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
-    if not response:
-        raise StorageNotFound(storage_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=storage_id, operation="enable_storage", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Enabling storage: {storage_id}")
+        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, False)
+        if not response:
+            raise StorageNotFound(storage_id)
+        return JSONResponse(response)
 
 
 @api_version(1)
@@ -221,7 +233,10 @@ async def set_storage_disabled(
     storage_id: str = Path(description="Storage ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
-    if not response:
-        raise StorageNotFound(storage_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=storage_id, operation="disable_storage", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Disabling storage: {storage_id}")
+        response = request.app.state.backend.set_storage_force_disabled_flag(storage_id, True)
+        if not response:
+            raise StorageNotFound(storage_id)
+        return JSONResponse(response)
