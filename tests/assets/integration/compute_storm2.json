@@ -10,7 +10,7 @@
             "host": "dpapi.local",
             "port": 8000,
             "path": "/v1/stage",
-            "other_attributes": {},
+            "other_attributes": {"supported_approaches": ["copy", "symlink", "cavern"]},
             "is_mandatory": false,
             "downtime": [],
             "is_force_disabled": false,
