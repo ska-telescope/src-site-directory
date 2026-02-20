@@ -76,6 +76,12 @@
             initialiseDatePickers(".datepicker", "{{ base_url }}static/css/easepick.css");
         });
         startWatchingForNewDateElements(".datepicker", "{{ base_url }}static/css/easepick.css");
+
+        // Allow deep-linking to downtime form via ?downtime.
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("downtime")) {
+            toggleDowntimeForm();
+        }
     };
   </script>
   <script type="text/javascript">
