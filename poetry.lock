@@ -4009,14 +4009,14 @@ reference = "ska-nexus"
 
 [[package]]
 name = "ska-src-auth-api"
-version = "0.6.9+dev.ce68d3e1a"
+version = "0.6.10+dev.ce7f0b6f0"
 description = "SRCNet Auth API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_auth_api-0.6.9+dev.ce68d3e1a-py3-none-any.whl", hash = "sha256:c86e86fe883578cc11fabb47b373210c2b432ca6fa6f9567bd2f80106163bdc6"},
-    {file = "ska_src_auth_api-0.6.9+dev.ce68d3e1a.tar.gz", hash = "sha256:8e43772d59b431ad388bffec063e6746b1ffe0055cec09dc31b409f0e7f6a41e"},
+    {file = "ska_src_auth_api-0.6.10+dev.ce7f0b6f0-py3-none-any.whl", hash = "sha256:ba5e0ad79f7f8371d4a1aea7c3def12b54de9c39a5d7b3eb72590d29a369c56f"},
+    {file = "ska_src_auth_api-0.6.10+dev.ce7f0b6f0.tar.gz", hash = "sha256:85e3cb5491f89b6cf5b0efbf85ad18e4d82d4248340f5943dc3e5d7f24cd7644"},
 ]
 
 [package.dependencies]
@@ -4039,8 +4039,8 @@ python-dateutil = ">=2.8.2,<3.0.0"
 python-multipart = ">=0.0.6,<0.0.7"
 redis = ">=5.2.0,<6.0.0"
 requests = ">=2.32.3,<3.0.0"
-ska-src-logging = ">=0.5.2,<0.6.0"
-ska-src-permissions-api = ">=0.2.10,<0.3.0"
+ska-src-logging = ">=0.5.7,<0.6.0"
+ska-src-permissions-api = ">=0.2.14,<0.3.0"
 uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
 
 [package.source]
@@ -4050,14 +4050,14 @@ reference = "authn_api"
 
 [[package]]
 name = "ska-src-logging"
-version = "0.5.6+dev.cf3e33891"
+version = "0.5.7+dev.c3e0f37ce"
 description = "Centralized logging library for SKA SRC APIs with OpenTelemetry tracing, metrics, sensitive info redaction, dynamic logging levels"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_logging-0.5.6+dev.cf3e33891-py3-none-any.whl", hash = "sha256:591dca67467e6dfe733d27dee83f5288975f3becc5aad802fd8b46241f5accf0"},
-    {file = "ska_src_logging-0.5.6+dev.cf3e33891.tar.gz", hash = "sha256:7f017bf23ad4ceb11ec54664770918ab17d203012ebd40c5cc3d5f9a1d4a7d13"},
+    {file = "ska_src_logging-0.5.7+dev.c3e0f37ce-py3-none-any.whl", hash = "sha256:64351e31001facfd52a05590c676e91850584e284e4608b19044b0cf3de56096"},
+    {file = "ska_src_logging-0.5.7+dev.c3e0f37ce.tar.gz", hash = "sha256:8e8dee4dee638054d439f11fd6894b5fcb62af08084f7a45cb87c4a558792901"},
 ]
 
 [package.dependencies]
@@ -4081,14 +4081,14 @@ reference = "logging_api"
 
 [[package]]
 name = "ska-src-permissions-api"
-version = "0.2.13+dev.cef1e3414"
+version = "0.2.14+dev.cfe11d132"
 description = "SKA SRC Permissions API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_permissions_api-0.2.13+dev.cef1e3414-py3-none-any.whl", hash = "sha256:b28b9a4e299f6741ec685b0fe8e37a36b479a792ccfd9c08010a011829e0b4c2"},
-    {file = "ska_src_permissions_api-0.2.13+dev.cef1e3414.tar.gz", hash = "sha256:72dd2afb525c2e958b84b7139ed474361d2bbf55c6722e24638d808ab52ba6fc"},
+    {file = "ska_src_permissions_api-0.2.14+dev.cfe11d132-py3-none-any.whl", hash = "sha256:d3ee1bbc3fd69fbc2d2f0eedb07cb593872363017cf269747fce62e5d402e753"},
+    {file = "ska_src_permissions_api-0.2.14+dev.cfe11d132.tar.gz", hash = "sha256:b7eea98b06188c9260de1363c5b34604f68b47027df615d2173cefb4a234ea3a"},
 ]
 
 [package.dependencies]
@@ -4112,7 +4112,7 @@ pytest-asyncio = ">=0.24.0,<0.25.0"
 redis = ">=5.2.0,<6.0.0"
 requests = ">=2.32.3,<3.0.0"
 rsa = "4.7.2"
-ska-src-logging = ">=0.5.6,<0.6.0"
+ska-src-logging = ">=0.5.7,<0.6.0"
 tabulate = ">=0.9.0,<0.10.0"
 uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
 
@@ -5132,4 +5132,4 @@ reference = "PyPI-public"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "17a9848bb0a77093e35fe5289c8dcaf42d218c67f4c3804b79ceee2ccd963e63"
+content-hash = "76d22828e56e928d6bf085b8caaea1d6de7f5a88770ece22eee060dd5e0c81db"
