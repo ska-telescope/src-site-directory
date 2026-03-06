@@ -35,7 +35,6 @@ def node_storm2():
         return json.load(node_file)
 
 
-
 def _strip_keys_for_comparison(obj, keys=None):
     """Recursively remove specified keys from a dictionary or list for comparison."""
     if keys is None:
