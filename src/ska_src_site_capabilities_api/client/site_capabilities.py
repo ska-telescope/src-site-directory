@@ -6,12 +6,24 @@ from ska_src_site_capabilities_api.common.exceptions import handle_client_except
 
 
 class SiteCapabilitiesClient:
-    def __init__(self, api_url, session=None):
+    def __init__(self, api_url, session=None, calling_service=None):
         self.api_url = api_url
+        self.calling_service = calling_service or "unknown"
         if session:
             self.session = session
         else:
             self.session = requests.Session()
+
+    def _get_headers(self):
+        """Build common headers for requests including calling service.
+
+        :return: Dictionary of headers.
+        :rtype: dict
+        """
+        headers = {
+            "X-Calling-Service": self.calling_service,
+        }
+        return headers
 
     @handle_client_exceptions
     def get_add_node_www_url(self):
@@ -41,7 +53,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_compute_by_id_endpoint = "{api_url}/compute/{compute_id}".format(api_url=self.api_url, compute_id=compute_id)
-        resp = self.session.get(get_compute_by_id_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(get_compute_by_id_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -55,7 +68,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_schema_endpoint = "{api_url}/schemas/{schema}".format(api_url=self.api_url, schema=schema)
-        resp = self.session.get(get_schema_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(get_schema_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -69,7 +83,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_service_by_id_endpoint = "{api_url}/services/{service_id}".format(api_url=self.api_url, service_id=service_id)
-        resp = self.session.get(get_service_by_id_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(get_service_by_id_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -83,7 +98,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_storage_by_id_endpoint = "{api_url}/storages/{storage_id}".format(api_url=self.api_url, storage_id=storage_id)
-        resp = self.session.get(get_storage_by_id_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(get_storage_by_id_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -97,7 +113,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         get_storage_area_by_id_endpoint = "{api_url}/storage-areas/{storage_area_id}".format(api_url=self.api_url, storage_area_id=storage_area_id)
-        resp = self.session.get(get_storage_area_by_id_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(get_storage_area_by_id_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -113,7 +130,8 @@ class SiteCapabilitiesClient:
         """
         endpoint = f"{self.api_url}/nodes/{node_name}"
         params = {"node_version": node_version}
-        resp = self.session.get(endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -130,7 +148,8 @@ class SiteCapabilitiesClient:
         """
         endpoint = f"{self.api_url}/nodes/{node_name}/sites/{site_name}"
         params = {"node_version": node_version}
-        resp = self.session.get(endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -144,7 +163,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/sites/{site_id}"
-        resp = self.session.get(endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -156,7 +176,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/nodes/dump"
-        resp = self.session.get(endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -168,7 +189,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         health_endpoint = "{api_url}/health".format(api_url=self.api_url)
-        resp = self.session.get(health_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(health_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -190,7 +212,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(compute_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(compute_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -210,7 +233,8 @@ class SiteCapabilitiesClient:
             "only_names": only_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(nodes_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(nodes_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -222,7 +246,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         schemas_endpoint = "{api_url}/schemas".format(api_url=self.api_url)
-        resp = self.session.get(schemas_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(schemas_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -295,8 +320,8 @@ class SiteCapabilitiesClient:
             "service_scope": service_scope,
             "output": output,
         }
-
-        resp = self.session.get(services_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(services_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -308,7 +333,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         service_types_endpoint = "{api_url}/services/types".format(api_url=self.api_url)
-        resp = self.session.get(service_types_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(service_types_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -330,7 +356,8 @@ class SiteCapabilitiesClient:
             "node_names": node_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(sites_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(sites_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -352,7 +379,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storages_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -374,7 +402,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_grafana_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storages_grafana_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -396,7 +425,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storages_topojson_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storages_topojson_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -418,7 +448,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storage_areas_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storage_areas_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -440,7 +471,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storage_areas_grafana_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storage_areas_grafana_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -462,7 +494,8 @@ class SiteCapabilitiesClient:
             "site_names": site_names,
             "include_inactive": include_inactive,
         }
-        resp = self.session.get(storage_areas_topojson_endpoint, params=params)
+        headers = self._get_headers()
+        resp = self.session.get(storage_areas_topojson_endpoint, params=params, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -473,7 +506,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/storage-areas/types"
-        resp = self.session.get(endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -485,7 +519,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         ping_endpoint = "{api_url}/ping".format(api_url=self.api_url)
-        resp = self.session.get(ping_endpoint)
+        headers = self._get_headers()
+        resp = self.session.get(ping_endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -498,7 +533,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/sites/{site_id}/enable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -511,7 +547,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/sites/{site_id}/disable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -524,7 +561,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/compute/{compute_id}/enable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -537,7 +575,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/compute/{compute_id}/disable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -550,7 +589,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/services/{service_id}/enable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -563,7 +603,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/services/{service_id}/disable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -576,7 +617,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/storages/{storage_id}/enable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -589,7 +631,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/storages/{storage_id}/disable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -602,7 +645,8 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/enable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp
 
@@ -615,6 +659,7 @@ class SiteCapabilitiesClient:
         :rtype: requests.models.Response
         """
         endpoint = f"{self.api_url}/storage-areas/{storage_area_id}/disable"
-        resp = self.session.put(endpoint)
+        headers = self._get_headers()
+        resp = self.session.put(endpoint, headers=headers)
         resp.raise_for_status()
         return resp

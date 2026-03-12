@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.93]
+
+### Changed
+- Bump permission API
+
+## [0.3.92]
+
+### Added
+- Bump logging library 
+- product_streamer added as local service
+- product_streamer added to compute services in STORM2
+
+## [0.3.91]
+
+### Added
+- Bump logging library 
+
+## [0.3.90]
+
+### Added
+- Logging library update to redact client secrets
+
+## [0.3.89]
+
+### Added
+- Otel logging 
+
 ## [0.3.88]
 
 ### Changed

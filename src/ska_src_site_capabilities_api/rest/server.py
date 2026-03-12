@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -10,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_versionizer import Versionizer
 from ska_src_auth_api.client.authentication import AuthenticationClient
+from ska_src_logging.integrations.prometheus import setup_metrics_endpoint
 from ska_src_permissions_api.client.permissions import PermissionsClient
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
@@ -17,6 +17,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.rest import dependencies
+from ska_src_site_capabilities_api.rest.logger import logger, setup_logging, setup_otel_fastapi
 from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_schema
 from ska_src_site_capabilities_api.rest.routers.compute import compute_router
 from ska_src_site_capabilities_api.rest.routers.docs import docs_router
@@ -31,10 +32,6 @@ from ska_src_site_capabilities_api.rest.routers.storages import storages_router
 
 config = Config(".env")
 
-# Set logging to use uvicorn logger.
-#
-logger = logging.getLogger("uvicorn")
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,11 +39,14 @@ async def lifespan(app: FastAPI):
 
     Initializes application state and resources on startup.
     """
+    # Setup uvicorn logging to use ska-src-logging
+    setup_logging()
+
     # Get instance of IAM constants
     iam_endpoints = constants.IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
 
     # Instantiate a Permissions client
-    permissions = PermissionsClient(config.get("PERMISSIONS_API_URL"))
+    permissions = PermissionsClient(config.get("PERMISSIONS_API_URL"), calling_service="SCAPI")
     permissions_service_name = config.get("PERMISSIONS_SERVICE_NAME")
     permissions_service_version = config.get("PERMISSIONS_SERVICE_VERSION")
 
@@ -115,7 +115,8 @@ app.add_middleware(
     max_age=3600,
     secret_key=config.get("SESSIONS_SECRET_KEY"),
 )
-
+# Setup OTel instrumentation for logging, tracing and metrics
+setup_otel_fastapi(app, service_name=os.environ.get("LOG_APP_NAME", "scapi"))
 # Add routers.
 #
 app.include_router(docs_router)
@@ -128,6 +129,9 @@ app.include_router(services_router)
 app.include_router(schemas_router)
 app.include_router(status_router)
 app.include_router(queues_router)
+
+# Setup Prometheus metrics endpoint
+setup_metrics_endpoint(app)
 
 
 # Customize OpenAPI schema generation (must be set before versionize)

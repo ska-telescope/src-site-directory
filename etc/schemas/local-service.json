@@ -27,7 +27,8 @@
         "carta",
         "prepare_data",
         "gaussconv",
-        "cavern"
+        "cavern",
+        "product_streamer"
       ],
       "default": null,
       "required": true

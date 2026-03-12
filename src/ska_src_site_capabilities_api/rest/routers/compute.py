@@ -3,12 +3,15 @@ import os
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
+from ska_src_logging import LogContext
+from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.exceptions import ComputeNotFound, handle_exceptions
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
+from ska_src_site_capabilities_api.rest.logger import logger
 
 compute_router = APIRouter()
 
@@ -41,13 +44,17 @@ async def list_compute(
     ),
 ) -> JSONResponse:
     """List all compute."""
-    if node_names:
-        node_names = [name.strip() for name in node_names.split(",")]
-    if site_names:
-        site_names = [name.strip() for name in site_names.split(",")]
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id="compute", operation="list_compute", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Listing compute (include_inactive={include_inactive})")
+        if node_names:
+            node_names = [name.strip() for name in node_names.split(",")]
+        if site_names:
+            site_names = [name.strip() for name in site_names.split(",")]
 
-    rtn = request.app.state.backend.list_compute(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
-    return JSONResponse(rtn)
+        rtn = request.app.state.backend.list_compute(node_names=node_names, site_names=site_names, include_inactive=include_inactive)
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -75,10 +82,14 @@ async def get_compute_from_id(
     compute_id: str = Path(description="Unique compute identifier"),
 ) -> JSONResponse:
     """Get description of a compute element from a unique identifier."""
-    rtn = request.app.state.backend.get_compute(compute_id)
-    if not rtn:
-        raise ComputeNotFound(compute_id)
-    return JSONResponse(rtn)
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    enduser_id = extract_username_from_token(token) if token else None
+    with LogContext(resource_id=compute_id, operation="get_compute", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Retrieving compute: {compute_id}")
+        rtn = request.app.state.backend.get_compute(compute_id)
+        if not rtn:
+            raise ComputeNotFound(compute_id)
+        return JSONResponse(rtn)
 
 
 @api_version(1)
@@ -106,10 +117,13 @@ async def set_compute_enabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
-    if not response:
-        raise ComputeNotFound(compute_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=compute_id, operation="enable_compute", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Enabling compute: {compute_id}")
+        response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, False)
+        if not response:
+            raise ComputeNotFound(compute_id)
+        return JSONResponse(response)
 
 
 @api_version(1)
@@ -137,7 +151,10 @@ async def set_compute_disabled(
     compute_id: str = Path(description="Compute ID"),
     authorization=Depends(HTTPBearer(auto_error=False)),
 ) -> JSONResponse:
-    response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, True)
-    if not response:
-        raise ComputeNotFound(compute_id)
-    return JSONResponse(response)
+    enduser_id = extract_username_from_token(authorization.credentials) if authorization else None
+    with LogContext(resource_id=compute_id, operation="disable_compute", **({"enduser_id": enduser_id} if enduser_id else {})):
+        logger.info(f"Disabling compute: {compute_id}")
+        response = request.app.state.backend.set_compute_force_disabled_flag(compute_id, True)
+        if not response:
+            raise ComputeNotFound(compute_id)
+        return JSONResponse(response)
