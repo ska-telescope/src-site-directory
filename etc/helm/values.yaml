@@ -55,6 +55,20 @@ secrets:
             # contained in an existing secret, "mongo-credentials".
             existingSecret: false
 
+observability:
+    log:
+        level: INFO
+        format: json
+        app_name: scapi
+        enable_redaction: "true"
+    otel:
+        service_name: scapi
+        traces_enabled: "true"
+        metrics_enabled: "true"
+        logs_enabled: "true"
+        exporter_otlp_endpoint: "http://monitoring-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+        resource_attributes: "service.namespace=ska-src"
+
 ing:
     enabled: true
     api:

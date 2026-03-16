@@ -70,6 +70,26 @@ spec:
           value: {{ .Values.svc.api.schemas_relpath }}
         - name: DISABLE_AUTHENTICATION
           value: {{ .Values.svc.api.disable_authentication | quote }}
+        - name: LOG_LEVEL
+          value: {{ .Values.observability.log.level }}
+        - name: LOG_FORMAT
+          value: {{ .Values.observability.log.format }}
+        - name: LOG_APP_NAME
+          value: {{ .Values.observability.log.app_name }}
+        - name: LOG_ENABLE_REDACTION
+          value: {{ .Values.observability.log.enable_redaction | quote }}
+        - name: OTEL_SERVICE_NAME
+          value: {{ .Values.observability.otel.service_name }}
+        - name: OTEL_TRACES_ENABLED
+          value: {{ .Values.observability.otel.traces_enabled | quote }}
+        - name: OTEL_METRICS_ENABLED
+          value: {{ .Values.observability.otel.metrics_enabled | quote }}
+        - name: OTEL_LOGS_ENABLED
+          value: {{ .Values.observability.otel.logs_enabled | quote }}
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: {{ .Values.observability.otel.exporter_otlp_endpoint }}
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: {{ .Values.observability.otel.resource_attributes }}
         image: {{ .Values.svc.api.image.registry }}/{{ .Values.svc.api.image.image }}:{{ .Values.svc.api.image.tag }}
         imagePullPolicy: {{ .Values.svc.api.image.pullPolicy }}
         name: scapi-core
