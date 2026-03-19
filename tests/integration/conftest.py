@@ -1,5 +1,6 @@
 """Integration test configuration for Site Capabilities API."""
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -7,8 +8,15 @@ from pathlib import Path
 import pytest
 from ska_test_utils.auth import get_scapi_token
 
-project_path = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(project_path / "src"))
+logging.basicConfig(level=logging.INFO, stream=sys.stdout, force=True)
+
+try:
+    project_path = Path(__file__).resolve().parents[3]
+    src_path = project_path / "src"
+    if src_path.is_dir():
+        sys.path.insert(0, str(src_path))
+except IndexError:
+    pass
 
 
 @pytest.fixture(scope="session")
