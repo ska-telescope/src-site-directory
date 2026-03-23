@@ -5,14 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.94]
+
+### Changed
+
+- Made uvicorn workers/reload configurable
+
 ## [0.3.93]
 
 ### Changed
+
 - Bump permission API
 
 ## [0.3.92]
 
 ### Added
+
 - Bump logging library 
 - product_streamer added as local service
 - product_streamer added to compute services in STORM2
@@ -20,54 +28,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.91]
 
 ### Added
+
 - Bump logging library 
 
 ## [0.3.90]
 
 ### Added
+
 - Logging library update to redact client secrets
 
 ## [0.3.89]
 
 ### Added
+
 - Otel logging 
 
 ## [0.3.88]
 
 ### Changed
+
 - Changed Dockerfilesymlinks to copies to fix oci-image-build step 
 - PAPI updated to 0.2.5 and AAPI to 0.6.7
 
 ## [0.3.87]
 
 ### Changed
+
 - Updated docs to use env variable for README path or /opt/ska-src-site-capabilities-api/README.md
 - Generated poetry lock file with poetry 2.3.1 and updated to latest versions of AAPI and PAPI
 
 ## [0.3.86]
 
 ### Changed
+
 - strip-version-prefix moved to common/utils.py
 - added strip-version-prefix calls to docs routes
 
 ## [0.3.85]
 
 ### Changed
+
 - Bumped to include new client
 
 ## [0.3.84]
 
 ### Changed
+
 - Bumped to include the new ska-src-permissions-api client functionality included in  version 0.1.95
  
 ## [0.3.83]
 
 ### Added 
+
 - Added Queue Schema to site capabilities
 - Added new APIs to fetch list of queue and queue by ID
 - Updated site capabilities client
 
 ### Changed 
+
 - get_node_version now raises `NodeVersionNotFound` when node not found
 - set_storage_enabled and set_storage_disabled now raise `NodeVersionNotFound` when node not found
 - set_storage_areas_enabled and set_storage_areas_disabled now raise `StorageAreaNotFound` when node not found
@@ -77,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.82]
 
 ### Changed 
+
 - Updated to python 3.13 and the following packages
   * FastAPI 0.124.0
   * Pydantic 2.10.0
@@ -100,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update code samples generation to be pure python using jinja2 templates
 
 ### Added
+
 - Added reponse models equals to Nones and set response.models to various responses and errors
 - Added FastAPI Lifespan manager to initialize application state and resources at startup
 

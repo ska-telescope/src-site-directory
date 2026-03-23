@@ -68,6 +68,10 @@ spec:
               key: key
         - name: SCHEMAS_RELPATH
           value: {{ .Values.svc.api.schemas_relpath }}
+        - name: UVICORN_NWORKERS
+          value: {{ .Values.svc.api.uvicorn_nworkers | quote }}
+        - name: UVICORN_RELOAD
+          value: {{ .Values.svc.api.uvicorn_reload | quote }}
         - name: DISABLE_AUTHENTICATION
           value: {{ .Values.svc.api.disable_authentication | quote }}
         - name: LOG_LEVEL

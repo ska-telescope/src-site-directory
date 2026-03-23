@@ -44,6 +44,8 @@ services:
             AUTH_API_URL: https://authn.srcnet.skao.int/api/v1
             SESSIONS_SECRET_KEY:
             SCHEMAS_RELPATH: ../../../etc/schemas
+            UVICORN_NWORKERS: 1
+            UVICORN_RELOAD: "true"
         depends_on:
             scapi-mongo:
                 condition: service_healthy
