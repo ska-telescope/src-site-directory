@@ -31,6 +31,8 @@ svc:
         auth_api_url: https://authn.srcnet.skao.int/api/v1
         sessions_secret_key:
         schemas_relpath: ../../../etc/schemas
+        uvicorn_nworkers: 4
+        uvicorn_reload: "false"
     common:
         mongo_database: site-capabilities
         mongo_username: root
