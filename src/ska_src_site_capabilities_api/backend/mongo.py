@@ -632,6 +632,7 @@ class MongoBackend(Backend):
                     if associated_storage_area_id and service.get("associated_storage_area_id") != associated_storage_area_id:
                         continue
                     # Add parent information
+                    service.pop("_id", None)
                     response.append(
                         {
                             "scope": "local",

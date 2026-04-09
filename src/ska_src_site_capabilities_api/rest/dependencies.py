@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import Union
 
 from fastapi import Depends, HTTPException
@@ -43,12 +44,12 @@ class Permissions:
         self.permissions_service_version = permissions_service_version
 
     @handle_exceptions
-    async def verify_permission_for_service_route(self, request: Request, authorization: str = Depends(HTTPBearer())) -> Union[HTTPException, bool]:
+    async def verify_permission_for_service_route(self, request: Request, authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))) -> Union[HTTPException, bool]:
         """Dependency to verify permission for a service's route using the bearer token from the request's headers.
 
         This is the default authz route. Parameters for the verification are passed from the request path parameters.
         """
-        if authorization.credentials is None:
+        if authorization is None or authorization.credentials is None:
             raise PermissionDenied
         access_token = authorization.credentials
         # Strip version prefix from route path (e.g., /v1/nodes -> /nodes)
@@ -68,11 +69,12 @@ class Permissions:
     @staticmethod
     async def conditional_verify_permission_for_service_route_depends(
         request: Request,
-        authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+        authorization: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
     ):
         """Dependendency for verify_permission_for_service_route()."""
-        if not request.app.state.debug:
-            await request.app.state.permissions_dependencies.verify_permission_for_service_route(request, authorization)
+        if os.environ.get("DISABLE_AUTHENTICATION", "no") == "yes" or (hasattr(request.app.state, 'debug') and request.app.state.debug):
+            return
+        await request.app.state.permissions_dependencies.verify_permission_for_service_route(request, authorization)
 
     @handle_exceptions
     async def verify_permission_for_service_route_query_params(self, request: Request, token: str = None) -> Union[HTTPException, bool]:
