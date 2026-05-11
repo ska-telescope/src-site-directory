@@ -30,9 +30,9 @@
         {
             "id": "to be assigned",
             "type": "product_streamer",
-            "prefix": "http",
-            "host": "psapi-core",
-            "port": 8080,
+            "prefix": "https",
+            "host": "psapi.test",
+            "port": 443,
             "path": "v1/data/product",
             "other_attributes": {},
             "is_mandatory": false,
