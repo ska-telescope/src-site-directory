@@ -4,7 +4,7 @@
     "description": "",
     "associated_local_services": [
         {
-            "id": "to be assigned",
+            "id": "33333333-3333-3333-3333-333333333333",
             "type": "prepare_data",
             "prefix": "https",
             "host": "gatekeeper.test",
