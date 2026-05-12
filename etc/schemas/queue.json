@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "object",
-  "description": "Queues to Submit Batch Jobs",
+  "description": "Queues to Submit Worksteps",
   "properties": {
     "id": {
       "type": "string",
@@ -12,6 +12,21 @@
     "name": {
       "type": "string",
       "title": "Name of the Queue",
+      "default": null
+    },
+    "max_cpu_cores": {
+      "type": "number",
+      "title": "Max CPU Cores",
+      "default": null
+    },
+    "max_memory_gb": {
+      "type": "number",
+      "title": "Max Memory (GB)",
+      "default": null
+    },
+    "max_scratch_gb": {
+      "type": "number",
+      "title": "Max Scratch (GB)",
       "default": null
     },
     "description": {

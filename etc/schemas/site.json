@@ -9,6 +9,11 @@
       "format": "uuid",
       "default": "to be assigned"
     },
+    "is_production_site": {
+      "type": "boolean",
+      "title": "Production Site",
+      "default": false
+    },
     "name": {
       "type": "string",
       "title": "Name",

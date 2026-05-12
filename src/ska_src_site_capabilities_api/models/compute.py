@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import List, Literal
+from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
 import jsonref
@@ -29,6 +29,9 @@ class Downtime(BaseModel):
 class Queue(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["default"])
+    max_cpu_cores: Optional[int] = Field(default=None, examples=[100])
+    max_memory_gb: Optional[int] = Field(default=None, examples=[512])
+    max_scratch_gb: Optional[int] = Field(default=None, examples=[1024])
     other_attributes: dict = Field(examples=[{"some_key": "some_value"}])
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])
