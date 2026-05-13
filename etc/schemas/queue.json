@@ -16,17 +16,17 @@
     },
     "max_cpu_cores": {
       "type": "number",
-      "title": "Max CPU Cores",
+      "title": "Max CPU Cores per workstep",
       "default": null
     },
     "max_memory_gb": {
       "type": "number",
-      "title": "Max Memory (GB)",
+      "title": "Max Memory (GB) per workstep",
       "default": null
     },
     "max_scratch_gb": {
       "type": "number",
-      "title": "Max Scratch (GB)",
+      "title": "Max Scratch (GB) per workstep",
       "default": null
     },
     "description": {
