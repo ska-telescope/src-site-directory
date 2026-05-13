@@ -1,0 +1,23 @@
+{
+    "id": "to be assigned",
+    "hardware_type": "container",
+    "description": "",
+    "associated_local_services": [
+        {
+            "id": "to be assigned",
+            "type": "product_streamer",
+            "prefix": "https",
+            "host": "psapi.test",
+            "port": 443,
+            "path": "v1/data/product",
+            "other_attributes": {},
+            "is_mandatory": false,
+            "is_force_disabled": false,
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id will be populated by the test"
+        }
+    ],
+    "hardware_capabilities": [],
+    "downtime": [],
+    "is_force_disabled": false
+}
