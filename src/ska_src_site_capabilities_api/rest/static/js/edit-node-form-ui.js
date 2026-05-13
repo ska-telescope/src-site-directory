@@ -28,7 +28,8 @@
               "key": "sites[].is_production_site",
               "default": false,
               "title": "Production site?",
-              "type": "checkbox"
+              "type": "checkbox",
+              "htmlClass": "inline-checkbox"
             },
             {
               "key": "sites[].name",
