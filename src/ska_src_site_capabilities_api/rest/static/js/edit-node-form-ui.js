@@ -632,7 +632,7 @@
                                   "title": "Max Scratch (GB)",
                                   "placeholder": "Enter max scratch space in GB",
                                   "required": false
-                                }
+                                },
                                 {
                                   "title": "Downtime (Queues)",
                                   "type": "tabarray",
