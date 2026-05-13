@@ -616,22 +616,22 @@
                                 {
                                   "key": "sites[].compute[].queues[].max_cpu_cores",
                                   "type": "number",
-                                  "title": "Max CPU Cores",
-                                  "placeholder": "Enter max CPU cores",
+                                  "title": "Max CPU Cores per workstep",
+                                  "placeholder": "Enter max CPU cores per workstep",
                                   "required": false
                                 },
                                 {
                                   "key": "sites[].compute[].queues[].max_memory_gb",
                                   "type": "number",
-                                  "title": "Max Memory (GB)",
-                                  "placeholder": "Enter max memory in GB",
+                                  "title": "Max Memory (GB) per workstep",
+                                  "placeholder": "Enter max memory in GB per workstep",
                                   "required": false
                                 },
                                 {
                                   "key": "sites[].compute[].queues[].max_scratch_gb",
                                   "type": "number",
-                                  "title": "Max Scratch (GB)",
-                                  "placeholder": "Enter max scratch space in GB",
+                                  "title": "Max Scratch (GB) per workstep",
+                                  "placeholder": "Enter max scratch space in GB per workstep",
                                   "required": false
                                 },
                                 {
