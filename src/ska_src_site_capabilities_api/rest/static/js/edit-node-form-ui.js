@@ -25,6 +25,12 @@
               "readOnly": true
             },
             {
+              "key": "sites[].is_production_site",
+              "default": false,
+              "title": "Production site?",
+              "type": "checkbox"
+            },
+            {
               "key": "sites[].name",
               "placeholder": "Unique site name",
               "valueInLegend": true
@@ -585,7 +591,7 @@
                           }
                         },
                         {
-                          "title": "Queues to Submit Batch Jobs",
+                          "title": "Queues to Submit Worksteps",
                           "type": "tabarray",
                           "items": {
                             "type": "section",
@@ -599,13 +605,34 @@
                                 {
                                   "key": "sites[].compute[].queues[].name",
                                   "type": "text",
-                                  "placeholder": "Unique Queue name for this site",
+                                  "placeholder": "Unique Queue name for this compute",
                                   "valueInLegend": true
                                 },
                                 {
                                   "key": "sites[].compute[].queues[].description",
-                                  "placeholder": "Site description"
+                                  "placeholder": "Queue description"
                                 },
+                                {
+                                  "key": "sites[].compute[].queues[].max_cpu_cores",
+                                  "type": "number",
+                                  "title": "Max CPU Cores",
+                                  "placeholder": "Enter max CPU cores",
+                                  "required": false
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].max_memory_gb",
+                                  "type": "number",
+                                  "title": "Max Memory (GB)",
+                                  "placeholder": "Enter max memory in GB",
+                                  "required": false
+                                },
+                                {
+                                  "key": "sites[].compute[].queues[].max_scratch_gb",
+                                  "type": "number",
+                                  "title": "Max Scratch (GB)",
+                                  "placeholder": "Enter max scratch space in GB",
+                                  "required": false
+                                }
                                 {
                                   "title": "Downtime (Queues)",
                                   "type": "tabarray",
