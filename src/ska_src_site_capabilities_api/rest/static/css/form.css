@@ -1,4 +1,4 @@
- {
+{
   color: inherit;
   text-decoration: underline;
 }
@@ -211,22 +211,4 @@ label[for] {
   font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
-}
-
-.inline-checkbox {
-   display: flex;
-   align-items: center;
-}
-
-.inline-checkbox label {
-   display: inline-flex;
-   align-items: center;
-   gap: 6px;
-   padding-right: 10px;
-}
-
-.inline-checkbox input[type="checkbox"] {
-   display: flex;
-   align-items: center;
-   gap: 8px;
 }
