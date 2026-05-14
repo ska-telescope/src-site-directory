@@ -26,10 +26,8 @@
             },
             {
               "key": "sites[].is_production_site",
-              "default": false,
-              "title": "Production site?",
-              "type": "checkbox",
-              "htmlClass": "inline-checkbox"
+              "notitle": true,
+              "inlinetitle": "Production site?"
             },
             {
               "key": "sites[].name",
