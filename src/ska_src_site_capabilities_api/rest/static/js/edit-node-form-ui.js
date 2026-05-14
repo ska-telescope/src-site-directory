@@ -27,7 +27,8 @@
             {
               "key": "sites[].is_production_site",
               "notitle": true,
-              "inlinetitle": "Production site?"
+              "inlinetitle": "Production site?",
+              "type": "checkbox"
             },
             {
               "key": "sites[].name",
