@@ -23,20 +23,8 @@ services:
         image: scapi-core:latest
         env_file:
             - .env
-        ports:
-          - "8080:8080"
-        build:
-            context: .
-            dockerfile: Dockerfile.core
-        develop:
-            watch:
-                - action: rebuild
-                  path: ./src
-
-                - action: rebuild
-                  path: ./etc
         environment:
-            DISABLE_AUTHENTICATION: "yes"
+            DISABLE_AUTHENTICATION: "no"
             API_ROOT_PATH:
             API_SCHEME: http
             IAM_CLIENT_CONF_URL: https://ska-iam.stfc.ac.uk/.well-known/openid-configuration
