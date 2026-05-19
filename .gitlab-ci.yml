@@ -17,7 +17,7 @@ stages:
     - build
     - test
     - publish
-    #- integration
+    - integration
     - pages
     - scan
 
@@ -55,6 +55,10 @@ include:
     # release automation
     - project: "ska-telescope/templates-repository"
       file: "gitlab-ci/includes/release.gitlab-ci.yml"
+    # deployment stack integration tests
+    - project: "ska-telescope/src/src-api/ska-src-api-deployment-stack"
+      ref: uv-1372-patch-update-ci-integration-stage
+      file: ".gitlab/ci/integration.yml"
 
 # Overrides for and extensions of SKAO jobs
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
@@ -124,72 +128,17 @@ stop-k8s-test-api-with-enabled-auth:
     variables:
         KUBE_NAMESPACE: "ci-$CI_PROJECT_NAME-$CI_COMMIT_SHORT_SHA-enabled-auth"
 
-#integration-test:
-#    stage: integration
-#    tags:
-#        - integration-runner
-#    variables:
-#        GIT_SUBMODULE_STRATEGY: recursive
-#      GIT_CLEAN_FLAGS: -ffdx
-#        SERVICE_NAME: SCAPI # The service being tested (AAPI, CAVERN, DMAPI, etc.)
-#    before_script:
-#        # Clean up any leftover integration environment from previous runs
-#        - rm -rf ska-src-api-integration-environment || true
-#        # Clean up any old skaie installation
-#        - rm -rf ~/.local/skaie ~/.local/bin/skaie || true
-#        - rm -rf ~/.skaie/config.yaml || true
-#    script:
-#        # Clone integration environment
-#        - git clone https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment.git
-#        - cd ska-src-api-integration-environment
-#        - git submodule update --init --recursive
-#        # Install skaie CLI
-#        - make install-auto
-#        - export PATH="$HOME/.local/bin:$PATH"
-#        - skaie --version
-#        - cp .env.template .env
-#        - mkdir -p ./certificates
-#        # Pull all submodules
-#        - skaie submodule pull
-#        # Update Docker images
-#        - skaie images update
-#        # Set the branch for the service being tested (current MR branch)
-#        - skaie submodule set $SERVICE_NAME $CI_COMMIT_REF_NAME
-#        - skaie submodule list
-#        - mkdir -p monitoring/otel
-#        - curl -L -o monitoring/otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
-#        - skaie start $SERVICE_NAME --yes
-#        - skaie test $SERVICE_NAME
-
-#        # Check tester exit code
-#        - EXIT_CODE=$(docker inspect tester --format='{{.State.ExitCode}}' 2>/dev/null || echo "1")
-#        - echo "Tester exit code is $EXIT_CODE"
-#        - |
-#            if [ "$EXIT_CODE" -eq "0" ]; then
-#              echo "✅ Tests passed!"
-#              exit 0
-#            else
-#              echo "❌ Tests failed with exit code: $EXIT_CODE"
-#              echo "Showing final tester logs:"
-#              docker logs tester 2>&1 | tail -100 || true
-#              exit $EXIT_CODE
-#            fi
-#    after_script:
-#        - cd ska-src-api-integration-environment || true
-#        # Stop all services
-#        - export PATH="$HOME/.local/bin:$PATH"
-#        - skaie stop all --yes || true
-#        # Cleanup
-#        - bash scripts/stack/cleanup-pycache.sh || true
-#        - cd ..
-#        - rm -rf ska-src-api-integration-environment || true
-#    allow_failure: false
-#    rules:
-#        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-#          when: always
-#        - if: "$CI_COMMIT_BRANCH"
-#          when: manual
-#          allow_failure: true
+integration:
+  tags:
+    - integration-testing
+  variables:
+    SERVICE_BRANCH: $CI_COMMIT_REF_NAME
+    SERVICE_NAME: scapi
+    TOOLKIT_IMAGE_NAME: registry.gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack/toolkit
+    TOOLKIT_IMAGE_TAG: b4206d82e7b228fd21e72367e00396397adf010a
+    RUN_TESTS: "true"
+  rules:
+    - when: always
 
 python-lint:
     image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
