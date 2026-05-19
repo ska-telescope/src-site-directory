@@ -57,7 +57,7 @@ include:
       file: "gitlab-ci/includes/release.gitlab-ci.yml"
     # deployment stack integration tests
     - project: "ska-telescope/src/src-api/ska-src-api-deployment-stack"
-      ref: uv-1372-patch-update-ci-integration-stage
+      ref: main
       file: ".gitlab/ci/integration.yml"
 
 # Overrides for and extensions of SKAO jobs
