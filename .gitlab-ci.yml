@@ -135,7 +135,7 @@ integration:
     SERVICE_BRANCH: $CI_COMMIT_REF_NAME
     SERVICE_NAME: scapi
     TOOLKIT_IMAGE_NAME: registry.gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack/toolkit
-    TOOLKIT_IMAGE_TAG: f69d3224111c008a4f8d8bcd729dac58be5498b6
+    TOOLKIT_IMAGE_TAG: 290c98c27c4e04800da8646fa4292d8c9e94d3ab
     RUN_TESTS: "true"
   rules:
     - when: always
