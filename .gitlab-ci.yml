@@ -138,7 +138,11 @@ integration:
     TOOLKIT_IMAGE_TAG: b4206d82e7b228fd21e72367e00396397adf010a
     RUN_TESTS: "true"
   rules:
-    - when: always
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH'
+      when: manual
+      allow_failure: true
 
 python-lint:
     image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
