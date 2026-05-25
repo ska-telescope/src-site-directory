@@ -57,7 +57,7 @@ include:
       file: "gitlab-ci/includes/release.gitlab-ci.yml"
     # deployment stack integration tests
     - project: "ska-telescope/src/src-api/ska-src-api-deployment-stack"
-      ref: adding-staging
+      ref: main
       file: ".gitlab/ci/integration.yml"
 
 # Overrides for and extensions of SKAO jobs
@@ -135,7 +135,7 @@ integration:
     SERVICE_BRANCH: $CI_COMMIT_REF_NAME
     SERVICE_NAME: scapi
     TOOLKIT_IMAGE_NAME: registry.gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack/toolkit
-    TOOLKIT_IMAGE_TAG: b4206d82e7b228fd21e72367e00396397adf010a
+    TOOLKIT_IMAGE_TAG: latest
     RUN_TESTS: "true"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
