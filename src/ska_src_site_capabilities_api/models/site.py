@@ -17,6 +17,7 @@ class Downtime(BaseModel):
 class Site(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     is_production_site: bool = Field(default=False, examples=[True, False])
+    status: Literal["up", "drain", "down"] = Field(default="up", examples=["up", "drain", "down"])
     name: str = Field(examples=["SKAOSRC"])
     comments: str = Field(examples=["Some version comments"])
     description: str = Field(examples=["Some description"])

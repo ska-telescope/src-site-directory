@@ -6,6 +6,7 @@
   "sites": [
     {
       "name": "STORM1",
+      "status": "up",
       "comments": "",
       "description": "Storm 1",
       "country": "SKAO",

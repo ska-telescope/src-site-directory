@@ -28,7 +28,8 @@
         "prepare_data",
         "gaussconv",
         "cavern",
-        "product_streamer"
+        "product_streamer",
+        "job-gateway"
       ],
       "default": null,
       "required": true

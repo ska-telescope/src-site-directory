@@ -40,6 +40,19 @@
       ],
       "allowEmpty": true
     },
+    "supported_backends": {
+      "type": "array",
+      "title": "Supported execution backends / glidein resource pools",
+      "items": {
+        "type": "string",
+        "enum": [
+          "kubernetes",
+          "slurm"
+        ]
+      },
+      "default": [],
+      "allowEmpty": true
+    },
     "description": {
       "type": "string",
       "title": "Description",

@@ -39,9 +39,28 @@
             "is_force_disabled": false,
             "associated_storage_area_id": null,
             "_comment": "associated_storage_area_id this will be populated by the test"
+        },
+        {
+            "id": "to be assigned",
+            "type": "job-gateway",
+            "prefix": "http",
+            "host": "job-gateway-2.job-gateway-2.svc.cluster.local",
+            "port": 8081,
+            "path": "",
+            "other_attributes": {
+                "site_id": "STORM2",
+                "glidein_url": "http://job-gateway-2.job-gateway-2.svc.cluster.local:8081",
+                "supported_backends": ["kubernetes", "slurm"]
+            },
+            "is_mandatory": false,
+            "is_force_disabled": false,
+            "downtime": [],
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id (the STORM2 RSE) is populated by the test"
         }
     ],
     "hardware_capabilities": [],
+    "supported_backends": ["kubernetes", "slurm"],
     "downtime": [],
     "is_force_disabled": false
 }

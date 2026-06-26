@@ -44,6 +44,7 @@ class Compute(BaseModel):
     compute_units: float = Field(examples=[10])
     hardware_capabilities: HardwareCapabilities = Field(examples=[*hardware_capabilities])
     hardware_type: HardwareType = Field(examples=[*hardware_type])
+    supported_backends: List[str] = Field(default_factory=list, examples=[["kubernetes", "slurm"]])
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]
