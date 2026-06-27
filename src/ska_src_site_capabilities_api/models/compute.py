@@ -45,6 +45,10 @@ class Compute(BaseModel):
     hardware_capabilities: HardwareCapabilities = Field(examples=[*hardware_capabilities])
     hardware_type: HardwareType = Field(examples=[*hardware_type])
     supported_backends: List[str] = Field(default_factory=list, examples=[["kubernetes", "slurm"]])
+    # Largest pilot the site will run (0 = no cap). Memory is MiB despite the
+    # ``_mb`` suffix — it matches the broker's --memory (toil int MiB) unit.
+    max_pilot_cpus: int = Field(default=0, examples=[8])
+    max_pilot_memory_mb: int = Field(default=0, examples=[16384])
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]

@@ -53,6 +53,16 @@
       "default": [],
       "allowEmpty": true
     },
+    "max_pilot_cpus": {
+      "type": "number",
+      "title": "Max pilot CPU cores (0 = no cap)",
+      "default": 0
+    },
+    "max_pilot_memory_mb": {
+      "type": "number",
+      "title": "Max pilot memory (MiB, 0 = no cap)",
+      "default": 0
+    },
     "description": {
       "type": "string",
       "title": "Description",

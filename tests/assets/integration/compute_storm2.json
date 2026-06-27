@@ -61,6 +61,9 @@
     ],
     "hardware_capabilities": [],
     "supported_backends": ["kubernetes", "slurm"],
+    "_comment_max_pilot": "Advertised cap MUST mirror this site's gateway maxPilotCpus/maxPilotMemoryMb (apps/job-gateway/overlays/dev/job-gateway-2). The gateway value is authoritative (it enforces the clamp); SCAPI mirrors it so the broker rejects oversize jobs at preselection.",
+    "max_pilot_cpus": 8,
+    "max_pilot_memory_mb": 16384,
     "downtime": [],
     "is_force_disabled": false
 }
