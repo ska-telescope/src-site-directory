@@ -27,7 +27,7 @@ from ska_src_site_capabilities_api.rest.dependencies import Common
 docs_router = APIRouter()
 config = Config(".env")
 
-README_PATH = os.environ.get("README_PATH", "/opt/ska-src-site-capabilities-api/high-level-architecture.md")
+README_PATH = os.environ.get("README_PATH", "/opt/ska-src-site-capabilities-api/README.md")
 
 
 @api_version(1)
@@ -38,7 +38,7 @@ README_PATH = os.environ.get("README_PATH", "/opt/ska-src-site-capabilities-api/
 )
 @handle_exceptions
 async def oper_docs(request: Request):
-    # Read and parse high-level-architecture.md, omitting excluded sections.
+    # Read and parse README.md, omitting excluded sections.
     with open(README_PATH, encoding="utf-8") as f:
         readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(readme_text_md, exclude_sections=["Deployment"])
@@ -67,7 +67,7 @@ async def oper_docs(request: Request):
 )
 @handle_exceptions
 async def user_docs(request: Request):
-    # Read and parse high-level-architecture.md, omitting excluded sections.
+    # Read and parse README.md, omitting excluded sections.
     with open(README_PATH, encoding="utf-8") as f:
         readme_text_md = f.read()
     readme_text_html = convert_readme_to_html_docs(
