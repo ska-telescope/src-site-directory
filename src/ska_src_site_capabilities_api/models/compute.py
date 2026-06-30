@@ -49,6 +49,10 @@ class Compute(BaseModel):
     # ``_mb`` suffix — it matches the broker's --memory (toil int MiB) unit.
     max_pilot_cpus: int = Field(default=0, examples=[8])
     max_pilot_memory_mb: int = Field(default=0, examples=[16384])
+    # GPUs per pilot. Unlike cpu/memory, 0 means "no GPU here" (GPUs are opt-in
+    # hardware, not a universal resource), so the broker rejects a GPU job at any
+    # site whose largest GPU pilot is below the request.
+    max_pilot_gpus: int = Field(default=0, examples=[1])
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]

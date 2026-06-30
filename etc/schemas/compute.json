@@ -63,6 +63,11 @@
       "title": "Max pilot memory (MiB, 0 = no cap)",
       "default": 0
     },
+    "max_pilot_gpus": {
+      "type": "number",
+      "title": "Max GPUs per pilot (0 = no GPU)",
+      "default": 0
+    },
     "description": {
       "type": "string",
       "title": "Description",
