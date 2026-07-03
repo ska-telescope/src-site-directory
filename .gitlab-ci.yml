@@ -76,7 +76,10 @@ integration:
 python-lint:
     image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
+        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
+        - uv python install 3.13
         - poetry config virtualenvs.in-project true
+        - poetry env use "$(uv python find 3.13)"
         - poetry install --no-interaction --no-ansi
     script:
         - make python-lint PYTHON_RUNNER="poetry run"
@@ -87,7 +90,10 @@ docs-build:
 python-test:
     image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
+        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
+        - uv python install 3.13
         - poetry config virtualenvs.in-project true
+        - poetry env use "$(uv python find 3.13)"
         - poetry install --no-interaction --no-ansi
     script:
         - make python-test PYTHON_RUNNER="poetry run"
@@ -95,7 +101,10 @@ python-test:
 python-build-for-development:
     image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
+        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
+        - uv python install 3.13
         - poetry config virtualenvs.in-project true
+        - poetry env use "$(uv python find 3.13)"
         - poetry install --no-interaction --no-ansi
     script:
         - make python-build PYTHON_RUNNER="poetry run"
