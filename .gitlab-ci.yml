@@ -74,7 +74,7 @@ integration:
       allow_failure: true
 
 python-lint:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
         - poetry config virtualenvs.in-project true
         - poetry install --no-interaction --no-ansi
@@ -82,10 +82,10 @@ python-lint:
         - make python-lint PYTHON_RUNNER="poetry run"
 
 docs-build:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
 
 python-test:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
         - poetry config virtualenvs.in-project true
         - poetry install --no-interaction --no-ansi
@@ -93,7 +93,7 @@ python-test:
         - make python-test PYTHON_RUNNER="poetry run"
 
 python-build-for-development:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
     before_script:
         - poetry config virtualenvs.in-project true
         - poetry install --no-interaction --no-ansi
