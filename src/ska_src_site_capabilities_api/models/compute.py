@@ -17,6 +17,8 @@ hardware_type = dereferenced_schema.get("properties", {}).get("hardware_type", {
 
 HardwareCapabilities = Literal[tuple(hardware_capabilities)]
 HardwareType = Literal[tuple(hardware_type)]
+backend_names = dereferenced_schema.get("properties", {}).get("backends", {}).get("items", {}).get("properties", {}).get("name", {}).get("enum", [])
+BackendName = Literal[tuple(backend_names)]
 
 
 class Downtime(BaseModel):
@@ -37,6 +39,23 @@ class Queue(BaseModel):
     is_force_disabled: bool = Field(examples=[True, False])
 
 
+class Backend(BaseModel):
+    """One execution backend (pilot pool) this compute offers.
+
+    Pilot size ceilings are PER BACKEND — a site's slurm nodes and kubernetes
+    nodes may support different max pilot sizes, so the broker preselects a
+    job against the ceiling of the backend it requests. Memory is MiB despite
+    the ``_mb`` suffix — it matches the broker's --memory (toil int MiB) unit.
+    For cpu/memory 0 means "no cap"; for GPUs 0 means "no GPU on this backend"
+    (GPUs are opt-in hardware, not a universal resource).
+    """
+
+    name: BackendName = Field(examples=[*backend_names])
+    max_pilot_cpus: int = Field(default=0, examples=[8])
+    max_pilot_memory_mb: int = Field(default=0, examples=[16384])
+    max_pilot_gpus: int = Field(default=0, examples=[1])
+
+
 class Compute(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(examples=["SKAOSRC"])
@@ -44,15 +63,9 @@ class Compute(BaseModel):
     compute_units: float = Field(examples=[10])
     hardware_capabilities: HardwareCapabilities = Field(examples=[*hardware_capabilities])
     hardware_type: HardwareType = Field(examples=[*hardware_type])
-    supported_backends: List[str] = Field(default_factory=list, examples=[["kubernetes", "slurm"]])
-    # Largest pilot the site will run (0 = no cap). Memory is MiB despite the
-    # ``_mb`` suffix — it matches the broker's --memory (toil int MiB) unit.
-    max_pilot_cpus: int = Field(default=0, examples=[8])
-    max_pilot_memory_mb: int = Field(default=0, examples=[16384])
-    # GPUs per pilot. Unlike cpu/memory, 0 means "no GPU here" (GPUs are opt-in
-    # hardware, not a universal resource), so the broker rejects a GPU job at any
-    # site whose largest GPU pilot is below the request.
-    max_pilot_gpus: int = Field(default=0, examples=[1])
+    # The execution backends (pilot pools) and their per-backend pilot-size
+    # ceilings. Replaces the former flat supported_backends + max_pilot_*.
+    backends: List[Backend] = Field(default_factory=list)
     description: str = Field(examples=["some description"])
     middleware_version: str = Field(examples=["1.0.0"])
     associated_global_services: List[GlobalService]

@@ -26,7 +26,10 @@
             "other_attributes": {
                 "site_id": "STORM1",
                 "glidein_url": "http://job-gateway-1.job-gateway-1.svc.cluster.local:8081",
-                "supported_backends": ["kubernetes", "slurm"]
+                "supported_backends": [
+                    "kubernetes",
+                    "slurm"
+                ]
             },
             "is_mandatory": false,
             "is_force_disabled": false,
@@ -36,10 +39,21 @@
         }
     ],
     "hardware_capabilities": [],
-    "supported_backends": ["kubernetes", "slurm"],
-    "_comment_max_pilot": "Advertised cap MUST mirror this site's gateway maxPilotCpus/maxPilotMemoryMb (apps/job-gateway/overlays/dev/job-gateway-1). The gateway value is authoritative (it enforces the clamp); SCAPI mirrors it so the broker rejects oversize jobs at preselection.",
-    "max_pilot_cpus": 8,
-    "max_pilot_memory_mb": 16384,
     "downtime": [],
-    "is_force_disabled": false
+    "is_force_disabled": false,
+    "_comment_backends": "SINGLE SOURCE OF TRUTH for pilot sizing, per backend: the slurm and kubernetes nodes support different max pilot sizes (k8s sized for dev node fit, slurm for the partition). The broker preselects a job against the ceiling of the backend it requests; the gateway carries no size cap.",
+    "backends": [
+        {
+            "name": "kubernetes",
+            "max_pilot_cpus": 4,
+            "max_pilot_memory_mb": 8192,
+            "max_pilot_gpus": 0
+        },
+        {
+            "name": "slurm",
+            "max_pilot_cpus": 8,
+            "max_pilot_memory_mb": 16384,
+            "max_pilot_gpus": 0
+        }
+    ]
 }

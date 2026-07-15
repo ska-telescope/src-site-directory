@@ -40,33 +40,40 @@
       ],
       "allowEmpty": true
     },
-    "supported_backends": {
+    "backends": {
       "type": "array",
-      "title": "Supported execution backends / glidein resource pools",
+      "title": "Execution backends (pilot pools) this compute offers",
+      "description": "Pilot size ceilings are PER BACKEND: a site's slurm nodes and kubernetes nodes may support different max pilot sizes. The broker preselects a job against the ceiling of the backend it requests.",
       "items": {
-        "type": "string",
-        "enum": [
-          "kubernetes",
-          "slurm"
-        ]
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Backend",
+            "enum": [
+              "kubernetes",
+              "slurm"
+            ]
+          },
+          "max_pilot_cpus": {
+            "type": "number",
+            "title": "Max pilot CPU cores (0 = no cap)",
+            "default": 0
+          },
+          "max_pilot_memory_mb": {
+            "type": "number",
+            "title": "Max pilot memory (MiB, 0 = no cap)",
+            "default": 0
+          },
+          "max_pilot_gpus": {
+            "type": "number",
+            "title": "Max GPUs per pilot (0 = no GPU)",
+            "default": 0
+          }
+        }
       },
       "default": [],
       "allowEmpty": true
-    },
-    "max_pilot_cpus": {
-      "type": "number",
-      "title": "Max pilot CPU cores (0 = no cap)",
-      "default": 0
-    },
-    "max_pilot_memory_mb": {
-      "type": "number",
-      "title": "Max pilot memory (MiB, 0 = no cap)",
-      "default": 0
-    },
-    "max_pilot_gpus": {
-      "type": "number",
-      "title": "Max GPUs per pilot (0 = no GPU)",
-      "default": 0
     },
     "description": {
       "type": "string",
