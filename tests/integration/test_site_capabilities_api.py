@@ -34,7 +34,7 @@ NODE2_SITE2_SERVICE_PRODUCT_STREAMER_ID = "test-ephemeral-node2-site2-service-pr
 
 
 @pytest.fixture(scope="session")
-def site_capabilities_token() -> str:
+def site_capabilities_admin_token() -> str:
     """Obtain a SCAPI-scoped token via the AAPI device flow."""
     with AuthenticationIntegrationClient(AAPI_SERVICE_URL, IAM_TEST_ADMIN_USERNAME, IAM_TEST_ADMIN_PASSWORD) as flow:
         flow.authorize()
@@ -44,10 +44,10 @@ def site_capabilities_token() -> str:
 
 
 @pytest.fixture(scope="session")
-def scapi_client(site_capabilities_token) -> SiteCapabilitiesIntegrationClient:
+def scapi_client(site_capabilities_admin_token) -> SiteCapabilitiesIntegrationClient:
     """A SiteCapabilitiesIntegrationClient authenticated with a SCAPI-scoped token."""
     session = requests.Session()
-    session.headers.update({"Authorization": f"Bearer {site_capabilities_token}"})
+    session.headers.update({"Authorization": f"Bearer {site_capabilities_admin_token}"})
     return SiteCapabilitiesIntegrationClient(api_url=SCAPI_SERVICE_URL, session=session)
 
 

@@ -3,6 +3,10 @@
 Requires the ``integration`` extra; not a runtime dependency of the service.
 """
 
+import logging
+
+import fire
+import requests
 from fastapi import HTTPException
 
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
@@ -10,6 +14,26 @@ from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilit
 
 class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
     """An SiteCapabilitiesClient with registration/deregistration helpers for nodes, sites, storages, compute, services."""
+
+    def __init__(
+        self, api_url, iam_url=None, client_id=None, client_secret=None,
+        scope="site-capabilities-api-service", audience="site-capabilities-api", session=None,
+    ):
+        super().__init__(api_url, session=session, calling_service="scapi-integration-client")
+        if client_id and client_secret:
+            self._authenticate(iam_url, client_id, client_secret, scope, audience)
+
+    def _authenticate(self, iam_url, client_id, client_secret, scope, audience):
+        """Obtain a client-credentials token from IAM and set it on the session."""
+        response = requests.post(
+            f"{iam_url}/token",
+            auth=(client_id, client_secret),
+            data={"grant_type": "client_credentials", "scope": scope, "audience": audience},
+            timeout=30,
+        )
+        response.raise_for_status()
+        token = response.json()["access_token"]
+        self.session.headers["Authorization"] = f"Bearer {token}"
 
     def _get_node(self, node):
         """Fetch a node."""
@@ -110,6 +134,11 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
 
     def register_node(self, node, description=None):
         """Create the node if it does not already exist."""
+        # get_node_version() is decorated to log a full ERROR-level traceback on any HTTPError,
+        # even the expected 404 on first registration — mute it just for this call.
+        exceptions_logger = logging.getLogger("ska_src_site_capabilities_api.common.exceptions")
+        previous_level = exceptions_logger.level
+        exceptions_logger.setLevel(logging.CRITICAL)
         try:
             self.get_node_version(node)
             print(f"[scapi] Node {node} already exists, skipping")
@@ -117,6 +146,8 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         except HTTPException as e:
             if e.status_code != 404:
                 raise
+        finally:
+            exceptions_logger.setLevel(previous_level)
         payload = {"name": node, "description": description or node, "comments": "", "version": 1, "sites": []}
         self.create_node(payload)
         print(f"[scapi] Node {node} created")
@@ -236,3 +267,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         resp = self.session.post(f"{self.api_url}/nodes/{node}", json=payload, headers=self._get_headers())
         resp.raise_for_status()
         return resp
+
+
+if __name__ == "__main__":
+    fire.Fire(SiteCapabilitiesIntegrationClient)
