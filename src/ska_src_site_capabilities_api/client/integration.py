@@ -16,19 +16,24 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
     """An SiteCapabilitiesClient with registration/deregistration helpers for nodes, sites, storages, compute, services."""
 
     def __init__(
-        self, api_url, iam_url=None, client_id=None, client_secret=None,
-        scope="site-capabilities-api-service", audience="site-capabilities-api", session=None,
+        self, api_url, iam_url=None, oidc_client_id=None, oidc_client_secret=None,
+        oidc_client_scope="site-capabilities-api-service", audience="site-capabilities-api", session=None,
     ):
         super().__init__(api_url, session=session, calling_service="scapi-integration-client")
-        if client_id and client_secret:
-            self._authenticate(iam_url, client_id, client_secret, scope, audience)
+        if oidc_client_id and oidc_client_secret:
+            self._authenticate_via_client_credentials(iam_url, oidc_client_id, oidc_client_secret, oidc_client_scope, audience)
 
-    def _authenticate(self, iam_url, client_id, client_secret, scope, audience):
+    @property
+    def token(self):
+        """The bearer token set on the session, without the ``Bearer `` prefix."""
+        return self.session.headers["Authorization"].removeprefix("Bearer ")
+
+    def _authenticate_via_client_credentials(self, iam_url, oidc_client_id, oidc_client_secret, oidc_client_scope, audience):
         """Obtain a client-credentials token from IAM and set it on the session."""
         response = requests.post(
             f"{iam_url}/token",
-            auth=(client_id, client_secret),
-            data={"grant_type": "client_credentials", "scope": scope, "audience": audience},
+            auth=(oidc_client_id, oidc_client_secret),
+            data={"grant_type": "client_credentials", "scope": oidc_client_scope, "audience": audience},
             timeout=30,
         )
         response.raise_for_status()
