@@ -9,17 +9,16 @@ import requests
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 from ska_src_site_capabilities_api.client.integration import SiteCapabilitiesIntegrationClient
 
+from conftest import SCAPI_SERVICE_URL
+
 logger = logging.getLogger(__name__)
 
 AAPI_URL = os.getenv("AAPI_URL", "http://aapi.test")
 AAPI_SERVICE_VERSION = os.getenv("AAPI_SERVICE_VERSION", "v1")
 IAM_TEST_ADMIN_USERNAME = os.getenv("IAM_TEST_ADMIN_USERNAME", "admin")
 IAM_TEST_ADMIN_PASSWORD = os.getenv("IAM_TEST_ADMIN_PASSWORD", "adminpassword")
-SCAPI_URL = os.getenv("SCAPI_URL", "http://scapi-core:8080")
-SCAPI_SERVICE_VERSION = os.getenv("SCAPI_SERVICE_VERSION", "v1")
 
 AAPI_SERVICE_URL = f"{AAPI_URL}/{AAPI_SERVICE_VERSION}"
-SCAPI_SERVICE_URL = f"{SCAPI_URL}/{SCAPI_SERVICE_VERSION}"
 NODE1_SITE1_STORAGE_ID = "test-ephemeral-node1-site1-storage"
 NODE1_SITE1_STORAGE_AREA_DET_ID = "test-ephemeral-node1-site1-storage-area-det"
 NODE1_SITE1_STORAGE_AREA_NONDET_ID = "test-ephemeral-node1-site1-storage-area-nondet"
