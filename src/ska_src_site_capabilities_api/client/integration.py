@@ -9,6 +9,7 @@ import fire
 import requests
 from fastapi import HTTPException
 
+from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
 
 
@@ -17,16 +18,27 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
 
     def __init__(
         self, api_url, iam_url=None, oidc_client_id=None, oidc_client_secret=None,
-        oidc_client_scope="site-capabilities-api-service", audience="site-capabilities-api", session=None,
+        oidc_client_scope="site-capabilities-api-service", audience="site-capabilities-api",
+        aapi_url=None, username=None, password=None, session=None,
     ):
         super().__init__(api_url, session=session, calling_service="scapi-integration-client")
         if oidc_client_id and oidc_client_secret:
             self._authenticate_via_client_credentials(iam_url, oidc_client_id, oidc_client_secret, oidc_client_scope, audience)
+        elif aapi_url and username and password:
+            self._authenticate_via_aapi_device_flow(aapi_url, username, password)
 
     @property
     def token(self):
         """The bearer token set on the session, without the ``Bearer `` prefix."""
         return self.session.headers["Authorization"].removeprefix("Bearer ")
+
+    def _authenticate_via_aapi_device_flow(self, aapi_url, username, password):
+        """Obtain a site-capabilities-api-scoped token via the AAPI device flow and set it on the session. """
+        with AuthenticationIntegrationClient(aapi_url, username, password) as flow:
+            flow.authorize()
+            access_token = flow.fetch_token()["token"]["access_token"]
+            response = flow.exchange_token(service="site-capabilities-api", version="latest", try_use_cache=True, access_token=access_token)
+            self.session.headers["Authorization"] = f"Bearer {response.json()['access_token']}"
 
     def _authenticate_via_client_credentials(self, iam_url, oidc_client_id, oidc_client_secret, oidc_client_scope, audience):
         """Obtain a client-credentials token from IAM and set it on the session."""
@@ -120,7 +132,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Storage {storage_id} not found on node {node}")
 
-    def register_compute(self, node, site_name, compute_id, hardware_type):
+    def register_compute(self, node, site_name, compute_id, name, hardware_type):
         """Add a compute element to a site (idempotent by compute_id)."""
         node_json = self._get_node(node)
         for site in node_json.get("sites", []):
@@ -129,11 +141,12 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             compute = site.setdefault("compute", [])
             compute[:] = [c for c in compute if c.get("id") != compute_id] + [{
                 "id": compute_id,
+                "name": name,
                 "hardware_type": hardware_type,
                 "associated_local_services": [],
             }]
             self.update_node(node, node_json)
-            print(f"[scapi] Compute {compute_id} added to {node}/{site_name}")
+            print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
             return
         raise ValueError(f"Site {site_name} not found on node {node}")
 
@@ -158,7 +171,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         print(f"[scapi] Node {node} created")
 
     def register_service(
-        self, node, compute_id, service_id, service_type,
+        self, node, compute_id, service_id, name, service_type,
         host=None, port=None, prefix=None, path=None, version="dev",
         storage_area_id=None, other_attributes=None, is_mandatory=False,
     ):
@@ -171,6 +184,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 services = compute.setdefault("associated_local_services", [])
                 entry = {
                     "id": service_id,
+                    "name": name,
                     "type": service_type,
                     "version": version,
                     "other_attributes": other_attributes or {},
@@ -191,7 +205,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                     entry["associated_storage_area_id"] = storage_area_id
                 services[:] = [s for s in services if s.get("id") != service_id] + [entry]
                 self.update_node(node, node_json)
-                print(f"[scapi] Service {service_type} added to compute {compute_id}")
+                print(f"[scapi] Service {name} ({service_type}) added to compute {compute_id}")
                 return
         raise ValueError(f"Compute {compute_id} not found on node {node}")
 

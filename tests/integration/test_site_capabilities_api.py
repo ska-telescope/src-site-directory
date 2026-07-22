@@ -114,11 +114,12 @@ class TestNodeEdit:
         ingest_area_id = next(area["id"] for area in storage_areas_storm2 if area["type"] == "ingest")
 
         # Step 2: register compute and its associated services
-        scapi_client.register_compute("STORM2", "STORM2", NODE2_SITE2_COMPUTE_ID, hardware_type="container")
+        scapi_client.register_compute("STORM2", "STORM2", NODE2_SITE2_COMPUTE_ID, "STORM2_COMPUTE1", hardware_type="container")
         scapi_client.register_service(
             "STORM2",
             NODE2_SITE2_COMPUTE_ID,
             NODE2_SITE2_SERVICE_PREPARE_DATA_ID,
+            "STORM2_COMPUTE1_PREPARE_DATA",
             service_type="prepare_data",
             host="gatekeeper.test",
             port=443,
@@ -131,6 +132,7 @@ class TestNodeEdit:
             "STORM2",
             NODE2_SITE2_COMPUTE_ID,
             NODE2_SITE2_SERVICE_INGEST_ID,
+            "STORM2_COMPUTE1_INGEST",
             service_type="ingest",
             version="1.0.0",
             storage_area_id=ingest_area_id,
@@ -139,6 +141,7 @@ class TestNodeEdit:
             "STORM2",
             NODE2_SITE2_COMPUTE_ID,
             NODE2_SITE2_SERVICE_PRODUCT_STREAMER_ID,
+            "STORM2_COMPUTE1_PRODUCT_STREAMER",
             service_type="product_streamer",
             host="psapi.test",
             port=443,
