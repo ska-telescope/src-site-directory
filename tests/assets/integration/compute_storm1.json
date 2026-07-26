@@ -45,8 +45,8 @@
     "backends": [
         {
             "name": "kubernetes",
-            "max_pilot_cpus": 4,
-            "max_pilot_memory_mb": 8192,
+            "max_pilot_cpus": 8,
+            "max_pilot_memory_mb": 16384,
             "max_pilot_gpus": 0
         },
         {
