@@ -59,7 +59,7 @@ def test_delete_all_nodes(mock_db, mock_backend):
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("name", [("TEST")])
+@pytest.mark.parametrize("name", ["TEST"])
 def test_delete_node_by_name(name, mock_db, mock_backend):
     nodes_documents_before_count = mock_db["nodes"].count_documents({})
     nodes_archived_documents_before_count = mock_db["nodes_archived"].count_documents({})

@@ -8,8 +8,8 @@ import logging
 import fire
 import requests
 from fastapi import HTTPException
-
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
+
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
 
 
@@ -17,9 +17,17 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
     """An SiteCapabilitiesClient with registration/deregistration helpers for nodes, sites, storages, compute, services."""
 
     def __init__(
-        self, api_url, iam_url=None, oidc_client_id=None, oidc_client_secret=None,
-        oidc_client_scope="site-capabilities-api-service", audience="site-capabilities-api",
-        aapi_url=None, username=None, password=None, session=None,
+        self,
+        api_url,
+        iam_url=None,
+        oidc_client_id=None,
+        oidc_client_secret=None,
+        oidc_client_scope="site-capabilities-api-service",
+        audience="site-capabilities-api",
+        aapi_url=None,
+        username=None,
+        password=None,
+        session=None,
     ):
         super().__init__(api_url, session=session, calling_service="scapi-integration-client")
         if oidc_client_id and oidc_client_secret:
@@ -33,7 +41,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         return self.session.headers["Authorization"].removeprefix("Bearer ")
 
     def _authenticate_via_aapi_device_flow(self, aapi_url, username, password):
-        """Obtain a site-capabilities-api-scoped token via the AAPI device flow and set it on the session. """
+        """Obtain a site-capabilities-api-scoped token via the AAPI device flow and set it on the session."""
         with AuthenticationIntegrationClient(aapi_url, username, password) as flow:
             flow.authorize()
             access_token = flow.fetch_token()["token"]["access_token"]
@@ -91,9 +99,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             for compute in site.get("compute", []):
                 if compute.get("id") != compute_id:
                     continue
-                compute["associated_local_services"] = [
-                    s for s in compute.get("associated_local_services", []) if s.get("id") != service_id
-                ]
+                compute["associated_local_services"] = [s for s in compute.get("associated_local_services", []) if s.get("id") != service_id]
                 self.update_node(node, node_json)
                 print(f"[scapi] Service {service_id} removed from compute {compute_id}")
                 return
@@ -139,12 +145,14 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             if site["name"] != site_name:
                 continue
             compute = site.setdefault("compute", [])
-            compute[:] = [c for c in compute if c.get("id") != compute_id] + [{
-                "id": compute_id,
-                "name": name,
-                "hardware_type": hardware_type,
-                "associated_local_services": [],
-            }]
+            compute[:] = [c for c in compute if c.get("id") != compute_id] + [
+                {
+                    "id": compute_id,
+                    "name": name,
+                    "hardware_type": hardware_type,
+                    "associated_local_services": [],
+                }
+            ]
             self.update_node(node, node_json)
             print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
             return
@@ -171,9 +179,20 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         print(f"[scapi] Node {node} created")
 
     def register_service(
-        self, node, compute_id, service_id, name, service_type,
-        host=None, port=None, prefix=None, path=None, version="dev",
-        storage_area_id=None, other_attributes=None, is_mandatory=False,
+        self,
+        node,
+        compute_id,
+        service_id,
+        name,
+        service_type,
+        host=None,
+        port=None,
+        prefix=None,
+        path=None,
+        version="dev",
+        storage_area_id=None,
+        other_attributes=None,
+        is_mandatory=False,
     ):
         """Add a local service to a compute element (idempotent by service_id)."""
         node_json = self._get_node(node)
@@ -216,21 +235,23 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         if any(s["name"] == site_name for s in sites):
             print(f"[scapi] Site {site_name} already exists on {node}, skipping")
             return
-        sites[:] = [s for s in sites if s["name"] != site_name] + [{
-            "id": "to be assigned",
-            "name": site_name,
-            "description": description,
-            "comments": "",
-            "country": country,
-            "primary_contact_email": contact,
-            "secondary_contact_email": "",
-            "latitude": lat,
-            "longitude": lon,
-            "downtime": [],
-            "is_force_disabled": False,
-            "other_attributes": {},
-            "storages": [],
-        }]
+        sites[:] = [s for s in sites if s["name"] != site_name] + [
+            {
+                "id": "to be assigned",
+                "name": site_name,
+                "description": description,
+                "comments": "",
+                "country": country,
+                "primary_contact_email": contact,
+                "secondary_contact_email": "",
+                "latitude": lat,
+                "longitude": lon,
+                "downtime": [],
+                "is_force_disabled": False,
+                "other_attributes": {},
+                "storages": [],
+            }
+        ]
         self.update_node(node, node_json)
         print(f"[scapi] Site {site_name} added to {node}")
 
@@ -241,18 +262,20 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             if site["name"] != site_name:
                 continue
             storages = site.setdefault("storages", [])
-            storages[:] = [s for s in storages if s.get("id") != storage_id] + [{
-                "id": storage_id,
-                "name": name,
-                "host": host,
-                "base_path": base_path,
-                "srm": srm,
-                "device_type": "",
-                "size_in_terabytes": size,
-                "supported_protocols": [{"prefix": "https", "port": 443}],
-                "downtime": [],
-                "is_force_disabled": False,
-            }]
+            storages[:] = [s for s in storages if s.get("id") != storage_id] + [
+                {
+                    "id": storage_id,
+                    "name": name,
+                    "host": host,
+                    "base_path": base_path,
+                    "srm": srm,
+                    "device_type": "",
+                    "size_in_terabytes": size,
+                    "supported_protocols": [{"prefix": "https", "port": 443}],
+                    "downtime": [],
+                    "is_force_disabled": False,
+                }
+            ]
             self.update_node(node, node_json)
             print(f"[scapi] Storage {name} added to {node}/{site_name}")
             return
@@ -266,16 +289,18 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 if storage.get("id") != storage_id:
                     continue
                 areas = storage.setdefault("areas", [])
-                areas[:] = [a for a in areas if a.get("id") != area_id] + [{
-                    "id": area_id,
-                    "type": area_type,
-                    "relative_path": relative_path,
-                    "name": name,
-                    "other_attributes": other_attributes or {},
-                    "tier": 0,
-                    "downtime": [],
-                    "is_force_disabled": False,
-                }]
+                areas[:] = [a for a in areas if a.get("id") != area_id] + [
+                    {
+                        "id": area_id,
+                        "type": area_type,
+                        "relative_path": relative_path,
+                        "name": name,
+                        "other_attributes": other_attributes or {},
+                        "tier": 0,
+                        "downtime": [],
+                        "is_force_disabled": False,
+                    }
+                ]
                 self.update_node(node, node_json)
                 print(f"[scapi] Storage area {name} added to storage {storage_id}")
                 return

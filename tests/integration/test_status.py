@@ -2,7 +2,6 @@ import logging
 
 import pytest
 import requests
-
 from conftest import SCAPI_SERVICE_URL
 
 logger = logging.getLogger(__name__)

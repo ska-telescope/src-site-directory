@@ -5,11 +5,10 @@ import os
 
 import pytest
 import requests
-
-from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
-from ska_src_site_capabilities_api.client.integration import SiteCapabilitiesIntegrationClient
-
 from conftest import SCAPI_SERVICE_URL
+from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
+
+from ska_src_site_capabilities_api.client.integration import SiteCapabilitiesIntegrationClient
 
 logger = logging.getLogger(__name__)
 
