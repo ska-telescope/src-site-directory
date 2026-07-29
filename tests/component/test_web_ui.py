@@ -4,8 +4,6 @@ Component tests for Web UI endpoints.
 These tests verify that the HTML web interface endpoints return proper HTML responses.
 """
 
-import os
-
 import httpx
 import pytest
 

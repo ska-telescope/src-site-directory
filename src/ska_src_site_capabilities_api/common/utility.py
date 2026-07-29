@@ -1,6 +1,5 @@
 import ast
 import json
-import os
 import time
 import uuid
 from urllib.parse import urlparse

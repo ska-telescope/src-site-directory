@@ -7,7 +7,7 @@ import os
 import httpx
 import pytest
 
-from tests.component.conftest import get_api_url, send_get_request
+from tests.component.conftest import get_api_url
 
 KUBE_NAMESPACE = os.getenv("KUBE_NAMESPACE")
 CLUSTER_DOMAIN = os.getenv("CLUSTER_DOMAIN")

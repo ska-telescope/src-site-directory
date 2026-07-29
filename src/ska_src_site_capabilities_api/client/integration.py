@@ -200,7 +200,6 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             for compute in site.get("compute", []):
                 if compute.get("id") != compute_id:
                     continue
-                services = compute.setdefault("associated_local_services", [])
                 entry = {
                     "id": service_id,
                     "name": name,
@@ -222,7 +221,9 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                     entry["path"] = path
                 if storage_area_id is not None:
                     entry["associated_storage_area_id"] = storage_area_id
-                services[:] = [s for s in services if s.get("id") != service_id] + [entry]
+                compute.setdefault("associated_local_services", [])[:] = [
+                    s for s in compute["associated_local_services"] if s.get("id") != service_id
+                ] + [entry]
                 self.update_node(node, node_json)
                 print(f"[scapi] Service {name} ({service_type}) added to compute {compute_id}")
                 return
