@@ -1,6 +1,4 @@
-default:
-  image: $SKA_K8S_TOOLS_BUILD_DEPLOY
-  services:
+services:
     - docker:dind
 
 variables:
@@ -79,8 +77,7 @@ python-lint:
         # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
         - uv python install 3.13
         - poetry config virtualenvs.in-project true
-        - poetry env use "$(uv python find 3.13)"
-        - poetry install --no-interaction --no-ansi
+        - poetry install --no-interaction --no-ansi --all-extras
     script:
         - make python-lint PYTHON_RUNNER="poetry run"
 

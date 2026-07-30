@@ -4,8 +4,6 @@ Component tests for error handling - invalid formats and malformed parameters.
 These tests verify that the API properly handles edge cases and invalid input.
 """
 
-import os
-
 import httpx
 import pytest
 
