@@ -24,12 +24,7 @@
             "port": 8081,
             "path": "",
             "other_attributes": {
-                "site_id": "STORM1",
-                "glidein_url": "http://job-gateway-1.job-gateway-1.svc.cluster.local:8081",
-                "supported_backends": [
-                    "kubernetes",
-                    "slurm"
-                ]
+                "site_id": "STORM1"
             },
             "is_mandatory": false,
             "is_force_disabled": false,

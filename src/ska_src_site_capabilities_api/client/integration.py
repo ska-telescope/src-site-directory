@@ -138,21 +138,34 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Storage {storage_id} not found on node {node}")
 
-    def register_compute(self, node, site_name, compute_id, name, hardware_type):
-        """Add a compute element to a site (idempotent by compute_id)."""
+    def register_compute(self, node, site_name, compute_id, name, hardware_type, backends=None):
+        """Add a compute element to a site (idempotent by compute_id).
+
+        ``backends`` optionally carries the execution backends (pilot pools) and
+        their per-backend pilot-size ceilings — the single source of truth the
+        broker preselects against, e.g.::
+
+            [{"name": "kubernetes", "max_pilot_cpus": 4, "max_pilot_memory_mb": 8192, "max_pilot_gpus": 0}]
+
+        From the CLI, pass it as a quoted literal:
+        ``--backends='[{"name": "kubernetes", "max_pilot_cpus": 4, ...}]'``.
+        """
         node_json = self._get_node(node)
         for site in node_json.get("sites", []):
             if site["name"] != site_name:
                 continue
             compute = site.setdefault("compute", [])
-            compute[:] = [c for c in compute if c.get("id") != compute_id] + [
-                {
-                    "id": compute_id,
-                    "name": name,
-                    "hardware_type": hardware_type,
-                    "associated_local_services": [],
-                }
-            ]
+            # Merge into any existing entry so a re-register (e.g. a service's
+            # post-deploy bootstrap re-running) preserves services and fields
+            # attached by other bootstrap jobs.
+            entry = next((c for c in compute if c.get("id") == compute_id), None) or {
+                "id": compute_id,
+                "associated_local_services": [],
+            }
+            entry.update({"name": name, "hardware_type": hardware_type})
+            if backends is not None:
+                entry["backends"] = backends
+            compute[:] = [c for c in compute if c.get("id") != compute_id] + [entry]
             self.update_node(node, node_json)
             print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
             return
