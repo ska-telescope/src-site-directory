@@ -29,7 +29,7 @@
         "gaussconv",
         "cavern",
         "product_streamer",
-        "job-gateway"
+        "job_gateway"
       ],
       "default": null,
       "required": true

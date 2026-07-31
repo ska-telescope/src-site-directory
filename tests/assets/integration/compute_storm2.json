@@ -51,7 +51,7 @@
         },
         {
             "id": "to be assigned",
-            "type": "job-gateway",
+            "type": "job_gateway",
             "prefix": "http",
             "host": "job-gateway-2.job-gateway-2.svc.cluster.local",
             "port": 8081,

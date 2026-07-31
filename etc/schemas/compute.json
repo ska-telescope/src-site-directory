@@ -53,7 +53,8 @@
             "enum": [
               "kubernetes",
               "slurm"
-            ]
+            ],
+            "required": true
           },
           "max_pilot_cpus": {
             "type": "number",

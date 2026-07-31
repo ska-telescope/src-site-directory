@@ -72,46 +72,28 @@ integration:
       allow_failure: true
 
 python-lint:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
     before_script:
-        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
-        - uv python install 3.13
         - poetry config virtualenvs.in-project true
         - poetry install --no-interaction --no-ansi --all-extras
     script:
         - make python-lint PYTHON_RUNNER="poetry run"
 
 docs-build:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
-    # The ubuntu24 image ships Python 3.12; the project needs >=3.13, which breaks
-    # the template before_script's `poetry install`. Override it: poetry installs
-    # into the activated uv-provisioned 3.13 venv, and docs.mk's `python3 -msphinx`
-    # picks it up via PATH.
-    before_script:
-        - '[ -f .make/docs.mk ] || (echo "File docs.mk not included in Makefile; exit 1")'
-        - uv venv /tmp/docs-venv --python 3.13
-        - export VIRTUAL_ENV=/tmp/docs-venv PATH="/tmp/docs-venv/bin:$PATH"
-        - poetry config virtualenvs.create false
-        - poetry install --no-root --only ${POETRY_DOCS_INSTALL_GROUPS:-docs} --no-interaction --no-ansi
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
 
 python-test:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
     before_script:
-        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
-        - uv python install 3.13
         - poetry config virtualenvs.in-project true
-        - poetry env use "$(uv python find 3.13)"
         - poetry install --no-interaction --no-ansi
     script:
         - make python-test PYTHON_RUNNER="poetry run"
 
 python-build-for-development:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.4.0
+    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
     before_script:
-        # ubuntu24 image ships Python 3.12; project needs >=3.13 — uv provisions it
-        - uv python install 3.13
         - poetry config virtualenvs.in-project true
-        - poetry env use "$(uv python find 3.13)"
         - poetry install --no-interaction --no-ansi
     script:
         - make python-build PYTHON_RUNNER="poetry run"
