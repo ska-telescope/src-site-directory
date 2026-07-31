@@ -28,7 +28,9 @@
             "id": "to be assigned",
             "type": "ingest",
             "version": "1.0.0",
-            "other_attributes": {},
+            "other_attributes": {
+                "site_id": "STORM2"
+            },
             "is_mandatory": false,
             "is_force_disabled": false,
             "associated_storage_area_id": null,
@@ -55,12 +57,7 @@
             "port": 8081,
             "path": "",
             "other_attributes": {
-                "site_id": "STORM2",
-                "glidein_url": "http://job-gateway-2.job-gateway-2.svc.cluster.local:8081",
-                "supported_backends": [
-                    "kubernetes",
-                    "slurm"
-                ]
+                "site_id": "STORM2"
             },
             "is_mandatory": false,
             "is_force_disabled": false,
@@ -76,14 +73,14 @@
     "backends": [
         {
             "name": "kubernetes",
-            "max_pilot_cpus": 4,
-            "max_pilot_memory_mb": 8192,
+            "max_pilot_cpus": 8,
+            "max_pilot_memory_mb": 16384,
             "max_pilot_gpus": 0
         },
         {
             "name": "slurm",
-            "max_pilot_cpus": 8,
-            "max_pilot_memory_mb": 16384,
+            "max_pilot_cpus": 24,
+            "max_pilot_memory_mb": 98304,
             "max_pilot_gpus": 0
         }
     ]
