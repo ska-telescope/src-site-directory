@@ -4099,18 +4099,17 @@ reference = "ska-nexus"
 
 [[package]]
 name = "ska-src-auth-api"
-version = "0.6.14"
+version = "0.6.15"
 description = "SRCNet Auth API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_auth_api-0.6.14-py3-none-any.whl", hash = "sha256:a305fef8b808520fae2726b41a786ea7169ba0246c647fdaa0b521ebe9b16358"},
-    {file = "ska_src_auth_api-0.6.14.tar.gz", hash = "sha256:6e3c1387254f869dfe027c048fe357a1ca134ddce0735e09693d40bb86ea23c0"},
+    {file = "ska_src_auth_api-0.6.15-py3-none-any.whl", hash = "sha256:022f89b8b9d9148035e4fd4027fbd8aff3fa5b2abde7c380b28a8fbb6e1b3c8b"},
+    {file = "ska_src_auth_api-0.6.15.tar.gz", hash = "sha256:b7c9db2131eb0dda2e17cb0f0d37952041007270573a6a62e64956ffe4f5ebdd"},
 ]
 
 [package.dependencies]
-attrs = ">=24.3.0,<25.0.0"
 Authlib = ">=1.3.0,<2.0.0"
 celery = ">=5.6.0,<6.0.0"
 fastapi = ">=0.124.0,<0.125.0"
@@ -4129,9 +4128,12 @@ python-dateutil = ">=2.8.2,<3.0.0"
 python-multipart = ">=0.0.6,<0.0.7"
 redis = ">=5.2.0,<6.0.0"
 requests = ">=2.32.3,<3.0.0"
-ska-src-logging = ">=0.6.0,<0.7.0"
-ska-src-permissions-api = ">=0.2.18,<0.3.0"
+ska-src-logging = "0.6.1+dev.c9cdeaea1"
+ska-src-permissions-api = "0.2.27"
 uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
+
+[package.extras]
+integration = ["fire (>=0.7.0,<0.8.0)", "selenium (>=4.15.0,<5.0.0)"]
 
 [package.source]
 type = "legacy"
@@ -5378,4 +5380,4 @@ integration = ["fire", "selenium"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "aa7aa74ef725371ecf4f68493232b93339643f7ac0dc02ca740041be4d7eba24"
+content-hash = "b9c1785e574dac5e4a672332d8c77fda2219ae33faa69d75209185ed2c97c8be"

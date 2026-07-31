@@ -53,7 +53,7 @@ python-multipart = "^0.0.6"
 requests = "^2.32.3"
 uvicorn = {extras = ["standard"], version = "^0.34.0"}
 ska-src-permissions-api = {version = "0.2.27", source = "ska-nexus"}
-ska-src-auth-api = {version = "0.6.14", source = "ska-nexus"}
+ska-src-auth-api = {version = "0.6.15", source = "ska-nexus"}
 ska-src-logging = {version = "0.6.1+dev.c9cdeaea1", source = "logging_api"}
 fire = {version = "^0.7.0", optional = true}
 selenium = {version = "^4.15.0", optional = true}
