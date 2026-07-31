@@ -4099,17 +4099,18 @@ reference = "ska-nexus"
 
 [[package]]
 name = "ska-src-auth-api"
-version = "0.6.14+dev.cf6f39a8c"
+version = "0.6.14"
 description = "SRCNet Auth API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_auth_api-0.6.14+dev.cf6f39a8c-py3-none-any.whl", hash = "sha256:681b409602b3b1a49a73c06af9e5c5307b14074ee5915cfd411d2bb656124773"},
-    {file = "ska_src_auth_api-0.6.14+dev.cf6f39a8c.tar.gz", hash = "sha256:2dfb7fd5677e0e5ceedc51edb92ffe15231fc08d004d37078ceebee325d28e32"},
+    {file = "ska_src_auth_api-0.6.14-py3-none-any.whl", hash = "sha256:a305fef8b808520fae2726b41a786ea7169ba0246c647fdaa0b521ebe9b16358"},
+    {file = "ska_src_auth_api-0.6.14.tar.gz", hash = "sha256:6e3c1387254f869dfe027c048fe357a1ca134ddce0735e09693d40bb86ea23c0"},
 ]
 
 [package.dependencies]
+attrs = ">=24.3.0,<25.0.0"
 Authlib = ">=1.3.0,<2.0.0"
 celery = ">=5.6.0,<6.0.0"
 fastapi = ">=0.124.0,<0.125.0"
@@ -4134,19 +4135,19 @@ uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.com/api/v4/projects/48376510/packages/pypi/simple"
-reference = "authn_api"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
+reference = "ska-nexus"
 
 [[package]]
 name = "ska-src-logging"
-version = "0.6.0+dev.c25d65ba8"
+version = "0.6.1+dev.c9cdeaea1"
 description = "Centralized logging library for SKA SRC APIs with OpenTelemetry tracing, metrics, sensitive info redaction, dynamic logging levels"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_logging-0.6.0+dev.c25d65ba8-py3-none-any.whl", hash = "sha256:bff10dfb01c65999d5d29832498926819783159b593b5d3392dc4931dce2aefe"},
-    {file = "ska_src_logging-0.6.0+dev.c25d65ba8.tar.gz", hash = "sha256:f264a47b0cac9969e65635a4b1b3e76091d696786ff08f9f8ce1836d496c4de9"},
+    {file = "ska_src_logging-0.6.1+dev.c9cdeaea1-py3-none-any.whl", hash = "sha256:6eb8d1074c1e017097392c03528042728730d74ec579b91ec7558a859e3227c6"},
+    {file = "ska_src_logging-0.6.1+dev.c9cdeaea1.tar.gz", hash = "sha256:7b36520988da0d0f9dbafec1d7bf0bb253d21a71b0742be1ccef546c9a665d44"},
 ]
 
 [package.dependencies]
@@ -4170,14 +4171,14 @@ reference = "logging_api"
 
 [[package]]
 name = "ska-src-permissions-api"
-version = "0.2.18+dev.c93fdf7ca"
+version = "0.2.27"
 description = "SKA SRC Permissions API"
 optional = false
 python-versions = ">=3.13,<4.0"
 groups = ["main"]
 files = [
-    {file = "ska_src_permissions_api-0.2.18+dev.c93fdf7ca-py3-none-any.whl", hash = "sha256:5de02cedec436ef701bfdb98c128c1306a279b34d23afd432e79b0b213c9f144"},
-    {file = "ska_src_permissions_api-0.2.18+dev.c93fdf7ca.tar.gz", hash = "sha256:dec0a8fedb4f982bfa4954a679c455d96e36206ee489c3202ba6b5219a2c7137"},
+    {file = "ska_src_permissions_api-0.2.27-py3-none-any.whl", hash = "sha256:bb830b4d5e21f52854e6207d3be01c6bb139743fda46bc9e705364a136a3141d"},
+    {file = "ska_src_permissions_api-0.2.27.tar.gz", hash = "sha256:7c13f70b7d3ff1c5db76040bb9a946da39cc693d84dfa3f27e6a8a64263afc5b"},
 ]
 
 [package.dependencies]
@@ -4201,14 +4202,14 @@ pytest-asyncio = ">=0.24.0,<0.25.0"
 redis = ">=5.2.0,<6.0.0"
 requests = ">=2.32.3,<3.0.0"
 rsa = "4.7.2"
-ska-src-logging = ">=0.6.0,<0.7.0"
+ska-src-logging = "0.6.1+dev.c9cdeaea1"
 tabulate = ">=0.9.0,<0.10.0"
 uvicorn = {version = ">=0.34.0,<0.35.0", extras = ["standard"]}
 
 [package.source]
 type = "legacy"
-url = "https://gitlab.com/api/v4/projects/48060714/packages/pypi/simple"
-reference = "permissions_api"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
+reference = "ska-nexus"
 
 [[package]]
 name = "sniffio"
@@ -5377,4 +5378,4 @@ integration = ["fire", "selenium"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "3882f39bcc9142937402c460b3f4456177e48e132c40d785fe94ae7fe2add245"
+content-hash = "aa7aa74ef725371ecf4f68493232b93339643f7ac0dc02ca740041be4d7eba24"
