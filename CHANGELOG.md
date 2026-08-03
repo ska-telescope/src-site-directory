@@ -5,13 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.97]
+
+### Fixed
+
+- Bump Python package versions
+
 ## [0.3.96]
 
 ### Changed
 
 - Added boolean is_production_site in the site schema
 - Added max_cpu_cores, max_memory_gb, max_scratch_gb in the queue schema
-
 
 ## [0.3.95]
 
