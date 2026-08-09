@@ -7,7 +7,6 @@ from typing import Union
 from fastapi import APIRouter, Depends, Query
 from fastapi_versionizer.versionizer import api_version
 from jinja2 import Template
-from ska_src_logging import get_log_context
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
@@ -129,8 +128,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
         # Check access permissions.
         if not request.app.state.debug:
             try:
-                # Get correlation ID from log context for distributed tracing
-                correlation_id = get_log_context().get("correlation_id")
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
@@ -138,7 +135,6 @@ async def get_downtime_statusboard(request: Request, node_name: str) -> Union[HT
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
-                    correlation_id=correlation_id,
                 ).json()
             except Exception as err:
                 raise err
@@ -255,8 +251,6 @@ async def add_node_form(
         # Check access permissions.
         if not request.app.state.debug:
             try:
-                # Get correlation ID from log context for distributed tracing
-                correlation_id = get_log_context().get("correlation_id")
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
@@ -264,7 +258,6 @@ async def add_node_form(
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
-                    correlation_id=correlation_id,
                 ).json()
             except Exception as err:
                 raise err
@@ -327,8 +320,6 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
         # Check access permissions.
         if not request.app.state.debug:
             try:
-                # Get correlation ID from log context for distributed tracing
-                correlation_id = get_log_context().get("correlation_id")
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
@@ -336,7 +327,6 @@ async def edit_node_form(request: Request, node_name: str) -> Union[HTMLResponse
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
-                    correlation_id=correlation_id,
                 ).json()
             except Exception as err:
                 raise err
@@ -411,8 +401,6 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
         # Check access permissions.
         if not request.app.state.debug:
             try:
-                # Get correlation ID from log context for distributed tracing
-                correlation_id = get_log_context().get("correlation_id")
                 rtn = request.app.state.permissions_dependencies.permissions.authorise_service_route(
                     service=request.app.state.permissions_service_name,
                     version=request.app.state.permissions_service_version,
@@ -420,7 +408,6 @@ async def topology(request: Request) -> Union[HTMLResponse, RedirectResponse]:
                     method=request.method,
                     token=request.session.get("access_token"),
                     body=request.path_params,
-                    correlation_id=correlation_id,
                 ).json()
             except Exception as err:
                 raise err
