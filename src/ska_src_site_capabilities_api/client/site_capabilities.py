@@ -1,8 +1,7 @@
 from typing import List
 
 import requests
-
-from ska_src_site_capabilities_api.common.exceptions import handle_client_exceptions
+from ska_src_api_toolkit.common.exception import handle_client_exceptions
 
 
 class SiteCapabilitiesClient:

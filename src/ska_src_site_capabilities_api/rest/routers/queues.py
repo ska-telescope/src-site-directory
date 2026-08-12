@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from ska_src_site_capabilities_api import models
-from ska_src_site_capabilities_api.common.exceptions import QueueNotFound, handle_exceptions
+from ska_src_site_capabilities_api.common.exceptions import QueueNotFound
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
 from ska_src_site_capabilities_api.rest.logger import logger
 

@@ -5,99 +5,15 @@ from functools import wraps
 
 import requests
 from fastapi import HTTPException, status
+from ska_src_api_toolkit.common.exception import CustomHTTPException
 
 logger = logging.getLogger(__name__)
-
-
-def handle_client_exceptions(func):
-    """Decorator to handle client exceptions."""
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            detail = f"HTTP error occurred: {e}, response: {e.response.text}"
-            logger.error(detail, exc_info=True)
-            raise HTTPException(status_code=status_code, detail=detail)
-        except HTTPException as e:
-            raise e
-        except CustomException as e:
-            logger.error("Custom exception: %s", e.message, exc_info=True)
-            raise Exception(message=e.message)
-        except CustomHTTPException as e:
-            logger.error("HTTP exception [%s]: %s", e.http_error_status, e.message, exc_info=True)
-            raise HTTPException(status_code=e.http_error_status, detail=e.message)
-        except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
-            logger.error(detail, exc_info=True)
-            raise HTTPException(status_code=500, detail=detail)
-
-    return wrapper
-
-
-def handle_exceptions(func):
-    """Decorator to handle server exceptions."""
-
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code
-            detail = f"HTTP error occurred: {e}, response: {e.response.text}"
-            logger.error(detail, exc_info=True)
-            raise HTTPException(status_code=status_code, detail=detail)
-        except HTTPException as e:
-            raise e
-        except CustomException as e:
-            logger.error("Custom exception: %s", e.message, exc_info=True)
-            raise Exception(message=e.message)
-        except CustomHTTPException as e:
-            logger.error("HTTP exception [%s]: %s", e.http_error_status, e.message, exc_info=True)
-            raise HTTPException(status_code=e.http_error_status, detail=e.message)
-        except Exception as e:
-            detail = "General error occurred: {}, traceback: {}".format(repr(e), "".join(traceback.format_tb(e.__traceback__)))
-            logger.error(detail, exc_info=True)
-            raise HTTPException(status_code=500, detail=detail)
-
-    return wrapper
-
-
-class CustomException(Exception):
-    """Class that all custom exceptions must inherit in order for exception to be caught by the
-    handle_exceptions decorator.
-    """
-
-    pass
-
-
-class IAMEndpointNotFoundInWellKnown(CustomException):
-    def __init__(self, endpoint):
-        self.message = "Error setting IAM {} endpoint, not found in .well_known".format(endpoint)
-        super().__init__(self.message)
-
-
-class CustomHTTPException(Exception):
-    """Class that all custom HTTP exceptions must inherit in order for exception to be caught by
-    the handle_exceptions decorator.
-    """
-
-    pass
 
 
 class UnauthorizedRequest(CustomHTTPException):
     def __init__(self):
         self.message = "You are not authorised to access this resource"
         self.http_error_status = status.HTTP_401_UNAUTHORIZED
-        super().__init__(self.message)
-
-
-class PermissionDenied(CustomHTTPException):
-    def __init__(self):
-        self.message = "You do not have permission to access this resource."
-        self.http_error_status = status.HTTP_403_FORBIDDEN
         super().__init__(self.message)
 
 
@@ -126,24 +42,6 @@ class NodeVersionNotFound(CustomHTTPException):
     def __init__(self, node_name, node_version):
         self.message = "Node with name '{}' and version '{}' could not be found".format(node_name, node_version)
         self.http_error_status = status.HTTP_404_NOT_FOUND
-        super().__init__(self.message)
-
-
-class RetryRequestError(CustomHTTPException):
-    def __init__(self, last_error, last_response):
-        error_type = type(last_error).__name__ if last_error else ""
-        error_message = str(last_error) if last_error else ""
-        try:
-            response_content = last_response.json() if last_response is not None else None
-        except Exception:
-            response_content = last_response.text if last_response else ""
-
-        self.message = (
-            "External request failed.\n"
-            f"Last Error Type: {error_type}\n"
-            f"Last Error Message: {error_message}\n"
-            f"Last Response Content: {json.dumps(response_content, indent=2) if response_content else ''}"
-        )
         super().__init__(self.message)
 
 

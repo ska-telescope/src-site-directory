@@ -15,7 +15,6 @@ from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
-from ska_src_site_capabilities_api.common import constants
 from ska_src_site_capabilities_api.rest import dependencies
 from ska_src_site_capabilities_api.rest.logger import logger, setup_logging, setup_otel_fastapi
 from ska_src_site_capabilities_api.rest.openapi import create_custom_openapi_schema
@@ -43,7 +42,7 @@ async def lifespan(app: FastAPI):
     setup_logging()
 
     # Get instance of IAM constants
-    iam_endpoints = constants.IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
+    iam_endpoints = IAM(client_conf_url=config.get("IAM_CLIENT_CONF_URL"))
 
     # Instantiate a Permissions client
     permissions = PermissionsClient(config.get("PERMISSIONS_API_URL"), calling_service="SCAPI")

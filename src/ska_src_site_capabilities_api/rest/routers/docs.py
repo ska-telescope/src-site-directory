@@ -7,12 +7,8 @@ from typing import Union
 from fastapi import APIRouter, Depends, Query
 from fastapi_versionizer.versionizer import api_version
 from jinja2 import Template
-from starlette.config import Config
-from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse
-
-from ska_src_site_capabilities_api.common.exceptions import NodeVersionNotFound, PermissionDenied, handle_exceptions
-from ska_src_site_capabilities_api.common.utility import (
+from ska_src_api_toolkit.common.exception import PermissionDenied, handle_exceptions
+from ska_src_api_toolkit.common.utility import (
     convert_readme_to_html_docs,
     get_api_server_url_from_request,
     get_base_url_from_request,
@@ -21,6 +17,11 @@ from ska_src_site_capabilities_api.common.utility import (
     recursive_stringify,
     strip_version_prefix,
 )
+from starlette.config import Config
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, RedirectResponse
+
+from ska_src_site_capabilities_api.common.exceptions import NodeVersionNotFound
 from ska_src_site_capabilities_api.rest.dependencies import Common
 
 docs_router = APIRouter()
