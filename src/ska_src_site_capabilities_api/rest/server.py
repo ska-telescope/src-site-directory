@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_versionizer import Versionizer
+from ska_src_api_toolkit.oauth2.iam import IAM
 from ska_src_auth_api.client.authentication import AuthenticationClient
 from ska_src_logging.integrations.prometheus import setup_metrics_endpoint
 from ska_src_permissions_api.client.permissions import PermissionsClient

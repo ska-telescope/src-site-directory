@@ -2,13 +2,13 @@ import os
 
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi_versionizer.versionizer import api_version
+from ska_src_api_toolkit.common.exception import handle_exceptions
 from ska_src_logging import LogContext
 from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from ska_src_api_toolkit.common.exception import handle_exceptions
 from ska_src_site_capabilities_api import models
 from ska_src_site_capabilities_api.common.exceptions import QueueNotFound
 from ska_src_site_capabilities_api.rest.dependencies import Common, Permissions
