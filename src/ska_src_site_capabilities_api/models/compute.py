@@ -4,7 +4,7 @@ from typing import List, Literal, Optional
 from uuid import UUID, uuid4
 
 import jsonref
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from ska_src_site_capabilities_api.models.service import GlobalService, LocalService
 
@@ -51,9 +51,9 @@ class Backend(BaseModel):
     """
 
     name: BackendName = Field(examples=[*backend_names])
-    max_pilot_cpus: int = Field(default=0, examples=[8])
-    max_pilot_memory_mb: int = Field(default=0, examples=[16384])
-    max_pilot_gpus: int = Field(default=0, examples=[1])
+    max_pilot_cpus: int = Field(default=0, ge=0, examples=[8])
+    max_pilot_memory_mb: int = Field(default=0, ge=0, examples=[16384])
+    max_pilot_gpus: int = Field(default=0, ge=0, examples=[1])
 
 
 class Compute(BaseModel):
@@ -73,3 +73,18 @@ class Compute(BaseModel):
     queues: List[Queue] = Field(default_factory=list)
     downtime: List[Downtime]
     is_force_disabled: bool = Field(examples=[True, False])
+
+    @field_validator("backends")
+    @classmethod
+    def reject_duplicate_backend_names(cls, backends: List[Backend]) -> List[Backend]:
+        """A compute offers each backend at most once.
+
+        The broker preselects a job against the ceiling of the backend it
+        requests, so a repeated name makes that ceiling ambiguous — which of the
+        duplicates wins is then an artefact of list order.
+        """
+        names = [backend.name for backend in backends]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise ValueError("duplicate backend name(s): {}".format(", ".join(duplicates)))
+        return backends
