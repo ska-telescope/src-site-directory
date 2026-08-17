@@ -216,9 +216,9 @@
                 ],
                 "downtime": [
                   {
-                    "date_range": "2026-08-15T19:51:00.000Z to 2026-08-30T11:00:00.000Z",
+                    "date_range": "2025-01-01T00:00:00.000Z to 2025-01-15T00:00:00.000Z",
                     "type": "Planned",
-                    "reason": "Regular maintenance"
+                    "reason": "Regular maintenance (elapsed: this service must count as ACTIVE)"
                   }
                 ]
               },
