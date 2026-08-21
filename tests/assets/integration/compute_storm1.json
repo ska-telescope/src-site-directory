@@ -1,0 +1,54 @@
+{
+    "id": "to be assigned",
+    "hardware_type": "container",
+    "description": "",
+    "associated_local_services": [
+        {
+            "id": "to be assigned",
+            "type": "product_streamer",
+            "prefix": "https",
+            "host": "psapi.test",
+            "port": 443,
+            "path": "v1/data/product",
+            "other_attributes": {},
+            "is_mandatory": false,
+            "is_force_disabled": false,
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id will be populated by the test"
+        },
+        {
+            "id": "to be assigned",
+            "type": "job_gateway",
+            "prefix": "http",
+            "host": "job-gateway-1.job-gateway-1.svc.cluster.local",
+            "port": 8081,
+            "path": "",
+            "other_attributes": {
+                "site_id": "STORM1"
+            },
+            "is_mandatory": false,
+            "is_force_disabled": false,
+            "downtime": [],
+            "associated_storage_area_id": null,
+            "_comment": "associated_storage_area_id (the STORM1 RSE) is populated by the test"
+        }
+    ],
+    "hardware_capabilities": [],
+    "downtime": [],
+    "is_force_disabled": false,
+    "_comment_backends": "SINGLE SOURCE OF TRUTH for pilot sizing, per backend: the slurm and kubernetes nodes support different max pilot sizes (k8s sized for dev node fit, slurm for the partition). The broker preselects a job against the ceiling of the backend it requests; the gateway carries no size cap.",
+    "backends": [
+        {
+            "name": "kubernetes",
+            "max_pilot_cpus": 8,
+            "max_pilot_memory_mb": 16384,
+            "max_pilot_gpus": 0
+        },
+        {
+            "name": "slurm",
+            "max_pilot_cpus": 24,
+            "max_pilot_memory_mb": 98304,
+            "max_pilot_gpus": 0
+        }
+    ]
+}

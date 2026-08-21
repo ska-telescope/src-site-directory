@@ -7,6 +7,14 @@ from pymongo import MongoClient
 
 from ska_src_site_capabilities_api.backend.backend import Backend
 
+# Site.status defaults to "up" in both models/site.py and etc/schemas/site.json,
+# but site documents reach clients raw (the routers declare response_model=None),
+# so a stored site missing the key would be served with no status at all rather
+# than the documented default. Materialise it on read instead of on write: that
+# also covers sites stored before the field existed and sites registered without
+# it (the client's register_site does not send one). Keep in sync with the model.
+DEFAULT_SITE_STATUS = "up"
+
 
 class MongoBackend(Backend):
     """Backend API for MongoDB."""
@@ -237,6 +245,26 @@ class MongoBackend(Backend):
             return [item for item in filtered_list if item is not None]
         return element
 
+    @staticmethod
+    def _apply_site_defaults(node):
+        """
+        Fills in site defaults that the raw response path would otherwise omit.
+
+        Applied to every node read from the database, so that all four site
+        response paths (list_sites, get_site, get_site_from_names and the sites
+        embedded in node responses) agree with the documented Site model.
+
+        Args:
+            node: A node dictionary. Modified in place.
+
+        Returns:
+            The same node dictionary.
+        """
+        for site in node.get("sites") or []:
+            if isinstance(site, dict):
+                site.setdefault("status", DEFAULT_SITE_STATUS)
+        return node
+
     def add_edit_node(self, node_values, node_name=None):
         """
         Adds or edits a node in the database.
@@ -356,6 +384,7 @@ class MongoBackend(Backend):
 
         if this_node:
             this_node.pop("_id")
+            self._apply_site_defaults(this_node)
         return this_node if this_node else {}
 
     def get_service(self, service_id):
@@ -532,6 +561,7 @@ class MongoBackend(Backend):
 
         for node in nodes:
             node.pop("_id", None)
+            self._apply_site_defaults(node)
 
         return nodes or []
 

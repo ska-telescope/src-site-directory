@@ -70,6 +70,19 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         resp.raise_for_status()
         return resp
 
+    def deregister_backend(self, node, compute_id, name):
+        """Remove an execution backend from a compute element."""
+        node_json = self._get_node(node)
+        for site in node_json.get("sites", []):
+            for compute in site.get("compute", []):
+                if compute.get("id") != compute_id:
+                    continue
+                compute["backends"] = [b for b in compute.get("backends", []) if b.get("name") != name]
+                self.update_node(node, node_json)
+                print(f"[scapi] Backend {name} removed from compute {compute_id}")
+                return
+        raise ValueError(f"Compute {compute_id} not found on node {node}")
+
     def deregister_compute(self, node, site_name, compute_id):
         """Remove a compute element from a site."""
         node_json = self._get_node(node)
@@ -138,6 +151,32 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Storage {storage_id} not found on node {node}")
 
+    def register_backend(self, node, compute_id, name, max_pilot_cpus=0, max_pilot_memory_mb=0, max_pilot_gpus=0):
+        """Add an execution backend (pilot pool) to a compute element (idempotent by name).
+
+        The ``max_pilot_*`` caps are the per-backend pilot-size ceilings the
+        broker preselects oversize jobs against; for cpus/memory 0 means "no
+        cap", for gpus it means "no GPU on this backend".
+        """
+        node_json = self._get_node(node)
+        for site in node_json.get("sites", []):
+            for compute in site.get("compute", []):
+                if compute.get("id") != compute_id:
+                    continue
+                backends = compute.setdefault("backends", [])
+                backends[:] = [b for b in backends if b.get("name") != name] + [
+                    {
+                        "name": name,
+                        "max_pilot_cpus": max_pilot_cpus,
+                        "max_pilot_memory_mb": max_pilot_memory_mb,
+                        "max_pilot_gpus": max_pilot_gpus,
+                    }
+                ]
+                self.update_node(node, node_json)
+                print(f"[scapi] Backend {name} added to compute {compute_id}")
+                return
+        raise ValueError(f"Compute {compute_id} not found on node {node}")
+
     def register_compute(self, node, site_name, compute_id, name, hardware_type):
         """Add a compute element to a site (idempotent by compute_id)."""
         node_json = self._get_node(node)
@@ -145,14 +184,15 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             if site["name"] != site_name:
                 continue
             compute = site.setdefault("compute", [])
-            compute[:] = [c for c in compute if c.get("id") != compute_id] + [
-                {
-                    "id": compute_id,
-                    "name": name,
-                    "hardware_type": hardware_type,
-                    "associated_local_services": [],
-                }
-            ]
+            # Merge into any existing entry so a re-register (e.g. a service's
+            # post-deploy bootstrap re-running) preserves services and fields
+            # attached by other bootstrap jobs.
+            entry = next((c for c in compute if c.get("id") == compute_id), None) or {
+                "id": compute_id,
+                "associated_local_services": [],
+            }
+            entry.update({"name": name, "hardware_type": hardware_type})
+            compute[:] = [c for c in compute if c.get("id") != compute_id] + [entry]
             self.update_node(node, node_json)
             print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
             return

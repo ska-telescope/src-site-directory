@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.99]
+
+### Added
+
+- Per-backend `backends` list on compute elements (kubernetes/slurm) with per-backend pilot size ceilings (`max_pilot_cpus`, `max_pilot_memory_mb`, `max_pilot_gpus`), replacing the former flat `supported_backends` + `max_pilot_*` fields
+- `status` field (`up`/`drain`/`down`) on sites, defaulting to `up`; defaults are materialised on read so pre-existing site documents are served with a status
+- `job_gateway` added as a local service type
+- `register_backend`/`deregister_backend` methods in the integration client
+- Per-backend compute blocks in STORM1/STORM2 integration test assets
+
+### Changed
+
+- `register_compute` in the integration client now merges into an existing compute entry instead of replacing it, preserving fields attached by other bootstrap jobs
+- Integration image installs the integration extras
+
 ## [0.3.98]
 
 ### Fixed
