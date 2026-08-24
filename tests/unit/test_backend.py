@@ -177,7 +177,8 @@ def test_list_nodes(mock_backend):
     assert len(sites) == 1
 
 
-# TODO: Re-enable this test once it is fixed on main branch. The test is currently failing due to a bug in the backend code that needs to be addressed.
+# TODO: Re-enable this test once it is fixed on main branch.
+# The test is currently failing due to a bug in the backend code that needs to be addressed.
 # @pytest.mark.unit
 # def test_list_services_with_node_name_filter(mock_backend):
 #     services = mock_backend.list_services(node_names="TEST")
