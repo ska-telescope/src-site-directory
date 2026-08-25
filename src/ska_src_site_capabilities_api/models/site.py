@@ -1,10 +1,21 @@
+import os
+import pathlib
 from typing import List, Literal
 from uuid import UUID, uuid4
 
+import jsonref
 from pydantic import BaseModel, Field
 
 from ska_src_site_capabilities_api.models.compute import Compute
 from ska_src_site_capabilities_api.models.storage import Storage
+
+# get operational statuses from schema
+schema_path = pathlib.Path("{}.json".format(os.path.join(os.environ.get("SCHEMAS_RELPATH"), "site"))).absolute()
+with open(schema_path) as f:
+    dereferenced_schema = jsonref.load(f, base_uri=schema_path.as_uri())
+site_statuses = dereferenced_schema.get("properties", {}).get("status", {}).get("enum", [])
+
+SiteStatus = Literal[tuple(site_statuses)]
 
 
 class Downtime(BaseModel):
@@ -17,6 +28,7 @@ class Downtime(BaseModel):
 class Site(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     is_production_site: bool = Field(default=False, examples=[True, False])
+    status: SiteStatus = Field(default="up", examples=[*site_statuses])
     name: str = Field(examples=["SKAOSRC"])
     comments: str = Field(examples=["Some version comments"])
     description: str = Field(examples=["Some description"])

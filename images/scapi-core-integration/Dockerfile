@@ -20,7 +20,9 @@ COPY --chown=user . /opt/ska-src-site-capabilities-api
 WORKDIR /opt/ska-src-site-capabilities-api
 
 # install dependencies via poetry
-RUN poetry install --only main
+# --extras integration pulls in fire/selenium, needed by client/integration.py
+# (the register_*/deregister_* CLI every service's deploy.post bootstrap job runs).
+RUN poetry install --only main --extras integration
 
 # create symlink at expected location for SKAO CICD Makefile + templates (k8s-test)
 RUN mkdir -p /app && ln -s /opt/ska-src-site-capabilities-api/src /app/src
