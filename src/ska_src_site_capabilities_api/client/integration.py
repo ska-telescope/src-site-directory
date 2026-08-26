@@ -5,9 +5,24 @@ Requires the ``integration`` extra; not a runtime dependency of the service.
 
 import logging
 
-import fire
 import requests
-from fastapi import HTTPException
+# Local hack: fastapi/fire are heavyweight deps that the JupyterHub singleuser
+# image does not carry, and neither is needed to *read* site capabilities --
+# fire is only the __main__ CLI entry, and HTTPException is only caught in the
+# node-writing helpers. Importing them at module scope made the demo's SCAPI
+# pilot-limits lookup fail with "No module named 'fire'", silently dropping the
+# preflight back to a conservative 8 CPU / 16 GiB fallback ceiling.
+try:
+    from fastapi import HTTPException
+except ModuleNotFoundError:  # pragma: no cover - reader-only environments
+    class HTTPException(Exception):  # type: ignore[no-redef]
+        """Placeholder so `except HTTPException` is a no-op without fastapi.
+
+        Nothing can raise the real class if fastapi is absent, so this never
+        matches -- it only keeps the except-clause importable.
+        """
+
+        status_code = None
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
@@ -355,4 +370,6 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
 
 
 if __name__ == "__main__":
+    import fire
+
     fire.Fire(SiteCapabilitiesIntegrationClient)

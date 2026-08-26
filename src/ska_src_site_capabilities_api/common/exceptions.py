@@ -4,7 +4,27 @@ import traceback
 from functools import wraps
 
 import requests
-from fastapi import HTTPException, status
+# Local hack: keep this module importable without fastapi so read-only
+# consumers (e.g. the broker demo's SCAPI pilot-limits lookup) work in the
+# JupyterHub singleuser image, which does not ship fastapi. When fastapi IS
+# present the real classes are used and behaviour is unchanged; the shims below
+# only need to carry the attributes this module actually touches.
+try:
+    from fastapi import HTTPException, status
+except ModuleNotFoundError:  # pragma: no cover - reader-only environments
+    class HTTPException(Exception):  # type: ignore[no-redef]
+        def __init__(self, status_code=None, detail=None):
+            super().__init__(detail)
+            self.status_code = status_code
+            self.detail = detail
+
+    class _Status:  # type: ignore[no-redef]
+        HTTP_401_UNAUTHORIZED = 401
+        HTTP_403_FORBIDDEN = 403
+        HTTP_404_NOT_FOUND = 404
+        HTTP_409_CONFLICT = 409
+
+    status = _Status()  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
