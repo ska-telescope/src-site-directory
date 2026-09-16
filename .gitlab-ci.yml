@@ -54,6 +54,8 @@ include:
     - project: "ska-telescope/src/src-api/ska-src-api-deployment-stack"
       ref: main
       file: ".gitlab/ci/integration.yml"
+    - project: 'ska-telescope/templates-repository'
+      file: 'gitlab-ci/includes/sonar-scan.gitlab-ci.yml'
 
 integration:
   tags:
