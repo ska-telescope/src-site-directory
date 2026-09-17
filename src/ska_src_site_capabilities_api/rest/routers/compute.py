@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi.security import HTTPBearer
 from fastapi_versionizer.versionizer import api_version
-from ska_src_api_toolkit.common.exception import handle_exceptions
+from ska_src_api_common.exceptions import handle_exceptions
 from ska_src_logging import LogContext
 from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.requests import Request

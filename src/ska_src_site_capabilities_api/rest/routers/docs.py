@@ -7,8 +7,8 @@ from typing import Union
 from fastapi import APIRouter, Depends, Query
 from fastapi_versionizer.versionizer import api_version
 from jinja2 import Template
-from ska_src_api_toolkit.common.exception import PermissionDenied, handle_exceptions
-from ska_src_api_toolkit.common.utility import (
+from ska_src_api_common.exceptions import PermissionDenied, handle_exceptions
+from ska_src_api_common.utility import (
     convert_readme_to_html_docs,
     get_api_server_url_from_request,
     get_base_url_from_request,

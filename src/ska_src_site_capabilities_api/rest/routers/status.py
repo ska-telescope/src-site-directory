@@ -5,7 +5,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse, Response
 from fastapi_versionizer.versionizer import api_version
 from prometheus_client import REGISTRY, generate_latest
-from ska_src_api_toolkit.common.exception import handle_exceptions
+from ska_src_api_common.exceptions import handle_exceptions
 from ska_src_logging import LogContext
 from starlette.requests import Request
 

@@ -5,7 +5,7 @@ from functools import wraps
 
 import requests
 from fastapi import HTTPException, status
-from ska_src_api_toolkit.common.exception import CustomHTTPException
+from ska_src_api_common.exceptions import CustomHTTPException
 
 logger = logging.getLogger(__name__)
 

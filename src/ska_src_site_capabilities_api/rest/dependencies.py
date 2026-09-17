@@ -3,8 +3,8 @@ from typing import Union
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from ska_src_api_toolkit.common.exception import PermissionDenied, handle_exceptions
-from ska_src_api_toolkit.common.utility import strip_version_prefix
+from ska_src_api_common.exceptions import PermissionDenied, handle_exceptions
+from ska_src_api_common.utility import strip_version_prefix
 from starlette.requests import Request
 
 

@@ -7,8 +7,8 @@ import tempfile
 from fastapi import APIRouter, Depends, Path
 from fastapi_versionizer.versionizer import api_version
 from plantuml import PlantUML
-from ska_src_api_toolkit.common.exception import handle_exceptions
-from ska_src_api_toolkit.common.utility import load_and_dereference_schema
+from ska_src_api_common.exceptions import handle_exceptions
+from ska_src_api_common.utility import load_and_dereference_schema
 from ska_src_logging import LogContext
 from ska_src_logging.integrations.fastapi import extract_username_from_token
 from starlette.config import Config
