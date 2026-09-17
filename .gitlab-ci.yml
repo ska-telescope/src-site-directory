@@ -15,9 +15,9 @@ stages:
     - build
     - test
     - publish
-    - integration
     - pages
     - scan
+    - integration   # last: the blocking manual job must not hold up any other stage
 
 join_lint_reports:
     stage: lint-post
@@ -65,8 +65,12 @@ integration:
     TOOLKIT_IMAGE_TAG: latest
     RUN_TESTS: "true"
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+      when: manual
+      allow_failure: false   # blocking: an MR into main can't merge until this has run and passed
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: always
+      when: manual
+      allow_failure: true    # MRs into other branches: optional
     - if: '$CI_COMMIT_BRANCH'
       when: manual
       allow_failure: true
@@ -97,3 +101,8 @@ python-build-for-development:
         - poetry install --no-interaction --no-ansi
     script:
         - make python-build PYTHON_RUNNER="poetry run"
+
+# The finaliser badge job lives in .post and would otherwise wait behind the blocking
+# manual integration job; detach it from stage order so it runs regardless.
+create-ci-metrics:
+    needs: []
