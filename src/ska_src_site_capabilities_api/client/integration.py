@@ -297,12 +297,21 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         print(f"[scapi] Site {site_name} added to {node}")
 
     def register_storage(self, node, site_name, storage_id, name, host, base_path="/sa", srm="storm", size=0.01):
-        """Add a storage to a site (idempotent by storage_id)."""
+        """Add a storage to a site (idempotent by storage_id; existing areas are kept)."""
         node_json = self._get_node(node)
         for site in node_json.get("sites", []):
             if site["name"] != site_name:
                 continue
             storages = site.setdefault("storages", [])
+            # Carry the existing storage's areas across. Replacing the entry with a
+            # fresh dict silently deletes every storage area registered on it, which
+            # made this destructive rather than idempotent: register_storage_area is a
+            # separate call made by a different service's post-deploy job, so whichever
+            # of the two ran last won. Sequential deploys hid it (storages were written
+            # once, before the areas); under Flux the -post Kustomizations reconcile
+            # continuously and in parallel, so any storm re-run wiped rucio's areas and
+            # dmapi started 400ing with "Could not find the storage area with uuid ...".
+            existing = next((s for s in storages if s.get("id") == storage_id), {})
             storages[:] = [s for s in storages if s.get("id") != storage_id] + [
                 {
                     "id": storage_id,
@@ -315,6 +324,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                     "supported_protocols": [{"prefix": "https", "port": 443}],
                     "downtime": [],
                     "is_force_disabled": False,
+                    "areas": existing.get("areas", []),
                 }
             ]
             self.update_node(node, node_json)
