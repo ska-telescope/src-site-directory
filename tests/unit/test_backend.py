@@ -296,3 +296,28 @@ def test_set_storage_area_enabled_disabled(is_force_disabled_flag, mock_backend,
     assert result.get("is_force_disabled") is is_force_disabled_flag
     # test document update
     assert mock_backend.get_storage_area(storage_area_id=id).get("is_force_disabled") is is_force_disabled_flag
+
+
+@pytest.mark.unit
+def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
+    """Two editors read the same version; the second write is refused, not silently lost."""
+    from pymongo.errors import DuplicateKeyError
+
+    from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
+
+    editor_a = mock_backend.get_node("TEST", "latest")
+    editor_b = mock_backend.get_node("TEST", "latest")
+    mock_backend.add_edit_node(editor_a, node_name="TEST")
+    with pytest.raises(NodeVersionConflict):
+        mock_backend.add_edit_node(editor_b, node_name="TEST")
+
+    # the database arbitrates the truly simultaneous case: (name, version) is unique
+    latest = mock_backend.get_node("TEST", "latest")
+    with pytest.raises(DuplicateKeyError):
+        mock_db["nodes"].insert_one({"name": "TEST", "version": latest["version"]})
+
+    # a payload with no version keeps the old behaviour, so existing callers are unaffected
+    legacy = mock_backend.get_node("TEST", "latest")
+    legacy.pop("version")
+    mock_backend.add_edit_node(legacy, node_name="TEST")
+    assert mock_backend.get_node("TEST", "latest")["version"] == latest["version"] + 1

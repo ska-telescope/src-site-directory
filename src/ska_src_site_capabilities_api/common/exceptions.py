@@ -122,6 +122,16 @@ class NodeAlreadyExists(CustomHTTPException):
         super().__init__(self.message)
 
 
+class NodeVersionConflict(CustomHTTPException):
+    def __init__(self, node_name, payload_version, latest_version):
+        self.message = (
+            "Node '{}' was modified concurrently: this payload is based on version {} but the latest is {}. "
+            "Re-read the node and re-apply the change.".format(node_name, payload_version, latest_version)
+        )
+        self.http_error_status = status.HTTP_409_CONFLICT
+        super().__init__(self.message)
+
+
 class NodeVersionNotFound(CustomHTTPException):
     def __init__(self, node_name, node_version):
         self.message = "Node with name '{}' and version '{}' could not be found".format(node_name, node_version)
