@@ -1,17 +1,12 @@
-# Set build context as PWD for multiple images
-OCI_IMAGE_BUILD_CONTEXT = $(PWD)
+contributors:
+	@python3 tools/generate_contributors.py > CONTRIBUTORS.md
 
 # Bespoke partial Makefiles
 include testing.mk		# add testing settings and targets
-ifneq ($(CI_JOB_ID),)
-  include cicd.mk		# add CI/CD settings and targets
-else
-  -include .env
-  export
-  include dev.mk		# add development settings and targets
-endif
+-include .env
 
 # SKAO Makefiles
+include .make/srcnet.mk
 include .make/base.mk
 include .make/helm.mk
 include .make/k8s.mk
