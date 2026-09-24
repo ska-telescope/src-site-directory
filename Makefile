@@ -1,3 +1,9 @@
+# Set build context as PWD for multiple images
+OCI_IMAGE_BUILD_CONTEXT = $(PWD)
+
+# Build additional tag for integration environment (oci.mk)
+OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
+
 contributors:
 	@python3 tools/generate_contributors.py > CONTRIBUTORS.md
 
