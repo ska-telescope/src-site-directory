@@ -5,7 +5,7 @@ Requires the ``integration`` extra; not a runtime dependency of the service.
 
 import logging
 
-import fire
+import fire  # pylint: disable=import-error
 import requests
 from fastapi import HTTPException
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
