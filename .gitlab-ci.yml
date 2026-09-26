@@ -65,6 +65,8 @@ integration:
     TOOLKIT_IMAGE_TAG: latest
     RUN_TESTS: "true"
   rules:
+    - if: '$WARM_HOST'   # a warm-host runner runs integration-warm (deployment stack) instead
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
       when: manual
       allow_failure: false   # blocking: an MR into main can't merge until this has run and passed
