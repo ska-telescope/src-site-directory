@@ -3,8 +3,10 @@ from pathlib import Path
 
 import mongomock
 import pytest
+from pymongo.errors import DuplicateKeyError
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
+from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
 
 
 @pytest.fixture(scope="module")
@@ -304,10 +306,6 @@ def test_set_storage_area_enabled_disabled(is_force_disabled_flag, mock_backend,
 @pytest.mark.unit
 def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
     """Two editors read the same version; the second write is refused, not silently lost."""
-    from pymongo.errors import DuplicateKeyError
-
-    from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
-
     editor_a = mock_backend.get_node("TEST", "latest")
     editor_b = mock_backend.get_node("TEST", "latest")
     mock_backend.add_edit_node(editor_a, node_name="TEST")

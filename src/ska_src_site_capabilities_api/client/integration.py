@@ -27,14 +27,15 @@ def _retry_on_conflict(fn, attempts=6):
 
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
-        for attempt in range(attempts):
+        for attempt in range(attempts - 1):
             try:
                 return fn(self, *args, **kwargs)
             except requests.HTTPError as e:
-                if e.response is None or e.response.status_code != 409 or attempt == attempts - 1:
+                if e.response is None or e.response.status_code != 409:
                     raise
                 print(f"[scapi] node changed under {fn.__name__}, re-reading and retrying ({attempt + 1}/{attempts})")
                 time.sleep(0.2 * (attempt + 1))
+        return fn(self, *args, **kwargs)  # the last attempt: a 409 here propagates
 
     return wrapper
 
