@@ -52,7 +52,7 @@ include:
       file: "gitlab-ci/includes/release.gitlab-ci.yml"
     # deployment stack integration tests
     - project: "ska-telescope/src/src-api/ska-src-api-deployment-stack"
-      ref: main
+      ref: feat-flux-native  # integration-warm and the warm pool are only on this branch; back to main once merged
       file: ".gitlab/ci/integration.yml"
     - project: 'ska-telescope/templates-repository'
       file: 'gitlab-ci/includes/sonar-scan.gitlab-ci.yml'
@@ -64,7 +64,8 @@ integration:
     SERVICE_BRANCH: $CI_COMMIT_REF_NAME
     SERVICE_NAME: scapi
     TOOLKIT_IMAGE_NAME: registry.gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack/toolkit
-    TOOLKIT_IMAGE_TAG: latest
+    # the stack's feat-flux-native build (latest is main's, without the vcluster CLI); back to latest once merged
+    TOOLKIT_IMAGE_TAG: e47dc6194bd7b9635d1a160a2c33dddf7ffaec5f
     RUN_TESTS: "true"
   rules:
     - if: '$WARM_HOST'   # a warm-host runner runs integration-warm (deployment stack) instead
