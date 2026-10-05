@@ -10,6 +10,15 @@ include testing.mk		# add testing settings and targets
 -include .env
 
 # SKAO Makefiles
+# SRCNet shared settings and targets via srcnet.mk:
+#   major-branch / minor-branch / patch-branch NAME=<name>
+#                       - create a <type>-<name> release branch
+#   push                - push the current branch to origin
+#   bump-and-commit     - bump the release version based on the branch
+#                         prefix and commit the bumped files (no-op on detached HEAD)
+#   oci-pre-build       - overridden as a no-op; outside CI, OCI_SKIP_PUSH=true
+#   oci-pre-build-all   - CI only, opt in with SRC_CHECK_BEHIND_MAIN=yes:
+#                         fail the build if the branch is behind origin/main
 include .make/srcnet.mk
 include .make/base.mk
 include .make/helm.mk

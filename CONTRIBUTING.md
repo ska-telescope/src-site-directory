@@ -25,8 +25,7 @@ ska-src-site-capabilities-api$ git submodule update --recursive --init
 
 ## Development cycle
 
-Makefile targets have been included to facilitate easier and more consistent development. The general recipe is as 
-follows:
+Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `srcnet.mk` in Makefile to use them. This is to facilitate easier and more consistent development. The general recipe is as follows:
 
 1. Depending on what you are working on, fork the project and create a new major/minor/patch branch, e.g. 
    ```bash
@@ -206,7 +205,15 @@ should be run inside a poetry shell.
 There is a Makefile target for generating documentation locally:
 
 ```bash
-ska-src-site-capabilities-api/docs$ make html
+ska-src-site-capabilities-api$ poetry run make docs-build html
+```
+If it fails (e.g. "No module named sphinx" or wrong Python version):
+
+```bash
+ska-src-site-capabilities-api$ poetry env use python3.13
+ska-src-site-capabilities-api$ poetry install --with docs
+ska-src-site-capabilities-api$ poetry run make docs-build html
+
 ```
 
 To render inheritance diagrams etc., the `graphviz` library must be installed.
