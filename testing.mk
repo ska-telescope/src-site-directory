@@ -10,6 +10,9 @@ PROJECT_NAME=scapi-core
 K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 K8S_TEST_IMAGE_TO_TEST=python:3.13-bookworm	# the image used by the test runner inside the deployment environment
 
+# send pyproject.toml so the test runner installs it
+k8s_test_src_dir = pyproject.toml $(PYTHON_SRC)/
+
 # Common configuration items for pytest (python.mk)
 # The following sets the expected location of the package inside CI & sets the required variables for component testing.
 PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KUBE_NAMESPACE=$(KUBE_NAMESPACE) DISABLE_AUTHENTICATION=$(DISABLE_AUTHENTICATION)
