@@ -7,7 +7,13 @@ OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
 
 # Bespoke partial Makefiles
 include testing.mk		# add testing settings and targets
--include .env
+ifneq ($(CI_JOB_ID),)
+  include cicd.mk		# add CI/CD settings and targets
+else
+  -include .env
+  export
+  include dev.mk		# add development settings and targets
+endif
 
 # SKAO Makefiles
 # SRCNet shared settings and targets via srcnet.mk:
@@ -23,6 +29,7 @@ include .make/srcnet.mk
 include .make/base.mk
 include .make/helm.mk
 include .make/oci.mk
+include .make/k8s.mk
 include .make/python.mk
 
 # Defined after the includes so it doesn't become the default goal.
