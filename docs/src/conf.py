@@ -20,7 +20,7 @@ author = 'Rob Barnsley, Shraddha Bajare'
 
 # The short X.Y version
 pyproject = toml.load('../../pyproject.toml')
-version = release = pyproject['tool']['poetry']['version']
+version = release = pyproject['project']['version']
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -19,22 +19,11 @@ stages:
     - scan
     - integration   # last: the blocking manual job must not hold up any other stage
 
-join_lint_reports:
-    stage: lint-post
-    tags:
-        - ${SKA_DEFAULT_RUNNER}
-    script:
-        - make join-lint-reports
-    artifacts:
-        paths:
-            - build/
-        when: always
-
 # Standardised SKAO jobs (see https://gitlab.com/ska-telescope/templates-repository/-/blob/master/gitlab-ci/includes/)
 include:
     # python formatting, linting and testing
     - project: "ska-telescope/templates-repository"
-      file: "gitlab-ci/includes/python.gitlab-ci.yml"
+      file: "gitlab-ci/includes/python-uv.gitlab-ci.yml"
     # docs
     - project: "ska-telescope/templates-repository"
       file: "gitlab-ci/includes/docs.gitlab-ci.yml"
@@ -149,33 +138,6 @@ integration:
     - if: '$CI_COMMIT_BRANCH'
       when: manual
       allow_failure: true
-
-python-lint:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
-    before_script:
-        - poetry config virtualenvs.in-project true
-        - poetry install --no-interaction --no-ansi --all-extras
-    script:
-        - make python-lint PYTHON_RUNNER="poetry run"
-
-docs-build:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
-
-python-test:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
-    before_script:
-        - poetry config virtualenvs.in-project true
-        - poetry install --no-interaction --no-ansi
-    script:
-        - make python-test PYTHON_RUNNER="poetry run"
-
-python-build-for-development:
-    image: registry.gitlab.com/ska-telescope/ska-cicd-k8s-tools/ska-cicd-k8s-tools-ubuntu24:0.0.1-dev.c24789cce
-    before_script:
-        - poetry config virtualenvs.in-project true
-        - poetry install --no-interaction --no-ansi
-    script:
-        - make python-build PYTHON_RUNNER="poetry run"
 
 # The finaliser badge job lives in .post and would otherwise wait behind the blocking
 # manual integration job; detach it from stage order so it runs regardless.

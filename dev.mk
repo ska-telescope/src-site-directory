@@ -11,10 +11,6 @@ K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
 k8s-pre-install-chart: oci-build
 	minikube image load $(CAR_OCI_REGISTRY_HOST)/$(NAME):$(VERSION)
 
-# Override post for k8s-test (k8s.mk): remove the generated requirements file
-k8s-post-test:
-	rm tests/requirements.txt
-
 k8s-test-auth:
 	@echo "Running tests with authentication ENABLED..."
 	@make k8s-install-chart K8S_CHART_PARAMS="$(K8S_CHART_PARAMS) --set svc.api.disable_authentication=no"

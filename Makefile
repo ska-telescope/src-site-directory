@@ -4,6 +4,14 @@ OCI_IMAGE_BUILD_CONTEXT = $(PWD)
 # Build additional tag for integration environment (oci.mk)
 OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
 
+# Docs are built with the 'docs' dependency group (docs.mk)
+DOCS_PYTHON_RUNNER := uv run python3
+
+docs-pre-build:
+	uv sync --group docs
+
+# bump-and-commit (srcnet.mk) must also stage uv.lock, which python-set-release updates
+BUMP_FILES = .release $(CHART_YAML) pyproject.toml uv.lock
 
 # Bespoke partial Makefiles
 include testing.mk		# add testing settings and targets
@@ -30,7 +38,7 @@ include .make/base.mk
 include .make/helm.mk
 include .make/oci.mk
 include .make/k8s.mk
-include .make/python.mk
+include .make/python-uv.mk
 
 # Defined after the includes so it doesn't become the default goal.
 # Run explicitly with: make contributors

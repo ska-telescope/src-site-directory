@@ -1,10 +1,6 @@
-import json
 import logging
-import traceback
-from functools import wraps
 
-import requests
-from fastapi import HTTPException, status
+from fastapi import status
 from ska_src_api_common.exceptions import CustomHTTPException
 
 logger = logging.getLogger(__name__)
