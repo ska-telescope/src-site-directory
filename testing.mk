@@ -16,7 +16,6 @@ PYTHON_VARS_BEFORE_PYTEST=PYTHONPATH=.:./src CLUSTER_DOMAIN=$(CLUSTER_DOMAIN) KU
 ifeq ($(MAKECMDGOALS),python-test)					# if running pytest outside of deployment test runner
     PYTHON_VARS_AFTER_PYTEST=-x -m 'unit' $(FILE)
 endif
-endif
 ifeq ($(MAKECMDGOALS),k8s-test)						# if running pytest inside deployment test runner
     PYTHON_VARS_AFTER_PYTEST= -m 'component' $(FILE)
 endif
