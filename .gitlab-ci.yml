@@ -107,37 +107,45 @@ python-uv-publish-to-car-client:
 python-uv-publish-to-gitlab:
   variables:
     PYPROJECT_VARIANT: server
-  needs:
-    - job: python-uv-build-for-development
-      optional: true
-      parallel:
-        matrix:
-          - PYPROJECT_VARIANT: server
-    - job: python-uv-build-for-publication
-      optional: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^client-/'
       when: never
-    - exists:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
         - pyproject.toml
+      needs:
+        - python-uv-build-for-publication
+    - if: '$CI_COMMIT_TAG == null'
+      exists:
+        - pyproject.toml
+      needs:
+        - job: python-uv-build-for-development
+          parallel:
+            matrix:
+              - PYPROJECT_VARIANT: server
+    - when: never
 
 python-uv-publish-to-gitlab-client:
   extends: python-uv-publish-to-gitlab
   variables:
     PYPROJECT_VARIANT: client
-  needs:
-    - job: python-uv-build-for-development
-      optional: true
-      parallel:
-        matrix:
-          - PYPROJECT_VARIANT: client
-    - job: python-uv-build-for-publication-client
-      optional: true
   rules:
     - if: '$CI_COMMIT_TAG =~ /^[0-9]/'
       when: never
-    - exists:
+    - if: '$CI_COMMIT_TAG =~ /^client-[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
         - pyproject.client.toml
+      needs:
+        - python-uv-build-for-publication-client
+    - if: '$CI_COMMIT_TAG == null'
+      exists:
+        - pyproject.client.toml
+      needs:
+        - job: python-uv-build-for-development
+          parallel:
+            matrix:
+              - PYPROJECT_VARIANT: client
+    - when: never
 
 oci-image-publish:
   rules:
