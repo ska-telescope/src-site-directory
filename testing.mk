@@ -7,8 +7,9 @@ K8S_TEST_RUNNER=test-runner-$(HELM_RELEASE)
 K8S_TEST_IMAGE_TO_TEST=artefact.skao.int/ska-build-python-ubuntu24:1.0.0-rc.1
 K8S_TEST_RUNNER_ADD_ARGS=--env=UV_PYTHON=3.13
 
-# send pyproject.toml and uv.lock so the test runner can install the locked dependencies
-k8s_test_src_dir = pyproject.toml uv.lock $(PYTHON_SRC)
+# send pyproject.toml, uv.lock and LICENSE (needed by project.license-files) so the test runner can
+# install the locked dependencies
+k8s_test_src_dir = pyproject.toml uv.lock LICENSE $(PYTHON_SRC)
 
 # Common configuration items for pytest (python-uv.mk)
 # The following sets the expected location of the package inside CI & sets the required variables for component testing.
