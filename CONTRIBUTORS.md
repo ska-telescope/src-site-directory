@@ -12,5 +12,5 @@
 - Micheledelliveneri <micheledelliveneri@gmail.com> 2025 2026
 - Rob Barnsley <r.barnsley@skao.int> 2023 2024 2025
 - Sayan Roy <sayan.roy@thoughtworks.com> 2025
-- Shraddha Bajare <shraddha.bajare@skao.int> 2024 2025
+- Shraddha Bajare <shraddha.bajare@skao.int> 2024 2025 2026
 - Yan Grange <12-grange@users.noreply.git.astron.nl> 2023

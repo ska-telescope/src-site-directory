@@ -7,6 +7,3 @@ K8S_CHART_PARAMS += $(K8S_CHART_COMMON_PARAMS) \
 	--set svc.api.disable_authentication=$(DISABLE_AUTHENTICATION) \
 	--set svc.api.permissions_api_url=http://localhost \
 	--set svc.api.auth_api_url=http://localhost
-
-# Build additional tag for integration environment (oci.mk)
-OCI_BUILD_ADDITIONAL_TAGS = $(CI_COMMIT_REF_SLUG)
