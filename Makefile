@@ -40,6 +40,93 @@ include .make/oci.mk
 include .make/k8s.mk
 include .make/python-uv.mk
 
+# Lockfiles: uv.lock (server, pyproject.toml) and uv.client.lock (client, pyproject.client.toml).
+# Extra uv flags via UV_LOCK_ARGS, e.g. make lock UV_LOCK_ARGS=--upgrade
+UV_LOCK_ARGS ?=
+
+.PHONY: lock lock-server lock-client lock-check client-bump-and-commit \
+	client-bump-patch-release client-bump-minor-release client-bump-major-release
+
+lock: lock-server lock-client  ## update both uv.lock and uv.client.lock
+
+lock-server:  ## update uv.lock from pyproject.toml
+	uv lock $(UV_LOCK_ARGS)
+
+# uv cannot name its lockfile, so resolve the client in a scratch project dir.
+lock-client:  ## update uv.client.lock from pyproject.client.toml
+	@tmp=$$(mktemp -d) && trap 'rm -rf "$$tmp"' EXIT && \
+	cp pyproject.client.toml "$$tmp/pyproject.toml" && \
+	if [ -f uv.client.lock ]; then cp uv.client.lock "$$tmp/uv.lock"; fi && \
+	uv lock --project "$$tmp" $(UV_LOCK_ARGS) && \
+	cp "$$tmp/uv.lock" uv.client.lock
+
+lock-check:  ## fail if uv.lock or uv.client.lock is out of date
+	@$(MAKE) --no-print-directory lock-server lock-client UV_LOCK_ARGS=--locked
+
+# Bumps the client release according to the branch name; independent of the server version.
+client-bump-and-commit:
+	@branch=$$(git branch --show-current); \
+	if [ -z "$$branch" ]; then \
+	  echo "No current branch (detached HEAD) - skipping client-bump-and-commit."; \
+	  exit 0; \
+	fi; \
+	echo "Current branch: $$branch"; \
+	case "$$branch" in \
+	  patch-*) $(MAKE) client-bump-patch-release ;; \
+	  minor-*) $(MAKE) client-bump-minor-release ;; \
+	  major-*) $(MAKE) client-bump-major-release ;; \
+	  *) echo "Error: $$branch is not a patch, minor or major branch"; exit 1 ;; \
+	esac && \
+	git add .release_client pyproject.client.toml uv.client.lock && \
+	git commit -m "Bump client release version"
+
+# release.mk set-release would also bump pyproject.toml/Chart.yaml, so the client bumps are bespoke.
+# Plain `make` (not $(MAKE)) so CI's `make -n` target check only prints this recipe.
+client-bump-patch-release: CLIENT_NEXT_LEVEL := nextPatchLevel
+client-bump-minor-release: CLIENT_NEXT_LEVEL := nextMinorLevel
+client-bump-major-release: CLIENT_NEXT_LEVEL := nextMajorLevel
+client-bump-patch-release client-bump-minor-release client-bump-major-release:
+	@. $(RELEASE_SUPPORT); CONFIG=client setReleaseFile; \
+	version=$$($(CLIENT_NEXT_LEVEL)); \
+	if tagExists "client-$$version"; then echo "ERROR: tag client-$$version already exists" >&2; exit 1; fi; \
+	bk=$$(mktemp -d); cp .release_client pyproject.client.toml uv.client.lock "$$bk"/; \
+	new=$$(mktemp pyproject.client.toml.XXXXXX); \
+	if ! { printf 'release=%s\ntag=client-%s\n' "$$version" "$$version" > .release_client && \
+		sed -E "s|^(version[[:space:]]*=[[:space:]]*\")([^\"]*)(\")|\1$${version}\3|" pyproject.client.toml > "$$new" && \
+		mv -f "$$new" pyproject.client.toml && \
+		make --no-print-directory lock-client; }; then \
+		cp "$$bk"/.release_client "$$bk"/pyproject.client.toml "$$bk"/uv.client.lock .; rm -rf "$$bk" "$$new"; \
+		echo "ERROR: client bump to $$version failed; version files restored" >&2; exit 1; \
+	fi; \
+	rm -rf "$$bk"; \
+	echo "Client version bumped to $$version (tag client-$$version)"
+
+ifneq ($(CI_JOB_ID),)
+# Swap in pyproject.client.toml / uv.client.lock for client builds.
+PYPROJECT_VARIANT ?= server
+
+python-pre-lint python-pre-build python-pre-test python-pre-publish: python-variant-swap
+
+python-variant-swap:
+ifeq ($(PYPROJECT_VARIANT),client)
+	cp pyproject.client.toml pyproject.toml
+	cp uv.client.lock uv.lock
+endif
+
+# Tag builds must match the variant's pyproject version: <X.Y.Z> (server) or client-<X.Y.Z> (client).
+ifneq ($(CI_COMMIT_TAG),)
+python-pre-build: python-check-tag-version
+
+python-check-tag-version: python-variant-swap
+	@version=$$(uv version --short); \
+	expected=$$([ "$(PYPROJECT_VARIANT)" = client ] && echo "client-$$version" || echo "$$version"); \
+	if [ "$$expected" != "$(CI_COMMIT_TAG)" ]; then \
+		echo "Tag $(CI_COMMIT_TAG) does not match $(PYPROJECT_VARIANT) version $$version (expected tag $$expected)"; \
+		exit 1; \
+	fi
+endif
+endif
+
 # Defined after the includes so it doesn't become the default goal.
 # Run explicitly with: make contributors
 .PHONY: contributors

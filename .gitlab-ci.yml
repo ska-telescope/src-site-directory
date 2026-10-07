@@ -50,6 +50,109 @@ include:
       file: 'gitlab-ci/includes/sonar-scan.gitlab-ci.yml'
 
 
+# Overrides for SKAO jobs
+# Server and client are released independently:
+#   <X.Y.Z>         server release: images, helm chart, server package
+#   client-<X.Y.Z>  client release: client package only
+# The template publish jobs fire on any tag, so each is restricted to its own tag scheme.
+
+python-uv-lock-check:
+  stage: lint
+  image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+  tags:
+    - ${SKA_DEFAULT_RUNNER}
+  script:
+    - make lock-check
+
+# Dev builds (never on tags): build and publish both variants on every pipeline.
+python-uv-build-for-development:
+  parallel:
+    matrix:
+      - PYPROJECT_VARIANT: [server, client]
+
+python-uv-build-for-publication:
+  variables:
+    PYPROJECT_VARIANT: server
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - pyproject.toml
+
+python-uv-build-for-publication-client:
+  extends: python-uv-build-for-publication
+  variables:
+    PYPROJECT_VARIANT: client
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^client-[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - pyproject.client.toml
+
+python-uv-publish-to-car:
+  needs:
+    - python-uv-build-for-publication
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - pyproject.toml
+
+python-uv-publish-to-car-client:
+  extends: python-uv-publish-to-car
+  needs:
+    - python-uv-build-for-publication-client
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^client-[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - pyproject.client.toml
+
+python-uv-publish-to-gitlab:
+  variables:
+    PYPROJECT_VARIANT: server
+  needs:
+    - job: python-uv-build-for-development
+      optional: true
+      parallel:
+        matrix:
+          - PYPROJECT_VARIANT: server
+    - job: python-uv-build-for-publication
+      optional: true
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^client-/'
+      when: never
+    - exists:
+        - pyproject.toml
+
+python-uv-publish-to-gitlab-client:
+  extends: python-uv-publish-to-gitlab
+  variables:
+    PYPROJECT_VARIANT: client
+  needs:
+    - job: python-uv-build-for-development
+      optional: true
+      parallel:
+        matrix:
+          - PYPROJECT_VARIANT: client
+    - job: python-uv-build-for-publication-client
+      optional: true
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]/'
+      when: never
+    - exists:
+        - pyproject.client.toml
+
+oci-image-publish:
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - Dockerfile
+        - Dockerfile.*
+        - images/**/*
+
+helm-chart-publish:
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+/'
+      exists:
+        - charts/**/*
+
 # Overrides for and extensions of SKAO jobs
 # *k8s-test jobs (see https://gitlab.com/ska-telescope/sdi/ska-cicd-makefile/-/blob/master/k8s.mk)
 

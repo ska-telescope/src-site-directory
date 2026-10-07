@@ -1,0 +1,51 @@
+[project]
+name = "ska-src-site-capabilities-api-client"
+version = "0.5.0"
+description = "SRCNet Site Capabilities API client"
+authors = [
+    { name = "Rob Barnsley" },
+    { name = "Michele Delli Veneri" },
+]
+license = "BSD-3-Clause"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "requests>=2.32.3,<3.0.0",
+    "ska-src-api-common==0.1.1",
+]
+
+[project.optional-dependencies]
+integration = [
+    "fire>=0.7.0,<0.8.0",
+    "selenium>=4.15.0,<5.0.0",
+    "ska-src-auth-api==0.6.15",
+]
+
+[tool.uv]
+package = true
+
+[[tool.uv.index]]
+name = "ska-nexus"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
+
+[[tool.uv.index]]
+name = "PyPI-public"
+url = "https://pypi.org/simple"
+
+# Not explicit: ska-src-logging is only a transitive dep (via ska-src-api-common), so sources can't pin it.
+[[tool.uv.index]]
+name = "logging_api"
+url = "https://gitlab.com/api/v4/projects/77541150/packages/pypi/simple"
+
+[tool.uv.sources]
+ska-src-api-common = { index = "ska-nexus" }
+ska-src-auth-api = { index = "ska-nexus" }
+
+[build-system]
+requires = ["uv_build>=0.9.0,<1.0.0"]
+build-backend = "uv_build"
+
+# Packages only src/ska_src_site_capabilities_api/client/ so the import path matches the full server package.
+[tool.uv.build-backend]
+module-name = "ska_src_site_capabilities_api.client"
+module-root = "src"
+namespace = true

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0]
+
+### Added
+- The client is now also released as a separate package, `ska-src-site-capabilities-api-client` (`pyproject.client.toml`, `uv.client.lock`), versioned independently and tagged `client-X.Y.Z`. See `CHANGELOG.client.md`.
+- `make lock`, `lock-server`, `lock-client` and `lock-check` targets; `lock-check` runs in CI.
+- `make client-bump-and-commit` (and `client-bump-{patch,minor,major}-release`) for client releases.
+
+### Changed
+- CI builds and publishes both the server and client packages; tag pipelines publish only the variant matching the tag scheme. Images and the helm chart are only published on server (`X.Y.Z`) tags.
+
 ## [0.3.102]
 
 ### Changed
