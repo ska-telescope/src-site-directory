@@ -119,10 +119,7 @@ python-uv-publish-to-gitlab:
       exists:
         - pyproject.toml
       needs:
-        - job: python-uv-build-for-development
-          parallel:
-            matrix:
-              - PYPROJECT_VARIANT: server
+        - job: 'python-uv-build-for-development: [server]'
     - when: never
 
 python-uv-publish-to-gitlab-client:
@@ -141,10 +138,7 @@ python-uv-publish-to-gitlab-client:
       exists:
         - pyproject.client.toml
       needs:
-        - job: python-uv-build-for-development
-          parallel:
-            matrix:
-              - PYPROJECT_VARIANT: client
+        - job: 'python-uv-build-for-development: [client]'
     - when: never
 
 oci-image-publish:
