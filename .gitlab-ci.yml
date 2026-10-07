@@ -140,6 +140,28 @@ integration:
       allow_failure: true
 
 # The finaliser badge job lives in .post and would otherwise wait behind the blocking
-# manual integration job; detach it from stage order so it runs regardless.
+# manual integration job. List its real inputs explicitly so it waits for build, lint
+# and test (and gets their reports) but not for integration.
 create-ci-metrics:
-    needs: []
+    needs:
+        - job: python-uv-lint
+          artifacts: true
+          optional: true
+        - job: python-uv-test
+          artifacts: true
+          optional: true
+        - job: oci-image-lint
+          artifacts: true
+          optional: true
+        - job: python-uv-build-for-development
+          artifacts: true
+          optional: true
+        - job: helm-chart-lint
+          artifacts: true
+          optional: true
+        - job: docs-build
+          artifacts: true
+          optional: true
+        - job: oci-image-build
+          artifacts: false
+          optional: true
