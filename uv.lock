@@ -2353,7 +2353,7 @@ wheels = [
 
 [[package]]
 name = "ska-src-site-capabilities-api"
-version = "0.4.0"
+version = "0.3.102"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
