@@ -89,8 +89,9 @@ client-bump-patch-release client-bump-minor-release client-bump-major-release:
 	@. $(RELEASE_SUPPORT); CONFIG=client setReleaseFile; \
 	version=$$($(CLIENT_NEXT_LEVEL)); \
 	if tagExists "client-$$version"; then echo "ERROR: tag client-$$version already exists" >&2; exit 1; fi; \
-	bk=$$(mktemp -d); cp .release_client pyproject.client.toml uv.client.lock "$$bk"/; \
-	new=$$(mktemp pyproject.client.toml.XXXXXX); \
+	bk=$$(mktemp -d) || exit 1; \
+	cp .release_client pyproject.client.toml uv.client.lock "$$bk"/ || { rm -rf "$$bk"; exit 1; }; \
+	new=$$(mktemp pyproject.client.toml.XXXXXX) || { rm -rf "$$bk"; exit 1; }; \
 	if ! { printf 'release=%s\ntag=client-%s\n' "$$version" "$$version" > .release_client && \
 		sed -E "s|^(version[[:space:]]*=[[:space:]]*\")([^\"]*)(\")|\1$${version}\3|" pyproject.client.toml > "$$new" && \
 		mv -f "$$new" pyproject.client.toml && \
