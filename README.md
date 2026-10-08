@@ -19,6 +19,27 @@ The Site Capabilities API enables the following functionality by group:
 | Schemas                              | Schema operations.                           |
 | Status                               | Operations describing the status of the API. |
 
+## Python package installation
+
+Choose one distribution for this API in each Python environment:
+
+- `ska-src-site-capabilities-api`: the server package, which also includes the Python client. Use its bundled client when the server is installed.
+- `ska-src-site-capabilities-api-client`: the standalone client package for applications that only need to call the API, without installing the server.
+
+**Do not install both distributions in the same Python environment.** Both ship
+`ska_src_site_capabilities_api/client`, so their client files overlap rather than
+being independently owned. Installing or upgrading either can overwrite the
+other's client code. Uninstalling either can remove shared files and break client
+imports for the distribution that remains installed. Matching version numbers
+does not remove this risk. The server's bundled client follows the server release;
+it must not be upgraded separately using the standalone client package.
+
+If both distributions have been installed, recreate the environment with only the
+chosen distribution. When switching between server and client-only installations,
+use a fresh virtual environment or container image rather than uninstalling just
+one package and relying on the remaining installation. Check direct and transitive
+dependencies so that they do not introduce both distributions for this API.
+
 ## AuthN/Z
 
 ### Authentication
@@ -108,6 +129,13 @@ query parameters or body of the request; which are used depends on where the par
 ## Deployment
 
 Deployment is managed by docker-compose or helm.
+
+For server deployments, retain the client bundled with the server package; do not
+add `ska-src-site-capabilities-api-client` to the same container's Python environment,
+including through application dependencies or runtime installation scripts. Client-only
+applications can use the standalone client in a separate environment or container
+and call the deployed server over HTTP. See [Python package installation](#python-package-installation)
+for the shared-file risk and recovery guidance.
 
 The docker-compose file can be used to bring up the necessary services locally i.e. the REST API, setting the mandatory
 environment variables. Sensitive environment variables, including those relating to the IAM client, should be kept in
