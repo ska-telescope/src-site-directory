@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - The client is now also released as a separate package, `ska-src-site-capabilities-api-client` (`pyproject.client.toml`, `uv.client.lock`), versioned independently and tagged `client-X.Y.Z`. See `CHANGELOG.client.md`.
 - `make lock`, `lock-server`, `lock-client` and `lock-check` targets; `lock-check` runs in CI.
-- `make client-bump-and-commit` (and `client-bump-{patch,minor,major}-release`) for client releases.
+- `make client-bump-{patch,minor,major}-release` for client releases; stage and commit the updated client version files manually.
 
 ### Changed
 - CI builds and publishes both the server and client packages; tag pipelines publish only the variant matching the tag scheme. Images and the helm chart are only published on server (`X.Y.Z`) tags.

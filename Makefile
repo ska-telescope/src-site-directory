@@ -44,7 +44,7 @@ include .make/python-uv.mk
 # Extra uv flags via UV_LOCK_ARGS, e.g. make lock UV_LOCK_ARGS=--upgrade
 UV_LOCK_ARGS ?=
 
-.PHONY: lock lock-server lock-client lock-check client-bump-and-commit \
+.PHONY: lock lock-server lock-client lock-check \
 	client-bump-patch-release client-bump-minor-release client-bump-major-release
 
 lock: lock-server lock-client  ## update both uv.lock and uv.client.lock
@@ -62,23 +62,6 @@ lock-client:  ## update uv.client.lock from pyproject.client.toml
 
 lock-check:  ## fail if uv.lock or uv.client.lock is out of date
 	@$(MAKE) --no-print-directory lock-server lock-client UV_LOCK_ARGS=--locked
-
-# Bumps the client release according to the branch name; independent of the server version.
-client-bump-and-commit:
-	@branch=$$(git branch --show-current); \
-	if [ -z "$$branch" ]; then \
-	  echo "No current branch (detached HEAD) - skipping client-bump-and-commit."; \
-	  exit 0; \
-	fi; \
-	echo "Current branch: $$branch"; \
-	case "$$branch" in \
-	  patch-*) $(MAKE) client-bump-patch-release ;; \
-	  minor-*) $(MAKE) client-bump-minor-release ;; \
-	  major-*) $(MAKE) client-bump-major-release ;; \
-	  *) echo "Error: $$branch is not a patch, minor or major branch"; exit 1 ;; \
-	esac && \
-	git add .release_client pyproject.client.toml uv.client.lock && \
-	git commit -m "Bump client release version"
 
 # release.mk set-release would also bump pyproject.toml/Chart.yaml, so the client bumps are bespoke.
 # Plain `make` (not $(MAKE)) so CI's `make -n` target check only prints this recipe.

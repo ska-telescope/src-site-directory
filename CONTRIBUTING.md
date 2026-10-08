@@ -68,12 +68,19 @@ The client package (`pyproject.client.toml`, version tracked in `.release_client
 server. Server releases are tagged `X.Y.Z`; client releases are tagged `client-X.Y.Z` and only build and publish the
 client package.
 
-1. Bump the client version and commit:
+1. Bump the client version using the appropriate release level:
    ```bash
-   ska-src-site-capabilities-api$ make client-bump-and-commit   # or client-bump-{patch,minor,major}-release
+   ska-src-site-capabilities-api$ make client-bump-patch-release   # or client-bump-minor-release / client-bump-major-release
+   ```
+   These targets update `.release_client`, `pyproject.client.toml` and `uv.client.lock`; they do not stage or commit changes.
+
+2. Review the changes, then stage and commit them manually:
+   ```bash
+   ska-src-site-capabilities-api$ git add .release_client pyproject.client.toml uv.client.lock
+   ska-src-site-capabilities-api$ git commit -m "Bump client release version"
    ```
 
-2. Once merged, create the `client-X.Y.Z` tag in GitLab. The pipeline fails if the tag does not match the version in
+3. Once merged, create the `client-X.Y.Z` tag in GitLab. The pipeline fails if the tag does not match the version in
    `pyproject.client.toml`.
 
 ## Development tricks
