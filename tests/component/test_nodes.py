@@ -383,11 +383,6 @@ def test_create_edit_delete_node_cycle():
         updated_node = node_data.copy()
         updated_node["comments"] = "Updated comment"
         edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
-
-        # 3. Edit node
-        updated_node = node_data.copy()
-        updated_node["comments"] = "Updated comment"
-        edit_response = send_post_request(f"{api_url}/nodes/{test_node_name}", updated_node)
         assert edit_response.status_code == 200
 
         # 4. Verify edit
