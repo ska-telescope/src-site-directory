@@ -1,7 +1,6 @@
 from typing import List
 
 import requests
-from ska_src_api_common.exceptions import handle_client_exceptions
 
 
 class SiteCapabilitiesClient:
@@ -24,7 +23,6 @@ class SiteCapabilitiesClient:
         }
         return headers
 
-    @handle_client_exceptions
     def get_add_node_www_url(self):
         """Get the url to add a node.
 
@@ -33,7 +31,6 @@ class SiteCapabilitiesClient:
         add_node_www_url = "{api_url}/www/nodes".format(api_url=self.api_url)
         return add_node_www_url
 
-    @handle_client_exceptions
     def get_edit_node_www_url(self, node_name):
         """Get the url to edit a node.
 
@@ -42,7 +39,6 @@ class SiteCapabilitiesClient:
         edit_node_www_url = "{api_url}/www/nodes/{node_name}".format(api_url=self.api_url, node_name=node_name)
         return edit_node_www_url
 
-    @handle_client_exceptions
     def get_compute(self, compute_id: str):
         """Get description of a compute element from an identifier.
 
@@ -57,7 +53,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_schema(self, schema: str):
         """Get a schema.
 
@@ -72,7 +67,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_service(self, service_id: str):
         """Get description of a service from an identifier.
 
@@ -87,7 +81,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_storage(self, storage_id: str):
         """Get description of a storage from an identifier.
 
@@ -102,7 +95,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_storage_area(self, storage_area_id: str):
         """Get description of a storage area from an identifier.
 
@@ -117,7 +109,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_node_version(self, node_name: str, node_version: str = "latest"):
         """Get description of a node version.
 
@@ -134,7 +125,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_site_from_node_version(self, node_name: str, site_name: str, node_version: str = "latest"):
         """Get description of a site from a specific node version.
 
@@ -152,7 +142,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_site_from_id(self, site_id: str):
         """Get description of a site from an identifier.
 
@@ -167,7 +156,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def dump_nodes(self):
         """Dump all information about all available nodes.
 
@@ -180,7 +168,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def health(self):
         """Get API health.
 
@@ -193,7 +180,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_compute(
         self,
         node_names: List[str] = None,
@@ -216,7 +202,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_nodes(
         self,
         only_names: bool = False,
@@ -237,7 +222,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_schemas(self):
         """List schemas.
 
@@ -250,7 +234,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_queues(self, node_names: str | None = None, site_names: str | None = None, include_inactive: bool = False):
         """List queues.
 
@@ -271,7 +254,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def get_queue_from_id(self, queue_id: str):
         """Get Queue from ID.
 
@@ -285,7 +267,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_services(
         self,
         include_inactive: bool = False,
@@ -324,7 +305,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_service_types(self):
         """List service types.
 
@@ -337,7 +317,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_sites(
         self,
         only_names: bool = False,
@@ -360,7 +339,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storages(
         self,
         node_names: List[str] = None,
@@ -383,7 +361,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storages_grafana(
         self,
         node_names: List[str] = None,
@@ -406,7 +383,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storages_topojson(
         self,
         node_names: List[str] = None,
@@ -429,7 +405,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storage_areas(
         self,
         node_names: List[str] = None,
@@ -452,7 +427,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storage_areas_grafana(
         self,
         node_names: List[str] = None,
@@ -475,7 +449,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def list_storage_areas_topojson(
         self,
         node_names: List[str] = None,
@@ -510,7 +483,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def ping(self):
         """Ping the API.
 
@@ -523,7 +495,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_site_enabled(self, site_id: str):
         """Unset site force disabled.
 
@@ -537,7 +508,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_site_disabled(self, site_id: str):
         """Set site force disabled.
 
@@ -551,7 +521,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_compute_enabled(self, compute_id: str):
         """Unset compute force disabled.
 
@@ -565,7 +534,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_compute_disabled(self, compute_id: str):
         """Set compute force disabled.
 
@@ -579,7 +547,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_service_enabled(self, service_id: str):
         """Unset service force disabled.
 
@@ -593,7 +560,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_service_disabled(self, service_id: str):
         """Set service force disabled.
 
@@ -607,7 +573,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_storage_enabled(self, storage_id: str):
         """Unset storage force disabled.
 
@@ -621,7 +586,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_storage_disabled(self, storage_id: str):
         """Set storage force disabled.
 
@@ -635,7 +599,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_storage_area_enabled(self, storage_area_id: str):
         """Unset storage area force disabled.
 
@@ -649,7 +612,6 @@ class SiteCapabilitiesClient:
         resp.raise_for_status()
         return resp
 
-    @handle_client_exceptions
     def set_storage_area_disabled(self, storage_area_id: str):
         """Set storage area force disabled.
 

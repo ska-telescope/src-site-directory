@@ -1612,26 +1612,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ska-src-api-common"
-version = "0.1.1"
-source = { registry = "https://artefact.skao.int/repository/pypi-internal/simple" }
-dependencies = [
-    { name = "authlib" },
-    { name = "fastapi" },
-    { name = "jsonref" },
-    { name = "markdown" },
-    { name = "pydantic" },
-    { name = "pyjwt" },
-    { name = "redis" },
-    { name = "requests" },
-    { name = "ska-src-logging" },
-]
-sdist = { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-api-common/0.1.1/ska_src_api_common-0.1.1.tar.gz", hash = "sha256:7210aa9b7059a1a36a58f6f9d8861ccb433b331b78eff281e078468c4809274d" }
-wheels = [
-    { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-api-common/0.1.1/ska_src_api_common-0.1.1-py3-none-any.whl", hash = "sha256:4e967f0a363b5da295fe848117bfcd23f7eba50c957f7f53d1541537fe3bf53b" },
-]
-
-[[package]]
 name = "ska-src-auth-api"
 version = "0.6.15"
 source = { registry = "https://artefact.skao.int/repository/pypi-internal/simple" }
@@ -1726,7 +1706,6 @@ version = "0.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
-    { name = "ska-src-api-common" },
 ]
 
 [package.optional-dependencies]
@@ -1741,7 +1720,6 @@ requires-dist = [
     { name = "fire", marker = "extra == 'integration'", specifier = ">=0.7.0,<0.8.0" },
     { name = "requests", specifier = ">=2.32.3,<3.0.0" },
     { name = "selenium", marker = "extra == 'integration'", specifier = ">=4.15.0,<5.0.0" },
-    { name = "ska-src-api-common", specifier = "==0.1.1", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
     { name = "ska-src-auth-api", marker = "extra == 'integration'", specifier = "==0.6.15", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
 ]
 provides-extras = ["integration"]
