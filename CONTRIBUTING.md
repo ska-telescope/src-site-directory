@@ -113,21 +113,18 @@ Testing is done via the `pytest` module, with code coverage provided by the `pyt
 
 ### Component testing
 
-Component testing uses the integration environment to spin up local services for testing. The component tests 
+Component testing runs against a running instance of the API. The component tests 
 implemented for this repository are stored under the `/tests/component` directory. These component tests are executed 
 during the ``test`` stage of the CI/CD pipeline under the ``k8s-test-api-with-disabled-auth`` and 
 ``k8s-test-api-with-enabled-auth`` jobs.
 
-#### Running component tests locally with the Integration Environment
+#### Running component tests locally
 
-To run component tests against a local instance using the integration environment:
+To run component tests against a local instance:
 
-1. **Start the API with authentication disabled:**
-   ```bash
-   # Set the Integration Environment to start SC_API and uncomment DISABLE_AUTHENTICATION: "yes" in scapi-docker-compose.yanml
-   bash scripts/stack/start-stack.
-   ```
-2. **Set environment variables for the tests:**
+1. **Start the API with authentication disabled** (`DISABLE_AUTHENTICATION=yes`), e.g. by deploying `scapi` with the
+   [Deployment Stack](https://gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack).
+2. **Set environment variables for the tests** (adjust `API_URL` to wherever the API is reachable):
    ```bash
    export DISABLE_AUTHENTICATION=yes
    export API_URL=http://localhost:8081/v1  
