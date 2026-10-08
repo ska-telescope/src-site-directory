@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.102]
+
+### Changed
+
+- Replaced poetry with uv for dependency management, packaging (`uv_build` backend) and the lockfile (`uv.lock`)
+- Replaced isort, black, flake8 and pylint with ruff (`ruff check` and `ruff format`), carrying over the previous line length and pylint settings
+- Dockerfiles now use a multi-stage uv build on the SKA Ubuntu 24.04 Python 3.13 images, installing dependencies into `/opt/venv`
+- mongosh and mongoimport are now installed from MongoDB's Ubuntu 24.04 (noble) repository
+- Dockerfile.core is now a symlink to images/scapi-core/Dockerfile
+- CI, make targets, Read the Docs and the contributing guide now use uv (`python-uv.mk`, `python-uv.gitlab-ci.yml`)
+- The k8s-test runner now installs the locked dependencies with `uv sync` and runs the tests with `uv run`, using the SKA Ubuntu 24.04 build image pinned to Python 3.13
+- `make bump-and-commit` now also stages `uv.lock`
+
+### Added
+
+- `__init__.py` files for all subpackages of `ska_src_site_capabilities_api`, required by the `uv_build` backend
+
+### Removed
+
+- Unused imports from `common/exceptions.py`
+
 ## [0.3.101]
 
 - API Common library(ska-src-api-common v0.1.1) is utilised for common utility methods, exceptions classes and IAM classes.

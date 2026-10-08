@@ -50,9 +50,9 @@ def generate_code_sample(language: str, method: str, path: str, parameters: list
     # Initialize Jinja2 environment on first call (cached via function attribute)
     if not hasattr(generate_code_sample, "_jinja_env"):
         code_template_dir = os.path.join(os.path.dirname(__file__), "templates", "code_samples")
-        generate_code_sample._jinja_env = Environment(loader=FileSystemLoader(code_template_dir))  # pylint: disable=protected-access
+        generate_code_sample._jinja_env = Environment(loader=FileSystemLoader(code_template_dir))
 
-    template = generate_code_sample._jinja_env.get_template(f"{language}.j2")  # pylint: disable=protected-access
+    template = generate_code_sample._jinja_env.get_template(f"{language}.j2")
     query_string, query_params_dict = _build_query_params(parameters)
     parsed_url = urlparse(base_url)
 

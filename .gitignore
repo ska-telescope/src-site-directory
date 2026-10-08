@@ -33,3 +33,5 @@ dist/
 
 tests/requirements.txt
 
+.venv/
+.ruff_cache/

@@ -36,9 +36,9 @@ Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `sr
 2. Make your changes.
 
 
-3. Update `poetry.lock`
+3. If you changed dependencies in `pyproject.toml`, update `uv.lock`
    ```bash
-   ska-src-site-capabilities-api$ poetry lock --no-update
+   ska-src-site-capabilities-api$ uv lock
    ```
    
 4. Add your changes to the branch:
@@ -61,18 +61,18 @@ Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `sr
 
 ## Development tricks
 
-### Using poetry
+### Using uv
 
-1. To work inside a poetry shell:
+1. To install dependencies (including the `dev` group) from `uv.lock` into `.venv`:
 
 ```bash
-ska-src-site-capabilities-api$ poetry shell
+ska-src-site-capabilities-api$ uv sync
 ```
 
-2. To install dependencies from `pyproject.toml`:
+2. To run a command inside the environment:
 
 ```bash
-(venv)ska-src-site-capabilities-api$ poetry install
+ska-src-site-capabilities-api$ uv run <command>
 ```
 
 ### Bypassing AuthN/Z
@@ -133,16 +133,16 @@ To run component tests against a local instance using the integration environmen
    export API_URL=http://localhost:8081/v1  
    ```
 
-3. **Run the tests using Poetry:**
+3. **Run the tests using uv:**
    ```bash
    # Run all component tests
-   poetry run pytest tests/component -m component -v --override-ini="addopts="
+   uv run pytest tests/component -m component -v --override-ini="addopts="
    
    # Run a specific test file
-   poetry run pytest tests/component/test_compute.py -m component -v --override-ini="addopts="
+   uv run pytest tests/component/test_compute.py -m component -v --override-ini="addopts="
    
    # Run with logging
-   poetry run pytest tests/component -m component -v -s --log-cli-level=INFO --override-ini="addopts="
+   uv run pytest tests/component -m component -v -s --log-cli-level=INFO --override-ini="addopts="
    ```
 
 **Note:** The `--override-ini="addopts="` flag is needed to override pytest.ini default options that may cause issues 
@@ -183,37 +183,33 @@ ska-src-site-capabilities-api$ make k8s-test-noauth
 
 ## Code quality
 
-This repository uses the following libraries for code quality:
-
-- ``isort`` for sorting imports,
-- ``black`` to enforce a consistent coding style,
-- ``flake8`` to check code base against coding style (PEP8), and
-- ``pylint`` to look for programming errors and code smells
+This repository uses [`ruff`](https://docs.astral.sh/ruff/) for both linting and formatting, configured under
+`[tool.ruff]` in `pyproject.toml`.
 
 ### Linting
 
-Operations for code linting are performed by the `python-lint` Makefile target provided by the `.make` submodule. This 
-should be run inside a poetry shell.
+Operations for code linting are performed by the `python-lint` Makefile target provided by the `.make` submodule:
+
+```bash
+ska-src-site-capabilities-api$ make python-lint
+```
 
 ### Formatting
 
-Operations for code formatting are performed by the `python-format` Makefile target provided by the `.make` submodule. This 
-should be run inside a poetry shell.
+Operations for code formatting are performed by the `python-format` Makefile target provided by the `.make` submodule:
+
+```bash
+ska-src-site-capabilities-api$ make python-format
+```
 
 ## Documentation
 
 There is a Makefile target for generating documentation locally:
 
 ```bash
-ska-src-site-capabilities-api$ poetry run make docs-build html
+ska-src-site-capabilities-api$ make docs-build html
 ```
-If it fails (e.g. "No module named sphinx" or wrong Python version):
 
-```bash
-ska-src-site-capabilities-api$ poetry env use python3.13
-ska-src-site-capabilities-api$ poetry install --with docs
-ska-src-site-capabilities-api$ poetry run make docs-build html
-
-```
+This installs the `docs` dependency group into `.venv` before building.
 
 To render inheritance diagrams etc., the `graphviz` library must be installed.
