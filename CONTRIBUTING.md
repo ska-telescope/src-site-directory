@@ -25,6 +25,9 @@ ska-src-site-capabilities-api$ git submodule update --recursive --init
 
 ## Development cycle
 
+Shared branch, release, and lock targets are defined in the `.make/srcnet.mk` submodule include.
+This includes `lock`, `lock-server`, `lock-client`, `lock-check`, and `client-bump-<patch|minor|major>-release`.
+
 Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `srcnet.mk` in Makefile to use them. This is to facilitate easier and more consistent development. The general recipe is as follows:
 
 1. Depending on what you are working on, fork the project and create a new major/minor/patch branch, e.g. 
