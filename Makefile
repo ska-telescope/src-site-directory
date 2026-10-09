@@ -85,32 +85,6 @@ client-bump-patch-release client-bump-minor-release client-bump-major-release:
 	rm -rf "$$bk"; \
 	echo "Client version bumped to $$version (tag client-$$version)"
 
-ifneq ($(CI_JOB_ID),)
-# Swap in pyproject.client.toml / uv.client.lock for client builds.
-PYPROJECT_VARIANT ?= server
-
-python-pre-lint python-pre-build python-pre-test python-pre-publish: python-variant-swap
-
-python-variant-swap:
-ifeq ($(PYPROJECT_VARIANT),client)
-	cp pyproject.client.toml pyproject.toml
-	cp uv.client.lock uv.lock
-endif
-
-# Tag builds must match the variant's pyproject version: <X.Y.Z> (server) or client-<X.Y.Z> (client).
-ifneq ($(CI_COMMIT_TAG),)
-python-pre-build: python-check-tag-version
-
-python-check-tag-version: python-variant-swap
-	@version=$$(uv version --short); \
-	expected=$$([ "$(PYPROJECT_VARIANT)" = client ] && echo "client-$$version" || echo "$$version"); \
-	if [ "$$expected" != "$(CI_COMMIT_TAG)" ]; then \
-		echo "Tag $(CI_COMMIT_TAG) does not match $(PYPROJECT_VARIANT) version $$version (expected tag $$expected)"; \
-		exit 1; \
-	fi
-endif
-endif
-
 # Defined after the includes so it doesn't become the default goal.
 # Run explicitly with: make contributors
 .PHONY: contributors
