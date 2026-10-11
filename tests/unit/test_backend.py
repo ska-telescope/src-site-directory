@@ -322,3 +322,12 @@ def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
     legacy.pop("version")
     mock_backend.add_edit_node(legacy, node_name="TEST")
     assert mock_backend.get_node("TEST", "latest")["version"] == latest["version"] + 1
+
+
+def test_list_storage_areas_survives_a_node_deleted_mid_scan(mock_backend, monkeypatch):
+    """A node deleted between listing the storages and looking up their sites must not fail the scan
+    (the storage-area lookup walks every node, so one vanished node 500'd unrelated lookups)."""
+    expected = len(mock_backend.list_storage_areas(include_inactive=True))
+    monkeypatch.setattr(mock_backend, "get_site_from_names", lambda **kwargs: None)
+    areas = mock_backend.list_storage_areas(include_inactive=True)
+    assert len(areas) == expected
