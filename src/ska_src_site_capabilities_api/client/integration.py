@@ -3,11 +3,8 @@
 Requires the ``integration`` extra; not a runtime dependency of the service.
 """
 
-import logging
-
 import fire
 import requests
-from fastapi import HTTPException
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
@@ -200,20 +197,13 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
 
     def register_node(self, node, description=None):
         """Create the node if it does not already exist."""
-        # get_node_version() is decorated to log a full ERROR-level traceback on any HTTPError,
-        # even the expected 404 on first registration — mute it just for this call.
-        exceptions_logger = logging.getLogger("ska_src_site_capabilities_api.common.exceptions")
-        previous_level = exceptions_logger.level
-        exceptions_logger.setLevel(logging.CRITICAL)
         try:
             self.get_node_version(node)
             print(f"[scapi] Node {node} already exists, skipping")
             return
-        except HTTPException as e:
-            if e.status_code != 404:
+        except requests.HTTPError as e:
+            if e.response is None or e.response.status_code != 404:
                 raise
-        finally:
-            exceptions_logger.setLevel(previous_level)
         payload = {"name": node, "description": description or node, "comments": "", "version": 1, "sites": []}
         self.create_node(payload)
         print(f"[scapi] Node {node} created")
