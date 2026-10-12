@@ -25,6 +25,9 @@ ska-src-site-capabilities-api$ git submodule update --recursive --init
 
 ## Development cycle
 
+Shared branch, release, and lock targets are defined in the `.make/srcnet.mk` submodule include.
+This includes `lock`, `lock-server`, `lock-client`, `lock-check`, and `client-bump-<patch|minor|major>-release`.
+
 Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `srcnet.mk` in Makefile to use them. This is to facilitate easier and more consistent development. The general recipe is as follows:
 
 1. Depending on what you are working on, fork the project and create a new major/minor/patch branch, e.g. 
@@ -36,10 +39,12 @@ Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `sr
 2. Make your changes.
 
 
-3. If you changed dependencies in `pyproject.toml`, update `uv.lock`
+3. If you changed dependencies, update the lockfiles (`uv.lock` for the server, `uv.client.lock` for the client)
    ```bash
-   ska-src-site-capabilities-api$ uv lock
+   ska-src-site-capabilities-api$ make lock
    ```
+   Use `make lock-server` / `make lock-client` to update just one, `UV_LOCK_ARGS=--upgrade` to pass extra flags to
+   `uv lock`, and `make lock-check` to verify both are up to date (also run in CI).
    
 4. Add your changes to the branch:
     ```bash
@@ -50,7 +55,8 @@ Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `sr
     ```bash
    ska-src-site-capabilities-api$ make bump-and-commit
     ```
-   This is essential to keep version numbers consistent across the helm chart and python package.
+   This is essential to keep version numbers consistent across the helm chart and python package. It bumps the
+   server only; the client is versioned independently (see [Releasing the client](#releasing-the-client)).
    
 6. Push the changes to your fork when ready:
     ```bash
@@ -58,6 +64,27 @@ Below Makefile targets are added on `ska-cicd-makefiles` submodules, include `sr
     ```
 
 7. Create a merge request against upstream main.
+
+## Releasing the client
+
+The client package (`pyproject.client.toml`, version tracked in `.release_client`) is released independently of the
+server. Server releases are tagged `X.Y.Z`; client releases are tagged `client-X.Y.Z` and only build and publish the
+client package.
+
+1. Bump the client version using the appropriate release level:
+   ```bash
+   ska-src-site-capabilities-api$ make client-bump-patch-release   # or client-bump-minor-release / client-bump-major-release
+   ```
+   These targets update `.release_client`, `pyproject.client.toml` and `uv.client.lock`; they do not stage or commit changes.
+
+2. Review the changes, then stage and commit them manually:
+   ```bash
+   ska-src-site-capabilities-api$ git add .release_client pyproject.client.toml uv.client.lock
+   ska-src-site-capabilities-api$ git commit -m "Bump client release version"
+   ```
+
+3. Once merged, create the `client-X.Y.Z` tag in GitLab. The pipeline fails if the tag does not match the version in
+   `pyproject.client.toml`.
 
 ## Development tricks
 
