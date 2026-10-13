@@ -1,6 +1,6 @@
 [project]
 name = "ska-src-site-capabilities-api-client"
-version = "0.5.0"
+version = "0.5.1"
 description = "SRCNet Site Capabilities API client"
 authors = [
     { name = "Rob Barnsley" },
