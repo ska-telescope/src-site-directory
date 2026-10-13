@@ -1181,15 +1181,6 @@ wheels = [
 ]
 
 [[package]]
-name = "mock"
-version = "5.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/07/8c/14c2ae915e5f9dca5a22edd68b35be94400719ccfa068a03e0fb63d0f6f6/mock-5.2.0.tar.gz", hash = "sha256:4e460e818629b4b173f32d08bf30d3af8123afbb8e04bb5707a1fd4799e503f0", size = 92796, upload-time = "2025-03-03T12:31:42.911Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/d9/617e6af809bf3a1d468e0d58c3997b1dc219a9a9202e650d30c2fc85d481/mock-5.2.0-py3-none-any.whl", hash = "sha256:7ba87f72ca0e915175596069dbbcc7c75af7b5e9b9bc107ad6349ede0819982f", size = 31617, upload-time = "2025-03-03T12:31:41.518Z" },
-]
-
-[[package]]
 name = "mongomock"
 version = "4.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1816,18 +1807,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pytest-asyncio"
-version = "0.24.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pytest" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/52/6d/c6cf50ce320cf8611df7a1254d86233b3df7cc07f9b5f5cbcb82e08aa534/pytest_asyncio-0.24.0.tar.gz", hash = "sha256:d081d828e576d85f875399194281e92bf8a68d60d72d1a2faf2feddb6c46b276", size = 49855, upload-time = "2024-08-22T08:03:18.145Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/31/6607dab48616902f76885dfcf62c08d929796fc3b2d2318faf9fd54dbed9/pytest_asyncio-0.24.0-py3-none-any.whl", hash = "sha256:a811296ed596b69bf0b6f3dc40f83bcaf341b155a269052d82efa2b25ac7037b", size = 18024, upload-time = "2024-08-22T08:03:15.536Z" },
-]
-
-[[package]]
 name = "pytest-cov"
 version = "6.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2264,7 +2243,7 @@ wheels = [
 
 [[package]]
 name = "ska-src-auth-api"
-version = "0.6.15"
+version = "0.7.1"
 source = { registry = "https://artefact.skao.int/repository/pypi-internal/simple" }
 dependencies = [
     { name = "authlib" },
@@ -2285,13 +2264,14 @@ dependencies = [
     { name = "python-multipart" },
     { name = "redis" },
     { name = "requests" },
+    { name = "ska-src-api-common" },
     { name = "ska-src-logging" },
     { name = "ska-src-permissions-api" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-auth-api/0.6.15/ska_src_auth_api-0.6.15.tar.gz", hash = "sha256:b7c9db2131eb0dda2e17cb0f0d37952041007270573a6a62e64956ffe4f5ebdd" }
+sdist = { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-auth-api/0.7.1/ska_src_auth_api-0.7.1.tar.gz", hash = "sha256:a6134dbdad834d17498b2a1fa86779e43685959233048833328909bb2982922a" }
 wheels = [
-    { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-auth-api/0.6.15/ska_src_auth_api-0.6.15-py3-none-any.whl", hash = "sha256:022f89b8b9d9148035e4fd4027fbd8aff3fa5b2abde7c380b28a8fbb6e1b3c8b" },
+    { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-auth-api/0.7.1/ska_src_auth_api-0.7.1-py3-none-any.whl", hash = "sha256:fe7bfa3b26bdb2f4e884729dc433b1df8481b014e17988bcb41998c38481ce17" },
 ]
 
 [[package]]
@@ -2319,7 +2299,7 @@ wheels = [
 
 [[package]]
 name = "ska-src-permissions-api"
-version = "0.2.27"
+version = "0.3.0"
 source = { registry = "https://artefact.skao.int/repository/pypi-internal/simple" }
 dependencies = [
     { name = "authlib" },
@@ -2333,22 +2313,20 @@ dependencies = [
     { name = "jinjanator" },
     { name = "jsonschema" },
     { name = "markdown" },
-    { name = "mock" },
     { name = "plantuml" },
     { name = "pydantic" },
     { name = "pyjwt" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
     { name = "redis" },
     { name = "requests" },
     { name = "rsa" },
+    { name = "ska-src-api-common" },
     { name = "ska-src-logging" },
     { name = "tabulate" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-permissions-api/0.2.27/ska_src_permissions_api-0.2.27.tar.gz", hash = "sha256:7c13f70b7d3ff1c5db76040bb9a946da39cc693d84dfa3f27e6a8a64263afc5b" }
+sdist = { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-permissions-api/0.3.0/ska_src_permissions_api-0.3.0.tar.gz", hash = "sha256:790c9f4b1382a661a42704f21d373eeeed3f0e2257984010589c0fff6e6e3cbf" }
 wheels = [
-    { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-permissions-api/0.2.27/ska_src_permissions_api-0.2.27-py3-none-any.whl", hash = "sha256:bb830b4d5e21f52854e6207d3be01c6bb139743fda46bc9e705364a136a3141d" },
+    { url = "https://artefact.skao.int/repository/pypi-internal/packages/ska-src-permissions-api/0.3.0/ska_src_permissions_api-0.3.0-py3-none-any.whl", hash = "sha256:2a39feb4507ea1cee870499e733503e362ef739e276ad921d4a0c96767cb5c14" },
 ]
 
 [[package]]
@@ -2441,9 +2419,9 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3,<3.0.0" },
     { name = "selenium", marker = "extra == 'integration'", specifier = ">=4.15.0,<5.0.0" },
     { name = "ska-src-api-common", specifier = "==0.1.1", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
-    { name = "ska-src-auth-api", specifier = "==0.6.15", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
+    { name = "ska-src-auth-api", specifier = "==0.7.1", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
     { name = "ska-src-logging", specifier = "==0.6.1+dev.c9cdeaea1", index = "https://gitlab.com/api/v4/projects/77541150/packages/pypi/simple" },
-    { name = "ska-src-permissions-api", specifier = "==0.2.27", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
+    { name = "ska-src-permissions-api", specifier = "==0.3.0", index = "https://artefact.skao.int/repository/pypi-internal/simple" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.0,<0.35.0" },
 ]
 provides-extras = ["integration"]
