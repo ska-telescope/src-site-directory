@@ -16,11 +16,7 @@ from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilit
 def _retry_on_conflict(fn, attempts=6):
     """Re-run a read-modify-write helper when the API refuses a stale write with 409.
 
-    Every register_*/deregister_* helper below reads the whole node, mutates it in memory and
-    posts it back. Two of them running at once used to lose whichever write landed in between,
-    silently -- the losing job still printed success. The API now refuses a payload whose
-    version is no longer the latest; all this has to do is read again and retry. The helpers
-    are idempotent by id/name, so re-running them whole is safe.
+    The helpers read the whole node and post it back; they are idempotent by id/name, so re-running them whole is safe.
     """
 
     @wraps(fn)
@@ -332,14 +328,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             if site["name"] != site_name:
                 continue
             storages = site.setdefault("storages", [])
-            # Carry the existing storage's areas across. Replacing the entry with a
-            # fresh dict silently deletes every storage area registered on it, which
-            # made this destructive rather than idempotent: register_storage_area is a
-            # separate call made by a different service's post-deploy job, so whichever
-            # of the two ran last won. Sequential deploys hid it (storages were written
-            # once, before the areas); under Flux the -post Kustomizations reconcile
-            # continuously and in parallel, so any storm re-run wiped rucio's areas and
-            # dmapi started 400ing with "Could not find the storage area with uuid ...".
+            # keep the areas another service's post-deploy job registered on this storage; a fresh dict wiped them
             existing = next((s for s in storages if s.get("id") == storage_id), {})
             storages[:] = [s for s in storages if s.get("id") != storage_id] + [
                 {

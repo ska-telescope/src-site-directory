@@ -321,8 +321,7 @@ def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
 
 @pytest.mark.unit
 def test_add_edit_node_refuses_a_write_delayed_past_the_next_version(mock_db, mock_backend):
-    """A, B read v1; A writes v2; C reads v2 and writes v3 (v2 archived); B's v1-based write must still fail,
-    and exactly one TEST document stays current."""
+    """A stale write must fail even after the version it read was archived; one current document remains."""
     editor_a = mock_backend.get_node("TEST", "latest")
     editor_b = mock_backend.get_node("TEST", "latest")
     v1 = editor_a["version"]
@@ -344,8 +343,7 @@ def test_add_edit_node_refuses_a_write_delayed_past_the_next_version(mock_db, mo
 
 @pytest.mark.unit
 def test_list_storage_areas_survives_a_node_deleted_mid_scan(mock_backend, monkeypatch):
-    """A node deleted between listing the storages and looking up their sites must not fail the scan
-    (the storage-area lookup walks every node, so one vanished node 500'd unrelated lookups)."""
+    """A node deleted between listing the storages and looking up their sites must not fail the scan."""
     expected = len(mock_backend.list_storage_areas(include_inactive=True))
     monkeypatch.setattr(mock_backend, "get_site_from_names", lambda **kwargs: None)
     areas = mock_backend.list_storage_areas(include_inactive=True)
