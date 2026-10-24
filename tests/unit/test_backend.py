@@ -5,7 +5,7 @@ import mongomock
 import pytest
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
-from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
+from ska_src_site_capabilities_api.common.exceptions import NodeAlreadyExists, NodeVersionConflict
 
 
 @pytest.fixture(scope="module")
@@ -350,3 +350,12 @@ def test_list_storage_areas_survives_a_node_deleted_mid_scan(mock_backend, monke
     monkeypatch.setattr(mock_backend, "get_site_from_names", lambda **kwargs: None)
     areas = mock_backend.list_storage_areas(include_inactive=True)
     assert len(areas) == expected
+
+
+@pytest.mark.unit
+def test_add_node_refuses_a_duplicate_name(mock_db, mock_backend):
+    """Two concurrent creates both pass the router's existence check; the database must refuse the second."""
+    mock_backend.add_edit_node({"name": "BRAND-NEW", "sites": []})
+    with pytest.raises(NodeAlreadyExists):
+        mock_backend.add_edit_node({"name": "BRAND-NEW", "sites": []})
+    assert mock_db["nodes"].count_documents({"name": "BRAND-NEW"}) == 1

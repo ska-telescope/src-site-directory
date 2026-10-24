@@ -1,12 +1,14 @@
 import copy
 import json
+import logging
 from datetime import datetime, timezone
 
 import dateutil.parser
 from pymongo import MongoClient, ReturnDocument
+from pymongo.errors import DuplicateKeyError, OperationFailure
 
 from ska_src_site_capabilities_api.backend.backend import Backend
-from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
+from ska_src_site_capabilities_api.common.exceptions import NodeAlreadyExists, NodeVersionConflict
 
 # Site.status defaults to "up" in both models/site.py and etc/schemas/site.json,
 # but site documents reach clients raw (the routers declare response_model=None),
@@ -288,7 +290,17 @@ class MongoBackend(Backend):
 
         if not latest_node:  # Adding a new node
             node_values["version"] = 1
-            return nodes.insert_one(node_values).inserted_id
+            # The router's existence check is a separate read, so two concurrent creates of the same
+            # name can both pass it; one current document per name is what get_node("latest")
+            # assumes, so let the database enforce it. Idempotent, cheap to (re)declare here.
+            try:
+                nodes.create_index("name", unique=True)
+            except OperationFailure as exc:  # duplicate names already in this collection
+                logging.warning("Not enforcing unique node names, the nodes collection already has duplicates: %s", exc)
+            try:
+                return nodes.insert_one(node_values).inserted_id
+            except DuplicateKeyError as exc:
+                raise NodeAlreadyExists(node_name=node_values.get("name")) from exc
 
         # Every edit is a read-modify-write of the whole document by the caller, so two
         # concurrent editors silently lost one another's changes -- the loser still got a 200.
