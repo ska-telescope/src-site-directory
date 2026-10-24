@@ -3,7 +3,6 @@ from pathlib import Path
 
 import mongomock
 import pytest
-from pymongo.errors import DuplicateKeyError
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
 from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
@@ -312,16 +311,35 @@ def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
     with pytest.raises(NodeVersionConflict):
         mock_backend.add_edit_node(editor_b, node_name="TEST")
 
-    # the database arbitrates the truly simultaneous case: (name, version) is unique
-    latest = mock_backend.get_node("TEST", "latest")
-    with pytest.raises(DuplicateKeyError):
-        mock_db["nodes"].insert_one({"name": "TEST", "version": latest["version"]})
-
     # a payload with no version keeps the old behaviour, so existing callers are unaffected
+    latest = mock_backend.get_node("TEST", "latest")
     legacy = mock_backend.get_node("TEST", "latest")
     legacy.pop("version")
     mock_backend.add_edit_node(legacy, node_name="TEST")
     assert mock_backend.get_node("TEST", "latest")["version"] == latest["version"] + 1
+
+
+@pytest.mark.unit
+def test_add_edit_node_refuses_a_write_delayed_past_the_next_version(mock_db, mock_backend):
+    """A, B read v1; A writes v2; C reads v2 and writes v3 (v2 archived); B's v1-based write must still fail,
+    and exactly one TEST document stays current."""
+    editor_a = mock_backend.get_node("TEST", "latest")
+    editor_b = mock_backend.get_node("TEST", "latest")
+    v1 = editor_a["version"]
+    mock_backend.add_edit_node(editor_a, node_name="TEST")
+    editor_c = mock_backend.get_node("TEST", "latest")
+    mock_backend.add_edit_node(editor_c, node_name="TEST")
+    assert mock_backend.get_node("TEST", v1 + 1)  # archived, still readable by version
+
+    # the check passes only if B's read were still current; the swap itself is what refuses it
+    mock_backend.get_node = lambda node_name, node_version="latest": editor_b if node_version == "latest" else {}
+    with pytest.raises(NodeVersionConflict):
+        mock_backend.add_edit_node(dict(editor_b), node_name="TEST")
+    del mock_backend.get_node
+
+    assert mock_db["nodes"].count_documents({"name": "TEST"}) == 1
+    assert mock_backend.get_node("TEST", "latest")["version"] == v1 + 2
+    assert mock_db["nodes_archived"].count_documents({"name": "TEST", "version": v1 + 1}) == 1  # not un-archived by the loser
 
 
 @pytest.mark.unit

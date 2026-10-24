@@ -3,8 +3,7 @@ import json
 from datetime import datetime, timezone
 
 import dateutil.parser
-from pymongo import MongoClient
-from pymongo.errors import DuplicateKeyError
+from pymongo import MongoClient, ReturnDocument
 
 from ska_src_site_capabilities_api.backend.backend import Backend
 from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
@@ -285,46 +284,34 @@ class MongoBackend(Backend):
 
         # Get the latest version of this node
         latest_node = self.get_node(node_name=node_name, node_version="latest")
-        if not latest_node:  # Adding a new node
-            node_values["version"] = 1
-        else:  # Updating an existing node
-            # Every edit is a read-modify-write of the whole document by the caller, so two
-            # concurrent editors silently lose one another's changes -- the loser still gets a
-            # 200. A payload that carries the version it was read from (get_node returns it)
-            # lets us refuse the stale one with a 409 instead; a payload without a version
-            # keeps the old last-writer-wins behaviour so existing callers are unaffected.
-            payload_version = node_values.get("version")
-            latest_version = latest_node.get("version")
-            if payload_version is not None and int(payload_version) != int(latest_version):
-                raise NodeVersionConflict(node_name, payload_version, latest_version)
-            node_values["version"] = latest_version + 1
-
         node_values.pop("_id", None)
 
-        # The version check alone is not enough: two writers can both read the same latest
-        # version and both pass it before either inserts. Making (name, version) unique lets
-        # the database arbitrate -- the second insert of the same next version fails and that
-        # writer is told to re-read. Idempotent, so it is cheap to (re)declare here.
-        try:
-            nodes.create_index([("name", 1), ("version", 1)], unique=True)
-        except DuplicateKeyError:
-            pass  # pre-existing duplicate rows in this collection: the version check still applies
+        if not latest_node:  # Adding a new node
+            node_values["version"] = 1
+            return nodes.insert_one(node_values).inserted_id
 
-        # Insert this new version of the node into the nodes collection
-        try:
-            inserted_node = nodes.insert_one(node_values)
-        except DuplicateKeyError as exc:
-            raise NodeVersionConflict(node_name, node_values["version"] - 1, node_values["version"]) from exc
+        # Every edit is a read-modify-write of the whole document by the caller, so two
+        # concurrent editors silently lost one another's changes -- the loser still got a 200.
+        # A payload that carries the version it was read from (get_node returns it) is refused
+        # with a 409 when that is no longer the latest; a payload without a version is not
+        # checked here, so existing callers are unaffected unless they actually race.
+        payload_version = node_values.get("version")
+        latest_version = latest_node.get("version")
+        if payload_version is not None and int(payload_version) != int(latest_version):
+            raise NodeVersionConflict(node_name, payload_version, latest_version)
+        node_values["version"] = latest_version + 1
 
-        # Move the previous version of the node to the nodes_archived collection
-        # only if a previous version existed and insertion into nodes was successful
-        if latest_node and inserted_node.inserted_id:
-            # Only delete it from nodes if we successfully added the previous version
-            # to nodes_archived
-            if nodes_archived.insert_one(latest_node).inserted_id:
-                nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
-
-        return inserted_node.inserted_id
+        # The check above is not atomic with the write, so the write is a compare-and-swap on the
+        # current record: it only replaces the document we read, at the version we read. A writer
+        # whose read was superseded in between (even after that version was archived) matches
+        # nothing and gets the 409. The previous version is archived first and un-archived on a
+        # lost swap, so history never loses a version to a failure between the two writes.
+        archived_id = nodes_archived.insert_one(dict(latest_node)).inserted_id
+        swapped = nodes.find_one_and_replace({"name": node_name, "version": latest_version}, node_values, return_document=ReturnDocument.AFTER)
+        if swapped is None:
+            nodes_archived.delete_one({"_id": archived_id})
+            raise NodeVersionConflict(node_name, latest_version, self.get_node(node_name, "latest").get("version"))
+        return swapped["_id"]
 
     def delete_all_nodes(self):
         """
