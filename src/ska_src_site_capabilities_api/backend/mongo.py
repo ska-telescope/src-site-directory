@@ -869,10 +869,15 @@ class MongoBackend(Backend):
             site_names=site_names,
             include_inactive=include_inactive,
         ):
-            parent_storage = self.get_site_from_names(
-                node_name=storage.get("parent_node_name"),
-                node_version="latest",
-                site_name=storage.get("parent_site_name"),
+            # None when the node went between list_storages and this lookup (deleted meanwhile): one
+            # vanished node must not 500 every storage-area lookup, which scans them all
+            parent_storage = (
+                self.get_site_from_names(
+                    node_name=storage.get("parent_node_name"),
+                    node_version="latest",
+                    site_name=storage.get("parent_site_name"),
+                )
+                or {}
             )
             site_latitude = parent_storage.get("latitude")
             site_longitude = parent_storage.get("longitude")
