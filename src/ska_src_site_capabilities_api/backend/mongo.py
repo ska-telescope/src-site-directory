@@ -313,8 +313,8 @@ class MongoBackend(Backend):
         # Insert this new version of the node into the nodes collection
         try:
             inserted_node = nodes.insert_one(node_values)
-        except DuplicateKeyError:
-            raise NodeVersionConflict(node_name, node_values["version"] - 1, node_values["version"])
+        except DuplicateKeyError as exc:
+            raise NodeVersionConflict(node_name, node_values["version"] - 1, node_values["version"]) from exc
 
         # Move the previous version of the node to the nodes_archived collection
         # only if a previous version existed and insertion into nodes was successful
