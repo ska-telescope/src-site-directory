@@ -290,9 +290,7 @@ class MongoBackend(Backend):
 
         if not latest_node:  # Adding a new node
             node_values["version"] = 1
-            # The router's existence check is a separate read, so two concurrent creates of the same
-            # name can both pass it; one current document per name is what get_node("latest")
-            # assumes, so let the database enforce it. Idempotent, cheap to (re)declare here.
+            # two concurrent creates can both pass the router's existence check: let the database enforce one name
             try:
                 nodes.create_index("name", unique=True)
             except OperationFailure as exc:  # duplicate names already in this collection
@@ -302,22 +300,16 @@ class MongoBackend(Backend):
             except DuplicateKeyError as exc:
                 raise NodeAlreadyExists(node_name=node_values.get("name")) from exc
 
-        # Every edit is a read-modify-write of the whole document by the caller, so two
-        # concurrent editors silently lost one another's changes -- the loser still got a 200.
-        # A payload that carries the version it was read from (get_node returns it) is refused
-        # with a 409 when that is no longer the latest; a payload without a version is not
-        # checked here, so existing callers are unaffected unless they actually race.
+        # a payload carrying the version it was read from is refused with 409 once that is no longer the latest;
+        # a payload without one is not checked
         payload_version = node_values.get("version")
         latest_version = latest_node.get("version")
         if payload_version is not None and int(payload_version) != int(latest_version):
             raise NodeVersionConflict(node_name, payload_version, latest_version)
         node_values["version"] = latest_version + 1
 
-        # The check above is not atomic with the write, so the write is a compare-and-swap on the
-        # current record: it only replaces the document we read, at the version we read. A writer
-        # whose read was superseded in between (even after that version was archived) matches
-        # nothing and gets the 409. The previous version is archived first and un-archived on a
-        # lost swap, so history never loses a version to a failure between the two writes.
+        # compare-and-swap on the version we read (the check above is not atomic with the write);
+        # archive first, un-archive on a lost swap
         archived_id = nodes_archived.insert_one(dict(latest_node)).inserted_id
         swapped = nodes.find_one_and_replace({"name": node_name, "version": latest_version}, node_values, return_document=ReturnDocument.AFTER)
         if swapped is None:
@@ -868,8 +860,7 @@ class MongoBackend(Backend):
             site_names=site_names,
             include_inactive=include_inactive,
         ):
-            # None when the node went between list_storages and this lookup (deleted meanwhile): one
-            # vanished node must not 500 every storage-area lookup, which scans them all
+            # None when the node was deleted since list_storages: one vanished node must not 500 every lookup
             parent_storage = (
                 self.get_site_from_names(
                     node_name=storage.get("parent_node_name"),
