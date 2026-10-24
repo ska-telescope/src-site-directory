@@ -3,11 +3,39 @@
 Requires the ``integration`` extra; not a runtime dependency of the service.
 """
 
+import time
+from functools import wraps
+
 import fire
 import requests
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
+
+
+def _retry_on_conflict(fn, attempts=6):
+    """Re-run a read-modify-write helper when the API refuses a stale write with 409.
+
+    Every register_*/deregister_* helper below reads the whole node, mutates it in memory and
+    posts it back. Two of them running at once used to lose whichever write landed in between,
+    silently -- the losing job still printed success. The API now refuses a payload whose
+    version is no longer the latest; all this has to do is read again and retry. The helpers
+    are idempotent by id/name, so re-running them whole is safe.
+    """
+
+    @wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        for attempt in range(attempts - 1):
+            try:
+                return fn(self, *args, **kwargs)
+            except requests.HTTPError as e:
+                if e.response is None or e.response.status_code != 409:
+                    raise
+                print(f"[scapi] node changed under {fn.__name__}, re-reading and retrying ({attempt + 1}/{attempts})")
+                time.sleep(0.2 * (attempt + 1))
+        return fn(self, *args, **kwargs)  # the last attempt: a 409 here propagates
+
+    return wrapper
 
 
 class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
@@ -67,6 +95,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         resp.raise_for_status()
         return resp
 
+    @_retry_on_conflict
     def deregister_backend(self, node, compute_id, name):
         """Remove an execution backend from a compute element."""
         node_json = self._get_node(node)
@@ -80,6 +109,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Compute {compute_id} not found on node {node}")
 
+    @_retry_on_conflict
     def deregister_compute(self, node, site_name, compute_id):
         """Remove a compute element from a site."""
         node_json = self._get_node(node)
@@ -102,6 +132,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         print(f"[scapi] Node {node} deleted")
         return resp
 
+    @_retry_on_conflict
     def deregister_service(self, node, compute_id, service_id):
         """Remove a service from a compute element."""
         node_json = self._get_node(node)
@@ -115,6 +146,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Compute {compute_id} not found on node {node}")
 
+    @_retry_on_conflict
     def deregister_site(self, node, site_name):
         """Remove a site from a node."""
         node_json = self._get_node(node)
@@ -123,6 +155,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         self.update_node(node, node_json)
         print(f"[scapi] Site {site_name} removed from {node}")
 
+    @_retry_on_conflict
     def deregister_storage(self, node, site_name, storage_id):
         """Remove a storage from a site."""
         node_json = self._get_node(node)
@@ -135,6 +168,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             return
         raise ValueError(f"Site {site_name} not found on node {node}")
 
+    @_retry_on_conflict
     def deregister_storage_area(self, node, storage_id, area_id):
         """Remove a storage area from a storage."""
         node_json = self._get_node(node)
@@ -148,6 +182,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Storage {storage_id} not found on node {node}")
 
+    @_retry_on_conflict
     def register_backend(self, node, compute_id, name, max_pilot_cpus=0, max_pilot_memory_mb=0, max_pilot_gpus=0):
         """Add an execution backend (pilot pool) to a compute element (idempotent by name).
 
@@ -174,6 +209,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Compute {compute_id} not found on node {node}")
 
+    @_retry_on_conflict
     def register_compute(self, node, site_name, compute_id, name, hardware_type):
         """Add a compute element to a site (idempotent by compute_id)."""
         node_json = self._get_node(node)
@@ -208,6 +244,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         self.create_node(payload)
         print(f"[scapi] Node {node} created")
 
+    @_retry_on_conflict
     def register_service(
         self,
         node,
@@ -259,6 +296,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
                 return
         raise ValueError(f"Compute {compute_id} not found on node {node}")
 
+    @_retry_on_conflict
     def register_site(self, node, site_name, description="Site 1", country="SKAO", contact="admin@skao.int", lat=0.0, lon=0.0):
         """Add a site to a node (idempotent)."""
         node_json = self._get_node(node)
@@ -286,6 +324,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         self.update_node(node, node_json)
         print(f"[scapi] Site {site_name} added to {node}")
 
+    @_retry_on_conflict
     def register_storage(self, node, site_name, storage_id, name, host, base_path="/sa", srm="storm", size=0.01):
         """Add a storage to a site (idempotent by storage_id; existing areas are kept)."""
         node_json = self._get_node(node)
@@ -322,6 +361,7 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
             return
         raise ValueError(f"Site {site_name} not found on node {node}")
 
+    @_retry_on_conflict
     def register_storage_area(self, node, storage_id, area_id, name, relative_path, area_type="rse", other_attributes=None):
         """Add a storage area to a storage (idempotent by area_id)."""
         node_json = self._get_node(node)

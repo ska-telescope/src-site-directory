@@ -4,8 +4,10 @@ from datetime import datetime, timezone
 
 import dateutil.parser
 from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 
 from ska_src_site_capabilities_api.backend.backend import Backend
+from ska_src_site_capabilities_api.common.exceptions import NodeVersionConflict
 
 # Site.status defaults to "up" in both models/site.py and etc/schemas/site.json,
 # but site documents reach clients raw (the routers declare response_model=None),
@@ -286,12 +288,33 @@ class MongoBackend(Backend):
         if not latest_node:  # Adding a new node
             node_values["version"] = 1
         else:  # Updating an existing node
-            node_values["version"] = latest_node.get("version") + 1
+            # Every edit is a read-modify-write of the whole document by the caller, so two
+            # concurrent editors silently lose one another's changes -- the loser still gets a
+            # 200. A payload that carries the version it was read from (get_node returns it)
+            # lets us refuse the stale one with a 409 instead; a payload without a version
+            # keeps the old last-writer-wins behaviour so existing callers are unaffected.
+            payload_version = node_values.get("version")
+            latest_version = latest_node.get("version")
+            if payload_version is not None and int(payload_version) != int(latest_version):
+                raise NodeVersionConflict(node_name, payload_version, latest_version)
+            node_values["version"] = latest_version + 1
 
         node_values.pop("_id", None)
 
+        # The version check alone is not enough: two writers can both read the same latest
+        # version and both pass it before either inserts. Making (name, version) unique lets
+        # the database arbitrate -- the second insert of the same next version fails and that
+        # writer is told to re-read. Idempotent, so it is cheap to (re)declare here.
+        try:
+            nodes.create_index([("name", 1), ("version", 1)], unique=True)
+        except DuplicateKeyError:
+            pass  # pre-existing duplicate rows in this collection: the version check still applies
+
         # Insert this new version of the node into the nodes collection
-        inserted_node = nodes.insert_one(node_values)
+        try:
+            inserted_node = nodes.insert_one(node_values)
+        except DuplicateKeyError:
+            raise NodeVersionConflict(node_name, node_values["version"] - 1, node_values["version"])
 
         # Move the previous version of the node to the nodes_archived collection
         # only if a previous version existed and insertion into nodes was successful
