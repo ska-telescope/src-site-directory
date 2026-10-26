@@ -43,6 +43,7 @@ integration = [
 
 [dependency-groups]
 dev = [
+    "ska-src-site-capabilities-api[integration]",
     "ruff>=0.15.21",
     "mypy>=1.14.0,<2.0.0",
     "pre-commit>=4.0.0,<5.0.0",

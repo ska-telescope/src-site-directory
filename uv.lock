@@ -2381,6 +2381,7 @@ dev = [
     { name = "pytest-repeat" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "ska-src-site-capabilities-api", extra = ["integration"] },
 ]
 docs = [
     { name = "astroid" },
@@ -2442,6 +2443,7 @@ dev = [
     { name = "pytest-repeat", specifier = ">=0.9.0,<0.10.0" },
     { name = "pytest-xdist", specifier = ">=3.6.0,<4.0.0" },
     { name = "ruff", specifier = ">=0.15.21" },
+    { name = "ska-src-site-capabilities-api", extras = ["integration"] },
 ]
 docs = [
     { name = "astroid", specifier = ">=3.0.0,<4.0.0" },
