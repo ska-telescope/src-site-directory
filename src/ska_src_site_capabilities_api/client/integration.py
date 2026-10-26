@@ -4,34 +4,12 @@ Requires the ``integration`` extra; not a runtime dependency of the service.
 """
 
 import time
-from functools import wraps
 
 import fire
 import requests
 from ska_src_auth_api.client.integration import AuthenticationIntegrationClient
 
 from ska_src_site_capabilities_api.client.site_capabilities import SiteCapabilitiesClient
-
-
-def _retry_on_conflict(fn, attempts=6):
-    """Re-run a read-modify-write helper when the API refuses a stale write with 409.
-
-    The helpers read the whole node and post it back; they are idempotent by id/name, so re-running them whole is safe.
-    """
-
-    @wraps(fn)
-    def wrapper(self, *args, **kwargs):
-        for attempt in range(attempts - 1):
-            try:
-                return fn(self, *args, **kwargs)
-            except requests.HTTPError as e:
-                if e.response is None or e.response.status_code != 409:
-                    raise
-                print(f"[scapi] node changed under {fn.__name__}, re-reading and retrying ({attempt + 1}/{attempts})")
-                time.sleep(0.2 * (attempt + 1))
-        return fn(self, *args, **kwargs)  # the last attempt: a 409 here propagates
-
-    return wrapper
 
 
 class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
@@ -91,32 +69,50 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         resp.raise_for_status()
         return resp
 
-    @_retry_on_conflict
+    def _edit_node(self, node, mutate, attempts=6):
+        """Read the node, apply ``mutate(node_json)``, write it back; a 409 from a concurrent write re-reads and retries.
+
+        ``mutate`` returns False to skip the write; the result says whether a write happened.
+        """
+        for attempt in range(attempts):
+            node_json = self._get_node(node)
+            if mutate(node_json) is False:
+                return False
+            try:
+                self.update_node(node, node_json)
+                return True
+            except requests.HTTPError as e:
+                if e.response is None or e.response.status_code != 409 or attempt == attempts - 1:
+                    raise
+                print(f"[scapi] Node {node} changed underneath us, re-reading and retrying ({attempt + 1}/{attempts})")
+                time.sleep(0.2 * (attempt + 1))
+
     def deregister_backend(self, node, compute_id, name):
         """Remove an execution backend from a compute element."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for compute in site.get("compute", []):
-                if compute.get("id") != compute_id:
-                    continue
-                compute["backends"] = [b for b in compute.get("backends", []) if b.get("name") != name]
-                self.update_node(node, node_json)
-                print(f"[scapi] Backend {name} removed from compute {compute_id}")
-                return
-        raise ValueError(f"Compute {compute_id} not found on node {node}")
 
-    @_retry_on_conflict
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for compute in site.get("compute", []):
+                    if compute.get("id") == compute_id:
+                        compute["backends"] = [b for b in compute.get("backends", []) if b.get("name") != name]
+                        return
+            raise ValueError(f"Compute {compute_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Backend {name} removed from compute {compute_id}")
+
     def deregister_compute(self, node, site_name, compute_id):
         """Remove a compute element from a site."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            if site["name"] != site_name:
-                continue
-            site["compute"] = [c for c in site.get("compute", []) if c.get("id") != compute_id]
-            self.update_node(node, node_json)
-            print(f"[scapi] Compute {compute_id} removed from {node}/{site_name}")
-            return
-        raise ValueError(f"Site {site_name} not found on node {node}")
+
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                if site["name"] == site_name:
+                    site["compute"] = [c for c in site.get("compute", []) if c.get("id") != compute_id]
+                    return
+            raise ValueError(f"Site {site_name} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Compute {compute_id} removed from {node}/{site_name}")
 
     def deregister_node(self, node):
         """Delete a node entirely (idempotent)."""
@@ -128,57 +124,56 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         print(f"[scapi] Node {node} deleted")
         return resp
 
-    @_retry_on_conflict
     def deregister_service(self, node, compute_id, service_id):
         """Remove a service from a compute element."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for compute in site.get("compute", []):
-                if compute.get("id") != compute_id:
-                    continue
-                compute["associated_local_services"] = [s for s in compute.get("associated_local_services", []) if s.get("id") != service_id]
-                self.update_node(node, node_json)
-                print(f"[scapi] Service {service_id} removed from compute {compute_id}")
-                return
-        raise ValueError(f"Compute {compute_id} not found on node {node}")
 
-    @_retry_on_conflict
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for compute in site.get("compute", []):
+                    if compute.get("id") == compute_id:
+                        compute["associated_local_services"] = [s for s in compute.get("associated_local_services", []) if s.get("id") != service_id]
+                        return
+            raise ValueError(f"Compute {compute_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Service {service_id} removed from compute {compute_id}")
+
     def deregister_site(self, node, site_name):
         """Remove a site from a node."""
-        node_json = self._get_node(node)
-        sites = node_json.get("sites", [])
-        node_json["sites"] = [s for s in sites if s["name"] != site_name]
-        self.update_node(node, node_json)
+
+        def mutate(node_json):
+            node_json["sites"] = [s for s in node_json.get("sites", []) if s["name"] != site_name]
+
+        self._edit_node(node, mutate)
         print(f"[scapi] Site {site_name} removed from {node}")
 
-    @_retry_on_conflict
     def deregister_storage(self, node, site_name, storage_id):
         """Remove a storage from a site."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            if site["name"] != site_name:
-                continue
-            site["storages"] = [s for s in site.get("storages", []) if s.get("id") != storage_id]
-            self.update_node(node, node_json)
-            print(f"[scapi] Storage {storage_id} removed from {node}/{site_name}")
-            return
-        raise ValueError(f"Site {site_name} not found on node {node}")
 
-    @_retry_on_conflict
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                if site["name"] == site_name:
+                    site["storages"] = [s for s in site.get("storages", []) if s.get("id") != storage_id]
+                    return
+            raise ValueError(f"Site {site_name} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Storage {storage_id} removed from {node}/{site_name}")
+
     def deregister_storage_area(self, node, storage_id, area_id):
         """Remove a storage area from a storage."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for storage in site.get("storages", []):
-                if storage.get("id") != storage_id:
-                    continue
-                storage["areas"] = [a for a in storage.get("areas", []) if a.get("id") != area_id]
-                self.update_node(node, node_json)
-                print(f"[scapi] Storage area {area_id} removed from storage {storage_id}")
-                return
-        raise ValueError(f"Storage {storage_id} not found on node {node}")
 
-    @_retry_on_conflict
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for storage in site.get("storages", []):
+                    if storage.get("id") == storage_id:
+                        storage["areas"] = [a for a in storage.get("areas", []) if a.get("id") != area_id]
+                        return
+            raise ValueError(f"Storage {storage_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Storage area {area_id} removed from storage {storage_id}")
+
     def register_backend(self, node, compute_id, name, max_pilot_cpus=0, max_pilot_memory_mb=0, max_pilot_gpus=0):
         """Add an execution backend (pilot pool) to a compute element (idempotent by name).
 
@@ -186,46 +181,47 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         broker preselects oversize jobs against; for cpus/memory 0 means "no
         cap", for gpus it means "no GPU on this backend".
         """
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for compute in site.get("compute", []):
-                if compute.get("id") != compute_id:
-                    continue
-                backends = compute.setdefault("backends", [])
-                backends[:] = [b for b in backends if b.get("name") != name] + [
-                    {
-                        "name": name,
-                        "max_pilot_cpus": max_pilot_cpus,
-                        "max_pilot_memory_mb": max_pilot_memory_mb,
-                        "max_pilot_gpus": max_pilot_gpus,
-                    }
-                ]
-                self.update_node(node, node_json)
-                print(f"[scapi] Backend {name} added to compute {compute_id}")
-                return
-        raise ValueError(f"Compute {compute_id} not found on node {node}")
 
-    @_retry_on_conflict
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for compute in site.get("compute", []):
+                    if compute.get("id") == compute_id:
+                        backends = compute.setdefault("backends", [])
+                        backends[:] = [b for b in backends if b.get("name") != name] + [
+                            {
+                                "name": name,
+                                "max_pilot_cpus": max_pilot_cpus,
+                                "max_pilot_memory_mb": max_pilot_memory_mb,
+                                "max_pilot_gpus": max_pilot_gpus,
+                            }
+                        ]
+                        return
+            raise ValueError(f"Compute {compute_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Backend {name} added to compute {compute_id}")
+
     def register_compute(self, node, site_name, compute_id, name, hardware_type):
         """Add a compute element to a site (idempotent by compute_id)."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            if site["name"] != site_name:
-                continue
-            compute = site.setdefault("compute", [])
-            # Merge into any existing entry so a re-register (e.g. a service's
-            # post-deploy bootstrap re-running) preserves services and fields
-            # attached by other bootstrap jobs.
-            entry = next((c for c in compute if c.get("id") == compute_id), None) or {
-                "id": compute_id,
-                "associated_local_services": [],
-            }
-            entry.update({"name": name, "hardware_type": hardware_type})
-            compute[:] = [c for c in compute if c.get("id") != compute_id] + [entry]
-            self.update_node(node, node_json)
-            print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
-            return
-        raise ValueError(f"Site {site_name} not found on node {node}")
+
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                if site["name"] == site_name:
+                    compute = site.setdefault("compute", [])
+                    # Merge into any existing entry so a re-register (e.g. a service's
+                    # post-deploy bootstrap re-running) preserves services and fields
+                    # attached by other bootstrap jobs.
+                    entry = next((c for c in compute if c.get("id") == compute_id), None) or {
+                        "id": compute_id,
+                        "associated_local_services": [],
+                    }
+                    entry.update({"name": name, "hardware_type": hardware_type})
+                    compute[:] = [c for c in compute if c.get("id") != compute_id] + [entry]
+                    return
+            raise ValueError(f"Site {site_name} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Compute {name} ({compute_id}) added to {node}/{site_name}")
 
     def register_node(self, node, description=None):
         """Create the node if it does not already exist."""
@@ -240,7 +236,6 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         self.create_node(payload)
         print(f"[scapi] Node {node} created")
 
-    @_retry_on_conflict
     def register_service(
         self,
         node,
@@ -258,123 +253,128 @@ class SiteCapabilitiesIntegrationClient(SiteCapabilitiesClient):
         is_mandatory=False,
     ):
         """Add a local service to a compute element (idempotent by service_id)."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for compute in site.get("compute", []):
-                if compute.get("id") != compute_id:
-                    continue
-                entry = {
-                    "id": service_id,
-                    "name": name,
-                    "type": service_type,
-                    "version": version,
-                    "other_attributes": other_attributes or {},
-                    "downtime": [],
-                    "is_force_disabled": False,
-                    "is_mandatory": is_mandatory,
-                    "associated_compute_id": compute_id,
-                }
-                if host is not None:
-                    entry["host"] = host
-                if port is not None:
-                    entry["port"] = port
-                if prefix is not None:
-                    entry["prefix"] = prefix
-                if path is not None:
-                    entry["path"] = path
-                if storage_area_id is not None:
-                    entry["associated_storage_area_id"] = storage_area_id
-                compute.setdefault("associated_local_services", [])[:] = [
-                    s for s in compute["associated_local_services"] if s.get("id") != service_id
-                ] + [entry]
-                self.update_node(node, node_json)
-                print(f"[scapi] Service {name} ({service_type}) added to compute {compute_id}")
-                return
-        raise ValueError(f"Compute {compute_id} not found on node {node}")
 
-    @_retry_on_conflict
-    def register_site(self, node, site_name, description="Site 1", country="SKAO", contact="admin@skao.int", lat=0.0, lon=0.0):
-        """Add a site to a node (idempotent)."""
-        node_json = self._get_node(node)
-        sites = node_json.setdefault("sites", [])
-        if any(s["name"] == site_name for s in sites):
-            print(f"[scapi] Site {site_name} already exists on {node}, skipping")
-            return
-        sites[:] = [s for s in sites if s["name"] != site_name] + [
-            {
-                "id": "to be assigned",
-                "name": site_name,
-                "description": description,
-                "comments": "",
-                "country": country,
-                "primary_contact_email": contact,
-                "secondary_contact_email": "",
-                "latitude": lat,
-                "longitude": lon,
-                "downtime": [],
-                "is_force_disabled": False,
-                "other_attributes": {},
-                "storages": [],
-            }
-        ]
-        self.update_node(node, node_json)
-        print(f"[scapi] Site {site_name} added to {node}")
-
-    @_retry_on_conflict
-    def register_storage(self, node, site_name, storage_id, name, host, base_path="/sa", srm="storm", size=0.01):
-        """Add a storage to a site (idempotent by storage_id; existing areas are kept)."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            if site["name"] != site_name:
-                continue
-            storages = site.setdefault("storages", [])
-            # keep the areas another service's post-deploy job registered on this storage; a fresh dict wiped them
-            existing = next((s for s in storages if s.get("id") == storage_id), {})
-            storages[:] = [s for s in storages if s.get("id") != storage_id] + [
-                {
-                    "id": storage_id,
-                    "name": name,
-                    "host": host,
-                    "base_path": base_path,
-                    "srm": srm,
-                    "device_type": "",
-                    "size_in_terabytes": size,
-                    "supported_protocols": [{"prefix": "https", "port": 443}],
-                    "downtime": [],
-                    "is_force_disabled": False,
-                    "areas": existing.get("areas", []),
-                }
-            ]
-            self.update_node(node, node_json)
-            print(f"[scapi] Storage {name} added to {node}/{site_name}")
-            return
-        raise ValueError(f"Site {site_name} not found on node {node}")
-
-    @_retry_on_conflict
-    def register_storage_area(self, node, storage_id, area_id, name, relative_path, area_type="rse", other_attributes=None):
-        """Add a storage area to a storage (idempotent by area_id)."""
-        node_json = self._get_node(node)
-        for site in node_json.get("sites", []):
-            for storage in site.get("storages", []):
-                if storage.get("id") != storage_id:
-                    continue
-                areas = storage.setdefault("areas", [])
-                areas[:] = [a for a in areas if a.get("id") != area_id] + [
-                    {
-                        "id": area_id,
-                        "type": area_type,
-                        "relative_path": relative_path,
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for compute in site.get("compute", []):
+                    if compute.get("id") != compute_id:
+                        continue
+                    entry = {
+                        "id": service_id,
                         "name": name,
+                        "type": service_type,
+                        "version": version,
                         "other_attributes": other_attributes or {},
-                        "tier": 0,
                         "downtime": [],
                         "is_force_disabled": False,
+                        "is_mandatory": is_mandatory,
+                        "associated_compute_id": compute_id,
+                    }
+                    if host is not None:
+                        entry["host"] = host
+                    if port is not None:
+                        entry["port"] = port
+                    if prefix is not None:
+                        entry["prefix"] = prefix
+                    if path is not None:
+                        entry["path"] = path
+                    if storage_area_id is not None:
+                        entry["associated_storage_area_id"] = storage_area_id
+                    compute.setdefault("associated_local_services", [])[:] = [
+                        s for s in compute["associated_local_services"] if s.get("id") != service_id
+                    ] + [entry]
+                    return
+            raise ValueError(f"Compute {compute_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Service {name} ({service_type}) added to compute {compute_id}")
+
+    def register_site(self, node, site_name, description="Site 1", country="SKAO", contact="admin@skao.int", lat=0.0, lon=0.0):
+        """Add a site to a node (idempotent)."""
+
+        def mutate(node_json):
+            sites = node_json.setdefault("sites", [])
+            if any(s["name"] == site_name for s in sites):
+                print(f"[scapi] Site {site_name} already exists on {node}, skipping")
+                return False
+            sites.append(
+                {
+                    "id": "to be assigned",
+                    "name": site_name,
+                    "description": description,
+                    "comments": "",
+                    "country": country,
+                    "primary_contact_email": contact,
+                    "secondary_contact_email": "",
+                    "latitude": lat,
+                    "longitude": lon,
+                    "downtime": [],
+                    "is_force_disabled": False,
+                    "other_attributes": {},
+                    "storages": [],
+                }
+            )
+
+        if self._edit_node(node, mutate):
+            print(f"[scapi] Site {site_name} added to {node}")
+
+    def register_storage(self, node, site_name, storage_id, name, host, base_path="/sa", srm="storm", size=0.01):
+        """Add a storage to a site (idempotent by storage_id; existing areas are kept)."""
+
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                if site["name"] != site_name:
+                    continue
+                storages = site.setdefault("storages", [])
+                # keep the areas another service's post-deploy job registered on this storage; a fresh dict wiped them
+                existing = next((s for s in storages if s.get("id") == storage_id), {})
+                storages[:] = [s for s in storages if s.get("id") != storage_id] + [
+                    {
+                        "id": storage_id,
+                        "name": name,
+                        "host": host,
+                        "base_path": base_path,
+                        "srm": srm,
+                        "device_type": "",
+                        "size_in_terabytes": size,
+                        "supported_protocols": [{"prefix": "https", "port": 443}],
+                        "downtime": [],
+                        "is_force_disabled": False,
+                        "areas": existing.get("areas", []),
                     }
                 ]
-                self.update_node(node, node_json)
-                print(f"[scapi] Storage area {name} added to storage {storage_id}")
                 return
-        raise ValueError(f"Storage {storage_id} not found on node {node}")
+            raise ValueError(f"Site {site_name} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Storage {name} added to {node}/{site_name}")
+
+    def register_storage_area(self, node, storage_id, area_id, name, relative_path, area_type="rse", other_attributes=None):
+        """Add a storage area to a storage (idempotent by area_id)."""
+
+        def mutate(node_json):
+            for site in node_json.get("sites", []):
+                for storage in site.get("storages", []):
+                    if storage.get("id") != storage_id:
+                        continue
+                    areas = storage.setdefault("areas", [])
+                    areas[:] = [a for a in areas if a.get("id") != area_id] + [
+                        {
+                            "id": area_id,
+                            "type": area_type,
+                            "relative_path": relative_path,
+                            "name": name,
+                            "other_attributes": other_attributes or {},
+                            "tier": 0,
+                            "downtime": [],
+                            "is_force_disabled": False,
+                        }
+                    ]
+                    return
+            raise ValueError(f"Storage {storage_id} not found on node {node}")
+
+        self._edit_node(node, mutate)
+        print(f"[scapi] Storage area {name} added to storage {storage_id}")
 
     def update_node(self, node, payload):
         """Persist a node."""
