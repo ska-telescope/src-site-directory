@@ -280,7 +280,8 @@ class MongoBackend(Backend):
         for name in nodes.distinct("name"):
             copies = list(nodes.find({"name": name}).sort("version", -1))
             for stale in copies[1:]:
-                nodes_archived.insert_one(stale)
+                # upsert by _id: an interrupted or concurrent repair may have archived this row already
+                nodes_archived.replace_one({"_id": stale["_id"]}, stale, upsert=True)
                 nodes.delete_one({"_id": stale["_id"]})
             if len(copies) > 1:
                 logging.warning("Archived %d duplicate copies of node %s before enforcing unique node names", len(copies) - 1, name)

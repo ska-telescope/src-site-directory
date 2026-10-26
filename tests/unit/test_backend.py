@@ -366,6 +366,8 @@ def test_add_edit_node_repairs_duplicate_rows_before_enforcing_unique_names(mock
     all but the highest version, builds the index, and then refuses a duplicate create."""
     mock_db["nodes"].drop_indexes()
     mock_db["nodes"].insert_many([{"name": "DUP", "version": 1, "sites": []}, {"name": "DUP", "version": 2, "sites": []}])
+    # an earlier repair archived the stale row but died before deleting it; the repair must still go through
+    mock_db["nodes_archived"].insert_one(mock_db["nodes"].find_one({"name": "DUP", "version": 1}))
 
     with caplog.at_level(logging.WARNING):
         mock_backend.add_edit_node({"name": "ANOTHER", "sites": []})
