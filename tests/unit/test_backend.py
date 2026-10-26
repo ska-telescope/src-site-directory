@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 
 import mongomock
@@ -357,3 +358,21 @@ def test_add_node_refuses_a_duplicate_name(mock_db, mock_backend):
     with pytest.raises(NodeAlreadyExists):
         mock_backend.add_edit_node({"name": "BRAND-NEW", "sites": []})
     assert mock_db["nodes"].count_documents({"name": "BRAND-NEW"}) == 1
+
+
+@pytest.mark.unit
+def test_add_edit_node_repairs_duplicate_rows_before_enforcing_unique_names(mock_db, mock_backend, caplog):
+    """A collection written before the unique index can hold two rows for one name; the write path archives
+    all but the highest version, builds the index, and then refuses a duplicate create."""
+    mock_db["nodes"].drop_indexes()
+    mock_db["nodes"].insert_many([{"name": "DUP", "version": 1, "sites": []}, {"name": "DUP", "version": 2, "sites": []}])
+
+    with caplog.at_level(logging.WARNING):
+        mock_backend.add_edit_node({"name": "ANOTHER", "sites": []})
+    assert "Archived 1 duplicate copies of node DUP" in caplog.text
+
+    assert mock_db["nodes"].count_documents({"name": "DUP"}) == 1
+    assert mock_backend.get_node("DUP", "latest")["version"] == 2
+    assert mock_db["nodes_archived"].count_documents({"name": "DUP", "version": 1}) == 1
+    with pytest.raises(NodeAlreadyExists):
+        mock_backend.add_edit_node({"name": "DUP", "sites": []})

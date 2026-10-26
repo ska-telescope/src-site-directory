@@ -268,6 +268,24 @@ class MongoBackend(Backend):
                 site.setdefault("status", DEFAULT_SITE_STATUS)
         return node
 
+    @staticmethod
+    def _ensure_unique_node_names(nodes, nodes_archived):
+        """Build the unique index on node name. A collection written before the index existed can hold duplicate
+        rows for one name; archive every copy but the highest version first, so the index can be built."""
+        try:
+            nodes.create_index("name", unique=True)
+            return
+        except OperationFailure:
+            pass
+        for name in nodes.distinct("name"):
+            copies = list(nodes.find({"name": name}).sort("version", -1))
+            for stale in copies[1:]:
+                nodes_archived.insert_one(stale)
+                nodes.delete_one({"_id": stale["_id"]})
+            if len(copies) > 1:
+                logging.warning("Archived %d duplicate copies of node %s before enforcing unique node names", len(copies) - 1, name)
+        nodes.create_index("name", unique=True)
+
     def add_edit_node(self, node_values, node_name=None):
         """
         Adds or edits a node in the database.
@@ -284,17 +302,15 @@ class MongoBackend(Backend):
         nodes = db.nodes
         nodes_archived = db.nodes_archived
 
+        self._ensure_unique_node_names(nodes, nodes_archived)
+
         # Get the latest version of this node
         latest_node = self.get_node(node_name=node_name, node_version="latest")
         node_values.pop("_id", None)
 
         if not latest_node:  # Adding a new node
             node_values["version"] = 1
-            # two concurrent creates can both pass the router's existence check: let the database enforce one name
-            try:
-                nodes.create_index("name", unique=True)
-            except OperationFailure as exc:  # duplicate names already in this collection
-                logging.warning("Not enforcing unique node names, the nodes collection already has duplicates: %s", exc)
+            # two concurrent creates can both pass the router's existence check: the unique index refuses the second
             try:
                 return nodes.insert_one(node_values).inserted_id
             except DuplicateKeyError as exc:
