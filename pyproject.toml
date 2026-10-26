@@ -29,10 +29,10 @@ dependencies = [
     "python-multipart>=0.0.6,<0.0.7",
     "requests>=2.32.3,<3.0.0",
     "uvicorn[standard]>=0.34.0,<0.35.0",
-    "ska-src-permissions-api==0.3.0",
-    "ska-src-auth-api==0.7.1",
+    "ska-src-permissions-api==0.3.1",
+    "ska-src-auth-api==0.7.3",
     "ska-src-logging==0.6.1+dev.c9cdeaea1",
-    "ska-src-api-common==0.1.1",
+    "ska-src-api-common==0.1.2",
 ]
 
 [project.optional-dependencies]

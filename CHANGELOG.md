@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.1]
 
 ### Changed
+- `ska-src-api-common` 0.1.1 → 0.1.2, `ska-src-auth-api` 0.7.1 → 0.7.3, `ska-src-permissions-api` 0.3.0 → 0.3.1: the shared retry helpers' hardening (transport retries, `also_retry_status`, streamed timeout).
 - Upgrade PAPI to v0.3.0 and AAPI to v0.7.1 in the server dependencies.
 
 ## [0.5.0]
