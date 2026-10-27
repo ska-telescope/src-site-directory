@@ -1,10 +1,12 @@
 import json
+import logging
 from pathlib import Path
 
 import mongomock
 import pytest
 
 from ska_src_site_capabilities_api.backend.mongo import MongoBackend
+from ska_src_site_capabilities_api.common.exceptions import NodeAlreadyExists, NodeVersionConflict
 
 
 @pytest.fixture(scope="module")
@@ -299,3 +301,80 @@ def test_set_storage_area_enabled_disabled(is_force_disabled_flag, mock_backend,
     assert result.get("is_force_disabled") is is_force_disabled_flag
     # test document update
     assert mock_backend.get_storage_area(storage_area_id=id).get("is_force_disabled") is is_force_disabled_flag
+
+
+@pytest.mark.unit
+def test_add_edit_node_refuses_stale_version(mock_db, mock_backend):
+    """Two editors read the same version; the second write is refused, not silently lost."""
+    editor_a = mock_backend.get_node("TEST", "latest")
+    editor_b = mock_backend.get_node("TEST", "latest")
+    mock_backend.add_edit_node(editor_a, node_name="TEST")
+    with pytest.raises(NodeVersionConflict):
+        mock_backend.add_edit_node(editor_b, node_name="TEST")
+
+    # a payload with no version keeps the old behaviour, so existing callers are unaffected
+    latest = mock_backend.get_node("TEST", "latest")
+    legacy = mock_backend.get_node("TEST", "latest")
+    legacy.pop("version")
+    mock_backend.add_edit_node(legacy, node_name="TEST")
+    assert mock_backend.get_node("TEST", "latest")["version"] == latest["version"] + 1
+
+
+@pytest.mark.unit
+def test_add_edit_node_refuses_a_write_delayed_past_the_next_version(mock_db, mock_backend):
+    """A stale write must fail even after the version it read was archived; one current document remains."""
+    editor_a = mock_backend.get_node("TEST", "latest")
+    editor_b = mock_backend.get_node("TEST", "latest")
+    v1 = editor_a["version"]
+    mock_backend.add_edit_node(editor_a, node_name="TEST")
+    editor_c = mock_backend.get_node("TEST", "latest")
+    mock_backend.add_edit_node(editor_c, node_name="TEST")
+    assert mock_backend.get_node("TEST", v1 + 1)  # archived, still readable by version
+
+    # the check passes only if B's read were still current; the swap itself is what refuses it
+    mock_backend.get_node = lambda node_name, node_version="latest": editor_b if node_version == "latest" else {}
+    with pytest.raises(NodeVersionConflict):
+        mock_backend.add_edit_node(dict(editor_b), node_name="TEST")
+    del mock_backend.get_node
+
+    assert mock_db["nodes"].count_documents({"name": "TEST"}) == 1
+    assert mock_backend.get_node("TEST", "latest")["version"] == v1 + 2
+    assert mock_db["nodes_archived"].count_documents({"name": "TEST", "version": v1 + 1}) == 1  # not un-archived by the loser
+
+
+@pytest.mark.unit
+def test_list_storage_areas_survives_a_node_deleted_mid_scan(mock_backend, monkeypatch):
+    """A node deleted between listing the storages and looking up their sites must not fail the scan."""
+    expected = len(mock_backend.list_storage_areas(include_inactive=True))
+    monkeypatch.setattr(mock_backend, "get_site_from_names", lambda **kwargs: None)
+    areas = mock_backend.list_storage_areas(include_inactive=True)
+    assert len(areas) == expected
+
+
+@pytest.mark.unit
+def test_add_node_refuses_a_duplicate_name(mock_db, mock_backend):
+    """Two concurrent creates both pass the router's existence check; the database must refuse the second."""
+    mock_backend.add_edit_node({"name": "BRAND-NEW", "sites": []})
+    with pytest.raises(NodeAlreadyExists):
+        mock_backend.add_edit_node({"name": "BRAND-NEW", "sites": []})
+    assert mock_db["nodes"].count_documents({"name": "BRAND-NEW"}) == 1
+
+
+@pytest.mark.unit
+def test_add_edit_node_repairs_duplicate_rows_before_enforcing_unique_names(mock_db, mock_backend, caplog):
+    """A collection written before the unique index can hold two rows for one name; the write path archives
+    all but the highest version, builds the index, and then refuses a duplicate create."""
+    mock_db["nodes"].drop_indexes()
+    mock_db["nodes"].insert_many([{"name": "DUP", "version": 1, "sites": []}, {"name": "DUP", "version": 2, "sites": []}])
+    # an earlier repair archived the stale row but died before deleting it; the repair must still go through
+    mock_db["nodes_archived"].insert_one(mock_db["nodes"].find_one({"name": "DUP", "version": 1}))
+
+    with caplog.at_level(logging.WARNING):
+        mock_backend.add_edit_node({"name": "ANOTHER", "sites": []})
+    assert "Archived 1 duplicate copies of node DUP" in caplog.text
+
+    assert mock_db["nodes"].count_documents({"name": "DUP"}) == 1
+    assert mock_backend.get_node("DUP", "latest")["version"] == 2
+    assert mock_db["nodes_archived"].count_documents({"name": "DUP", "version": 1}) == 1
+    with pytest.raises(NodeAlreadyExists):
+        mock_backend.add_edit_node({"name": "DUP", "sites": []})

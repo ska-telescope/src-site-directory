@@ -1,6 +1,6 @@
 [project]
 name = "ska-src-site-capabilities-api"
-version = "0.5.1"
+version = "0.5.2"
 description = "SRCNet Site Capabilities API"
 authors = [
     { name = "Rob Barnsley" },
@@ -29,10 +29,10 @@ dependencies = [
     "python-multipart>=0.0.6,<0.0.7",
     "requests>=2.32.3,<3.0.0",
     "uvicorn[standard]>=0.34.0,<0.35.0",
-    "ska-src-permissions-api==0.3.0",
-    "ska-src-auth-api==0.7.1",
+    "ska-src-permissions-api==0.3.1",
+    "ska-src-auth-api==0.7.3",
     "ska-src-logging==0.6.1+dev.c9cdeaea1",
-    "ska-src-api-common==0.1.1",
+    "ska-src-api-common==0.1.2",
 ]
 
 [project.optional-dependencies]
@@ -43,6 +43,7 @@ integration = [
 
 [dependency-groups]
 dev = [
+    "ska-src-site-capabilities-api[integration]",
     "ruff>=0.15.21",
     "mypy>=1.14.0,<2.0.0",
     "pre-commit>=4.0.0,<5.0.0",

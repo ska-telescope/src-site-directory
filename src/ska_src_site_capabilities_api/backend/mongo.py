@@ -1,11 +1,14 @@
 import copy
 import json
+import logging
 from datetime import datetime, timezone
 
 import dateutil.parser
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
+from pymongo.errors import DuplicateKeyError, OperationFailure
 
 from ska_src_site_capabilities_api.backend.backend import Backend
+from ska_src_site_capabilities_api.common.exceptions import NodeAlreadyExists, NodeVersionConflict
 
 # Site.status defaults to "up" in both models/site.py and etc/schemas/site.json,
 # but site documents reach clients raw (the routers declare response_model=None),
@@ -265,6 +268,25 @@ class MongoBackend(Backend):
                 site.setdefault("status", DEFAULT_SITE_STATUS)
         return node
 
+    @staticmethod
+    def _ensure_unique_node_names(nodes, nodes_archived):
+        """Build the unique index on node name. A collection written before the index existed can hold duplicate
+        rows for one name; archive every copy but the highest version first, so the index can be built."""
+        try:
+            nodes.create_index("name", unique=True)
+            return
+        except OperationFailure:
+            pass
+        for name in nodes.distinct("name"):
+            copies = list(nodes.find({"name": name}).sort("version", -1))
+            for stale in copies[1:]:
+                # upsert by _id: an interrupted or concurrent repair may have archived this row already
+                nodes_archived.replace_one({"_id": stale["_id"]}, stale, upsert=True)
+                nodes.delete_one({"_id": stale["_id"]})
+            if len(copies) > 1:
+                logging.warning("Archived %d duplicate copies of node %s before enforcing unique node names", len(copies) - 1, name)
+        nodes.create_index("name", unique=True)
+
     def add_edit_node(self, node_values, node_name=None):
         """
         Adds or edits a node in the database.
@@ -281,27 +303,36 @@ class MongoBackend(Backend):
         nodes = db.nodes
         nodes_archived = db.nodes_archived
 
+        self._ensure_unique_node_names(nodes, nodes_archived)
+
         # Get the latest version of this node
         latest_node = self.get_node(node_name=node_name, node_version="latest")
-        if not latest_node:  # Adding a new node
-            node_values["version"] = 1
-        else:  # Updating an existing node
-            node_values["version"] = latest_node.get("version") + 1
-
         node_values.pop("_id", None)
 
-        # Insert this new version of the node into the nodes collection
-        inserted_node = nodes.insert_one(node_values)
+        if not latest_node:  # Adding a new node
+            node_values["version"] = 1
+            # two concurrent creates can both pass the router's existence check: the unique index refuses the second
+            try:
+                return nodes.insert_one(node_values).inserted_id
+            except DuplicateKeyError as exc:
+                raise NodeAlreadyExists(node_name=node_values.get("name")) from exc
 
-        # Move the previous version of the node to the nodes_archived collection
-        # only if a previous version existed and insertion into nodes was successful
-        if latest_node and inserted_node.inserted_id:
-            # Only delete it from nodes if we successfully added the previous version
-            # to nodes_archived
-            if nodes_archived.insert_one(latest_node).inserted_id:
-                nodes.delete_one({"name": node_name, "version": latest_node.get("version")})
+        # a payload carrying the version it was read from is refused with 409 once that is no longer the latest;
+        # a payload without one is not checked
+        payload_version = node_values.get("version")
+        latest_version = latest_node.get("version")
+        if payload_version is not None and int(payload_version) != int(latest_version):
+            raise NodeVersionConflict(node_name, payload_version, latest_version)
+        node_values["version"] = latest_version + 1
 
-        return inserted_node.inserted_id
+        # compare-and-swap on the version we read (the check above is not atomic with the write);
+        # archive first, un-archive on a lost swap
+        archived_id = nodes_archived.insert_one(dict(latest_node)).inserted_id
+        swapped = nodes.find_one_and_replace({"name": node_name, "version": latest_version}, node_values, return_document=ReturnDocument.AFTER)
+        if swapped is None:
+            nodes_archived.delete_one({"_id": archived_id})
+            raise NodeVersionConflict(node_name, latest_version, self.get_node(node_name, "latest").get("version"))
+        return swapped["_id"]
 
     def delete_all_nodes(self):
         """
@@ -846,10 +877,14 @@ class MongoBackend(Backend):
             site_names=site_names,
             include_inactive=include_inactive,
         ):
-            parent_storage = self.get_site_from_names(
-                node_name=storage.get("parent_node_name"),
-                node_version="latest",
-                site_name=storage.get("parent_site_name"),
+            # None when the node was deleted since list_storages: one vanished node must not 500 every lookup
+            parent_storage = (
+                self.get_site_from_names(
+                    node_name=storage.get("parent_node_name"),
+                    node_version="latest",
+                    site_name=storage.get("parent_site_name"),
+                )
+                or {}
             )
             site_latitude = parent_storage.get("latitude")
             site_longitude = parent_storage.get("longitude")

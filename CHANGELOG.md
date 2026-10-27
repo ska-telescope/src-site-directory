@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2]
+
+### Fixed
+- Re-registering a storage keeps its areas; stale node edits are refused with 409 `NodeVersionConflict` and retried by the integration client; a duplicate node create is refused with 409 `NodeAlreadyExists`; a node deleted mid-scan no longer fails `get_storage_area`.
+
+### Changed
+- `ska-src-api-common` 0.1.1 → 0.1.2, `ska-src-auth-api` 0.7.1 → 0.7.3, `ska-src-permissions-api` 0.3.0 → 0.3.1: the shared retry helpers' hardening (transport retries, `also_retry_status`, streamed timeout).
+
 ## [0.5.1]
 
 ### Changed
