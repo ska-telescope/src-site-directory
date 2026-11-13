@@ -128,8 +128,6 @@ query parameters or body of the request; which are used depends on where the par
 
 ## Deployment
 
-Deployment is managed by docker-compose or helm.
-
 For server deployments, retain the client bundled with the server package; do not
 add `ska-src-site-capabilities-api-client` to the same container's Python environment,
 including through application dependencies or runtime installation scripts. Client-only
@@ -137,19 +135,8 @@ applications can use the standalone client in a separate environment or containe
 and call the deployed server over HTTP. See [Python package installation](#python-package-installation)
 for the shared-file risk and recovery guidance.
 
-The docker-compose file can be used to bring up the necessary services locally i.e. the REST API, setting the mandatory
-environment variables. Sensitive environment variables, including those relating to the IAM client, should be kept in
-`.env` files to avoid committing them to the repository.
-
-There is also a helm chart for deployment onto a k8s cluster.
-
-### Example via docker-compose
-
-Edit the `.env.template` file accordingly and rename to `.env`, then:
-
-```bash
-ska-src-site-capabilities-api$ docker-compose up
-```
+Deployment is managed by a helm chart for deployment onto a k8s cluster. For development and integration testing, use the
+[Deployment Stack](https://gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack).
 
 ### Example via Helm
 
