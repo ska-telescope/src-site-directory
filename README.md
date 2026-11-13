@@ -128,6 +128,13 @@ query parameters or body of the request; which are used depends on where the par
 
 ## Deployment
 
+For server deployments, retain the client bundled with the server package; do not
+add `ska-src-site-capabilities-api-client` to the same container's Python environment,
+including through application dependencies or runtime installation scripts. Client-only
+applications can use the standalone client in a separate environment or container
+and call the deployed server over HTTP. See [Python package installation](#python-package-installation)
+for the shared-file risk and recovery guidance.
+
 Deployment is managed by a helm chart for deployment onto a k8s cluster. For development and integration testing, use the
 [Deployment Stack](https://gitlab.com/ska-telescope/src/src-api/ska-src-api-deployment-stack).
 
