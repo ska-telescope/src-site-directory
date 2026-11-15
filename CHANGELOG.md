@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3]
+
+### Security
+- `ska-src-permissions-api` 0.3.1 → 0.4.0 (now `>=0.4.0,<0.5.0`). Its client sends the token to authorise in an `Authorization: Bearer` header instead of the URL query string, so the token no longer appears in PAPI's access logs or in error messages built from the request URL. Needs PAPI 0.3.3 or later, which is deployed in every environment. The Site Capabilities client is unchanged.
+
+### Changed
+- `ska-src-auth-api` 0.7.3 → 0.7.5 (now `>=0.7.5,<0.8.0`) and `ska-src-api-common` 0.1.2 → 0.1.3 (now `>=0.1.3,<0.2.0`), both needed to resolve alongside `ska-src-permissions-api` 0.4.0. The pins are ranges rather than exact versions so services depending on this package can take later patch releases without a lockstep release here.
+
 ## [0.5.2]
 
 ### Fixed
