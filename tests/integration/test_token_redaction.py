@@ -30,12 +30,6 @@ def _canary_token() -> tuple[str, str]:
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    strict=True,
-    reason="Token leak prevention: SCAPI returns PAPI's requests.HTTPError text, which quotes the authorise URL "
-    "including ?token=. Passes once SCAPI's PAPI client sends the token in a header (PAPI 0.4.0) or api-common "
-    "redacts error details.",
-)
 def test_rejected_token_is_not_echoed_in_the_error_response():
     """SCAPI asks PAPI to authorise the request; PAPI rejects the canary token; the token must not come back."""
     token, marker = _canary_token()
